@@ -1189,8 +1189,8 @@ public abstract class TrajectoryEnvelopeCoordinator extends AbstractTrajectoryEn
 					}
 
 					//Sleep a little...
-//					expectedSleepingTime = 100;
-					expectedSleepingTime = Math.max(500,CONTROL_PERIOD-Calendar.getInstance().getTimeInMillis()+threadLastUpdate);
+					expectedSleepingTime = 100;
+//					expectedSleepingTime = Math.max(500, CONTROL_PERIOD-Calendar.getInstance().getTimeInMillis()+threadLastUpdate);
 					effectiveSleepingTime = Calendar.getInstance().getTimeInMillis();
 					if (CONTROL_PERIOD > 0) {
 						try { Thread.sleep(expectedSleepingTime); }

@@ -427,4 +427,8 @@ public class TrajectoryEnvelopeCoordinatorSimulation extends TrajectoryEnvelopeC
 			collisionThread.start();
 		}
 	}
+
+	public int getCountCollisionsList() {
+		return collisionsList.size();
+	}
 }

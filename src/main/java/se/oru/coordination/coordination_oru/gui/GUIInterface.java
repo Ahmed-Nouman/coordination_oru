@@ -87,21 +87,21 @@ public class GUIInterface extends javax.swing.JFrame {
      */
     @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
-    private void initialiseComponents() {
+    private void initComponents() {
 
         jTabbedPane1 = new javax.swing.JTabbedPane();
         panel_Main = new javax.swing.JPanel();
         jLabel12 = new javax.swing.JLabel();
         jLabel13 = new javax.swing.JLabel();
-        buttonLoad = new javax.swing.JButton();
-        buttonCreate = new javax.swing.JButton();
+        btn_load = new javax.swing.JButton();
+        btn_create = new javax.swing.JButton();
         l_nameFile = new javax.swing.JLabel();
         textBox_nameFileWrite = new javax.swing.JTextField();
         btn_okFileName = new javax.swing.JButton();
         jPanel3 = new javax.swing.JPanel();
         jLabel7 = new javax.swing.JLabel();
         textBox_map = new javax.swing.JLabel();
-        buttonChange = new javax.swing.JButton();
+        btn_change = new javax.swing.JButton();
         l_image = new javax.swing.JLabel();
         panel_Robots = new javax.swing.JPanel();
         jLabel1 = new javax.swing.JLabel();
@@ -111,25 +111,24 @@ public class GUIInterface extends javax.swing.JFrame {
         jLabel3 = new javax.swing.JLabel();
         textBox_color = new javax.swing.JTextField();
         jLabel4 = new javax.swing.JLabel();
-        jLabel5 = new javax.swing.JLabel();
-        jScrollPane1 = new javax.swing.JScrollPane();
-        textBox_size = new javax.swing.JTextArea();
-        jLabel6 = new javax.swing.JLabel();
-        jScrollPane2 = new javax.swing.JScrollPane();
-        textBox_path = new javax.swing.JTextArea();
-        buttonApply = new javax.swing.JButton();
+        apply_btn = new javax.swing.JButton();
         jLabel9 = new javax.swing.JLabel();
         textBox_name = new javax.swing.JTextField();
-        buttonNewRobot = new javax.swing.JButton();
-        buttonDeleteRobot = new javax.swing.JButton();
+        btn_newRobot = new javax.swing.JButton();
+        btn_deleteRobot = new javax.swing.JButton();
         jScrollPane4 = new javax.swing.JScrollPane();
         listRobot1 = new javax.swing.JList<>();
         addPath = new javax.swing.JButton();
-        textBox_iterationRobot2 = new javax.swing.JTextField();
-        jLabel14 = new javax.swing.JLabel();
+        textBox_color1 = new javax.swing.JTextField();
+        jLabel8 = new javax.swing.JLabel();
+        jLabel15 = new javax.swing.JLabel();
+        textBox_color2 = new javax.swing.JTextField();
+        jLabel16 = new javax.swing.JLabel();
+        jLabel17 = new javax.swing.JLabel();
+        jCheckBox1 = new javax.swing.JCheckBox();
         jPanel4 = new javax.swing.JPanel();
         jLabel11 = new javax.swing.JLabel();
-        buttonRun = new javax.swing.JButton();
+        btn_run = new javax.swing.JButton();
         jLabel10 = new javax.swing.JLabel();
         textBox_nameCSV = new javax.swing.JTextField();
         checkTime = new javax.swing.JCheckBox();
@@ -147,12 +146,12 @@ public class GUIInterface extends javax.swing.JFrame {
         label_log = new javax.swing.JLabel();
         jScrollPane3 = new javax.swing.JScrollPane();
         textBox_log = new javax.swing.JTextArea();
-        buttonStop = new javax.swing.JButton();
+        btn_stop1 = new javax.swing.JButton();
         jPanel5 = new javax.swing.JPanel();
-        buttonBack = new javax.swing.JButton();
-        buttonSave = new javax.swing.JButton();
-        buttonTest = new javax.swing.JButton();
-        buttonNext = new javax.swing.JButton();
+        btn_Back = new javax.swing.JButton();
+        btn_Save1 = new javax.swing.JButton();
+        btn_Test = new javax.swing.JButton();
+        btn_Next = new javax.swing.JButton();
         menuBar = new javax.swing.JMenuBar();
         fileMenu = new javax.swing.JMenu();
         New_item = new javax.swing.JMenuItem();
@@ -165,7 +164,7 @@ public class GUIInterface extends javax.swing.JFrame {
         aboutMenuItem = new javax.swing.JMenuItem();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
-        setTitle("Coordination_ORU Interface");
+        setTitle("Interface oru");
         setResizable(false);
         addWindowListener(new java.awt.event.WindowAdapter() {
             public void windowClosing(java.awt.event.WindowEvent evt) {
@@ -185,31 +184,31 @@ public class GUIInterface extends javax.swing.JFrame {
 
         jLabel13.setFont(new java.awt.Font("Liberation Serif", 0, 24)); // NOI18N
         jLabel13.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        jLabel13.setText("Please load a project file");
+        jLabel13.setText("Please select to create/open project file.");
 
-        buttonLoad.setFont(new java.awt.Font("Liberation Sans", 0, 20)); // NOI18N
-        buttonLoad.setText("Load");
-        buttonLoad.addActionListener(new java.awt.event.ActionListener() {
+        btn_load.setFont(new java.awt.Font("Liberation Sans", 0, 20)); // NOI18N
+        btn_load.setText("Load");
+        btn_load.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                buttonLoad(evt);
+                btn_loadActionPerformed(evt);
             }
         });
 
-        buttonCreate.setFont(new java.awt.Font("Liberation Sans", 0, 20)); // NOI18N
-        buttonCreate.setText("Create");
-        buttonCreate.addActionListener(new java.awt.event.ActionListener() {
+        btn_create.setFont(new java.awt.Font("Liberation Sans", 0, 20)); // NOI18N
+        btn_create.setText("Create");
+        btn_create.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                buttonCreate(evt);
+                btn_createActionPerformed(evt);
             }
         });
 
         l_nameFile.setFont(new java.awt.Font("Liberation Serif", 0, 24)); // NOI18N
         l_nameFile.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        l_nameFile.setText("Enter file name");
+        l_nameFile.setText("Enter the project file name");
 
         textBox_nameFileWrite.setFont(new java.awt.Font("Liberation Sans", 0, 18)); // NOI18N
         textBox_nameFileWrite.setHorizontalAlignment(javax.swing.JTextField.CENTER);
-        textBox_nameFileWrite.setText("file.json");
+        textBox_nameFileWrite.setText("project.json");
         textBox_nameFileWrite.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0)));
 
         btn_okFileName.setFont(new java.awt.Font("Liberation Sans", 0, 18)); // NOI18N
@@ -225,46 +224,37 @@ public class GUIInterface extends javax.swing.JFrame {
         panel_MainLayout.setHorizontalGroup(
             panel_MainLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(panel_MainLayout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(jLabel12, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addContainerGap())
-            .addGroup(panel_MainLayout.createSequentialGroup()
-                .addGap(49, 49, 49)
-                .addComponent(jLabel13, javax.swing.GroupLayout.DEFAULT_SIZE, 459, Short.MAX_VALUE)
-                .addGap(47, 47, 47))
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, panel_MainLayout.createSequentialGroup()
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addGroup(panel_MainLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(panel_MainLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                        .addComponent(l_nameFile, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addGroup(panel_MainLayout.createSequentialGroup()
-                            .addComponent(buttonCreate, javax.swing.GroupLayout.PREFERRED_SIZE, 188, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                            .addComponent(buttonLoad, javax.swing.GroupLayout.PREFERRED_SIZE, 188, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addComponent(textBox_nameFileWrite, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 388, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(121, 121, 121)
+                .addGroup(panel_MainLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.CENTER)
+                    .addComponent(jLabel12, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(jLabel13, javax.swing.GroupLayout.DEFAULT_SIZE, 394, Short.MAX_VALUE)
                     .addGroup(panel_MainLayout.createSequentialGroup()
-                        .addGap(101, 101, 101)
-                        .addComponent(btn_okFileName, javax.swing.GroupLayout.PREFERRED_SIZE, 188, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addGap(81, 81, 81))
+                        .addComponent(btn_create, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addGap(58, 58, 58)
+                        .addComponent(btn_load, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                    .addComponent(l_nameFile, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(textBox_nameFileWrite)
+                    .addComponent(btn_okFileName, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addGap(121, 121, 121))
         );
         panel_MainLayout.setVerticalGroup(
             panel_MainLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(panel_MainLayout.createSequentialGroup()
                 .addGap(40, 40, 40)
-                .addComponent(jLabel12, javax.swing.GroupLayout.PREFERRED_SIZE, 56, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(jLabel12, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(26, 26, 26)
-                .addComponent(jLabel13, javax.swing.GroupLayout.PREFERRED_SIZE, 37, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(42, 42, 42)
+                .addComponent(jLabel13, javax.swing.GroupLayout.PREFERRED_SIZE, 36, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(36, 36, 36)
                 .addGroup(panel_MainLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(buttonLoad, javax.swing.GroupLayout.PREFERRED_SIZE, 39, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(buttonCreate, javax.swing.GroupLayout.PREFERRED_SIZE, 39, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(18, 18, 18)
-                .addComponent(l_nameFile, javax.swing.GroupLayout.PREFERRED_SIZE, 37, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(btn_load)
+                    .addComponent(btn_create))
+                .addGap(31, 31, 31)
+                .addComponent(l_nameFile, javax.swing.GroupLayout.PREFERRED_SIZE, 36, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(textBox_nameFileWrite, javax.swing.GroupLayout.PREFERRED_SIZE, 32, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(textBox_nameFileWrite, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(btn_okFileName)
-                .addContainerGap(47, Short.MAX_VALUE))
+                .addComponent(btn_okFileName, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(43, Short.MAX_VALUE))
         );
 
         jTabbedPane1.addTab("Project", panel_Main);
@@ -275,17 +265,17 @@ public class GUIInterface extends javax.swing.JFrame {
         jLabel7.setBackground(new java.awt.Color(51, 51, 255));
         jLabel7.setFont(new java.awt.Font("Liberation Serif", 0, 24)); // NOI18N
         jLabel7.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        jLabel7.setText("Change the map");
+        jLabel7.setText("Map description file");
         jLabel7.setBorder(javax.swing.BorderFactory.createEmptyBorder(1, 1, 1, 1));
 
         textBox_map.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        textBox_map.setText("yamlFile.yaml");
+        textBox_map.setText("project.yaml");
         textBox_map.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(153, 153, 153)));
 
-        buttonChange.setText("Change");
-        buttonChange.addActionListener(new java.awt.event.ActionListener() {
+        btn_change.setText("Change");
+        btn_change.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                buttonChange(evt);
+                btn_changeActionPerformed(evt);
             }
         });
 
@@ -301,17 +291,16 @@ public class GUIInterface extends javax.swing.JFrame {
         jPanel3Layout.setHorizontalGroup(
             jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel3Layout.createSequentialGroup()
-                .addContainerGap()
-                .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jLabel7, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel3Layout.createSequentialGroup()
-                        .addComponent(textBox_map, javax.swing.GroupLayout.PREFERRED_SIZE, 346, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 12, Short.MAX_VALUE)
-                        .addComponent(buttonChange, javax.swing.GroupLayout.PREFERRED_SIZE, 185, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addContainerGap())
+                .addGap(80, 80, 80)
+                .addComponent(textBox_map, javax.swing.GroupLayout.PREFERRED_SIZE, 300, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(40, 40, 40)
+                .addComponent(btn_change, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addGap(80, 80, 80))
             .addGroup(jPanel3Layout.createSequentialGroup()
-                .addGap(39, 39, 39)
-                .addComponent(l_image, javax.swing.GroupLayout.PREFERRED_SIZE, 471, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(6, 6, 6)
+                .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.CENTER)
+                    .addComponent(l_image, javax.swing.GroupLayout.PREFERRED_SIZE, 471, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jLabel7, javax.swing.GroupLayout.PREFERRED_SIZE, 618, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         jPanel3Layout.setVerticalGroup(
@@ -320,12 +309,12 @@ public class GUIInterface extends javax.swing.JFrame {
                 .addGap(26, 26, 26)
                 .addComponent(jLabel7, javax.swing.GroupLayout.PREFERRED_SIZE, 29, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.CENTER)
                     .addComponent(textBox_map, javax.swing.GroupLayout.PREFERRED_SIZE, 29, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(buttonChange, javax.swing.GroupLayout.PREFERRED_SIZE, 29, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(btn_change, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addGap(18, 18, 18)
                 .addComponent(l_image, javax.swing.GroupLayout.PREFERRED_SIZE, 300, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap())
+                .addGap(14, 14, 14))
         );
 
         jTabbedPane1.addTab("Map", jPanel3);
@@ -335,53 +324,37 @@ public class GUIInterface extends javax.swing.JFrame {
 
         jLabel1.setFont(new java.awt.Font("Liberation Serif", 0, 24)); // NOI18N
         jLabel1.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        jLabel1.setText("Robots");
+        jLabel1.setText("Vehicles selection");
 
-        jLabel2.setText("Maximum Velocity:");
+        jLabel2.setText("Max. Velocity:");
 
         textBox_acceleration.setScrollOffset(1);
 
-        jLabel3.setText("Maximum Acceleration:");
+        jLabel3.setText("Max. Acceleration:");
 
         jLabel4.setText("Color:");
 
-        jLabel5.setText("Footprint:");
-
-        textBox_size.setColumns(1);
-        textBox_size.setLineWrap(true);
-        textBox_size.setRows(2);
-        textBox_size.setWrapStyleWord(true);
-        jScrollPane1.setViewportView(textBox_size);
-
-        jLabel6.setText("Path:");
-
-        textBox_path.setColumns(1);
-        textBox_path.setLineWrap(true);
-        textBox_path.setRows(5);
-        textBox_path.setWrapStyleWord(true);
-        jScrollPane2.setViewportView(textBox_path);
-
-        buttonApply.setText("Apply");
-        buttonApply.addActionListener(new java.awt.event.ActionListener() {
+        apply_btn.setText("Apply");
+        apply_btn.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                buttonApply(evt);
+                apply_btnActionPerformed(evt);
             }
         });
 
         jLabel9.setFont(new java.awt.Font("Liberation Sans", 0, 15)); // NOI18N
         jLabel9.setText("Name:");
 
-        buttonNewRobot.setText("New Robot");
-        buttonNewRobot.addActionListener(new java.awt.event.ActionListener() {
+        btn_newRobot.setText("New");
+        btn_newRobot.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                buttonNewRobot(evt);
+                btn_newRobotActionPerformed(evt);
             }
         });
 
-        buttonDeleteRobot.setText("Delete");
-        buttonDeleteRobot.addActionListener(new java.awt.event.ActionListener() {
+        btn_deleteRobot.setText("Delete");
+        btn_deleteRobot.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                buttonDeleteRobot(evt);
+                btn_deleteRobotActionPerformed(evt);
             }
         });
 
@@ -399,7 +372,20 @@ public class GUIInterface extends javax.swing.JFrame {
             }
         });
 
-        jLabel14.setText("Iteration:");
+        jLabel8.setText("Length:");
+
+        jLabel15.setText("Width:");
+
+        jLabel16.setText("Initial State:");
+
+        jLabel17.setText("Goal States:");
+
+        jCheckBox1.setText("Human");
+        jCheckBox1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jCheckBox1ActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout panel_RobotsLayout = new javax.swing.GroupLayout(panel_Robots);
         panel_Robots.setLayout(panel_RobotsLayout);
@@ -410,44 +396,38 @@ public class GUIInterface extends javax.swing.JFrame {
                 .addGroup(panel_RobotsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(jLabel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, panel_RobotsLayout.createSequentialGroup()
-                        .addComponent(jScrollPane4, javax.swing.GroupLayout.PREFERRED_SIZE, 102, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 49, Short.MAX_VALUE)
+                        .addComponent(jScrollPane4, javax.swing.GroupLayout.PREFERRED_SIZE, 160, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(18, 18, 18)
                         .addGroup(panel_RobotsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, panel_RobotsLayout.createSequentialGroup()
-                                .addComponent(jLabel9)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(textBox_name, javax.swing.GroupLayout.PREFERRED_SIZE, 343, javax.swing.GroupLayout.PREFERRED_SIZE))
-                            .addComponent(textBox_velocity, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 331, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, panel_RobotsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, panel_RobotsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                                    .addGroup(panel_RobotsLayout.createSequentialGroup()
-                                        .addComponent(jLabel4)
-                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                        .addComponent(textBox_color))
-                                    .addGroup(panel_RobotsLayout.createSequentialGroup()
-                                        .addComponent(jLabel3)
-                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                        .addComponent(textBox_acceleration, javax.swing.GroupLayout.PREFERRED_SIZE, 302, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                                .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, panel_RobotsLayout.createSequentialGroup()
-                                    .addComponent(jLabel5, javax.swing.GroupLayout.PREFERRED_SIZE, 62, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                    .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 347, javax.swing.GroupLayout.PREFERRED_SIZE))
-                                .addComponent(jLabel2))
-                            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, panel_RobotsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                .addGroup(panel_RobotsLayout.createSequentialGroup()
-                                    .addComponent(jLabel6)
-                                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                    .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 286, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                    .addComponent(addPath, javax.swing.GroupLayout.PREFERRED_SIZE, 55, javax.swing.GroupLayout.PREFERRED_SIZE))
-                                .addComponent(jLabel14, javax.swing.GroupLayout.PREFERRED_SIZE, 59, javax.swing.GroupLayout.PREFERRED_SIZE))
-                            .addComponent(textBox_iterationRobot2, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 325, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                            .addComponent(jLabel9)
+                            .addComponent(jLabel2)
+                            .addComponent(jLabel3)
+                            .addComponent(jLabel4)
+                            .addComponent(jLabel8)
+                            .addComponent(jLabel15)
+                            .addComponent(jLabel16)
+                            .addComponent(jLabel17)
+                            .addComponent(jCheckBox1))
+                        .addGroup(panel_RobotsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(panel_RobotsLayout.createSequentialGroup()
+                                .addGap(8, 8, 8)
+                                .addGroup(panel_RobotsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addComponent(textBox_name, javax.swing.GroupLayout.Alignment.TRAILING)
+                                    .addComponent(textBox_velocity, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 310, Short.MAX_VALUE)
+                                    .addComponent(textBox_color, javax.swing.GroupLayout.Alignment.TRAILING)
+                                    .addComponent(textBox_color1, javax.swing.GroupLayout.Alignment.TRAILING)
+                                    .addComponent(textBox_color2, javax.swing.GroupLayout.Alignment.TRAILING)
+                                    .addComponent(textBox_acceleration, javax.swing.GroupLayout.Alignment.TRAILING))
+                                .addGap(10, 10, 10))
+                            .addGroup(panel_RobotsLayout.createSequentialGroup()
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                .addComponent(addPath, javax.swing.GroupLayout.PREFERRED_SIZE, 55, javax.swing.GroupLayout.PREFERRED_SIZE))))
                     .addGroup(panel_RobotsLayout.createSequentialGroup()
-                        .addComponent(buttonNewRobot)
+                        .addComponent(btn_newRobot)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(buttonDeleteRobot, javax.swing.GroupLayout.PREFERRED_SIZE, 82, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(btn_deleteRobot, javax.swing.GroupLayout.PREFERRED_SIZE, 82, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(buttonApply, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
+                        .addComponent(apply_btn, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
                 .addContainerGap())
         );
         panel_RobotsLayout.setVerticalGroup(
@@ -456,58 +436,80 @@ public class GUIInterface extends javax.swing.JFrame {
                 .addContainerGap()
                 .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 44, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(panel_RobotsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                .addGroup(panel_RobotsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(panel_RobotsLayout.createSequentialGroup()
                         .addGroup(panel_RobotsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(textBox_name, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(jLabel9, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                            .addComponent(textBox_name)
+                            .addGroup(panel_RobotsLayout.createSequentialGroup()
+                                .addGap(6, 6, 6)
+                                .addComponent(jLabel9, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addGroup(panel_RobotsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(textBox_velocity, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(jLabel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                            .addComponent(textBox_velocity)
+                            .addGroup(panel_RobotsLayout.createSequentialGroup()
+                                .addGap(6, 6, 6)
+                                .addComponent(jLabel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addGroup(panel_RobotsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(textBox_acceleration, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(jLabel3, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                            .addComponent(textBox_acceleration)
+                            .addGroup(panel_RobotsLayout.createSequentialGroup()
+                                .addGap(6, 6, 6)
+                                .addComponent(jLabel3, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addGroup(panel_RobotsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(textBox_color, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(jLabel4, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addGroup(panel_RobotsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                            .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 53, Short.MAX_VALUE)
-                            .addComponent(jLabel5, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addGroup(panel_RobotsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                            .addComponent(jLabel6, javax.swing.GroupLayout.PREFERRED_SIZE, 41, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
-                            .addComponent(addPath, javax.swing.GroupLayout.DEFAULT_SIZE, 82, Short.MAX_VALUE))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                            .addComponent(textBox_color)
+                            .addGroup(panel_RobotsLayout.createSequentialGroup()
+                                .addGap(6, 6, 6)
+                                .addComponent(jLabel4, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
+                        .addGap(10, 10, 10)
                         .addGroup(panel_RobotsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(textBox_iterationRobot2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(jLabel14, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
-                    .addComponent(jScrollPane4, javax.swing.GroupLayout.PREFERRED_SIZE, 321, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                            .addComponent(textBox_color1)
+                            .addGroup(panel_RobotsLayout.createSequentialGroup()
+                                .addGap(6, 6, 6)
+                                .addComponent(jLabel8, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
+                        .addGap(10, 10, 10)
+                        .addGroup(panel_RobotsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(panel_RobotsLayout.createSequentialGroup()
+                                .addComponent(textBox_color2)
+                                .addGap(4, 4, 4))
+                            .addGroup(panel_RobotsLayout.createSequentialGroup()
+                                .addComponent(jLabel15)
+                                .addGap(10, 10, 10)))
+                        .addGroup(panel_RobotsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(panel_RobotsLayout.createSequentialGroup()
+                                .addComponent(jLabel16, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                .addGap(10, 10, 10)
+                                .addComponent(jLabel17, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                .addGap(10, 10, 10)
+                                .addComponent(jCheckBox1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                .addGap(73, 73, 73))
+                            .addGroup(panel_RobotsLayout.createSequentialGroup()
+                                .addGap(66, 66, 66)
+                                .addComponent(addPath, javax.swing.GroupLayout.PREFERRED_SIZE, 86, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                        .addGap(8, 8, 8))
+                    .addGroup(panel_RobotsLayout.createSequentialGroup()
+                        .addComponent(jScrollPane4, javax.swing.GroupLayout.PREFERRED_SIZE, 334, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
                 .addGroup(panel_RobotsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(buttonApply, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(buttonDeleteRobot, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(buttonNewRobot, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                    .addComponent(apply_btn, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(btn_deleteRobot, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(btn_newRobot, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addContainerGap())
         );
 
-        jTabbedPane1.addTab("Robots", panel_Robots);
+        jTabbedPane1.addTab("Vehicles", panel_Robots);
 
         jPanel4.setBackground(new java.awt.Color(255, 255, 255));
         jPanel4.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0)));
 
         jLabel11.setFont(new java.awt.Font("Liberation Serif", 0, 36)); // NOI18N
         jLabel11.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        jLabel11.setText("Experimental Setup");
+        jLabel11.setText("Experiment");
 
-        buttonRun.setText("Run");
-        buttonRun.addActionListener(new java.awt.event.ActionListener() {
+        btn_run.setText("Run");
+        btn_run.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                buttonRun(evt);
+                btn_runActionPerformed(evt);
             }
         });
 
@@ -576,7 +578,7 @@ public class GUIInterface extends javax.swing.JFrame {
             .addGroup(jPanel4Layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(buttonRun, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(btn_run, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addComponent(jLabel11, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addGroup(jPanel4Layout.createSequentialGroup()
                         .addComponent(checkRepeat)
@@ -636,7 +638,7 @@ public class GUIInterface extends javax.swing.JFrame {
                         .addComponent(label_time, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                         .addComponent(textBox_time, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
                 .addGap(62, 62, 62)
-                .addComponent(buttonRun, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(btn_run, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(16, 16, 16))
         );
 
@@ -657,10 +659,10 @@ public class GUIInterface extends javax.swing.JFrame {
         textBox_log.setWrapStyleWord(true);
         jScrollPane3.setViewportView(textBox_log);
 
-        buttonStop.setText("Stop");
-        buttonStop.addActionListener(new java.awt.event.ActionListener() {
+        btn_stop1.setText("Stop");
+        btn_stop1.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                buttonStop(evt);
+                btn_stop1ActionPerformed(evt);
             }
         });
 
@@ -671,8 +673,8 @@ public class GUIInterface extends javax.swing.JFrame {
             .addGroup(jPanel2Layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(buttonStop, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(jScrollPane3, javax.swing.GroupLayout.DEFAULT_SIZE, 543, Short.MAX_VALUE)
+                    .addComponent(btn_stop1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(jScrollPane3, javax.swing.GroupLayout.DEFAULT_SIZE, 624, Short.MAX_VALUE)
                     .addComponent(label_log, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addContainerGap())
         );
@@ -684,7 +686,7 @@ public class GUIInterface extends javax.swing.JFrame {
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jScrollPane3, javax.swing.GroupLayout.DEFAULT_SIZE, 344, Short.MAX_VALUE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(buttonStop)
+                .addComponent(btn_stop1)
                 .addContainerGap())
         );
 
@@ -693,31 +695,31 @@ public class GUIInterface extends javax.swing.JFrame {
         jPanel5.setBackground(new java.awt.Color(255, 255, 255));
         jPanel5.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0)));
 
-        buttonBack.setText("Back");
-        buttonBack.addActionListener(new java.awt.event.ActionListener() {
+        btn_Back.setText("Back");
+        btn_Back.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                buttonBack(evt);
+                btn_BackActionPerformed(evt);
             }
         });
 
-        buttonSave.setText("Save");
-        buttonSave.addActionListener(new java.awt.event.ActionListener() {
+        btn_Save1.setText("Save");
+        btn_Save1.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                buttonSave(evt);
+                btn_Save1ActionPerformed(evt);
             }
         });
 
-        buttonTest.setText("Test");
-        buttonTest.addActionListener(new java.awt.event.ActionListener() {
+        btn_Test.setText("Run");
+        btn_Test.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 btn_TestActionPerformed(evt);
             }
         });
 
-        buttonNext.setText("Next");
-        buttonNext.addActionListener(new java.awt.event.ActionListener() {
+        btn_Next.setText("Next");
+        btn_Next.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                buttonNext(evt);
+                btn_NextActionPerformed(evt);
             }
         });
 
@@ -727,13 +729,13 @@ public class GUIInterface extends javax.swing.JFrame {
             jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel5Layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(buttonBack, javax.swing.GroupLayout.DEFAULT_SIZE, 131, Short.MAX_VALUE)
+                .addComponent(btn_Back, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(buttonSave, javax.swing.GroupLayout.DEFAULT_SIZE, 131, Short.MAX_VALUE)
+                .addComponent(btn_Save1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(buttonTest, javax.swing.GroupLayout.DEFAULT_SIZE, 131, Short.MAX_VALUE)
+                .addComponent(btn_Test, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(buttonNext, javax.swing.GroupLayout.DEFAULT_SIZE, 132, Short.MAX_VALUE)
+                .addComponent(btn_Next, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addContainerGap())
         );
         jPanel5Layout.setVerticalGroup(
@@ -742,10 +744,10 @@ public class GUIInterface extends javax.swing.JFrame {
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addGroup(jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                        .addComponent(buttonTest)
-                        .addComponent(buttonNext))
-                    .addComponent(buttonSave)
-                    .addComponent(buttonBack))
+                        .addComponent(btn_Test)
+                        .addComponent(btn_Next))
+                    .addComponent(btn_Save1)
+                    .addComponent(btn_Back))
                 .addContainerGap())
         );
 
@@ -818,13 +820,11 @@ public class GUIInterface extends javax.swing.JFrame {
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(layout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(jPanel5, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addComponent(jTabbedPane1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                    .addComponent(jPanel5, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(jTabbedPane1))
                 .addContainerGap())
         );
         layout.setVerticalGroup(
@@ -1091,95 +1091,6 @@ public class GUIInterface extends javax.swing.JFrame {
         GUITools.selectListRobots(indexOfList, listRobot1, textBox_name, textBox_velocity, textBox_acceleration, textBox_color, textBox_size, textBox_path,textBox_iterationRobot2, textBox_map);
     }//GEN-LAST:event_listRobot1MouseClicked
 
-    private void buttonLoad(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btn_loadActionPerformed
-        // TODO add your handling code here:
-        
-        //################# Open File ########################
-        
-        JFileChooser fileChooser = new JFileChooser();
-        fileChooser.setCurrentDirectory(new File(System.getProperty("user.home")));
-        int result = fileChooser.showOpenDialog(this);
-        if (result == JFileChooser.APPROVE_OPTION) 
-        {
-            this.l_nameFile.setVisible(false);
-            this.textBox_nameFileWrite.setVisible(true);
-            this.textBox_nameFileWrite.setEnabled(false);
-            this.btn_okFileName.setVisible(false);
-        
-            File selectedFile = fileChooser.getSelectedFile();
-            System.out.println("Selected file: " + selectedFile.getAbsolutePath());
-            
-            //listRobots.removeAll();
-
-            fileName = selectedFile.getAbsolutePath();
-            try {
-                JSONFile.readDataFromJson(fileName, GUITools.pkg);
-                String[] fileName_aux = fileName.split("/");
-            this.textBox_nameFileWrite.setText(fileName_aux[fileName_aux.length-1]);
-
-            this.indexOfList=0; 
-            lModel = new DefaultListModel();
-            for(int i = 0; i< GUITools.pkg.robotJson.length; i++)
-            {
-                this.lModel.addElement("R"+(i+1));
-            }
-            this.listRobot1.setModel(lModel);
-
-            this.listRobot1.setSelectedIndex(0);
-            GUITools.selectListRobots(indexOfList, listRobot1, textBox_name, textBox_velocity, textBox_acceleration, textBox_color, textBox_size, textBox_path,textBox_iterationRobot2, textBox_map);
-
-            this.textBox_nameCSV.setText(GUITools.pkg.csvFileName);
-            this.checkRepeat.setSelected(true);
-            this.textBox_repeat.setText(GUITools.pkg.experimentIteration+"");
-            this.textBox_repeat.setEnabled(true);
-
-            if(this.listRobot1.getModel().getSize()==0)     //لا يوجد عناصر في قائمة الروبوتات
-            {
-                interfaceEnable(false);
-                this.buttonRun.setEnabled(false);
-
-                this.buttonTest.setEnabled(false);
-            }
-            else
-            {
-                interfaceEnable(true);
-                this.buttonRun.setEnabled(true);
-                this.buttonNext.setEnabled(true);
-                this.buttonTest.setEnabled(true);
-                this.buttonSave.setEnabled(true);
-            }
-
-            String fileNameMap = GUITools.pkg.yamlFile.split("[.]")[0].split("/")[1];
-            ImageIcon img = new ImageIcon(new File("").getAbsolutePath()+"/maps/"+fileNameMap+".png");
-            Image ii = img.getImage().getScaledInstance(450, 300, Image.SCALE_SMOOTH);
-            img = new ImageIcon(ii);
-            this.l_image.setIcon(img);
-            this.buttonNext(evt);  // Auto toggle to Frame 2
-            } catch (IOException | ParseException ex) {
-                JOptionPane.showMessageDialog(null, "Error: The file cannot be opened", "Error", JOptionPane.ERROR_MESSAGE);
-                Logger.getLogger(GUIInterface.class.getName()).log(Level.SEVERE, null, ex);
-            } catch (IndexOutOfBoundsException | NullPointerException ex)
-            {
-                JOptionPane.showMessageDialog(null, "Error: The file cannot be opened", "Error", JOptionPane.ERROR_MESSAGE);
-
-            }
-
-        }
-    }//GEN-LAST:event_btn_loadActionPerformed
-
-    private void buttonCreate(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btn_createActionPerformed
-        // TODO add your handling code here:
-        
-        this.l_nameFile.setVisible(true);
-        this.textBox_nameFileWrite.setVisible(true);
-        this.textBox_nameFileWrite.setEnabled(true);
-        this.textBox_nameFileWrite.setText("file.json");
-        this.btn_okFileName.setVisible(true);
-        this.btn_okFileName.setText("OK");
-        this.btn_okFileName.setBackground(Color.white);
-
-    }//GEN-LAST:event_btn_createActionPerformed
-
     private void buttonStop(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btn_stop1ActionPerformed
         // TODO add your handling code here:
         
@@ -1291,43 +1202,6 @@ public class GUIInterface extends javax.swing.JFrame {
         this.jTabbedPane1.setSelectedIndex(selectIndexTab);
     }//GEN-LAST:event_btn_TestActionPerformed
 
-    private void btn_okFileNameActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btn_okFileNameActionPerformed
-        // TODO add your handling code here:
-        if(!this.textBox_nameFileWrite.getText().isEmpty())
-        {
-            this.interfaceEnable(true);
-
-            GUITools.pkg.yamlFile="";
-            while(this.listRobot1.getModel().getSize()!=0)
-            {
-                this.buttonDeleteRobot.doClick();
-            }
-            this.textBox_map.setText("yamlFile.yaml");
-            this.fileName=this.textBox_nameFileWrite.getText();
-            GUITools.pkg.robotJson = new RobotJson[0];
-            this.l_image.setIcon(null);
-            
-            this.textBox_nameFileWrite.setEnabled(false);
-            this.btn_okFileName.setText("Done");
-//            this.btn_okFileName.setBackground(Color.green);
-            this.btn_okFileName.setBackground(Color.white);
-            this.l_nameFile.setVisible(false);
-            
-            if(this.listRobot1.getModel().getSize()==0)     //لا يوجد عناصر في قائمة الروبوتات
-            {
-                interfaceEnable(false);
-                this.buttonRun.setEnabled(false);
-            }
-            this.buttonNext.setEnabled(true);
-            this.buttonTest.setEnabled(false);
-            this.buttonSave.setEnabled(true);
-        }
-        else
-        {
-            this.btn_okFileName.setBackground(Color.red);
-        }
-    }//GEN-LAST:event_btn_okFileNameActionPerformed
-
     private void check_namberOfCollisionActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_check_namberOfCollisionActionPerformed
         // TODO add your handling code here:
         StatusRobot.setEnable_numberOfCollisions(this.check_namberOfCollision.isSelected());
@@ -1361,6 +1235,135 @@ public class GUIInterface extends javax.swing.JFrame {
         ImageWindow.textArea = textBox_path;
         
     }//GEN-LAST:event_addPathActionPerformed
+
+    private void btn_okFileNameActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btn_okFileNameActionPerformed
+        // TODO add your handling code here:
+        if(!this.textBox_nameFileWrite.getText().isEmpty())
+        {
+            this.interfaceEnable(true);
+
+            GUITools.pkg.yamlFile="";
+            while(this.listRobot1.getModel().getSize()!=0)
+            {
+                this.buttonDeleteRobot.doClick();
+            }
+            this.textBox_map.setText("yamlFile.yaml");
+            this.fileName=this.textBox_nameFileWrite.getText();
+            GUITools.pkg.robotJson = new RobotJson[0];
+            this.l_image.setIcon(null);
+
+            this.textBox_nameFileWrite.setEnabled(false);
+            this.btn_okFileName.setText("Done");
+            //            this.btn_okFileName.setBackground(Color.green);
+            this.btn_okFileName.setBackground(Color.white);
+            this.l_nameFile.setVisible(false);
+
+            if(this.listRobot1.getModel().getSize()==0)     //لا يوجد عناصر في قائمة الروبوتات
+            {
+                interfaceEnable(false);
+                this.buttonRun.setEnabled(false);
+            }
+            this.buttonNext.setEnabled(true);
+            this.buttonTest.setEnabled(false);
+            this.buttonSave.setEnabled(true);
+        }
+        else
+        {
+            this.btn_okFileName.setBackground(Color.red);
+        }
+    }//GEN-LAST:event_btn_okFileNameActionPerformed
+
+    private void btn_createActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btn_createActionPerformed
+        // TODO add your handling code here:
+
+        this.l_nameFile.setVisible(true);
+        this.textBox_nameFileWrite.setVisible(true);
+        this.textBox_nameFileWrite.setEnabled(true);
+        this.textBox_nameFileWrite.setText("file.json");
+        this.btn_okFileName.setVisible(true);
+        this.btn_okFileName.setText("OK");
+        this.btn_okFileName.setBackground(Color.white);
+    }//GEN-LAST:event_btn_createActionPerformed
+
+    private void btn_loadActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btn_loadActionPerformed
+        // TODO add your handling code here:
+
+        //################# Open File ########################
+
+        JFileChooser fileChooser = new JFileChooser();
+        fileChooser.setCurrentDirectory(new File(System.getProperty("user.home")));
+        int result = fileChooser.showOpenDialog(this);
+        if (result == JFileChooser.APPROVE_OPTION)
+        {
+            this.l_nameFile.setVisible(false);
+            this.textBox_nameFileWrite.setVisible(true);
+            this.textBox_nameFileWrite.setEnabled(false);
+            this.btn_okFileName.setVisible(false);
+
+            File selectedFile = fileChooser.getSelectedFile();
+            System.out.println("Selected file: " + selectedFile.getAbsolutePath());
+
+            //listRobots.removeAll();
+
+            fileName = selectedFile.getAbsolutePath();
+            try {
+                JSONFile.readDataFromJson(fileName, GUITools.pkg);
+                String[] fileName_aux = fileName.split("/");
+                this.textBox_nameFileWrite.setText(fileName_aux[fileName_aux.length-1]);
+
+                this.indexOfList=0;
+                lModel = new DefaultListModel();
+                for(int i = 0; i< GUITools.pkg.robotJson.length; i++)
+                {
+                    this.lModel.addElement("R"+(i+1));
+                }
+                this.listRobot1.setModel(lModel);
+
+                this.listRobot1.setSelectedIndex(0);
+                GUITools.selectListRobots(indexOfList, listRobot1, textBox_name, textBox_velocity, textBox_acceleration, textBox_color, textBox_size, textBox_path,textBox_iterationRobot2, textBox_map);
+
+                this.textBox_nameCSV.setText(GUITools.pkg.csvFileName);
+                this.checkRepeat.setSelected(true);
+                this.textBox_repeat.setText(GUITools.pkg.experimentIteration+"");
+                this.textBox_repeat.setEnabled(true);
+
+                if(this.listRobot1.getModel().getSize()==0)     //لا يوجد عناصر في قائمة الروبوتات
+                {
+                    interfaceEnable(false);
+                    this.buttonRun.setEnabled(false);
+
+                    this.buttonTest.setEnabled(false);
+                }
+                else
+                {
+                    interfaceEnable(true);
+                    this.buttonRun.setEnabled(true);
+                    this.buttonNext.setEnabled(true);
+                    this.buttonTest.setEnabled(true);
+                    this.buttonSave.setEnabled(true);
+                }
+
+                String fileNameMap = GUITools.pkg.yamlFile.split("[.]")[0].split("/")[1];
+                ImageIcon img = new ImageIcon(new File("").getAbsolutePath()+"/maps/"+fileNameMap+".png");
+                Image ii = img.getImage().getScaledInstance(450, 300, Image.SCALE_SMOOTH);
+                img = new ImageIcon(ii);
+                this.l_image.setIcon(img);
+                this.buttonNext(evt);  // Auto toggle to Frame 2
+            } catch (IOException | ParseException ex) {
+                JOptionPane.showMessageDialog(null, "Error: The file cannot be opened", "Error", JOptionPane.ERROR_MESSAGE);
+                Logger.getLogger(GUIInterface.class.getName()).log(Level.SEVERE, null, ex);
+            } catch (IndexOutOfBoundsException | NullPointerException ex)
+            {
+                JOptionPane.showMessageDialog(null, "Error: The file cannot be opened", "Error", JOptionPane.ERROR_MESSAGE);
+
+            }
+
+        }
+    }//GEN-LAST:event_btn_loadActionPerformed
+
+    private void jCheckBox1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jCheckBox1ActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_jCheckBox1ActionPerformed
     
     
     
@@ -1406,19 +1409,19 @@ public class GUIInterface extends javax.swing.JFrame {
     private javax.swing.JMenuItem New_item;
     private javax.swing.JMenuItem aboutMenuItem;
     private javax.swing.JButton addPath;
-    public javax.swing.JButton buttonApply;
-    private javax.swing.JButton buttonBack;
-    private javax.swing.JButton buttonNext;
-    private javax.swing.JButton buttonSave;
-    private javax.swing.JButton buttonTest;
-    public javax.swing.JButton buttonChange;
-    private javax.swing.JButton buttonCreate;
-    public javax.swing.JButton buttonDeleteRobot;
-    private javax.swing.JButton buttonLoad;
-    public javax.swing.JButton buttonNewRobot;
+    public javax.swing.JButton apply_btn;
+    private javax.swing.JButton btn_Back;
+    private javax.swing.JButton btn_Next;
+    private javax.swing.JButton btn_Save1;
+    private javax.swing.JButton btn_Test;
+    public javax.swing.JButton btn_change;
+    private javax.swing.JButton btn_create;
+    public javax.swing.JButton btn_deleteRobot;
+    private javax.swing.JButton btn_load;
+    public javax.swing.JButton btn_newRobot;
     private javax.swing.JButton btn_okFileName;
-    public javax.swing.JButton buttonRun;
-    private javax.swing.JButton buttonStop;
+    public javax.swing.JButton btn_run;
+    private javax.swing.JButton btn_stop1;
     private javax.swing.JCheckBox checkRepeat;
     private javax.swing.JCheckBox checkTime;
     private javax.swing.JCheckBox check_endTimeOfExp;
@@ -1430,25 +1433,25 @@ public class GUIInterface extends javax.swing.JFrame {
     private javax.swing.JMenuItem exitMenuItem;
     private javax.swing.JMenu fileMenu;
     private javax.swing.JMenu helpMenu;
+    private javax.swing.JCheckBox jCheckBox1;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel10;
     private javax.swing.JLabel jLabel11;
     private javax.swing.JLabel jLabel12;
     private javax.swing.JLabel jLabel13;
-    private javax.swing.JLabel jLabel14;
+    private javax.swing.JLabel jLabel15;
+    private javax.swing.JLabel jLabel16;
+    private javax.swing.JLabel jLabel17;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
-    private javax.swing.JLabel jLabel5;
-    private javax.swing.JLabel jLabel6;
     private javax.swing.JLabel jLabel7;
+    private javax.swing.JLabel jLabel8;
     private javax.swing.JLabel jLabel9;
     private javax.swing.JPanel jPanel2;
     private javax.swing.JPanel jPanel3;
     private javax.swing.JPanel jPanel4;
     private javax.swing.JPanel jPanel5;
-    private javax.swing.JScrollPane jScrollPane1;
-    private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JScrollPane jScrollPane3;
     private javax.swing.JScrollPane jScrollPane4;
     private javax.swing.JTabbedPane jTabbedPane1;
@@ -1466,15 +1469,14 @@ public class GUIInterface extends javax.swing.JFrame {
     private javax.swing.JMenuItem saveMenuItem;
     public javax.swing.JTextField textBox_acceleration;
     public javax.swing.JTextField textBox_color;
-    public javax.swing.JTextField textBox_iterationRobot2;
+    public javax.swing.JTextField textBox_color1;
+    public javax.swing.JTextField textBox_color2;
     public javax.swing.JTextArea textBox_log;
     private javax.swing.JLabel textBox_map;
     public javax.swing.JTextField textBox_name;
     public javax.swing.JTextField textBox_nameCSV;
     private javax.swing.JTextField textBox_nameFileWrite;
-    public javax.swing.JTextArea textBox_path;
     public javax.swing.JTextField textBox_repeat;
-    public javax.swing.JTextArea textBox_size;
     public javax.swing.JTextField textBox_time;
     public javax.swing.JTextField textBox_velocity;
     // End of variables declaration//GEN-END:variables

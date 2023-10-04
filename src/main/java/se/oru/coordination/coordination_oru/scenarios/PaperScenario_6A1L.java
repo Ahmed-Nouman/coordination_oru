@@ -20,12 +20,12 @@ public class PaperScenario_6A1L {
         String absolutePath = System.getProperty("user.dir");
         String resultsDirectory = absolutePath + "/src/main/java/se/oru/coordination/coordination_oru/results/lookAheadPaper_2023";
         final String YAML_FILE = "maps/mine-map-paper-2023.yaml";
-        double lookAheadDistance = 100;
+        double lookAheadDistance = 10;
         int timeIntervalInSeconds = 1;
         int terminationInMinutes = 30;
         int numOfCallsForLookAheadRobot = 20;
         boolean visualization = true;
-        boolean writeRobotReports = true;
+        boolean writeRobotReports = false;
 
         final Pose mainTunnelLeft = new Pose(14.25, 22.15, Math.PI);
         final Pose mainTunnelRight = new Pose(114.15, 40.05, Math.PI);
