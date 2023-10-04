@@ -31,6 +31,7 @@ import se.oru.coordination.coordination_oru.motionplanning.AbstractMotionPlanner
 
 public class TrajectoryEnvelopeCoordinatorSimulation extends TrajectoryEnvelopeCoordinator {
 
+	public static TrajectoryEnvelopeCoordinatorSimulation tec = null;
 	protected static final long START_TIME = Calendar.getInstance().getTimeInMillis();
 	protected boolean useInternalCPs = true;
 	
@@ -46,7 +47,7 @@ public class TrajectoryEnvelopeCoordinatorSimulation extends TrajectoryEnvelopeC
 	
 	/**
 	 * The default footprint used for robots if none is specified.
-	 * NOTE: coordinates in footprints must be given in in CCW or CW order. 
+	 * NOTE: coordinates in footprints must be given in CCW or CW order.
 	 */
 	public static Coordinate[] DEFAULT_FOOTPRINT = new Coordinate[] {
 			new Coordinate(-1.7, 0.7),	//back left
@@ -95,6 +96,7 @@ public class TrajectoryEnvelopeCoordinatorSimulation extends TrajectoryEnvelopeC
 		this.DEFAULT_MAX_VELOCITY = MAX_VELOCITY;
 		this.DEFAULT_MAX_ACCELERATION = MAX_ACCELERATION;
 		this.DEFAULT_ROBOT_TRACKING_PERIOD = DEFAULT_ROBOT_TRACKING_PERIOD;
+		tec = this;
 	}
 	
 	/**

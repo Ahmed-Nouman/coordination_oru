@@ -31,6 +31,7 @@ import com.vividsolutions.jts.geom.Polygon;
 import com.vividsolutions.jts.geom.util.AffineTransformation;
 
 import se.oru.coordination.coordination_oru.RobotReport;
+import se.oru.coordination.coordination_oru.vehicles.VehiclesHashMap;
 
 public class BrowserVisualization implements FleetVisualization {
 	
@@ -211,20 +212,26 @@ public class BrowserVisualization implements FleetVisualization {
 		double x = rr.getPathIndex() != -1 ? rr.getPose().getX() : te.getTrajectory().getPose()[0].getX();
 		double y = rr.getPathIndex() != -1 ? rr.getPose().getY() : te.getTrajectory().getPose()[0].getY();
 		double theta = rr.getPathIndex() != -1 ? rr.getPose().getTheta() : te.getTrajectory().getPose()[0].getTheta();
-		
-		String name = "R"+te.getRobotID();
-		String extraData = " : " + rr.getPathIndex();
-		if (extraStatusInfo != null) {
-			for (String st : extraStatusInfo) {
-				extraData += (" | " + st);
-			}
-		}
+
+		String extraData = "";
+		String name = "R" + te.getRobotID();
+
+		// Show percentage of path-completed
+//		int percent = rr.getPathIndex() < 0 ? 0 : (int) Math.round((double) rr.getPathIndex() / (double) te.getPathLength() * 100);
+//		String extraData = ":" + (extraStatusInfo == null || extraStatusInfo.length == 0 ? "" : " ") + percent + "%";
+
+		// Show path Index
+//		if (extraStatusInfo != null) {
+//			for (String st : extraStatusInfo) {
+//				extraData += " | " + st;
+//			}
+//		}
 		
 		Geometry geom = TrajectoryEnvelope.getFootprint(te.getFootprint(), x, y, theta);
 		this.updateRobotFootprintArea(geom);
 		double scale = Math.sqrt(robotFootprintArea)*0.2;
 		Geometry arrowGeom = createArrow(rr.getPose(), robotFootprintXDim/scale, scale);
-		String jsonString = "{ \"operation\" : \"addGeometry\", \"data\" : " + this.geometryToJSONString(name, geom, "#ff0000", -1, true, extraData) + "}";
+		String jsonString = "{ \"operation\" : \"addGeometry\", \"data\" : " + this.geometryToJSONString(name, geom, VehiclesHashMap.getVehicle(rr.getRobotID()).getColorCode(), -1, true, extraData) + "}";
 		String jsonStringArrow = "{ \"operation\" : \"addGeometry\", \"data\" : " + this.geometryToJSONString("_"+name, arrowGeom, "#ffffff", -1, true, null) + "}";
 		enqueueMessage(jsonString);
 		enqueueMessage(jsonStringArrow);
@@ -235,12 +242,17 @@ public class BrowserVisualization implements FleetVisualization {
 		double x = rr.getPose().getX();
 		double y = rr.getPose().getY();
 		double theta = rr.getPose().getTheta();
-		
-		String name = "R"+rr.getRobotID();
-		String extraData = " : " + rr.getPathIndex();
+
+		String name = "R" + rr.getRobotID();
+
+		// Show percentage of path-completed
+		int percent = rr.getPathIndex() < 0 ? 0 : (int) Math.round((double) rr.getPathIndex() / (double) VehiclesHashMap.getVehicle(rr.getRobotID()).getPlanLength() * 100);
+		String extraData = ":" + (extraStatusInfo == null || extraStatusInfo.length == 0 ? "" : " ") + percent + "%";
+
+        // Show path Index
 		if (extraStatusInfo != null) {
 			for (String st : extraStatusInfo) {
-				extraData += (" | " + st);
+				extraData += " | " + st;
 			}
 		}
 		
@@ -248,7 +260,7 @@ public class BrowserVisualization implements FleetVisualization {
 		this.updateRobotFootprintArea(geom);
 		double scale = Math.sqrt(robotFootprintArea)*0.2;
 		Geometry arrowGeom = createArrow(rr.getPose(), robotFootprintXDim/scale, scale);
-		String jsonString = "{ \"operation\" : \"addGeometry\", \"data\" : " + this.geometryToJSONString(name, geom, "#ff0000", -1, true, extraData) + "}";
+		String jsonString = "{ \"operation\" : \"addGeometry\", \"data\" : " + this.geometryToJSONString(name, geom, VehiclesHashMap.getVehicle(rr.getRobotID()).getColorCode(), -1, true, extraData) + "}";
 		String jsonStringArrow = "{ \"operation\" : \"addGeometry\", \"data\" : " + this.geometryToJSONString("_"+name, arrowGeom, "#ffffff", -1, true, null) + "}";
 		enqueueMessage(jsonString);
 		enqueueMessage(jsonStringArrow);
@@ -293,9 +305,16 @@ public class BrowserVisualization implements FleetVisualization {
 
 	@Override
 	public void addEnvelope(TrajectoryEnvelope te) {
+
+		// Color the trajectory envelope with the same vehicle color
+		String color = "#efe007";
+		if (!VehiclesHashMap.getList().isEmpty()) {
+			color = VehiclesHashMap.getVehicle(te.getRobotID()).getColorCode();
+		}
+
 		GeometricShapeDomain dom = (GeometricShapeDomain)te.getEnvelopeVariable().getDomain();
 		Geometry geom = dom.getGeometry();
-		String jsonString = "{ \"operation\" : \"addGeometry\", \"data\" : " + this.geometryToJSONString("_"+te.getID(), geom, "#efe007", -1, false, null) + "}";
+		String jsonString = "{ \"operation\" : \"addGeometry\", \"data\" : " + this.geometryToJSONString("_"+te.getID(), geom, color, -1, false, null) + "}";
 		enqueueMessage(jsonString);
 	}
 

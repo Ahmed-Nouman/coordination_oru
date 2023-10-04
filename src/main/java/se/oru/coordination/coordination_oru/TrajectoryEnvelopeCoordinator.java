@@ -34,6 +34,11 @@ import com.vividsolutions.jts.geom.Geometry;
 
 import aima.core.util.datastructure.Pair;
 import se.oru.coordination.coordination_oru.motionplanning.AbstractMotionPlanner;
+import se.oru.coordination.coordination_oru.simulation2D.TrajectoryEnvelopeCoordinatorSimulation;
+import se.oru.coordination.coordination_oru.vehicles.LookAheadVehicle;
+import se.oru.coordination.coordination_oru.vehicles.VehiclesHashMap;
+
+import static se.oru.coordination.coordination_oru.simulation2D.TrajectoryEnvelopeCoordinatorSimulation.tec;
 
 
 /**
@@ -1094,7 +1099,7 @@ public abstract class TrajectoryEnvelopeCoordinator extends AbstractTrajectoryEn
 	}
 	
 	@Override
-	protected void setupInferenceCallback() {
+	public void setupInferenceCallback() {
 
 		this.stopInference = false;
 		this.inference = new Thread("Coordinator inference") {
@@ -1130,9 +1135,25 @@ public abstract class TrajectoryEnvelopeCoordinator extends AbstractTrajectoryEn
 					numberNewAddedMissions = 0;
 					numberDrivingRobots = 0;
 
-					synchronized (solver) {	
-						for (Integer robotID : trackers.keySet()) 
+					synchronized (solver) {
+						for (Integer robotID : trackers.keySet())
 							if (!(trackers.get(robotID) instanceof TrajectoryEnvelopeTrackerDummy)) numberDrivingRobots++;
+
+						// Update look-ahead paths
+						for (Integer robotID : trackers.keySet()) {
+							if (VehiclesHashMap.getList() != null) { // check if VehiclesHashMap is not null
+								var vehicle = VehiclesHashMap.getVehicle(robotID); // fetch the vehicle once
+								if (vehicle != null && "LookAheadVehicle".equals(vehicle.getType())) { // check for null and type
+									try {
+										LookAheadVehicle lookAheadVehicle = (LookAheadVehicle) vehicle;
+										lookAheadVehicle.updateLookAheadRobotPath(tec, lookAheadVehicle);
+									} catch (ClassCastException e) {
+										// Handle the exception in case the casting fails
+										e.printStackTrace();
+									}
+								}
+							}
+						}
 
 						if (!missionsPool.isEmpty()) {
 
@@ -1168,6 +1189,7 @@ public abstract class TrajectoryEnvelopeCoordinator extends AbstractTrajectoryEn
 					}
 
 					//Sleep a little...
+//					expectedSleepingTime = 100;
 					expectedSleepingTime = Math.max(500,CONTROL_PERIOD-Calendar.getInstance().getTimeInMillis()+threadLastUpdate);
 					effectiveSleepingTime = Calendar.getInstance().getTimeInMillis();
 					if (CONTROL_PERIOD > 0) {
@@ -1235,6 +1257,80 @@ public abstract class TrajectoryEnvelopeCoordinator extends AbstractTrajectoryEn
 		}
 	}
 
+	public void updatePath(int robotID, PoseSteering[] newPath, int breakingPathIndex) {
+
+		synchronized (solver) {
+
+			synchronized(trackers) {
+				if (!trackers.containsKey(robotID)) {
+					metaCSPLogger.warning("Invalid robotID. Place the robot before!");
+					return;
+				}
+			}
+
+			synchronized (allCriticalSections) {
+				//Get current envelope
+				TrajectoryEnvelope te = this.getCurrentTrajectoryEnvelope(robotID);
+
+				if (viz != null) {
+					viz.removeEnvelope(te);
+				}
+
+				metaCSPLogger.info("Replacing TE " + te.getID() + " (Robot" + robotID + ") with breaking point " + breakingPathIndex + ".");
+
+				//Remove CSs involving this robot, clearing the history.
+				cleanUpRobotCS(te.getRobotID(), breakingPathIndex);
+				//---------------------------------------------------------
+
+				//Make new envelope
+				TrajectoryEnvelope newTE = solver.createEnvelopeNoParking(robotID, newPath, "Driving", this.getFootprint(robotID));
+
+				//Notify tracker
+				synchronized (trackers) {
+					this.trackers.get(robotID).updateTrajectoryEnvelope(newTE);
+				}
+
+				//Stitch together with rest of constraint network (temporal constraints with parking envelopes etc.)
+				for (Constraint con : solver.getConstraintNetwork().getOutgoingEdges(te)) {
+					if (con instanceof AllenIntervalConstraint) {
+						AllenIntervalConstraint aic = (AllenIntervalConstraint)con;
+						if (aic.getTypes()[0].equals(AllenIntervalConstraint.Type.Meets)) {
+							TrajectoryEnvelope newEndParking = solver.createParkingEnvelope(robotID, PARKING_DURATION, newTE.getTrajectory().getPose()[newTE.getTrajectory().getPose().length-1], "whatever", getFootprint(robotID));
+							TrajectoryEnvelope oldEndParking = (TrajectoryEnvelope)aic.getTo();
+
+							solver.removeConstraints(solver.getConstraintNetwork().getIncidentEdges(te));
+							solver.removeVariable(te);
+							solver.removeConstraints(solver.getConstraintNetwork().getIncidentEdges(oldEndParking));
+							solver.removeVariable(oldEndParking);
+
+							AllenIntervalConstraint newMeets = new AllenIntervalConstraint(AllenIntervalConstraint.Type.Meets);
+							newMeets.setFrom(newTE);
+							newMeets.setTo(newEndParking);
+							solver.addConstraint(newMeets);
+
+							break;
+						}
+					}
+				}
+
+				if (viz != null) {
+					viz.addEnvelope(newTE);
+				}
+
+				//Add as if it were a new envelope, that way it will be accounted for in computeCriticalSections()
+				envelopesToTrack.add(newTE);
+
+				//Recompute CSs involving this robot
+				computeCriticalSections();
+
+				envelopesToTrack.remove(newTE);
+
+				forceCriticalPointReTransmission.put(robotID, true);
+				updateDependencies();
+
+			}
+		}
+	}
 
 	/**
 	 * Replace the path of a robot's {@link TrajectoryEnvelope} on the fly.

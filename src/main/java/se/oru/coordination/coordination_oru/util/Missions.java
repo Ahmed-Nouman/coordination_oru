@@ -14,16 +14,10 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.lang.reflect.Type;
 import java.nio.file.Files;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.*;
 import java.util.Map.Entry;
-import java.util.Scanner;
-import java.util.Set;
-import java.util.TreeMap;
 import java.util.logging.Logger;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
@@ -50,6 +44,9 @@ import com.vividsolutions.jts.geom.Geometry;
 import se.oru.coordination.coordination_oru.Mission;
 import se.oru.coordination.coordination_oru.TrajectoryEnvelopeCoordinator;
 import se.oru.coordination.coordination_oru.motionplanning.AbstractMotionPlanner;
+import se.oru.coordination.coordination_oru.vehicles.AutonomousVehicle;
+import se.oru.coordination.coordination_oru.vehicles.LookAheadVehicle;
+import se.oru.coordination.coordination_oru.vehicles.VehiclesHashMap;
 
 /**
  * This class collects utility methods for storing {@link Mission}s, regulating their dispatch, maintaining locations
@@ -1131,7 +1128,7 @@ public class Missions {
 								}
 							}
 						}
-						//Sleep for a little (2 sec)
+						//Sleep for a little (sec 2)
 						try { Thread.sleep(2000); }
 						catch (InterruptedException e) { e.printStackTrace(); }
 					}
@@ -1140,7 +1137,227 @@ public class Missions {
 			missionDispatchThread.start();
 		}
 	}
-	
+
+	/**
+	 * Starts the {@link TrajectoryEnvelopeCoordinator} mission dispatchers with additional parameters for report writing.
+	 * Writes robot reports to a specified directory if required.
+	 * If {@code lookAheadDistance} is -1, it updates to the full distance of {@link LookAheadRobot}.
+	 *
+	 * <p>This method may also write robot reports, if requested. The reports are written to
+	 * {@code resultDirectory}, at an interval defined by {@code intervalInSeconds} and for a
+	 * duration defined by {@code terminationInMinutes}. The name of the heuristic used in the
+	 * current simulation run, defined by {@code heuristicName}, is also recorded.
+	 *
+	 * @param tec The {@link TrajectoryEnvelopeCoordinator} that coordinates the missions.
+	 * @param writeReports {@code true} to write reports; {@code false} otherwise.
+	 * @param intervalInSeconds The interval in seconds between consecutive reports.
+	 * @param terminationInMinutes The termination time in minutes for writing reports.
+	 * @param heuristicName The name of the heuristic used in the current simulation run.
+	 * @param resultDirectory The directory where to write the robot reports.
+	 */
+	public static void startMissionDispatchers(TrajectoryEnvelopeCoordinator tec, boolean writeReports, int intervalInSeconds,
+											   int terminationInMinutes, String heuristicName, String resultDirectory) {
+
+		// Write robot reports to resultDirectory folder in .csv format
+		writeReports(tec, writeReports, intervalInSeconds,
+				terminationInMinutes, heuristicName, resultDirectory);
+
+		// Add autonomous robots only for mission looping
+		addRobotsForLooping(tec);
+
+		if (missionDispatchThread == null) {
+			missionDispatchThread = new Thread("missionDispatchThread") {
+				@Override
+				public void run() {
+					while (true) {
+						for (int robotID : dispatchableRobots) {
+							if (Missions.hasMissions(robotID)) {
+								Mission m = Missions.peekMission(robotID);
+								if (m != null) {
+									synchronized(tec) {
+										if (tec.isFree(m.getRobotID())) {
+											//cat with future missions if necessary
+											if (concatenatedMissions.containsKey(m)) {
+												ArrayList<Mission> catMissions = concatenatedMissions.get(m);
+												m = new Mission(m.getRobotID(), m.getFromLocation(), catMissions.get(catMissions.size()-1).getToLocation(), m.getFromPose(), catMissions.get(catMissions.size()-1).getToPose());
+												ArrayList<PoseSteering> path = new ArrayList<PoseSteering>();
+												for (int i = 0; i < catMissions.size(); i++) {
+													Mission oneMission = catMissions.get(i);
+													if (mdcs.containsKey(robotID)) mdcs.get(robotID).beforeMissionDispatch(oneMission);
+													if (i == 0) path.add(oneMission.getPath()[0]);
+													for (int j = 1; j < oneMission.getPath().length-1; j++) {
+														path.add(oneMission.getPath()[j]);
+													}
+													if (i == catMissions.size()-1) path.add(oneMission.getPath()[oneMission.getPath().length-1]);
+												}
+												m.setPath(path.toArray(new PoseSteering[path.size()]));
+											}
+											else if (mdcs.containsKey(robotID)) mdcs.get(robotID).beforeMissionDispatch(m);
+										}
+
+										//addMission returns true iff the robot was free to accept a new mission
+										if (tec.addMissions(m)) {
+											//tec.computeCriticalSectionsAndStartTrackingAddedMission();
+											if (mdcs.containsKey(robotID)) mdcs.get(robotID).afterMissionDispatch(m);
+											if (!loopMissions.get(robotID)) {
+												Missions.removeMissions(m);
+												System.out.println("Removed mission " + m);
+												if (concatenatedMissions.get(m) != null) {
+													for (Mission cm : concatenatedMissions.get(m)) {
+														Missions.removeMissions(cm);
+													}
+												}
+											}
+											else {
+												Missions.dequeueMission(m.getRobotID());
+												Missions.enqueueMission(m);
+											}
+										}
+									}
+								}
+							}
+						}
+						//Sleep for a little (sec 2)
+						try { Thread.sleep(2000); }
+						catch (InterruptedException e) { e.printStackTrace(); }
+					}
+				}
+			};
+			missionDispatchThread.start();
+		}
+	}
+
+	/**
+	 * Include the given robots in the periodic mission dispatching thread (and start the thread if it is not started).
+	 * The thread cycles through the known missions for each robot and dispatches as soon as the robot is free.
+	 * This method will loop through all missions forever.
+	 * @param tec The {@link TrajectoryEnvelopeCoordinator} that coordinates the missions.
+	 */
+	public synchronized static void startMissionDispatchers(final TrajectoryEnvelopeCoordinator tec) {
+		startMissionDispatchers(tec, true, convertSetToIntArray(tec.getAllRobotIDs()));
+	}
+
+	/**
+	 * Adds robots for mission looping, i.e., assigns the looping status of the missions for each robot.
+	 * Robots of type {@code "AutonomousRobot"} have their missions set to loop.
+	 *
+	 * @param tec The {@link TrajectoryEnvelopeCoordinator} that coordinates the missions.
+	 */
+	private static void addRobotsForLooping(TrajectoryEnvelopeCoordinator tec) {
+		for (int robotID : convertSetToIntArray(tec.getAllRobotIDs())) {
+			dispatchableRobots.add(robotID);
+			if (Objects.equals(VehiclesHashMap.getVehicle(robotID).getType(), "AutonomousVehicle")) {
+				loopMissions.put(robotID, true);
+			}
+			else {
+				loopMissions.put(robotID, false);
+			}
+		}
+	}
+
+	/**
+	 * Converts a Set of Integers to an int array.
+	 *
+	 * @param set The Set of Integers to be converted.
+	 * @return The resulting int array.
+	 */
+	public static int[] convertSetToIntArray(Set<Integer> set) {
+		int[] array = new int[set.size()]; // Create a new int array with the same size as the Set
+		int index = 0;
+		for (int num : set) {
+			array[index++] = num; // Store each element from the Set into the int array
+		}
+		return array; // Return the resulting int array
+	}
+
+	/**
+	 * Writes robot reports to the specified directory if requested.
+	 * The reports are written at an interval defined by {@code intervalInSeconds} and for a
+	 * duration defined by {@code terminationInMinutes}. The name of the heuristic used in the
+	 * current simulation run, defined by {@code heuristicName}, is also recorded.
+	 *
+	 * @param tec The {@link TrajectoryEnvelopeCoordinator} that coordinates the missions.
+	 * @param writeReports {@code true} to write reports; {@code false} otherwise.
+	 * @param intervalInSeconds The interval in seconds between consecutive reports.
+	 * @param terminationInMinutes The termination time in minutes for writing reports.
+	 * @param heuristicName The name of the heuristic used in the current simulation run.
+	 * @param resultDirectory The directory where to write the robot reports.
+	 */
+	public static void writeReports(TrajectoryEnvelopeCoordinator tec,
+									boolean writeReports, int intervalInSeconds, int terminationInMinutes,
+									String heuristicName, String resultDirectory) {
+		double updatedLookAheadDistance = 0.0;
+		double lookAheadDistance = 0.0;
+
+		// For fully predictable path of the robot
+		for (int robotID : convertSetToIntArray(tec.getAllRobotIDs())) {
+			var robot = VehiclesHashMap.getVehicle(robotID);
+			if (robot instanceof LookAheadVehicle) {
+				var lookAheadRobot = (LookAheadVehicle) robot;
+				lookAheadDistance = lookAheadRobot.getLookAheadDistance();
+				if (lookAheadDistance < 0) {
+					updatedLookAheadDistance = lookAheadRobot.getPlanLength();
+				}
+			}
+		}
+
+		// Write robot reports to ../results/... folder in .csv format
+		if (writeReports) {
+			System.out.println("Writing robot reports.");
+			double distance = lookAheadDistance > 0 ? lookAheadDistance : updatedLookAheadDistance;
+
+			String filePath = createFile(distance, heuristicName, resultDirectory);
+			var reportCollector = new RobotReportCollector();
+			reportCollector.handleRobotReports(tec, filePath, intervalInSeconds, terminationInMinutes);
+		} else {
+			System.out.println("Not writing robot reports.");
+		}
+	}
+
+	/**
+	 * Creates the directory for storing report files and prepares the complete file path.
+	 * The file name is determined based on the number of autonomous and lookahead robots,
+	 * heuristics used, and the lookahead distance. If the specified directory does not exist,
+	 * this method attempts to create it.
+	 *
+	 * @param lookAheadDistance The lookahead distance. It should be a positive number.
+	 * @param heuristicName The name of the heuristic used. It should not be {@code null}.
+	 * @param resultDirectory The path to the directory where the file will be created.
+	 *                        This should be an existing path, or a path that can be created.
+	 * @return The complete file path as a string, comprising the resultDirectory and the generated filename.
+	 */
+
+	public static String createFile(double lookAheadDistance, String heuristicName, String resultDirectory) {
+
+		Path directoryPath = Paths.get(resultDirectory);
+
+		// Try creating the directory if it doesn't exist
+		try {
+			Files.createDirectories(directoryPath);
+			System.out.println("Directory created successfully.");
+		} catch (IOException e) {
+			System.err.println("Error while creating directory: " + e.getMessage());
+		}
+
+		// Get the number of autonomous and lookahead robots
+		int autonomousRobotCount = 0;
+		int lookAheadRobotCount = 0;
+
+		for (Object robot : VehiclesHashMap.getList().values()) {
+			if (robot instanceof AutonomousVehicle) {
+				autonomousRobotCount++;
+			} else if (robot instanceof LookAheadVehicle) {
+				lookAheadRobotCount++;
+			}
+		}
+
+		// Generate the filename based on the number of autonomous and lookahead robots
+		String fileName = "A" + autonomousRobotCount + "L" + lookAheadRobotCount +
+				"_" + heuristicName.charAt(0) + "_" + (int) lookAheadDistance + "_";
+
+		return resultDirectory + "/" + fileName;
+	}
+
 	/**
 	 * Read a path from a file.
 	 * @param fileName The name of the file containing the path
