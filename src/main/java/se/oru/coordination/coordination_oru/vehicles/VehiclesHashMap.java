@@ -4,7 +4,7 @@ import java.util.HashMap;
 
 public class VehiclesHashMap {
     private static VehiclesHashMap instance;
-    private static HashMap<Integer, AbstractVehicle> list = new HashMap<>();
+    private static final HashMap<Integer, AbstractVehicle> list = new HashMap<>();
     private static final Object lock = new Object();
 
     private VehiclesHashMap() {}
@@ -28,7 +28,7 @@ public class VehiclesHashMap {
                 }
             }
         }
-        return instance.getList().get(key);
+        return getList().get(key);
     }
 
     public synchronized static HashMap<Integer, AbstractVehicle> getList() {

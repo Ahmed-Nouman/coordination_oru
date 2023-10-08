@@ -1,21 +1,14 @@
 package se.oru.coordination.coordination_oru.tests.clean;
 
-import java.util.Comparator;
-
-import org.metacsp.multi.spatioTemporal.paths.PoseSteering;
-
 import com.vividsolutions.jts.geom.Coordinate;
-
-import se.oru.coordination.coordination_oru.ConstantAccelerationForwardModel;
-import se.oru.coordination.coordination_oru.CriticalSection;
-import se.oru.coordination.coordination_oru.Mission;
-import se.oru.coordination.coordination_oru.RobotAtCriticalSection;
-import se.oru.coordination.coordination_oru.RobotReport;
+import org.metacsp.multi.spatioTemporal.paths.PoseSteering;
+import se.oru.coordination.coordination_oru.*;
 import se.oru.coordination.coordination_oru.demo.DemoDescription;
 import se.oru.coordination.coordination_oru.simulation2D.TrajectoryEnvelopeCoordinatorSimulation;
 import se.oru.coordination.coordination_oru.util.BrowserVisualization;
-import se.oru.coordination.coordination_oru.util.JTSDrawingPanelVisualization;
 import se.oru.coordination.coordination_oru.util.Missions;
+
+import java.util.Comparator;
 
 @DemoDescription(desc = "One-shot navigation of 3 robots coordinating on static paths that overlap in a straight portion.")
 public class ThreeRobotsAsynchronousGoalPosting {

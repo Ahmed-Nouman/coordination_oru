@@ -1,22 +1,11 @@
 package se.oru.coordination.coordination_oru.util;
-import java.awt.BorderLayout;
-import java.awt.Color;
-import java.awt.Dimension;
-import java.awt.Graphics;
-import java.awt.Point;
-import java.awt.event.KeyEvent;
-import java.awt.event.KeyListener;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
-import java.awt.event.MouseMotionListener;
-
-import javax.swing.JFrame;
-import javax.swing.JPanel;
-import javax.swing.SwingUtilities;
 
 import com.vividsolutions.jts.geom.Coordinate;
-
 import se.oru.coordination.coordination_oru.motionplanning.OccupancyMap;
+
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.*;
 
 public class MapInspector extends JPanel implements MouseListener, MouseMotionListener, KeyListener {
 

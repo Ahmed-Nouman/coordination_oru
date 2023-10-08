@@ -1,25 +1,20 @@
 package se.oru.coordination.coordination_oru.tests.safetyAndLiveness;
 
-import java.io.File;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.HashSet;
-import java.util.Random;
-
-import org.metacsp.multi.spatioTemporal.paths.Pose;
-
-import com.vividsolutions.jts.geom.Coordinate;
-
 import aima.core.util.datastructure.Pair;
+import com.vividsolutions.jts.geom.Coordinate;
+import org.metacsp.multi.spatioTemporal.paths.Pose;
 import se.oru.coordination.coordination_oru.ConstantAccelerationForwardModel;
 import se.oru.coordination.coordination_oru.Mission;
 import se.oru.coordination.coordination_oru.NetworkConfiguration;
 import se.oru.coordination.coordination_oru.demo.DemoDescription;
 import se.oru.coordination.coordination_oru.motionplanning.ompl.ReedsSheppCarPlanner;
 import se.oru.coordination.coordination_oru.simulation2D.TrajectoryEnvelopeCoordinatorSimulation;
-import se.oru.coordination.coordination_oru.util.BrowserVisualization;
 import se.oru.coordination.coordination_oru.util.Missions;
 import se.oru.coordination.coordination_oru.util.RVizVisualization;
+
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Random;
 
 @DemoDescription(desc = "Coordination of robots along a circle. Start and goals are placed along the circumference of a circle with a fixed radious, and are continually posted to robots. Paths are computed by using the ReedsSheppCarPlanner.")
 public class Circle {

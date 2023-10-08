@@ -1,23 +1,13 @@
 package se.oru.coordination.coordination_oru.simulation2D;
 
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Random;
-import java.util.TreeMap;
-
 import org.metacsp.multi.spatioTemporal.paths.Pose;
 import org.metacsp.multi.spatioTemporal.paths.PoseSteering;
 import org.metacsp.multi.spatioTemporal.paths.Trajectory;
 import org.metacsp.multi.spatioTemporal.paths.TrajectoryEnvelope;
-
-import se.oru.coordination.coordination_oru.AbstractTrajectoryEnvelopeTracker;
-import se.oru.coordination.coordination_oru.NetworkConfiguration;
-import se.oru.coordination.coordination_oru.RobotReport;
-import se.oru.coordination.coordination_oru.TrackingCallback;
-import se.oru.coordination.coordination_oru.TrajectoryEnvelopeCoordinator;
+import se.oru.coordination.coordination_oru.*;
 import se.oru.coordination.coordination_oru.util.Missions;
+
+import java.util.*;
 
 public abstract class TrajectoryEnvelopeTrackerRK4 extends AbstractTrajectoryEnvelopeTracker implements Runnable {
 
@@ -32,9 +22,9 @@ public abstract class TrajectoryEnvelopeTrackerRK4 extends AbstractTrajectoryEnv
 	private Thread th = null;
 	protected State state = null;
 	protected double[] curvatureDampening = null;
-	private ArrayList<Integer> internalCriticalPoints = new ArrayList<Integer>();
+	private final ArrayList<Integer> internalCriticalPoints = new ArrayList<Integer>();
 	private int numberOfReplicas = 1;
-	private Random rand = new Random(Calendar.getInstance().getTimeInMillis()); 
+	private final Random rand = new Random(Calendar.getInstance().getTimeInMillis());
 	private TreeMap<Double,Double> slowDownProfile = null;
 	private boolean slowingDown = false;
 	private boolean useInternalCPs = true;
@@ -182,7 +172,7 @@ public abstract class TrajectoryEnvelopeTrackerRK4 extends AbstractTrajectoryEnv
 			}
 				
 			//Get the message according to packet loss probability (numberOfReplicas trials)
-			boolean received = (NetworkConfiguration.PROBABILITY_OF_PACKET_LOSS > 0) ? false : true;
+			boolean received = !(NetworkConfiguration.PROBABILITY_OF_PACKET_LOSS > 0);
 			int trial = 0;
 			while(!received && trial < numberOfReplicasReceiving) {
 				if (rand.nextDouble() < (1-NetworkConfiguration.PROBABILITY_OF_PACKET_LOSS)) //the real packet loss probability
@@ -598,8 +588,7 @@ public abstract class TrajectoryEnvelopeTrackerRK4 extends AbstractTrajectoryEnv
 					metaCSPLogger.info("Resuming from critical point (" + te.getComponent() + ")");
 					atCP = false;
 				}
-				slowingDown = false;
-				if (state.getPosition() >= positionToSlowDown) slowingDown = true;
+                slowingDown = state.getPosition() >= positionToSlowDown;
 				double dampening = getCurvatureDampening(getRobotReport().getPathIndex(), false);
 				integrateRK4(state, elapsedTrackingTime, deltaTime, slowingDown, MAX_VELOCITY, dampening, MAX_ACCELERATION);
 
@@ -662,12 +651,7 @@ public abstract class TrajectoryEnvelopeTrackerRK4 extends AbstractTrajectoryEnv
 		time = 0.0;
 		while (true) {
 			if (state.getPosition() >= distance/2.0 && state.getVelocity() < 0.0) break;
-			if (state.getPosition() >= positionToSlowDown) {
-				integrateRK4(state, time, deltaTime, true, maxVel, 1.0, maxAccel);
-			}
-			else {
-				integrateRK4(state, time, deltaTime, false, maxVel, 1.0, maxAccel);				
-			}
+            integrateRK4(state, time, deltaTime, state.getPosition() >= positionToSlowDown, maxVel, 1.0, maxAccel);
 			//System.out.println("Time: " + time + " " + rr);
 			//System.out.println("Time: " + MetaCSPLogging.printDouble(time,4) + "\tpos: " + MetaCSPLogging.printDouble(state.getPosition(),4) + "\tvel: " + MetaCSPLogging.printDouble(state.getVelocity(),4));
 			time += deltaTime;

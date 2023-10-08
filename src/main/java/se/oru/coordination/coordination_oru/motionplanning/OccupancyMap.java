@@ -1,8 +1,14 @@
 package se.oru.coordination.coordination_oru.motionplanning;
-import java.awt.BasicStroke;
-import java.awt.Color;
-import java.awt.Graphics2D;
-import java.awt.Shape;
+
+import com.vividsolutions.jts.awt.ShapeWriter;
+import com.vividsolutions.jts.geom.Coordinate;
+import com.vividsolutions.jts.geom.Geometry;
+import com.vividsolutions.jts.geom.util.AffineTransformation;
+import org.metacsp.multi.spatioTemporal.paths.Pose;
+import org.metacsp.utility.logging.MetaCSPLogging;
+
+import javax.imageio.ImageIO;
+import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.awt.image.ColorModel;
 import java.awt.image.WritableRaster;
@@ -13,16 +19,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.BitSet;
 import java.util.logging.Logger;
-
-import javax.imageio.ImageIO;
-
-import org.metacsp.multi.spatioTemporal.paths.Pose;
-import org.metacsp.utility.logging.MetaCSPLogging;
-
-import com.vividsolutions.jts.awt.ShapeWriter;
-import com.vividsolutions.jts.geom.Coordinate;
-import com.vividsolutions.jts.geom.Geometry;
-import com.vividsolutions.jts.geom.util.AffineTransformation;
 
 public class OccupancyMap {
 
@@ -197,7 +193,7 @@ public class OccupancyMap {
 		g2.drawImage(bimg, 0, 0, bimg.getWidth(), bimg.getHeight(), 0, 0, bimg.getWidth(), bimg.getHeight(), null);
 		
 		ShapeWriter writer = new ShapeWriter();
-		float dash1[] = {2.0f};
+		float[] dash1 = {2.0f};
 	    BasicStroke dashed = new BasicStroke(2.0f, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND, 10.0f, dash1, 0.0f);
 	    g2.setStroke(dashed);
 		
@@ -417,7 +413,7 @@ public class OccupancyMap {
 		for(int y=0; y < bimg.getHeight(); y++){
 			for(int x=0; x < bimg.getWidth(); x++){
 				Color c = new Color(bimg.getRGB(x,y));
-				this.occupancyMapLinearBits.set(y*mapWidth+x, c.getRed()/255.0 < this.threshold ? true : false);
+				this.occupancyMapLinearBits.set(y*mapWidth+x, c.getRed() / 255.0 < this.threshold);
 			}
 		}
 		this.occupancyMapLinearBits.set(bimg.getHeight()*bimg.getWidth(), true);

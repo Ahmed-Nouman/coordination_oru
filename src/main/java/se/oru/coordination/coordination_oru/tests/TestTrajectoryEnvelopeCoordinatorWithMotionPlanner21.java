@@ -1,22 +1,15 @@
 package se.oru.coordination.coordination_oru.tests;
 
-import java.io.File;
-import java.util.Comparator;
-
-import org.metacsp.multi.spatioTemporal.paths.Pose;
-
 import com.vividsolutions.jts.geom.Coordinate;
-
-import se.oru.coordination.coordination_oru.ConstantAccelerationForwardModel;
-import se.oru.coordination.coordination_oru.CriticalSection;
-import se.oru.coordination.coordination_oru.Mission;
-import se.oru.coordination.coordination_oru.RobotAtCriticalSection;
-import se.oru.coordination.coordination_oru.RobotReport;
+import org.metacsp.multi.spatioTemporal.paths.Pose;
+import se.oru.coordination.coordination_oru.*;
 import se.oru.coordination.coordination_oru.demo.DemoDescription;
 import se.oru.coordination.coordination_oru.motionplanning.ompl.ReedsSheppCarPlanner;
 import se.oru.coordination.coordination_oru.simulation2D.TrajectoryEnvelopeCoordinatorSimulation;
 import se.oru.coordination.coordination_oru.util.JTSDrawingPanelVisualization;
 import se.oru.coordination.coordination_oru.util.Missions;
+
+import java.util.Comparator;
 
 @DemoDescription(desc = "Example showing case where robots would immediately collide after starting to drive.")
 public class TestTrajectoryEnvelopeCoordinatorWithMotionPlanner21 {

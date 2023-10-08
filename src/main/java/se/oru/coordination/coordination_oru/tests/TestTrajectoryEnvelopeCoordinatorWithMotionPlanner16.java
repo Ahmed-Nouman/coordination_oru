@@ -1,25 +1,15 @@
 package se.oru.coordination.coordination_oru.tests;
 
-import java.io.File;
-import java.util.Comparator;
-
-import javax.swing.JFrame;
-import javax.swing.SwingUtilities;
-
-import org.metacsp.multi.spatioTemporal.paths.Pose;
-
 import com.vividsolutions.jts.geom.Coordinate;
-
-import se.oru.coordination.coordination_oru.ConstantAccelerationForwardModel;
-import se.oru.coordination.coordination_oru.CriticalSection;
-import se.oru.coordination.coordination_oru.Mission;
-import se.oru.coordination.coordination_oru.RobotAtCriticalSection;
-import se.oru.coordination.coordination_oru.RobotReport;
+import org.metacsp.multi.spatioTemporal.paths.Pose;
+import se.oru.coordination.coordination_oru.*;
 import se.oru.coordination.coordination_oru.demo.DemoDescription;
 import se.oru.coordination.coordination_oru.motionplanning.ompl.ReedsSheppCarPlanner;
 import se.oru.coordination.coordination_oru.simulation2D.TrajectoryEnvelopeCoordinatorSimulation;
 import se.oru.coordination.coordination_oru.util.JTSDrawingPanelVisualization;
 import se.oru.coordination.coordination_oru.util.Missions;
+
+import java.util.Comparator;
 
 @DemoDescription(desc = "Example showing coordination in opposing directions (following should happen here).")
 public class TestTrajectoryEnvelopeCoordinatorWithMotionPlanner16 {

@@ -1,25 +1,18 @@
 package se.oru.coordination.coordination_oru.tests.icaps2018.eval;
 
-import java.io.File;
-import java.util.ArrayList;
-import java.util.Comparator;
-
+import com.vividsolutions.jts.geom.Coordinate;
 import org.metacsp.multi.spatioTemporal.paths.Pose;
 import org.metacsp.multi.spatioTemporal.paths.PoseSteering;
-
-import com.vividsolutions.jts.geom.Coordinate;
-
-import se.oru.coordination.coordination_oru.ConstantAccelerationForwardModel;
-import se.oru.coordination.coordination_oru.CriticalSection;
-import se.oru.coordination.coordination_oru.Mission;
-import se.oru.coordination.coordination_oru.RobotAtCriticalSection;
-import se.oru.coordination.coordination_oru.RobotReport;
+import se.oru.coordination.coordination_oru.*;
 import se.oru.coordination.coordination_oru.demo.DemoDescription;
 import se.oru.coordination.coordination_oru.motionplanning.ompl.ReedsSheppCarPlanner;
 import se.oru.coordination.coordination_oru.util.BrowserVisualization;
-import se.oru.coordination.coordination_oru.util.JTSDrawingPanelVisualization;
 import se.oru.coordination.coordination_oru.util.Missions;
 import se.oru.coordination.coordination_oru.util.RVizVisualization;
+
+import java.io.File;
+import java.util.ArrayList;
+import java.util.Comparator;
 
 @DemoDescription(desc = "Coordination of up to 15 robots along single constriction path obtained with the ReedsSheppCarPlanner in opposing directions.")
 public class Experiment1Test1 {
@@ -27,9 +20,8 @@ public class Experiment1Test1 {
 	public static int usedRobots = 0;
 	
 	public static boolean inUse(int robotID) {
-		if (robotID <= usedRobots) return true;
-		return false;
-	}
+        return robotID <= usedRobots;
+    }
 
 	public static void main(String[] args) throws InterruptedException {
 

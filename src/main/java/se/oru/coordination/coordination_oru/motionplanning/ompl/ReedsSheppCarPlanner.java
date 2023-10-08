@@ -1,10 +1,5 @@
 package se.oru.coordination.coordination_oru.motionplanning.ompl;
 
-import java.util.ArrayList;
-
-import org.metacsp.multi.spatioTemporal.paths.Pose;
-import org.metacsp.multi.spatioTemporal.paths.PoseSteering;
-
 import com.sun.jna.Native;
 import com.sun.jna.NativeLibrary;
 import com.sun.jna.Pointer;
@@ -13,18 +8,21 @@ import com.sun.jna.ptr.PointerByReference;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.geom.Polygon;
-
+import org.metacsp.multi.spatioTemporal.paths.Pose;
+import org.metacsp.multi.spatioTemporal.paths.PoseSteering;
 import se.oru.coordination.coordination_oru.motionplanning.AbstractMotionPlanner;
 import se.oru.coordination.coordination_oru.motionplanning.OccupancyMap;
 import se.oru.coordination.coordination_oru.motionplanning.ompl.ReedsSheppCarPlannerLib.PathPose;
 import se.oru.coordination.coordination_oru.util.GeometrySmoother;
 import se.oru.coordination.coordination_oru.util.GeometrySmoother.SmootherControl;
 
+import java.util.ArrayList;
+
 public class ReedsSheppCarPlanner extends AbstractMotionPlanner {
 	
-	public static enum PLANNING_ALGORITHM { RRTConnect, RRTstar, TRRT, SST, LBTRRT, PRMstar, SPARS, pRRT, LazyRRT }; 
+	public enum PLANNING_ALGORITHM { RRTConnect, RRTstar, TRRT, SST, LBTRRT, PRMstar, SPARS, pRRT, LazyRRT }
 
-	private double robotRadius = 1.0;
+    private double robotRadius = 1.0;
 	private PointerByReference path = null;
 	private IntByReference pathLength = null;
 	private double distanceBetweenPathPoints = 0.5;
@@ -56,9 +54,7 @@ public class ReedsSheppCarPlanner extends AbstractMotionPlanner {
 		super.setFootprint(coords);
 		GeometryFactory gf = new GeometryFactory();
 		Coordinate[] newCoords = new Coordinate[coords.length+1];
-		for (int i = 0; i < coords.length; i++) {
-			newCoords[i] = coords[i];
-		}
+        System.arraycopy(coords, 0, newCoords, 0, coords.length);
 		newCoords[newCoords.length-1] = coords[0];
 		Polygon footprint = gf.createPolygon(newCoords);
 		GeometrySmoother gs = new GeometrySmoother(gf);

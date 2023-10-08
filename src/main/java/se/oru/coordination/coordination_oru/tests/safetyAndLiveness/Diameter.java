@@ -1,5 +1,13 @@
 package se.oru.coordination.coordination_oru.tests.safetyAndLiveness;
 
+import com.vividsolutions.jts.geom.Coordinate;
+import org.metacsp.multi.spatioTemporal.paths.Pose;
+import se.oru.coordination.coordination_oru.*;
+import se.oru.coordination.coordination_oru.motionplanning.ompl.ReedsSheppCarPlanner;
+import se.oru.coordination.coordination_oru.simulation2D.TrajectoryEnvelopeCoordinatorSimulation;
+import se.oru.coordination.coordination_oru.util.JTSDrawingPanelVisualization;
+import se.oru.coordination.coordination_oru.util.Missions;
+
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.PrintWriter;
@@ -7,23 +15,6 @@ import java.util.Calendar;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
-
-import org.metacsp.multi.spatioTemporal.paths.Pose;
-
-import com.vividsolutions.jts.geom.Coordinate;
-
-import se.oru.coordination.coordination_oru.ConstantAccelerationForwardModel;
-import se.oru.coordination.coordination_oru.CriticalSection;
-import se.oru.coordination.coordination_oru.Mission;
-import se.oru.coordination.coordination_oru.RobotAtCriticalSection;
-import se.oru.coordination.coordination_oru.RobotReport;
-import se.oru.coordination.coordination_oru.TrackingCallback;
-import se.oru.coordination.coordination_oru.motionplanning.ompl.ReedsSheppCarPlanner;
-import se.oru.coordination.coordination_oru.simulation2D.TrajectoryEnvelopeCoordinatorSimulation;
-import se.oru.coordination.coordination_oru.util.BrowserVisualization;
-import se.oru.coordination.coordination_oru.util.JTSDrawingPanelVisualization;
-import se.oru.coordination.coordination_oru.util.MissionDispatchingCallback;
-import se.oru.coordination.coordination_oru.util.Missions;
 
 public class Diameter {
 	
@@ -224,7 +215,7 @@ public class Diameter {
 						break;
 					}
 					try {
-						Thread.sleep(2*tec.getControlPeriod());
+						Thread.sleep(2L *tec.getControlPeriod());
 					} catch (InterruptedException e) {
 						// TODO Auto-generated catch block
 						e.printStackTrace();

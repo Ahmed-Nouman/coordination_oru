@@ -1,48 +1,36 @@
 package se.oru.coordination.coordination_oru;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.lang.reflect.InvocationTargetException;
-import java.nio.file.Files;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map.Entry;
-import java.util.Random;
-import java.util.Set;
-import java.util.TreeSet;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.logging.Logger;
-
-import javax.swing.SwingUtilities;
-
+import aima.core.util.datastructure.Pair;
+import com.vividsolutions.jts.geom.Coordinate;
+import com.vividsolutions.jts.geom.Geometry;
+import com.vividsolutions.jts.geom.GeometryFactory;
+import com.vividsolutions.jts.geom.util.AffineTransformation;
 import org.apache.commons.collections.comparators.ComparatorChain;
 import org.metacsp.framework.Constraint;
 import org.metacsp.multi.allenInterval.AllenIntervalConstraint;
 import org.metacsp.multi.spatioTemporal.paths.Pose;
 import org.metacsp.multi.spatioTemporal.paths.PoseSteering;
 import org.metacsp.multi.spatioTemporal.paths.TrajectoryEnvelope;
-import org.metacsp.multi.spatioTemporal.paths.TrajectoryEnvelopeSolver;
 import org.metacsp.multi.spatioTemporal.paths.TrajectoryEnvelope.SpatialEnvelope;
+import org.metacsp.multi.spatioTemporal.paths.TrajectoryEnvelopeSolver;
 import org.metacsp.time.Bounds;
 import org.metacsp.utility.UI.Callback;
 import org.metacsp.utility.logging.MetaCSPLogging;
-
-import com.vividsolutions.jts.geom.Coordinate;
-import com.vividsolutions.jts.geom.Geometry;
-import com.vividsolutions.jts.geom.GeometryFactory;
-import com.vividsolutions.jts.geom.util.AffineTransformation;
-
-import aima.core.util.datastructure.Pair;
 import se.oru.coordination.coordination_oru.motionplanning.AbstractMotionPlanner;
 import se.oru.coordination.coordination_oru.util.FleetVisualization;
 import se.oru.coordination.coordination_oru.util.StringUtils;
+
+import javax.swing.*;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.lang.reflect.InvocationTargetException;
+import java.nio.file.Files;
+import java.util.*;
+import java.util.Map.Entry;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.logging.Logger;
 
 /**
  * This class provides coordination for a fleet of robots. An instantiatable {@link AbstractTrajectoryEnvelopeCoordinator}
@@ -89,7 +77,7 @@ public abstract class AbstractTrajectoryEnvelopeCoordinator {
 
 	protected TrajectoryEnvelopeSolver solver = null;
 	protected Thread inference = null;
-	protected volatile Boolean stopInference = new Boolean(true);
+	protected volatile Boolean stopInference = Boolean.TRUE;
 
 	//protected JTSDrawingPanel panel = null;
 	protected FleetVisualization viz = null;
@@ -835,7 +823,7 @@ public abstract class AbstractTrajectoryEnvelopeCoordinator {
 	 */
 	protected void spawnWaitingThread(final int robotID, final int index, final int duration) {
 		Thread stoppingPointTimer = new Thread() {
-			private long startTime = Calendar.getInstance().getTimeInMillis();
+			private final long startTime = Calendar.getInstance().getTimeInMillis();
 			@Override
 			public void run() {
 				metaCSPLogger.info("Waiting thread starts for " + robotID);
@@ -846,8 +834,8 @@ public abstract class AbstractTrajectoryEnvelopeCoordinator {
 				metaCSPLogger.info("Waiting thread finishes for " + robotID);
 				synchronized(solver) {
 					synchronized(stoppingPoints) {
-						stoppingPoints.get(robotID).remove((int)index);
-						stoppingTimes.get(robotID).remove((int)index);
+						stoppingPoints.get(robotID).remove(index);
+						stoppingTimes.get(robotID).remove(index);
 						stoppingPointTimers.remove(robotID);
 					}
 					updateDependencies();
@@ -950,9 +938,7 @@ public abstract class AbstractTrajectoryEnvelopeCoordinator {
 			GeometryFactory gf = new GeometryFactory();
 			Coordinate[] footprint = this.getFootprint(robotID);
 			Coordinate[] newFoot = new Coordinate[footprint.length+1];
-			for (int j = 0; j < footprint.length; j++) {
-				newFoot[j] = footprint[j];
-			}
+            System.arraycopy(footprint, 0, newFoot, 0, footprint.length);
 			newFoot[footprint.length] = footprint[0];
 			Geometry obstacle = gf.createPolygon(newFoot);
 			AffineTransformation at = new AffineTransformation();
@@ -1051,10 +1037,7 @@ public abstract class AbstractTrajectoryEnvelopeCoordinator {
 							int minStart1 = currentReports.containsKey(drivingEnvelopes.get(i).getRobotID()) ? currentReports.get(drivingEnvelopes.get(i).getRobotID()).getPathIndex() : -1;
 							int minStart2 = currentReports.containsKey(envelopesToTrack.get(j).getRobotID()) ? currentReports.get(envelopesToTrack.get(j).getRobotID()).getPathIndex() : -1;
 							double maxDimensionOfSmallestRobot = Math.min(getMaxFootprintDimension(drivingEnvelopes.get(i).getRobotID()), getMaxFootprintDimension(envelopesToTrack.get(j).getRobotID()));
-							for (CriticalSection cs : getCriticalSections(null, null, drivingEnvelopes.get(i), minStart1, envelopesToTrack.get(j), minStart2, this.checkEscapePoses, maxDimensionOfSmallestRobot)) {
-								this.allCriticalSections.add(cs);
-								//metaCSPLogger.info("computeCriticalSections(): add (1) " + cs); 								
-							}
+                            Collections.addAll(this.allCriticalSections, getCriticalSections(null, null, drivingEnvelopes.get(i), minStart1, envelopesToTrack.get(j), minStart2, this.checkEscapePoses, maxDimensionOfSmallestRobot));
 						}
 					}
 				}	
@@ -1066,10 +1049,7 @@ public abstract class AbstractTrajectoryEnvelopeCoordinator {
 							int minStart1 = currentReports.containsKey(envelopesToTrack.get(i).getRobotID()) ? currentReports.get(envelopesToTrack.get(i).getRobotID()).getPathIndex() : -1;
 							int minStart2 = currentReports.containsKey(envelopesToTrack.get(j).getRobotID()) ? currentReports.get(envelopesToTrack.get(j).getRobotID()).getPathIndex() : -1;
 							double maxDimensionOfSmallestRobot = Math.min(getMaxFootprintDimension(envelopesToTrack.get(i).getRobotID()), getMaxFootprintDimension(envelopesToTrack.get(j).getRobotID()));
-							for (CriticalSection cs : getCriticalSections(null, null, envelopesToTrack.get(i), minStart1, envelopesToTrack.get(j), minStart2, this.checkEscapePoses, maxDimensionOfSmallestRobot)) {
-								this.allCriticalSections.add(cs);
-								//metaCSPLogger.info("computeCriticalSections(): add (2) " + cs);
-							}
+                            Collections.addAll(this.allCriticalSections, getCriticalSections(null, null, envelopesToTrack.get(i), minStart1, envelopesToTrack.get(j), minStart2, this.checkEscapePoses, maxDimensionOfSmallestRobot));
 						}
 					}
 				}
@@ -1081,10 +1061,7 @@ public abstract class AbstractTrajectoryEnvelopeCoordinator {
 							int minStart1 = currentReports.containsKey(drivingEnvelopes.get(i).getRobotID()) ? currentReports.get(drivingEnvelopes.get(i).getRobotID()).getPathIndex() : -1;
 							int minStart2 = currentReports.containsKey(currentParkingEnvelopes.get(j).getRobotID()) ? currentReports.get(currentParkingEnvelopes.get(j).getRobotID()).getPathIndex() : -1;
 							double maxDimensionOfSmallestRobot = Math.min(getMaxFootprintDimension(drivingEnvelopes.get(i).getRobotID()), getMaxFootprintDimension(currentParkingEnvelopes.get(j).getRobotID()));
-							for (CriticalSection cs : getCriticalSections(null, null, drivingEnvelopes.get(i), minStart1, currentParkingEnvelopes.get(j), minStart2, this.checkEscapePoses, maxDimensionOfSmallestRobot)) {
-								this.allCriticalSections.add(cs);	
-								//metaCSPLogger.info("computeCriticalSections(): add (3) " + cs);
-							}
+                            Collections.addAll(this.allCriticalSections, getCriticalSections(null, null, drivingEnvelopes.get(i), minStart1, currentParkingEnvelopes.get(j), minStart2, this.checkEscapePoses, maxDimensionOfSmallestRobot));
 						}
 					}
 				}
@@ -1096,10 +1073,7 @@ public abstract class AbstractTrajectoryEnvelopeCoordinator {
 							int minStart1 = currentReports.containsKey(envelopesToTrack.get(i).getRobotID()) ? currentReports.get(envelopesToTrack.get(i).getRobotID()).getPathIndex() : -1;
 							int minStart2 = currentReports.containsKey(currentParkingEnvelopes.get(j).getRobotID()) ? currentReports.get(currentParkingEnvelopes.get(j).getRobotID()).getPathIndex() : -1;
 							double maxDimensionOfSmallestRobot = Math.min(getMaxFootprintDimension(envelopesToTrack.get(i).getRobotID()), getMaxFootprintDimension(currentParkingEnvelopes.get(j).getRobotID()));
-							for (CriticalSection cs : getCriticalSections(null, null, envelopesToTrack.get(i), minStart1, currentParkingEnvelopes.get(j), minStart2, this.checkEscapePoses, maxDimensionOfSmallestRobot)) {
-								this.allCriticalSections.add(cs);
-								//metaCSPLogger.info("computeCriticalSections(): add (4) " + cs);
-							}
+                            Collections.addAll(this.allCriticalSections, getCriticalSections(null, null, envelopesToTrack.get(i), minStart1, currentParkingEnvelopes.get(j), minStart2, this.checkEscapePoses, maxDimensionOfSmallestRobot));
 						}
 					}
 				}			
@@ -1128,9 +1102,9 @@ public abstract class AbstractTrajectoryEnvelopeCoordinator {
 	/**
 	 * Utility that is called at the end of each critical section update.
 	 */
-	protected void onCriticalSectionUpdate() {};
+	protected void onCriticalSectionUpdate() {}
 
-	protected void filterCriticalSections() {
+    protected void filterCriticalSections() {
 		ArrayList<CriticalSection> toRemove = new ArrayList<CriticalSection>();
 		ArrayList<CriticalSection> allCriticalSectionsList = new ArrayList<CriticalSection>();
 		for (CriticalSection cs : this.allCriticalSections) allCriticalSectionsList.add(cs);
@@ -1586,10 +1560,8 @@ public abstract class AbstractTrajectoryEnvelopeCoordinator {
 				ArrayList<Constraint> consToAdd = new ArrayList<Constraint>();
 				//				String finalDestLocation = "";
 				ArrayList<PoseSteering> overallPath = new ArrayList<PoseSteering>();
-				for (Mission m : e.getValue()) {						
-					for (PoseSteering ps : m.getPath()) {
-						overallPath.add(ps);
-					}
+				for (Mission m : e.getValue()) {
+                    Collections.addAll(overallPath, m.getPath());
 				}
 
 				//Create a big overall driving envelope
@@ -1605,7 +1577,7 @@ public abstract class AbstractTrajectoryEnvelopeCoordinator {
 							int stoppingPoint = te.getSequenceNumber(new Coordinate(stoppingPose.getX(), stoppingPose.getY()));
 							if (stoppingPoint == te.getPathLength()-1) stoppingPoint -= 2;
 							int duration = entry.getValue();
-							if (!stoppingPoints.keySet().contains(robotID)) {
+							if (!stoppingPoints.containsKey(robotID)) {
 								stoppingPoints.put(robotID, new ArrayList<Integer>());
 								stoppingTimes.put(robotID, new ArrayList<Integer>());
 							}
@@ -1621,7 +1593,7 @@ public abstract class AbstractTrajectoryEnvelopeCoordinator {
 						Mission m = e.getValue().get(i);
 						Pose destPose = m.getToPose();
 						int stoppingPoint = te.getSequenceNumber(new Coordinate(destPose.getX(), destPose.getY()));
-						if (!stoppingPoints.keySet().contains(robotID)) {
+						if (!stoppingPoints.containsKey(robotID)) {
 							stoppingPoints.put(robotID, new ArrayList<Integer>());
 							stoppingTimes.put(robotID, new ArrayList<Integer>());
 						}
@@ -1746,9 +1718,9 @@ public abstract class AbstractTrajectoryEnvelopeCoordinator {
 	 * Specifies what happens when a new mission is dispatched.
 	 * @param robotID The ID of the robot which is starting a new mission.
 	 */
-	protected void onNewMissionDispatched(int robotID) {};
+	protected void onNewMissionDispatched(int robotID) {}
 
-	protected void setupInferenceCallback() {
+    protected void setupInferenceCallback() {
 
 		this.stopInference = false;
 		this.inference = new Thread("Coordinator inference") {

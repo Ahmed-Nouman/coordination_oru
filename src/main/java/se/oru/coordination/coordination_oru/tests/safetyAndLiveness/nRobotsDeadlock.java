@@ -1,14 +1,7 @@
 package se.oru.coordination.coordination_oru.tests.safetyAndLiveness;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.PrintWriter;
-import java.util.Calendar;
-import java.util.Comparator;
-import java.util.HashMap;
-import org.metacsp.multi.spatioTemporal.paths.Pose;
 import com.vividsolutions.jts.geom.Coordinate;
-
+import org.metacsp.multi.spatioTemporal.paths.Pose;
 import se.oru.coordination.coordination_oru.ConstantAccelerationForwardModel;
 import se.oru.coordination.coordination_oru.Mission;
 import se.oru.coordination.coordination_oru.RobotAtCriticalSection;
@@ -17,7 +10,13 @@ import se.oru.coordination.coordination_oru.motionplanning.ompl.ReedsSheppCarPla
 import se.oru.coordination.coordination_oru.simulation2D.TrajectoryEnvelopeCoordinatorSimulation;
 import se.oru.coordination.coordination_oru.util.BrowserVisualization;
 import se.oru.coordination.coordination_oru.util.Missions;
-import se.oru.coordination.coordination_oru.util.RVizVisualization;
+
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.PrintWriter;
+import java.util.Calendar;
+import java.util.Comparator;
+import java.util.HashMap;
 
 @DemoDescription(desc = "Coordination with deadlock-inducing ordering heuristic (paths obtained with the ReedsSheppCarPlanner).")
 public class nRobotsDeadlock {
@@ -153,7 +152,7 @@ public class nRobotsDeadlock {
 				public void run() {
 					boolean firstTime = true;
 					long startTime = Calendar.getInstance().getTimeInMillis();
-					while (true && !Missions.getMissions(robotID).isEmpty()) {
+					while (!Missions.getMissions(robotID).isEmpty()) {
 						synchronized(tec.getSolver()) {
 							Mission m = Missions.peekMission(robotID);
 							if (tec.addMissions(m)) {

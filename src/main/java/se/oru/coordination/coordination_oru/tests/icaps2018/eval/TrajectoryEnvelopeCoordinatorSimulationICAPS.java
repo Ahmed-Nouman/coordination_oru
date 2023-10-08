@@ -1,16 +1,15 @@
 package se.oru.coordination.coordination_oru.tests.icaps2018.eval;
 
+import org.metacsp.utility.UI.Callback;
+import se.oru.coordination.coordination_oru.AbstractTrajectoryEnvelopeTracker;
+import se.oru.coordination.coordination_oru.TrajectoryEnvelopeTrackerDummy;
+import se.oru.coordination.coordination_oru.simulation2D.TrajectoryEnvelopeCoordinatorSimulation;
+
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Calendar;
-
-import org.metacsp.utility.UI.Callback;
-
-import se.oru.coordination.coordination_oru.AbstractTrajectoryEnvelopeTracker;
-import se.oru.coordination.coordination_oru.TrajectoryEnvelopeTrackerDummy;
-import se.oru.coordination.coordination_oru.simulation2D.TrajectoryEnvelopeCoordinatorSimulation;
 
 public class TrajectoryEnvelopeCoordinatorSimulationICAPS extends TrajectoryEnvelopeCoordinatorSimulation {
 	

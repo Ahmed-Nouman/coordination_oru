@@ -1,19 +1,17 @@
 package se.oru.coordination.coordination_oru.util;
 
 
+import com.vividsolutions.jts.geom.Coordinate;
+import org.eclipse.jetty.websocket.api.RemoteEndpoint;
+import org.eclipse.jetty.websocket.api.Session;
+import org.eclipse.jetty.websocket.api.WebSocketAdapter;
+
+import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.HashSet;
-
-import javax.imageio.ImageIO;
-
-import org.eclipse.jetty.websocket.api.RemoteEndpoint;
-import org.eclipse.jetty.websocket.api.Session;
-import org.eclipse.jetty.websocket.api.WebSocketAdapter;
-
-import com.vividsolutions.jts.geom.Coordinate;
 
 public class BrowserVisualizationSocket extends WebSocketAdapter {
 	

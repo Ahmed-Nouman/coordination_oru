@@ -3,13 +3,13 @@ package se.oru.coordination.coordination_oru.scenarios;
 import org.metacsp.multi.spatioTemporal.paths.Pose;
 import se.oru.coordination.coordination_oru.ConstantAccelerationForwardModel;
 import se.oru.coordination.coordination_oru.Mission;
-import se.oru.coordination.coordination_oru.vehicles.AutonomousVehicle;
-import se.oru.coordination.coordination_oru.util.Heuristics;
-import se.oru.coordination.coordination_oru.vehicles.LookAheadVehicle;
 import se.oru.coordination.coordination_oru.simulation2D.TrajectoryEnvelopeCoordinatorSimulation;
 import se.oru.coordination.coordination_oru.util.BrowserVisualization;
+import se.oru.coordination.coordination_oru.util.Heuristics;
 import se.oru.coordination.coordination_oru.util.Missions;
 import se.oru.coordination.coordination_oru.util.RandomRobotCaller;
+import se.oru.coordination.coordination_oru.vehicles.AutonomousVehicle;
+import se.oru.coordination.coordination_oru.vehicles.LookAheadVehicle;
 
 import java.awt.*;
 import java.io.FileNotFoundException;
@@ -20,8 +20,9 @@ public class PaperScenario_3A1L {
         String absolutePath = System.getProperty("user.dir");
         String resultsDirectory = absolutePath + "/src/main/java/se/oru/coordination/coordination_oru/results/lookAheadPaper_2023";
         final String YAML_FILE = "maps/mine-map-paper-2023.yaml";
-        double lookAheadDistance = 20;
-        int intervalInSeconds = 1;
+        double lookAheadDistance = 60;
+        double timeIntervalInSeconds = 0.25;
+        int updateCycleTime = 100;
         int terminationInMinutes = 30;
         int numOfCallsForLookAheadRobot = 20;
         boolean visualization = true;
@@ -119,33 +120,10 @@ public class PaperScenario_3A1L {
 //        Missions.enqueueMission(m4);
         Missions.setMap(YAML_FILE);
 
-//        ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
-
-        // Schedule the task to run every 500 milliseconds after an initial delay of 500 milliseconds
-//        scheduler.scheduleAtFixedRate(() -> lookAheadUpdateCall(lookAheadDistance, tec),
-//        500, 500, TimeUnit.MILLISECONDS);
-
-        // In a real-world scenario, you might want to let the task run indefinitely,
-        // but for this example, we'll shut it down after some time (e.g., 5 seconds)
-//        try {
-//            Thread.sleep(5000);
-//        } catch (InterruptedException e) {
-//            e.printStackTrace();
-//        }
-//
-//        scheduler.shutdown();
-
 //        Missions.startMissionDispatchers(tec, true, 1, 2, 3, 4);
         Missions.startMissionDispatchers(tec, writeRobotReports,
-                intervalInSeconds, terminationInMinutes, heuristicName, resultsDirectory);
-    }
-
-    private static void lookAheadUpdateCall(double lookAheadDistance, TrajectoryEnvelopeCoordinatorSimulation tec) {
-        // Update look-ahead paths
-        if (lookAheadDistance != -1) {
-            System.out.println("Updating Path");
-//            LookAheadRobot.updateLookAheadRobotPath(tec);
-        }
+                timeIntervalInSeconds, terminationInMinutes, heuristicName,
+                updateCycleTime, resultsDirectory);
     }
 }
 

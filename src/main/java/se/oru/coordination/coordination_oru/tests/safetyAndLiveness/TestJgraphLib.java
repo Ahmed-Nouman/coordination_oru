@@ -1,12 +1,11 @@
 package se.oru.coordination.coordination_oru.tests.safetyAndLiveness;
 
-import java.util.List;
-
+import aima.core.util.datastructure.Pair;
 import org.jgrapht.alg.cycle.JohnsonSimpleCycles;
 import org.jgrapht.graph.DefaultWeightedEdge;
 import org.jgrapht.graph.SimpleDirectedGraph;
 
-import aima.core.util.datastructure.Pair;
+import java.util.List;
 
 public class TestJgraphLib {
 
@@ -27,7 +26,7 @@ public class TestJgraphLib {
 				for (int i = 0; i < cycle.size(); i++) {
 					int j = i < cycle.size()-1 ? i+1 : 0;
 					Pair<Integer, Integer> edge = new Pair<Integer, Integer>(cycle.get(i), cycle.get(j));
-					System.out.println("edge: " + edge.toString());
+					System.out.println("edge: " + edge);
 				}
 			}
 		}

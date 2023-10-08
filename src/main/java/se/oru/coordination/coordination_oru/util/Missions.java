@@ -1,17 +1,29 @@
 package se.oru.coordination.coordination_oru.util;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.reflect.TypeToken;
+import com.vividsolutions.jts.geom.Coordinate;
+import com.vividsolutions.jts.geom.Geometry;
+import org.jgrapht.GraphPath;
+import org.jgrapht.alg.shortestpath.DijkstraShortestPath;
+import org.jgrapht.graph.DefaultWeightedEdge;
+import org.jgrapht.graph.SimpleDirectedWeightedGraph;
+import org.metacsp.multi.spatioTemporal.paths.Pose;
+import org.metacsp.multi.spatioTemporal.paths.PoseSteering;
+import org.metacsp.multi.spatioTemporal.paths.Trajectory;
+import org.metacsp.multi.spatioTemporal.paths.TrajectoryEnvelope;
+import org.metacsp.utility.logging.MetaCSPLogging;
+import se.oru.coordination.coordination_oru.Mission;
+import se.oru.coordination.coordination_oru.TrajectoryEnvelopeCoordinator;
+import se.oru.coordination.coordination_oru.motionplanning.AbstractMotionPlanner;
+import se.oru.coordination.coordination_oru.vehicles.AutonomousVehicle;
+import se.oru.coordination.coordination_oru.vehicles.LookAheadVehicle;
+import se.oru.coordination.coordination_oru.vehicles.VehiclesHashMap;
+
+import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
-import java.io.BufferedReader;
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.FileReader;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.PrintWriter;
+import java.io.*;
 import java.lang.reflect.Type;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -22,31 +34,6 @@ import java.util.logging.Logger;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
-
-import javax.imageio.ImageIO;
-
-import org.jgrapht.GraphPath;
-import org.jgrapht.alg.shortestpath.DijkstraShortestPath;
-import org.jgrapht.graph.DefaultWeightedEdge;
-import org.jgrapht.graph.SimpleDirectedWeightedGraph;
-import org.metacsp.multi.spatioTemporal.paths.Pose;
-import org.metacsp.multi.spatioTemporal.paths.PoseSteering;
-import org.metacsp.multi.spatioTemporal.paths.Trajectory;
-import org.metacsp.multi.spatioTemporal.paths.TrajectoryEnvelope;
-import org.metacsp.utility.logging.MetaCSPLogging;
-
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.google.gson.reflect.TypeToken;
-import com.vividsolutions.jts.geom.Coordinate;
-import com.vividsolutions.jts.geom.Geometry;
-
-import se.oru.coordination.coordination_oru.Mission;
-import se.oru.coordination.coordination_oru.TrajectoryEnvelopeCoordinator;
-import se.oru.coordination.coordination_oru.motionplanning.AbstractMotionPlanner;
-import se.oru.coordination.coordination_oru.vehicles.AutonomousVehicle;
-import se.oru.coordination.coordination_oru.vehicles.LookAheadVehicle;
-import se.oru.coordination.coordination_oru.vehicles.VehiclesHashMap;
 
 /**
  * This class collects utility methods for storing {@link Mission}s, regulating their dispatch, maintaining locations
@@ -59,7 +46,7 @@ public class Missions {
 
 	protected static HashMap<String,Pose> locations = new HashMap<String, Pose>();
 	protected static HashMap<String,PoseSteering[]> paths = new HashMap<String, PoseSteering[]>();
-	private static Logger metaCSPLogger = MetaCSPLogging.getLogger(Missions.class);
+	private static final Logger metaCSPLogger = MetaCSPLogging.getLogger(Missions.class);
 	protected static HashMap<Integer,ArrayList<Mission>> missions = new HashMap<Integer, ArrayList<Mission>>();
 	protected static HashMap<Integer,MissionDispatchingCallback> mdcs = new HashMap<Integer, MissionDispatchingCallback>();
 	protected static HashMap<Mission,ArrayList<Mission>> concatenatedMissions = new HashMap<Mission, ArrayList<Mission>>();
@@ -246,7 +233,7 @@ public class Missions {
 		}
 		catch (IOException e) { 
 			e.printStackTrace(); 
-			throw new Error("Unable to estract the ZIP file: " + e.toString());
+			throw new Error("Unable to estract the ZIP file: " + e);
 		}
         return json;
 	}
@@ -269,13 +256,13 @@ public class Missions {
 	}
 	
 	private static class ScenarioContainer {
-		private String locationsJSON;
-		private String pathsJSON;
-		private String missionsJSON;
-		private String mapYAMLJSON;
-		private String mapImageFilenameJSON;
-		private String mapResolutionJSON;
-		private String mapOriginJSON;
+		private final String locationsJSON;
+		private final String pathsJSON;
+		private final String missionsJSON;
+		private final String mapYAMLJSON;
+		private final String mapImageFilenameJSON;
+		private final String mapResolutionJSON;
+		private final String mapOriginJSON;
 		private ScenarioContainer() {
 			this.missionsJSON = Missions.getJSONString(Missions.missions);
             this.pathsJSON = Missions.getJSONString(Missions.paths);
@@ -320,7 +307,7 @@ public class Missions {
         }
         catch (IOException e) { 
         	e.printStackTrace(); 
-        	throw new Error("Unable to save the scenario: " + e.toString()); 
+        	throw new Error("Unable to save the scenario: " + e);
         }		
 	}
 	
@@ -478,9 +465,7 @@ public class Missions {
 		    	//PoseSteering[] onePath = loadKnownPath(oneShortestPath.get(i),oneShortestPath.get(i+1));
 		    	PoseSteering[] onePath = paths.get(oneShortestPath.get(i)+"->"+oneShortestPath.get(i+1));
 		    	if (i == 0) allPoses.add(onePath[0]);
-		    	for (int j = 1; j < onePath.length-1; j++) {
-		    		allPoses.add(onePath[j]);
-		    	}
+                allPoses.addAll(Arrays.asList(onePath).subList(1, onePath.length - 1));
 		    	if (i == oneShortestPath.size()-2) allPoses.add(onePath[onePath.length-1]);
 		    }
 		    if (k == 0) overallShortestPath.add(allPoses.get(0));
@@ -765,7 +750,7 @@ public class Missions {
 		}
 		catch (FileNotFoundException e) { 
 			e.printStackTrace(); 
-			throw new Error("Unable to load the required scenario: " + e.toString());
+			throw new Error("Unable to load the required scenario: " + e);
 		}
 		Missions.buildGraph();
 	}
@@ -1038,7 +1023,7 @@ public class Missions {
 	 */
 	public static void concatenateMissions(Mission ... m) {
 		ArrayList<Mission> toAdd = new ArrayList<Mission>();
-		for (Mission oneM : m) toAdd.add(oneM);
+        Collections.addAll(toAdd, m);
 		concatenatedMissions.put(m[0], toAdd);
 	}
 		
@@ -1155,12 +1140,13 @@ public class Missions {
 	 * @param heuristicName The name of the heuristic used in the current simulation run.
 	 * @param resultDirectory The directory where to write the robot reports.
 	 */
-	public static void startMissionDispatchers(TrajectoryEnvelopeCoordinator tec, boolean writeReports, int intervalInSeconds,
-											   int terminationInMinutes, String heuristicName, String resultDirectory) {
+	public static void startMissionDispatchers(TrajectoryEnvelopeCoordinator tec, boolean writeReports, double intervalInSeconds,
+											   int terminationInMinutes, String heuristicName,
+											   int coordinationTime, String resultDirectory) {
 
 		// Write robot reports to resultDirectory folder in .csv format
 		writeReports(tec, writeReports, intervalInSeconds,
-				terminationInMinutes, heuristicName, resultDirectory);
+				terminationInMinutes, heuristicName, coordinationTime, resultDirectory);
 
 		// Add autonomous robots only for mission looping
 		addRobotsForLooping(tec);
@@ -1271,21 +1257,21 @@ public class Missions {
 	}
 
 	/**
-	 * Writes robot reports to the specified directory if requested.
-	 * The reports are written at an interval defined by {@code intervalInSeconds} and for a
-	 * duration defined by {@code terminationInMinutes}. The name of the heuristic used in the
-	 * current simulation run, defined by {@code heuristicName}, is also recorded.
+	 * Writes robot reports to the specified directory based on the provided conditions.
+	 * Robot reports are generated at an interval and for a duration defined by the user.
+	 * The method also accommodates heuristic information for the simulation.
 	 *
-	 * @param tec The {@link TrajectoryEnvelopeCoordinator} that coordinates the missions.
-	 * @param writeReports {@code true} to write reports; {@code false} otherwise.
-	 * @param intervalInSeconds The interval in seconds between consecutive reports.
-	 * @param terminationInMinutes The termination time in minutes for writing reports.
-	 * @param heuristicName The name of the heuristic used in the current simulation run.
-	 * @param resultDirectory The directory where to write the robot reports.
+	 * @param tec                The {@link TrajectoryEnvelopeCoordinator} managing the missions.
+	 * @param writeReports       Determines if reports should be written. {@code true} for writing, {@code false} otherwise.
+	 * @param intervalInSeconds  The time interval (in seconds) between consecutive report generations.
+	 * @param terminationInMinutes The maximum duration (in minutes) for which reports should be written.
+	 * @param heuristicName      The name of the heuristic used during the simulation.
+	 * @param updateCycleTime    The cycle time for updating the coordination thread.
+	 * @param resultDirectory    The directory path where the robot reports will be saved.
 	 */
 	public static void writeReports(TrajectoryEnvelopeCoordinator tec,
-									boolean writeReports, int intervalInSeconds, int terminationInMinutes,
-									String heuristicName, String resultDirectory) {
+									boolean writeReports, double intervalInSeconds, int terminationInMinutes,
+									String heuristicName, int updateCycleTime, String resultDirectory) {
 		double updatedLookAheadDistance = 0.0;
 		double lookAheadDistance = 0.0;
 
@@ -1306,28 +1292,30 @@ public class Missions {
 			System.out.println("Writing robot reports.");
 			double distance = lookAheadDistance > 0 ? lookAheadDistance : updatedLookAheadDistance;
 
-			String filePath = createFile(distance, heuristicName, resultDirectory);
+			String filePath = createFile(distance, heuristicName, updateCycleTime, resultDirectory);
 			var reportCollector = new RobotReportCollector();
-			reportCollector.handleRobotReports(tec, filePath, intervalInSeconds, terminationInMinutes);
+			reportCollector.handleRobotReports(tec, filePath, (long) (1000 * intervalInSeconds), terminationInMinutes);
 		} else {
 			System.out.println("Not writing robot reports.");
 		}
 	}
 
 	/**
-	 * Creates the directory for storing report files and prepares the complete file path.
-	 * The file name is determined based on the number of autonomous and lookahead robots,
-	 * heuristics used, and the lookahead distance. If the specified directory does not exist,
-	 * this method attempts to create it.
+	 * Constructs a file path for saving robot reports. The method also creates the directory
+	 * if it doesn't exist. The filename is derived from the count of autonomous and lookahead robots,
+	 * the heuristic applied, and the lookahead distance.
 	 *
-	 * @param lookAheadDistance The lookahead distance. It should be a positive number.
-	 * @param heuristicName The name of the heuristic used. It should not be {@code null}.
-	 * @param resultDirectory The path to the directory where the file will be created.
-	 *                        This should be an existing path, or a path that can be created.
-	 * @return The complete file path as a string, comprising the resultDirectory and the generated filename.
+	 * @param lookAheadDistance  The distance for which the robot plans its path ahead of its current position.
+	 *                           Should be a positive number.
+	 * @param heuristicName      The heuristic's name used in the simulation. Expected to be non-null.
+	 * @param updateCycleTime    The cycle time for updating the coordination thread.
+	 * @param resultDirectory    The directory path where the robot report files will be saved.
+	 *                           If the path doesn't exist, the method attempts to create it.
+	 * @return                   The full path, including directory and filename, where the report will be saved.
 	 */
 
-	public static String createFile(double lookAheadDistance, String heuristicName, String resultDirectory) {
+	public static String createFile(double lookAheadDistance, String heuristicName, int updateCycleTime,
+									String resultDirectory) {
 
 		Path directoryPath = Paths.get(resultDirectory);
 
@@ -1352,8 +1340,8 @@ public class Missions {
 		}
 
 		// Generate the filename based on the number of autonomous and lookahead robots
-		String fileName = "A" + autonomousRobotCount + "L" + lookAheadRobotCount +
-				"_" + heuristicName.charAt(0) + "_" + (int) lookAheadDistance + "_";
+		String fileName = "A" + autonomousRobotCount + "H" + lookAheadRobotCount +
+				"_" + heuristicName.charAt(0) + "_" + (int) lookAheadDistance + "_" + updateCycleTime + "_";
 
 		return resultDirectory + "/" + fileName;
 	}

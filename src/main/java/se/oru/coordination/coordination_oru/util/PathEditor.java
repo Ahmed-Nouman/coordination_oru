@@ -1,14 +1,23 @@
 package se.oru.coordination.coordination_oru.util;
 
-import java.awt.Color;
-import java.awt.Graphics2D;
+import com.vividsolutions.jts.geom.Coordinate;
+import com.vividsolutions.jts.geom.Geometry;
+import com.vividsolutions.jts.geom.GeometryFactory;
+import com.vividsolutions.jts.geom.util.AffineTransformation;
+import org.metacsp.multi.spatioTemporal.paths.Pose;
+import org.metacsp.multi.spatioTemporal.paths.PoseSteering;
+import org.metacsp.utility.UI.JTSDrawingPanel;
+import se.oru.coordination.coordination_oru.motionplanning.ompl.ReedsSheppCarPlanner;
+import se.oru.coordination.coordination_oru.util.splines.Spline3D;
+import se.oru.coordination.coordination_oru.util.splines.SplineFactory;
+
+import javax.swing.*;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
-import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
-import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -16,28 +25,10 @@ import java.util.Map.Entry;
 import java.util.Scanner;
 import java.util.TreeMap;
 
-import javax.imageio.ImageIO;
-import javax.swing.AbstractAction;
-import javax.swing.JOptionPane;
-import javax.swing.KeyStroke;
-
-import org.metacsp.multi.spatioTemporal.paths.Pose;
-import org.metacsp.multi.spatioTemporal.paths.PoseSteering;
-import org.metacsp.utility.UI.JTSDrawingPanel;
-
-import com.vividsolutions.jts.geom.Coordinate;
-import com.vividsolutions.jts.geom.Geometry;
-import com.vividsolutions.jts.geom.GeometryFactory;
-import com.vividsolutions.jts.geom.util.AffineTransformation;
-
-import se.oru.coordination.coordination_oru.motionplanning.ompl.ReedsSheppCarPlanner;
-import se.oru.coordination.coordination_oru.util.splines.Spline3D;
-import se.oru.coordination.coordination_oru.util.splines.SplineFactory;
-
 public class PathEditor {
 
 	private static String PREFIX = null;
-	private static int EMPTY_MAP_DIM = 10000;
+	private static final int EMPTY_MAP_DIM = 10000;
 	private static double OBSTACLE_SIZE = 2.0;
 	private static double MAX_TURNING_RADIUS = 5.0;
 	private static double MIN_DISTANCE_BETWEEN_PATH_POINTS = 0.4;
@@ -48,30 +39,28 @@ public class PathEditor {
 	private String posesFileName = null;
 	private boolean selectionPathPointInputListen = false;
 	private String selectionString = "";
-	private ArrayList<Integer> selectedPathPointsInt = new ArrayList<Integer>();
+	private final ArrayList<Integer> selectedPathPointsInt = new ArrayList<Integer>();
 	private boolean selectionObsInputListen = false;
-	private ArrayList<Integer> selectedObsInt = new ArrayList<Integer>();
-	private ArrayList<Geometry> obstacles = new ArrayList<Geometry>();
+	private final ArrayList<Integer> selectedObsInt = new ArrayList<Integer>();
+	private final ArrayList<Geometry> obstacles = new ArrayList<Geometry>();
 	private ArrayList<PoseSteering> path = null;
-	private ArrayList<ArrayList<PoseSteering>> oldPaths = new ArrayList<ArrayList<PoseSteering>>(); 
+	private final ArrayList<ArrayList<PoseSteering>> oldPaths = new ArrayList<ArrayList<PoseSteering>>();
 	private JTSDrawingPanel panel = null;
 	private double deltaX = 0.1;
 	private double deltaY = 0.1;
 	private double deltaT = 0.1;
-	private double deltaTR = 0.1;
+	private final double deltaTR = 0.1;
 	private String newFileSuffix = ".new";
 	private Coordinate[] obstacleFootprint = null;
-	private ArrayList<Pose> obstacleCenters = new ArrayList<Pose>();
-	private ArrayList<String> obstacleNames = new ArrayList<String>();
-	private static boolean USE_MP = false; 
+	private final ArrayList<Pose> obstacleCenters = new ArrayList<Pose>();
+	private final ArrayList<String> obstacleNames = new ArrayList<String>();
+	private static final boolean USE_MP = false;
 	
-	private static String TEMP_MAP_DIR = ".tempMapsPathEditor";
+	private static final String TEMP_MAP_DIR = ".tempMapsPathEditor";
 	
 	public void setObstacleFootprint(Coordinate[] footprint) {
 		this.obstacleFootprint = new Coordinate[footprint.length+1];
-		for (int i = 0; i < footprint.length; i++) {
-			obstacleFootprint[i] = footprint[i];
-		}
+        System.arraycopy(footprint, 0, obstacleFootprint, 0, footprint.length);
 		obstacleFootprint[footprint.length] = footprint[0];
 	}
 	
@@ -100,9 +89,9 @@ public class PathEditor {
 						String obsName = oneline[0];
 						obstacleNames.add(obsName);
 						ps = new Pose(
-								new Double(oneline[1]).doubleValue(),
-								new Double(oneline[2]).doubleValue(),
-								new Double(oneline[3]).doubleValue());
+                                Double.parseDouble(oneline[1]),
+                                Double.parseDouble(oneline[2]),
+                                Double.parseDouble(oneline[3]));
 						Geometry obs = makeObstacle(ps);
 						int id = obstacles.size()-1;
 						panel.addGeometry("obs_"+id, obs, false, false, true, "#cc3300");
@@ -961,16 +950,16 @@ public class PathEditor {
 					PoseSteering ps = null;
 					if (oneline.length == 4) {
 						ps = new PoseSteering(
-								new Double(oneline[0]).doubleValue(),
-								new Double(oneline[1]).doubleValue(),
-								new Double(oneline[2]).doubleValue(),
-								new Double(oneline[3]).doubleValue());
+                                Double.parseDouble(oneline[0]),
+                                Double.parseDouble(oneline[1]),
+                                Double.parseDouble(oneline[2]),
+                                Double.parseDouble(oneline[3]));
 					}
 					else {
 						ps = new PoseSteering(
-								new Double(oneline[0]).doubleValue(),
-								new Double(oneline[1]).doubleValue(),
-								new Double(oneline[2]).doubleValue(),
+                                Double.parseDouble(oneline[0]),
+                                Double.parseDouble(oneline[1]),
+                                Double.parseDouble(oneline[2]),
 								0.0);					
 					}
 					ret.add(ps);

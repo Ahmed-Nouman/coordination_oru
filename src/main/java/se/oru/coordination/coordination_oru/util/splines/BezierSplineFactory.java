@@ -1,11 +1,10 @@
 package se.oru.coordination.coordination_oru.util.splines;
 
-import java.util.ArrayList;
-
+import com.vividsolutions.jts.geom.Coordinate;
 import org.metacsp.multi.spatioTemporal.paths.Pose;
 import org.metacsp.multi.spatioTemporal.paths.PoseSteering;
 
-import com.vividsolutions.jts.geom.Coordinate;
+import java.util.ArrayList;
 
 public class BezierSplineFactory {
 	

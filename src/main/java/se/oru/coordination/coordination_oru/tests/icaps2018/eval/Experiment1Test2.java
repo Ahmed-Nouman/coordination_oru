@@ -1,24 +1,17 @@
 package se.oru.coordination.coordination_oru.tests.icaps2018.eval;
 
+import com.vividsolutions.jts.geom.Coordinate;
+import org.metacsp.multi.spatioTemporal.paths.Pose;
+import org.metacsp.multi.spatioTemporal.paths.PoseSteering;
+import se.oru.coordination.coordination_oru.*;
+import se.oru.coordination.coordination_oru.demo.DemoDescription;
+import se.oru.coordination.coordination_oru.util.Missions;
+import se.oru.coordination.coordination_oru.util.RVizVisualization;
+
 import java.io.File;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Comparator;
-
-import org.metacsp.multi.spatioTemporal.paths.Pose;
-import org.metacsp.multi.spatioTemporal.paths.PoseSteering;
-
-import com.vividsolutions.jts.geom.Coordinate;
-
-import se.oru.coordination.coordination_oru.ConstantAccelerationForwardModel;
-import se.oru.coordination.coordination_oru.CriticalSection;
-import se.oru.coordination.coordination_oru.Mission;
-import se.oru.coordination.coordination_oru.RobotAtCriticalSection;
-import se.oru.coordination.coordination_oru.RobotReport;
-import se.oru.coordination.coordination_oru.demo.DemoDescription;
-import se.oru.coordination.coordination_oru.util.BrowserVisualization;
-import se.oru.coordination.coordination_oru.util.Missions;
-import se.oru.coordination.coordination_oru.util.RVizVisualization;
 
 @DemoDescription(desc = "Coordination of robots along sine wave paths obtained without the ReedsSheppCarPlanner in opposing directions.")
 public class Experiment1Test2 {
@@ -26,9 +19,8 @@ public class Experiment1Test2 {
 	public static int usedRobots = 0;
 	
 	public static boolean inUse(int robotID) {
-		if (robotID <= usedRobots) return true;
-		return false;
-	}
+        return robotID <= usedRobots;
+    }
 	
 	private static PoseSteering[] getSinePath(double period, double magnitude, Pose from, Pose to) {
 		if (from.getY() != to.getY()) throw new Error("Can only do straight sine waves ;)");

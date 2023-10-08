@@ -1,10 +1,8 @@
 package se.oru.coordination.coordination_oru.motionplanning.roadmap;
 
-import org.metacsp.multi.spatioTemporal.paths.PoseSteering;
-
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Geometry;
-
+import org.metacsp.multi.spatioTemporal.paths.PoseSteering;
 import se.oru.coordination.coordination_oru.motionplanning.AbstractMotionPlanner;
 import se.oru.coordination.coordination_oru.util.BrowserVisualization;
 import se.oru.coordination.coordination_oru.util.Missions;
@@ -53,7 +51,7 @@ public class RoadMapPlanner extends AbstractMotionPlanner {
 		this.addEscapePoseIfNeeded();
 		String[] wps = new String[this.goalLocationNames.length+1];
 		wps[0] = this.startLocationName;
-		for (int i = 0; i < this.goalLocationNames.length; i++) wps[i+1] = this.goalLocationNames[i];
+        System.arraycopy(this.goalLocationNames, 0, wps, 1, this.goalLocationNames.length);
 		PoseSteering[] path = Missions.getShortestPath(wps);
 		if (path == null) return false;
 		this.pathPS = path;
@@ -91,7 +89,8 @@ public class RoadMapPlanner extends AbstractMotionPlanner {
 			}
 			if (freeLocation != null) {
 				String[] newGoalLocationNames = new String[this.goalLocationNames.length+1];
-				for (int i = 0; i < this.goalLocationNames.length-1; i++) newGoalLocationNames[i] = this.goalLocationNames[i];
+                if (this.goalLocationNames.length - 1 >= 0)
+                    System.arraycopy(this.goalLocationNames, 0, newGoalLocationNames, 0, this.goalLocationNames.length - 1);
 				newGoalLocationNames[newGoalLocationNames.length-2] = freeLocation;
 				newGoalLocationNames[newGoalLocationNames.length-1] = this.goalLocationNames[this.goalLocationNames.length-1];
 				this.setGoals(newGoalLocationNames);

@@ -131,15 +131,15 @@ package addPath;
 //    
 
 
-
+import javax.imageio.ImageIO;
+import javax.swing.*;
 import java.awt.*;
-import java.awt.event.*;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Point2D;
 import java.awt.image.BufferedImage;
-import java.io.*;
-import javax.imageio.ImageIO;
-import javax.swing.*;
+import java.io.File;
 
 public class ImageWindow extends JFrame {
 
@@ -234,7 +234,7 @@ public class ImageWindow extends JFrame {
     }
     
     private class ImagePanel extends JPanel {
-        private BufferedImage image;
+        private final BufferedImage image;
     
         public ImagePanel(BufferedImage image) {
             this.image = image;

@@ -10,7 +10,6 @@ import se.oru.coordination.coordination_oru.util.NoPathFoundError;
 
 import java.awt.*;
 import java.io.File;
-import java.io.IOException;
 
 public class AutonomousVehicle extends AbstractVehicle {
     public static ReedsSheppCarPlanner.PLANNING_ALGORITHM planningAlgorithm = ReedsSheppCarPlanner.PLANNING_ALGORITHM.RRTConnect;

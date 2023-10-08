@@ -1,10 +1,8 @@
 package se.oru.coordination.coordination_oru.tests.clean;
 
+import com.vividsolutions.jts.geom.Coordinate;
 import org.metacsp.multi.spatioTemporal.paths.Pose;
 import org.metacsp.multi.spatioTemporal.paths.PoseSteering;
-
-import com.vividsolutions.jts.geom.Coordinate;
-
 import se.oru.coordination.coordination_oru.ConstantAccelerationForwardModel;
 import se.oru.coordination.coordination_oru.Mission;
 import se.oru.coordination.coordination_oru.demo.DemoDescription;
@@ -88,7 +86,7 @@ public class ReplacePathExample {
 		rsp.plan();
 		if (rsp.getPath() == null) throw new Error("No path found.");
 		PoseSteering[] replacementPath = new PoseSteering[replacementIndex+rsp.getPath().length];
-		for (int i = 0; i < replacementIndex; i++) replacementPath[i] = initialPath[i];
+        System.arraycopy(initialPath, 0, replacementPath, 0, replacementIndex);
 		for (int i = 0; i < rsp.getPath().length; i++) replacementPath[i+replacementIndex] = rsp.getPath()[i];
 
 		Mission m = new Mission(1, initialPath);

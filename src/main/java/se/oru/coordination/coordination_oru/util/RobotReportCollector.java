@@ -1,8 +1,6 @@
 package se.oru.coordination.coordination_oru.util;
 
-import se.oru.coordination.coordination_oru.AbstractTrajectoryEnvelopeTracker;
 import se.oru.coordination.coordination_oru.TrajectoryEnvelopeCoordinator;
-import se.oru.coordination.coordination_oru.vehicles.AbstractVehicle;
 
 import java.io.BufferedWriter;
 import java.io.IOException;
@@ -11,7 +9,6 @@ import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Executors;
@@ -35,19 +32,18 @@ public class RobotReportCollector {
      *
      * @param tec                  The TrajectoryEnvelopeCoordinator instance that contains the trackers.
      * @param folderName           The base name of the directory where to store the robot data files.
-     * @param intervalInSeconds    The time interval (in seconds) between collecting and writing robot data.
+     * @param intervalInMillis     The time interval (in milliseconds) between collecting and writing robot data.
      * @param terminationInMinutes The termination time (in minutes) for stopping the data collection.
      */
-    public void handleRobotReports(TrajectoryEnvelopeCoordinator tec, String folderName, long intervalInSeconds, long terminationInMinutes) {
+    public void handleRobotReports(TrajectoryEnvelopeCoordinator tec, String folderName, long intervalInMillis, long terminationInMinutes) {
         ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
         AtomicLong startTime = new AtomicLong(System.currentTimeMillis());
 
-        // Convert interval and termination times to milliseconds
-        long intervalInMillis = TimeUnit.SECONDS.toMillis(intervalInSeconds);
+        // Convert termination times to milliseconds
         long terminationInMillis = TimeUnit.MINUTES.toMillis(terminationInMinutes);
 
         // Generate the folder name with date and timestamp
-        String timestamp = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMdd-HHmmss"));
+        String timestamp = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMdd-HHmm"));
         String directoryName = folderName + timestamp;
 
         // Create the directory if it doesn't exist
@@ -73,10 +69,9 @@ public class RobotReportCollector {
                     return;
                 }
 
-                // Get the current timestamp rounded to seconds and replace 'T' with '/'
+                // Get the current timestamp with milliseconds and replace 'T' with '/'
                 String currentTimestamp = LocalDateTime.now()
-                        .truncatedTo(ChronoUnit.SECONDS)
-                        .format(DateTimeFormatter.ISO_LOCAL_DATE_TIME)
+                        .format(DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSS"))
                         .replace('T', '/');
 
                 // Iterate through the trackers and get the robot reports

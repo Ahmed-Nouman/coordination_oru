@@ -1,21 +1,15 @@
 package se.oru.coordination.coordination_oru.tests.UPF;
 
-import java.util.HashMap;
-import java.util.HashSet;
-
-import org.metacsp.multi.spatioTemporal.paths.PoseSteering;
-
 import com.vividsolutions.jts.geom.Coordinate;
-
+import org.metacsp.multi.spatioTemporal.paths.PoseSteering;
 import se.oru.coordination.coordination_oru.ConstantAccelerationForwardModel;
 import se.oru.coordination.coordination_oru.Mission;
-import se.oru.coordination.coordination_oru.demo.DemoDescription;
-import se.oru.coordination.coordination_oru.motionplanning.AbstractMotionPlanner;
 import se.oru.coordination.coordination_oru.motionplanning.ompl.ReedsSheppCarPlanner;
 import se.oru.coordination.coordination_oru.simulation2D.TrajectoryEnvelopeCoordinatorSimulation;
 import se.oru.coordination.coordination_oru.util.BrowserVisualization;
-import se.oru.coordination.coordination_oru.util.MissionDispatchingCallback;
 import se.oru.coordination.coordination_oru.util.Missions;
+
+import java.util.HashMap;
 
 public class UPFAdapter {
 
@@ -28,7 +22,7 @@ public class UPFAdapter {
 	public static String roadMapFile = "missions/icaps_locations_and_paths_4.txt";
 	
 	private TrajectoryEnvelopeCoordinatorSimulation tec = null;
-	private HashMap<String,Integer> robotsToIDs = new HashMap<String, Integer>();	
+	private final HashMap<String,Integer> robotsToIDs = new HashMap<String, Integer>();
 	private ReedsSheppCarPlanner motionPlanner = null;
 	
 	private static String[] getArgs(String action) {

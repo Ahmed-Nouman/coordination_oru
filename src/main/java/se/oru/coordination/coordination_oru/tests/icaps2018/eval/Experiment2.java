@@ -1,29 +1,20 @@
 package se.oru.coordination.coordination_oru.tests.icaps2018.eval;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.util.Calendar;
-import java.util.Comparator;
-
+import com.vividsolutions.jts.geom.Coordinate;
 import org.metacsp.multi.spatioTemporal.paths.Pose;
 import org.metacsp.multi.spatioTemporal.paths.PoseSteering;
-
-import com.vividsolutions.jts.geom.Coordinate;
-
-import se.oru.coordination.coordination_oru.ConstantAccelerationForwardModel;
-import se.oru.coordination.coordination_oru.CriticalSection;
-import se.oru.coordination.coordination_oru.Mission;
-import se.oru.coordination.coordination_oru.RobotAtCriticalSection;
-import se.oru.coordination.coordination_oru.RobotReport;
+import se.oru.coordination.coordination_oru.*;
 import se.oru.coordination.coordination_oru.demo.DemoDescription;
 import se.oru.coordination.coordination_oru.motionplanning.ompl.ReedsSheppCarPlanner;
 import se.oru.coordination.coordination_oru.simulation2D.TrajectoryEnvelopeCoordinatorSimulation;
-import se.oru.coordination.coordination_oru.util.BrowserVisualization;
-import se.oru.coordination.coordination_oru.util.JTSDrawingPanelVisualization;
 import se.oru.coordination.coordination_oru.util.Missions;
 import se.oru.coordination.coordination_oru.util.RVizVisualization;
+
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.PrintWriter;
+import java.util.Calendar;
+import java.util.Comparator;
 
 @DemoDescription(desc = "Coordination on paths obtained from the ReedsSheppCarPlanner for two robots navigating in the same direction.")
 public class Experiment2 {
@@ -142,8 +133,8 @@ public class Experiment2 {
 		//int[] robotIDs = new int[] {1,2};
 		for (int robotID : robotIDs) {
 			tec.setMotionPlanner(robotID, rsp.getCopy(false));
-			tec.setForwardModel(robotID, new ConstantAccelerationForwardModel(MAX_ACCEL, MAX_VEL, tec.getTemporalResolution(), tec.getControlPeriod(), tec.getRobotTrackingPeriodInMillis(robotID)));;
-			String startLocName = "L_"+locationCounter;
+			tec.setForwardModel(robotID, new ConstantAccelerationForwardModel(MAX_ACCEL, MAX_VEL, tec.getTemporalResolution(), tec.getControlPeriod(), tec.getRobotTrackingPeriodInMillis(robotID)));
+            String startLocName = "L_"+locationCounter;
 			Pose startLoc = Missions.getLocation(startLocName);
 			String endLocName = "R_"+locationCounter;
 			Pose endLoc = Missions.getLocation(endLocName);
@@ -207,7 +198,7 @@ public class Experiment2 {
 					if (robotID%2 == 0) totalIterations = 19;
 					String lastDestination = "R_"+(robotID-1);
 					long startTime = Calendar.getInstance().getTimeInMillis();
-					while (true && totalIterations > 0) {
+					while (totalIterations > 0) {
 						synchronized(tec) {
 							if (tec.isFree(robotID)) {
 								if (!firstTime) {

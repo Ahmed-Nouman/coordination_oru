@@ -1,7 +1,8 @@
 package se.oru.coordination.coordination_oru.util.splines;
-import java.util.Arrays;
 
 import com.vividsolutions.jts.geom.Coordinate;
+
+import java.util.Arrays;
 
 /*
  * This code is free software; you can redistribute it and/or

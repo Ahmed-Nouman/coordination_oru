@@ -5,7 +5,6 @@ import org.apache.commons.io.FileUtils;
 import org.metacsp.multi.spatioTemporal.paths.Pose;
 import org.metacsp.multi.spatioTemporal.paths.PoseSteering;
 import se.oru.coordination.coordination_oru.RobotReport;
-import se.oru.coordination.coordination_oru.simulation2D.TrajectoryEnvelopeCoordinatorSimulation;
 
 import java.awt.*;
 import java.io.BufferedWriter;
@@ -40,7 +39,7 @@ public abstract class AbstractVehicle {
     public Coordinate[] innerFootprint = null;
     private final double startTime = System.nanoTime();
     private Color color;
-    private Color colorInMotion;
+    private final Color colorInMotion;
     public RobotReport currentRobotReport = new RobotReport(-1, null, -1, 0.0, 0.0, -1);
     public RobotReport lastRobotReport = new RobotReport(-1, null, -1, 0.0, 0.0, -1);
     private double totalDistance;
@@ -181,7 +180,7 @@ public abstract class AbstractVehicle {
                 isRundirPrepared = true;
             }
 
-            File file = new File(dir.toString() + "/" + this.ID + ".csv");
+            File file = new File(dir + "/" + this.ID + ".csv");
             FileWriter fw = new FileWriter(file.getAbsoluteFile(), false);
             BufferedWriter bw = new BufferedWriter(fw);
 

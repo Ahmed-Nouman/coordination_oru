@@ -1,29 +1,21 @@
 package se.oru.coordination.coordination_oru.tests.safetyAndLiveness;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.PrintWriter;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Random;
-import java.util.logging.Level;
-
-import org.metacsp.multi.spatioTemporal.paths.Pose;
-import com.vividsolutions.jts.geom.Coordinate;
 import aima.core.util.datastructure.Pair;
+import com.vividsolutions.jts.geom.Coordinate;
+import org.metacsp.multi.spatioTemporal.paths.Pose;
 import se.oru.coordination.coordination_oru.ConstantAccelerationForwardModel;
 import se.oru.coordination.coordination_oru.Mission;
 import se.oru.coordination.coordination_oru.NetworkConfiguration;
-import se.oru.coordination.coordination_oru.TrackingCallback;
 import se.oru.coordination.coordination_oru.demo.DemoDescription;
-import se.oru.coordination.coordination_oru.motionplanning.AbstractMotionPlanner;
 import se.oru.coordination.coordination_oru.motionplanning.ompl.ReedsSheppCarPlanner;
 import se.oru.coordination.coordination_oru.simulation2D.TrajectoryEnvelopeCoordinatorSimulation;
 import se.oru.coordination.coordination_oru.util.BrowserVisualization;
 import se.oru.coordination.coordination_oru.util.Missions;
-import se.oru.coordination.coordination_oru.util.RVizVisualization;
+
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.PrintWriter;
+import java.util.*;
 
 @DemoDescription(desc = "Coordination of robots vertically. Goals are continually posted to robots. Paths are computed by using the ReedsSheppCarPlanner.")
 public class ParkingArrayNew {
@@ -224,7 +216,7 @@ public class ParkingArrayNew {
 					int totalIterations = 12;
 					long startTime = Calendar.getInstance().getTimeInMillis();
 					
-					while (true && totalIterations > 0) {
+					while (totalIterations > 0) {
 							synchronized(tec.getSolver()) {
 								if (tec.isFree(robotID)) {
 									if (!firstTime) {

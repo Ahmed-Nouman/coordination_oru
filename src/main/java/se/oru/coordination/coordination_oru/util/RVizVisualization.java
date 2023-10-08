@@ -1,55 +1,31 @@
 package se.oru.coordination.coordination_oru.util;
 
-import java.awt.*;
-import java.awt.color.ColorSpace;
-import java.awt.geom.AffineTransform;
-import java.awt.image.AffineTransformOp;
-import java.awt.image.BufferedImage;
-import java.awt.image.ColorConvertOp;
-import java.awt.image.DataBufferByte;
-import java.awt.image.WritableRaster;
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.PrintWriter;
-import java.nio.ByteOrder;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map.Entry;
-import java.util.concurrent.TimeUnit;
-
-import javax.imageio.ImageIO;
-
+import com.vividsolutions.jts.geom.Coordinate;
+import com.vividsolutions.jts.geom.Polygon;
+import nav_msgs.OccupancyGrid;
 import org.jboss.netty.buffer.ChannelBuffer;
 import org.jboss.netty.buffer.ChannelBuffers;
-import org.metacsp.multi.spatial.DE9IM.GeometricShapeDomain;
 import org.metacsp.multi.spatioTemporal.paths.Pose;
 import org.metacsp.multi.spatioTemporal.paths.TrajectoryEnvelope;
 import org.ros.RosCore;
 import org.ros.concurrent.CancellableLoop;
 import org.ros.message.Duration;
 import org.ros.namespace.GraphName;
-import org.ros.node.ConnectedNode;
-import org.ros.node.DefaultNodeMainExecutor;
-import org.ros.node.Node;
-import org.ros.node.NodeConfiguration;
-import org.ros.node.NodeMain;
-import org.ros.node.NodeMainExecutor;
+import org.ros.node.*;
 import org.ros.node.topic.Publisher;
-
-import com.vividsolutions.jts.geom.Coordinate;
-
-import geometry_msgs.Transform;
-import nav_msgs.OccupancyGrid;
 import se.oru.coordination.coordination_oru.RobotReport;
-import se.oru.coordination.coordination_oru.util.FleetVisualization;
-import se.oru.coordination.coordination_oru.util.Missions;
-import com.vividsolutions.jts.geom.Polygon;
-//import org.ros.visualization_msgs.MarkerArray;
 import visualization_msgs.MarkerArray;
+
+import javax.imageio.ImageIO;
+import java.awt.color.ColorSpace;
+import java.awt.geom.AffineTransform;
+import java.awt.image.*;
+import java.io.*;
+import java.nio.ByteOrder;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map.Entry;
+import java.util.concurrent.TimeUnit;
 
 public class RVizVisualization implements FleetVisualization, NodeMain {
 
@@ -69,8 +45,7 @@ public class RVizVisualization implements FleetVisualization, NodeMain {
 	private boolean darkColors = true;
 	private boolean publishPartialEnvelope = false;
 	
-	private static String rvizEntry = ""+
-			"    - Class: rviz/MarkerArray\n" + 
+	private static final String rvizEntry = "    - Class: rviz/MarkerArray\n" +
 			"      Enabled: true\n" + 
 			"      Marker Topic: /ROBOTi/deps\n" + 
 			"      Name: MarkerArray\n" + 
@@ -257,8 +232,8 @@ public class RVizVisualization implements FleetVisualization, NodeMain {
 				ChannelBuffer buffer = ChannelBuffers.copiedBuffer(ByteOrder.nativeOrder(), data.getData());
 				occMap.setData(buffer);
 				occMap.getHeader().setFrameId(mapFrameID);
-				occMap.getInfo().setHeight((int)(img.getHeight()));
-				occMap.getInfo().setWidth((int)(img.getWidth()));
+				occMap.getInfo().setHeight(img.getHeight());
+				occMap.getInfo().setWidth(img.getWidth());
 				geometry_msgs.Pose pose = node.getTopicMessageFactory().newFromType(geometry_msgs.Pose._TYPE);
 				pose.getPosition().setX(0);
 				pose.getPosition().setY(0);

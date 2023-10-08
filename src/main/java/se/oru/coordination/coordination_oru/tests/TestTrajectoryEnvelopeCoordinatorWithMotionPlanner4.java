@@ -1,5 +1,16 @@
 package se.oru.coordination.coordination_oru.tests;
 
+import com.vividsolutions.jts.geom.Coordinate;
+import org.metacsp.multi.spatioTemporal.paths.Pose;
+import org.metacsp.multi.spatioTemporal.paths.PoseSteering;
+import se.oru.coordination.coordination_oru.*;
+import se.oru.coordination.coordination_oru.demo.DemoDescription;
+import se.oru.coordination.coordination_oru.motionplanning.ompl.ReedsSheppCarPlanner;
+import se.oru.coordination.coordination_oru.simulation2D.TrajectoryEnvelopeCoordinatorSimulation;
+import se.oru.coordination.coordination_oru.util.JTSDrawingPanelVisualization;
+import se.oru.coordination.coordination_oru.util.Missions;
+
+import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
@@ -7,25 +18,6 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Comparator;
 import java.util.Random;
-
-import javax.imageio.ImageIO;
-
-import org.metacsp.multi.spatioTemporal.paths.Pose;
-import org.metacsp.multi.spatioTemporal.paths.PoseSteering;
-
-import com.vividsolutions.jts.geom.Coordinate;
-
-import se.oru.coordination.coordination_oru.ConstantAccelerationForwardModel;
-import se.oru.coordination.coordination_oru.CriticalSection;
-import se.oru.coordination.coordination_oru.Mission;
-import se.oru.coordination.coordination_oru.RobotAtCriticalSection;
-import se.oru.coordination.coordination_oru.RobotReport;
-import se.oru.coordination.coordination_oru.TrackingCallback;
-import se.oru.coordination.coordination_oru.demo.DemoDescription;
-import se.oru.coordination.coordination_oru.motionplanning.ompl.ReedsSheppCarPlanner;
-import se.oru.coordination.coordination_oru.simulation2D.TrajectoryEnvelopeCoordinatorSimulation;
-import se.oru.coordination.coordination_oru.util.JTSDrawingPanelVisualization;
-import se.oru.coordination.coordination_oru.util.Missions;
 
 @DemoDescription(desc = "Coordination of 4 robots along wave-like paths obtained with the ReedsSheppCarPlanner in opposing directions.")
 public class TestTrajectoryEnvelopeCoordinatorWithMotionPlanner4 {

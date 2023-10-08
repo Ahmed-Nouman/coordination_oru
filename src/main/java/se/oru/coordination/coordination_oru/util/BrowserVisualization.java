@@ -1,19 +1,11 @@
 package se.oru.coordination.coordination_oru.util;
 
 
-import java.awt.Desktop;
-import java.awt.Dimension;
-import java.awt.image.BufferedImage;
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
-import java.io.IOException;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.util.ArrayList;
-
-import javax.imageio.ImageIO;
-
+import com.vividsolutions.jts.geom.Coordinate;
+import com.vividsolutions.jts.geom.Geometry;
+import com.vividsolutions.jts.geom.GeometryFactory;
+import com.vividsolutions.jts.geom.Polygon;
+import com.vividsolutions.jts.geom.util.AffineTransformation;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.ServerConnector;
 import org.eclipse.jetty.servlet.ServletContextHandler;
@@ -23,19 +15,23 @@ import org.metacsp.multi.spatial.DE9IM.GeometricShapeDomain;
 import org.metacsp.multi.spatioTemporal.paths.Pose;
 import org.metacsp.multi.spatioTemporal.paths.PoseSteering;
 import org.metacsp.multi.spatioTemporal.paths.TrajectoryEnvelope;
-
-import com.vividsolutions.jts.geom.Coordinate;
-import com.vividsolutions.jts.geom.Geometry;
-import com.vividsolutions.jts.geom.GeometryFactory;
-import com.vividsolutions.jts.geom.Polygon;
-import com.vividsolutions.jts.geom.util.AffineTransformation;
-
 import se.oru.coordination.coordination_oru.RobotReport;
 import se.oru.coordination.coordination_oru.vehicles.VehiclesHashMap;
 
+import javax.imageio.ImageIO;
+import java.awt.*;
+import java.awt.image.BufferedImage;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.ArrayList;
+
 public class BrowserVisualization implements FleetVisualization {
 	
-	private ArrayList<String> msgQueue = new ArrayList<String>();
+	private final ArrayList<String> msgQueue = new ArrayList<String>();
 	private static int UPDATE_PERIOD = 30;
 	private double robotFootprintArea = -1;
 	private double robotFootprintXDim = -1;
@@ -246,7 +242,7 @@ public class BrowserVisualization implements FleetVisualization {
 		String name = "R" + rr.getRobotID();
 
 		// Show percentage of path-completed
-		int percent = rr.getPathIndex() < 0 ? 0 : (int) Math.round((double) rr.getPathIndex() / (double) VehiclesHashMap.getVehicle(rr.getRobotID()).getPlanLength() * 100);
+		int percent = rr.getPathIndex() < 0 ? 0 : (int) Math.round((double) rr.getPathIndex() / VehiclesHashMap.getVehicle(rr.getRobotID()).getPlanLength() * 100);
 		String extraData = ":" + (extraStatusInfo == null || extraStatusInfo.length == 0 ? "" : " ") + percent + "%";
 
         // Show path Index

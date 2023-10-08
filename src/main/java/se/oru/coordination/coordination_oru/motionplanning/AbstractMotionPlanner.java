@@ -1,20 +1,18 @@
 package se.oru.coordination.coordination_oru.motionplanning;
 
-import java.io.File;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.logging.Logger;
-
-import org.metacsp.multi.spatioTemporal.paths.Pose;
-import org.metacsp.multi.spatioTemporal.paths.PoseSteering;
-import org.metacsp.utility.logging.MetaCSPLogging;
-
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.geom.util.AffineTransformation;
-
+import org.metacsp.multi.spatioTemporal.paths.Pose;
+import org.metacsp.multi.spatioTemporal.paths.PoseSteering;
+import org.metacsp.utility.logging.MetaCSPLogging;
 import se.oru.coordination.coordination_oru.util.Missions;
+
+import java.io.File;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.logging.Logger;
 
 public abstract class AbstractMotionPlanner {
 
@@ -54,10 +52,10 @@ public abstract class AbstractMotionPlanner {
 	
 	public void addGoals(Pose ... p) {
 		ArrayList<Pose> newGoals = new ArrayList<Pose>();
-		if (this.goal != null && this.goal.length > 0) {
-			for (Pose g : this.goal) newGoals.add(g);
+		if (this.goal != null) {
+            Collections.addAll(newGoals, this.goal);
 		}
-		for (Pose ng : p) newGoals.add(ng);
+        Collections.addAll(newGoals, p);
 		this.setGoals(newGoals.toArray(new Pose[newGoals.size()]));
 	}
 	
@@ -68,7 +66,7 @@ public abstract class AbstractMotionPlanner {
 			for (Pose pose : p) {
 				if (prev == null || prev != null && !prev.equals(pose))
 					newGoals.add(new Pose(pose.getX(),pose.getY(),Missions.wrapAngle180b(pose.getTheta())));
-				else metaCSPLogger.warning("Removing duplicated useless goal " + pose.toString() + ".");
+				else metaCSPLogger.warning("Removing duplicated useless goal " + pose + ".");
 				prev = pose;
 			}
 		}
@@ -113,7 +111,7 @@ public abstract class AbstractMotionPlanner {
 	public PoseSteering[] getPathInv() {
 		if (this.pathPS == null) return this.pathPS;
 		ArrayList<PoseSteering> inv = new ArrayList<PoseSteering>();
-		for (PoseSteering ps : this.pathPS) inv.add(ps);
+        Collections.addAll(inv, this.pathPS);
 		Collections.reverse(inv);
 		return inv.toArray(new PoseSteering[inv.size()]);
 	}
@@ -154,9 +152,7 @@ public abstract class AbstractMotionPlanner {
 	private Geometry getFootprintAsGeometry() {
 		GeometryFactory gf = new GeometryFactory();
 		Coordinate[] newFoot = new Coordinate[footprintCoords.length+1];
-		for (int j = 0; j < footprintCoords.length; j++) {
-			newFoot[j] = footprintCoords[j];
-		}
+        System.arraycopy(footprintCoords, 0, newFoot, 0, footprintCoords.length);
 		newFoot[footprintCoords.length] = footprintCoords[0];
 		Geometry foot = gf.createPolygon(newFoot);
 		return foot;

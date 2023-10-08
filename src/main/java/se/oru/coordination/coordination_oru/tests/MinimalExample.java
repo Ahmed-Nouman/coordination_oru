@@ -1,31 +1,24 @@
 package se.oru.coordination.coordination_oru.tests;
 
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.Random;
-
+import com.vividsolutions.jts.geom.Coordinate;
 import org.metacsp.multi.spatioTemporal.paths.Pose;
 import org.metacsp.multi.spatioTemporal.paths.PoseSteering;
-
-import com.vividsolutions.jts.geom.Coordinate;
-
-import se.oru.coordination.coordination_oru.ConstantAccelerationForwardModel;
-import se.oru.coordination.coordination_oru.CriticalSection;
-import se.oru.coordination.coordination_oru.Mission;
-import se.oru.coordination.coordination_oru.NetworkConfiguration;
-import se.oru.coordination.coordination_oru.RobotAtCriticalSection;
-import se.oru.coordination.coordination_oru.RobotReport;
+import se.oru.coordination.coordination_oru.*;
 import se.oru.coordination.coordination_oru.motionplanning.ompl.ReedsSheppCarPlanner;
 import se.oru.coordination.coordination_oru.simulation2D.TrajectoryEnvelopeCoordinatorSimulation;
 import se.oru.coordination.coordination_oru.util.BrowserVisualization;
 import se.oru.coordination.coordination_oru.util.Missions;
 import se.oru.coordination.coordination_oru.util.Pair;
 
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.Random;
+
 public class MinimalExample {
 
-	private static Random rand = new Random(123213);
+	private static final Random rand = new Random(123213);
 
-	private static ArrayList<Pair<Integer>> placements = new ArrayList<Pair<Integer>>();
+	private static final ArrayList<Pair<Integer>> placements = new ArrayList<Pair<Integer>>();
 
 	private static Coordinate[] makeRandomFootprint(int centerX, int centerY, int minVerts, int maxVerts, double minRadius, double maxRadius) {
 	    // Split a full circle into numVerts step, this is how much to advance each part

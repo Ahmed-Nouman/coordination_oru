@@ -1,10 +1,5 @@
 package se.oru.coordination.coordination_oru;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.logging.Logger;
-
 import org.metacsp.framework.Constraint;
 import org.metacsp.framework.Variable;
 import org.metacsp.meta.spatioTemporal.paths.Map;
@@ -16,8 +11,12 @@ import org.metacsp.time.APSPSolver;
 import org.metacsp.time.Bounds;
 import org.metacsp.utility.UI.Callback;
 import org.metacsp.utility.logging.MetaCSPLogging;
-
 import se.oru.coordination.coordination_oru.simulation2D.TrajectoryEnvelopeTrackerRK4;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.logging.Logger;
 
 /**
  * This class provides the basic functionalities of a {@link TrajectoryEnvelope} tracker. Implementing

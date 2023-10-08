@@ -3,13 +3,13 @@ package se.oru.coordination.coordination_oru.scenarios;
 import org.metacsp.multi.spatioTemporal.paths.Pose;
 import se.oru.coordination.coordination_oru.ConstantAccelerationForwardModel;
 import se.oru.coordination.coordination_oru.Mission;
-import se.oru.coordination.coordination_oru.vehicles.AutonomousVehicle;
-import se.oru.coordination.coordination_oru.util.Heuristics;
-import se.oru.coordination.coordination_oru.vehicles.LookAheadVehicle;
 import se.oru.coordination.coordination_oru.simulation2D.TrajectoryEnvelopeCoordinatorSimulation;
 import se.oru.coordination.coordination_oru.util.BrowserVisualization;
+import se.oru.coordination.coordination_oru.util.Heuristics;
 import se.oru.coordination.coordination_oru.util.Missions;
 import se.oru.coordination.coordination_oru.util.RandomRobotCaller;
+import se.oru.coordination.coordination_oru.vehicles.AutonomousVehicle;
+import se.oru.coordination.coordination_oru.vehicles.LookAheadVehicle;
 
 import java.awt.*;
 import java.io.FileNotFoundException;
@@ -20,12 +20,13 @@ public class PaperScenario_6A1L {
         String absolutePath = System.getProperty("user.dir");
         String resultsDirectory = absolutePath + "/src/main/java/se/oru/coordination/coordination_oru/results/lookAheadPaper_2023";
         final String YAML_FILE = "maps/mine-map-paper-2023.yaml";
-        double lookAheadDistance = 10;
-        int timeIntervalInSeconds = 1;
+        double lookAheadDistance = -1;
+        double timeIntervalInSeconds = 1;
+        int updateCycleTime = 100;
         int terminationInMinutes = 30;
         int numOfCallsForLookAheadRobot = 20;
         boolean visualization = true;
-        boolean writeRobotReports = false;
+        boolean writeRobotReports = true;
 
         final Pose mainTunnelLeft = new Pose(14.25, 22.15, Math.PI);
         final Pose mainTunnelRight = new Pose(114.15, 40.05, Math.PI);
@@ -53,7 +54,7 @@ public class PaperScenario_6A1L {
         final Pose[] autonomousRobotGoal3 = {orePass3};
         final Pose[] limitedLookAheadRobotGoal = {mainTunnelLeft};
 
-        var autonomousRobot1 = new AutonomousVehicle(1, Color.YELLOW, 5.0, 2.0, 0.5, 0.5);
+        var autonomousRobot1 = new AutonomousVehicle(1, Color.YELLOW, 5.0, 2.0, 0.9, 0.5);
         var autonomousRobot2 = new AutonomousVehicle(1, Color.YELLOW, 5.0, 2.0, 0.9, 0.5);
         var autonomousRobot3 = new AutonomousVehicle(1, Color.YELLOW, 5.0, 2.0, 0.9, 0.5);
         var autonomousRobot4 = new AutonomousVehicle(1, Color.YELLOW, 5.0, 2.0, 0.9, 0.5);
@@ -96,7 +97,7 @@ public class PaperScenario_6A1L {
                 lookAheadRobot.getMaxVelocity(), tec.getTemporalResolution(), tec.getControlPeriod(),
                 tec.getRobotTrackingPeriodInMillis(lookAheadRobot.getID())));
 
-        tec.setDefaultFootprint(lookAheadRobot.getFootprint());
+        tec.setDefaultFootprint(autonomousRobot1.getFootprint());
         tec.placeRobot(autonomousRobot1.getID(), drawPoint28);
         tec.placeRobot(autonomousRobot2.getID(), drawPoint30);
         tec.placeRobot(autonomousRobot3.getID(), drawPoint32A);
@@ -144,6 +145,7 @@ public class PaperScenario_6A1L {
         Missions.setMap(YAML_FILE);
 
         Missions.startMissionDispatchers(tec, writeRobotReports,
-                timeIntervalInSeconds, terminationInMinutes, heuristicName, resultsDirectory);
+                timeIntervalInSeconds, terminationInMinutes, heuristicName,
+                updateCycleTime, resultsDirectory);
     }
 }

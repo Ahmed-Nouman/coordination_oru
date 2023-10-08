@@ -1,22 +1,18 @@
 package se.oru.coordination.coordination_oru.tests.clean;
 
-import java.util.HashMap;
-import java.util.HashSet;
-
+import com.vividsolutions.jts.geom.Coordinate;
 import org.metacsp.multi.spatioTemporal.paths.Pose;
 import org.metacsp.multi.spatioTemporal.paths.PoseSteering;
-
-import com.vividsolutions.jts.geom.Coordinate;
-
 import se.oru.coordination.coordination_oru.ConstantAccelerationForwardModel;
 import se.oru.coordination.coordination_oru.Mission;
-import se.oru.coordination.coordination_oru.NetworkConfiguration;
 import se.oru.coordination.coordination_oru.demo.DemoDescription;
 import se.oru.coordination.coordination_oru.motionplanning.ompl.ReedsSheppCarPlanner;
 import se.oru.coordination.coordination_oru.motionplanning.ompl.ReedsSheppCarPlanner.PLANNING_ALGORITHM;
 import se.oru.coordination.coordination_oru.simulation2D.TrajectoryEnvelopeCoordinatorSimulation;
 import se.oru.coordination.coordination_oru.util.BrowserVisualization;
 import se.oru.coordination.coordination_oru.util.Missions;
+
+import java.util.HashMap;
 
 @DemoDescription(desc = "Coordination on paths obtained from the ReedsSheppCarPlanner for five robots navigating in a random map.")
 public class RandomPathsInMap {

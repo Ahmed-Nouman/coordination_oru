@@ -1,28 +1,25 @@
 package se.oru.coordination.coordination_oru.util;
 
+import com.vividsolutions.jts.geom.Coordinate;
+import com.vividsolutions.jts.geom.Geometry;
+import com.vividsolutions.jts.geom.GeometryFactory;
+import com.vividsolutions.jts.geom.Polygon;
+import org.metacsp.multi.spatial.DE9IM.GeometricShapeDomain;
+import org.metacsp.multi.spatioTemporal.paths.TrajectoryEnvelope;
+import org.metacsp.utility.UI.JTSDrawingPanel;
+import se.oru.coordination.coordination_oru.RobotReport;
+import se.oru.coordination.coordination_oru.simulation2D.TrajectoryEnvelopeCoordinatorSimulation;
+
+import javax.swing.*;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-import javax.swing.JFrame;
-import javax.swing.SwingUtilities;
-
-import org.metacsp.multi.spatial.DE9IM.GeometricShapeDomain;
-import org.metacsp.multi.spatioTemporal.paths.TrajectoryEnvelope;
-import org.metacsp.utility.UI.JTSDrawingPanel;
-
-import com.vividsolutions.jts.geom.Coordinate;
-import com.vividsolutions.jts.geom.Geometry;
-import com.vividsolutions.jts.geom.GeometryFactory;
-import com.vividsolutions.jts.geom.Polygon;
-
-import se.oru.coordination.coordination_oru.RobotReport;
-import se.oru.coordination.coordination_oru.simulation2D.TrajectoryEnvelopeCoordinatorSimulation;
-
 public class JTSDrawingPanelVisualization implements FleetVisualization {
 
-	private JTSDrawingPanel panel = null;
+    public JTSDrawingPanel frame;
+    private JTSDrawingPanel panel = null;
 
 	public JTSDrawingPanelVisualization() {
 		this(null);
@@ -76,7 +73,7 @@ public class JTSDrawingPanelVisualization implements FleetVisualization {
 	}
 	
 	private void setupGUI(String mapYAMLFile) {
-		//Show everything in a GUI (vehicle positions are updated in real time by the trackers, see below)
+		//Show everything in a GUI (the trackers update vehicle positions in real time, see below)
 		this.panel = JTSDrawingPanel.makeEmpty("Current status of robots");
 		//setPriorityOfEDT(Thread.MIN_PRIORITY);
 		//setPriorityOfEDT(Thread.MAX_PRIORITY);

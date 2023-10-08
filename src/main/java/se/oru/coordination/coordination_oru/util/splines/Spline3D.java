@@ -1,12 +1,12 @@
 package se.oru.coordination.coordination_oru.util.splines;
+
+import com.vividsolutions.jts.geom.Coordinate;
 import org.metacsp.multi.spatioTemporal.paths.Pose;
 import org.metacsp.multi.spatioTemporal.paths.PoseSteering;
 
-import com.vividsolutions.jts.geom.Coordinate;
-
 public class Spline3D {
 
-	public static enum Type {SPLINE_BEZIER, SPLINE_CUBIC, SPLINE_CATMULL_ROM}
+	public enum Type {SPLINE_BEZIER, SPLINE_CUBIC, SPLINE_CATMULL_ROM}
 
 	private Coordinate[] coords = null;
 	private Coordinate[] controlPoints = null;
