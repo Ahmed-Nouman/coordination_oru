@@ -38,7 +38,7 @@ public class RandomRobotCaller {
      */
     public void scheduleRandomCalls(Mission mission) {
         int totalSimulationSeconds = simulationTime * 60; // Convert minutes to seconds
-        int buffer = 60; // Buffer for the end of the simulation (60 seconds = 1 minute)
+        int buffer = 300; // Buffer for the end of the simulation (300 seconds = 5 minutes)
         int averageInterval = (totalSimulationSeconds - buffer) / numCalls;
 
         int lastCallTime = 0;

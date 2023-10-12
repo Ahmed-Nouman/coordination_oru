@@ -408,7 +408,6 @@ public abstract class TrajectoryEnvelopeTrackerRK4 extends AbstractTrajectoryEnv
 		waitToTXThread.start();
 		
 	}
-			
 	
 	@Override
 	public void setCriticalPoint(int criticalPointToSet) {
@@ -483,7 +482,8 @@ public abstract class TrajectoryEnvelopeTrackerRK4 extends AbstractTrajectoryEnv
 				currentPathIndex = poses.length-1;
 				pose = poses[currentPathIndex];
 			}
-			return new RobotReport(te.getRobotID(), pose, currentPathIndex, state.getVelocity(), state.getPosition(), this.criticalPoint);
+			return new RobotReport(te.getRobotID(), pose, currentPathIndex, state.getVelocity(), 10*state.getPosition(), this.criticalPoint);
+//			return new RobotReport(te.getRobotID(), pose, currentPathIndex, state.getVelocity(), state.getPosition(), this.criticalPoint);
 		}
 	}
 

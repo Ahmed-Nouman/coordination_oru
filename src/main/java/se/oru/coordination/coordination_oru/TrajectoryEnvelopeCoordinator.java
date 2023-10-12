@@ -68,7 +68,7 @@ public abstract class TrajectoryEnvelopeCoordinator extends AbstractTrajectoryEn
 
 	//Set if inferring precedence constraints
 	protected boolean fake = false;
-	int updateCycleTime = 200;  // TODO Fix this as a parameter.
+	int updateCycleTime = 100;  // TODO Fix this as a parameter.
 
 	/**
 	 * Get whether there is a robot in a blocked situation (waiting for a parked robot).

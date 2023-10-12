@@ -20,11 +20,11 @@ public class PaperScenario_3A1L {
         String absolutePath = System.getProperty("user.dir");
         String resultsDirectory = absolutePath + "/src/main/java/se/oru/coordination/coordination_oru/results/lookAheadPaper_2023";
         final String YAML_FILE = "maps/mine-map-paper-2023.yaml";
-        double lookAheadDistance = -1;
+        double lookAheadDistance = 6;
         double timeIntervalInSeconds = 0.25;
-        int updateCycleTime = 200;
+        int updateCycleTime = 100;
         int terminationInMinutes = 30;
-        int numOfCallsForLookAheadRobot = 20;
+        int numOfCallsForLookAheadRobot = 5;
         boolean visualization = true;
         boolean writeRobotReports = true;
 
@@ -54,10 +54,10 @@ public class PaperScenario_3A1L {
         final Pose[] autonomousRobotGoal3 = {orePass3};
         final Pose[] limitedLookAheadRobotGoal = {mainTunnelLeft};
 
-        var autonomousRobot1 = new AutonomousVehicle(1, Color.YELLOW, 5, 2, 0.9, 0.5);
-        var autonomousRobot2 = new AutonomousVehicle(1, Color.YELLOW, 5, 2, 0.9, 0.5);
-        var autonomousRobot3 = new AutonomousVehicle(1, Color.YELLOW, 5, 2, 0.9, 0.5);
-        var lookAheadVehicle = new LookAheadVehicle(1, lookAheadDistance, Color.GREEN, 5, 2, 0.9, 0.5);
+        var autonomousRobot1 = new AutonomousVehicle(1, Color.YELLOW, 14, 3, 0.9, 0.5);
+        var autonomousRobot2 = new AutonomousVehicle(1, Color.YELLOW, 14, 3, 0.9, 0.5);
+        var autonomousRobot3 = new AutonomousVehicle(1, Color.YELLOW, 14, 3, 0.9, 0.5);
+        var lookAheadVehicle = new LookAheadVehicle(1, lookAheadDistance, Color.GREEN, 14, 3, 0.9, 0.5);
 
         autonomousRobot1.getPlan(drawPoint28, autonomousRobotGoal1, YAML_FILE, true);
         autonomousRobot2.getPlan(drawPoint32A, autonomousRobotGoal2, YAML_FILE, true);
@@ -65,7 +65,7 @@ public class PaperScenario_3A1L {
         lookAheadVehicle.getPlan(entrance, limitedLookAheadRobotGoal, YAML_FILE, true);
 
         // Instantiate a trajectory envelope coordinator.
-        var tec = new TrajectoryEnvelopeCoordinatorSimulation(2000, 1000, 5, 2.5);
+        var tec = new TrajectoryEnvelopeCoordinatorSimulation(1000, 10000, 14, 3);
         tec.setupSolver(0, 100000000);
         tec.startInference();
 
