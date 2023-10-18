@@ -59,7 +59,6 @@ public class RobotReportCollector {
         Runnable task = () -> {
             try {
                 // Get the current trackers list from the 'tec' object
-//                List<AbstractTrajectoryEnvelopeTracker> trackers = new ArrayList<>(tec.trackers.values());
                 List<Integer> robotIDs = new ArrayList<>(tec.getAllRobotIDs());
 
                 // Check if the elapsed time exceeds the specified termination time, and if so, shut down the executor

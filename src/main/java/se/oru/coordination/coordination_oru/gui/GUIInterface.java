@@ -1,40 +1,46 @@
 package se.oru.coordination.coordination_oru.gui;
+import se.oru.coordination.coordination_oru.gui.ProjectData.*;
 
-import org.json.simple.parser.ParseException;
-import se.oru.coordination.coordination_oru.gui_oru.GuiTool;
-import se.oru.coordination.coordination_oru.gui_oru.interface1;
+import com.google.gson.Gson;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParseException;
+import com.google.gson.stream.JsonReader;
 
+import javax.imageio.ImageIO;
 import javax.swing.*;
-import javax.swing.border.EmptyBorder;
+import javax.swing.filechooser.FileNameExtensionFilter;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
-import java.io.File;
-import java.io.IOException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import java.awt.image.BufferedImage;
+import java.io.*;
+import java.util.Map;
 
 /**
  * The TabbedGUI class demonstrates a simple GUI with a tabbed layout
  * and provides shortcut functionality for navigation and actions.
  */
-public class GUIInterface {
+public class GUIInterface extends javax.swing.JFrame {
 
     private static JButton createButton;  // Class-level field to store the Create button
-    private static JButton loadButton;
+    private static JButton openButton;
     private static JButton nextButton;
     private static JButton backButton;
     private final JFrame frame;
     private final JTabbedPane tabbedPane;
+    private boolean openActionPerformed = false; // Flag to track if "Open" action was performed
+    private ProjectData projectData;
+    private String selectedImagePath;  // Variable to store the selected image path
+    private JPanel buttonPanel = new JPanel(new GridBagLayout());
 
     /**
-     * Constructor for the SimpleGUI. Initializes the GUI components.
+     * Constructor for the GUIInterface. Initializes the GUI components.
      */
     public GUIInterface() {
         // Packing and displaying the frame
-        frame = new JFrame("Coordination_ORU GUI Interface");
+        frame = new JFrame("Coordination_ORU");
         frame.pack();
         frame.setMinimumSize(new Dimension(500, 400));  // Optional: set a minimum size
         frame.setLocationRelativeTo(null);  // Center the frame on screen
@@ -53,11 +59,16 @@ public class GUIInterface {
 
         frame.add(tabbedPane, BorderLayout.CENTER);
 
-        // Initialize and configure button panel
-        initializeButtonPanel();
+        // Disable all tabs in the JTabbedPane
+        for (int i = 0; i < tabbedPane.getTabCount(); i++) {
+            tabbedPane.setEnabledAt(i, false);
+        }
 
         // Initialize and configure menu bar
         initializeMenuBar();
+
+        // Initialize and configure button panel
+        initializeButtonPanel();
 
         setKeyBindings();
 
@@ -73,6 +84,25 @@ public class GUIInterface {
         SwingUtilities.invokeLater(GUIInterface::new);
     }
 
+    private static void createAndShowImageFrame(String imagePath) {
+        JFrame frame = new JFrame("Image Viewer");
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+
+        try {
+            BufferedImage image = ImageIO.read(new File(imagePath));
+            ImageIcon icon = new ImageIcon(image);
+
+            JLabel label = new JLabel(icon);
+            frame.add(label, BorderLayout.CENTER);
+
+            frame.pack();
+            frame.setLocationRelativeTo(null); // Center the frame on screen
+            frame.setVisible(true);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
     private JPanel getProjectPanel() {
 
         // Create the Project panel and set layout
@@ -80,128 +110,52 @@ public class GUIInterface {
         projectPanel.setLayout(new BoxLayout(projectPanel, BoxLayout.Y_AXIS));
 
         // Welcome to label with bigger font and some vertical space above it
-        JLabel welcomeMessage = getWelcomeMessage();
-
-        // Additional instruction label
-        JLabel instructionLabel = getInstructionLabel();
+        JLabel welcomeMessage = new DisplayLine().createLine(Font.BOLD, 24, "Welcome to Coordination_ORU!");
 
         // Create a panel for the Create and Load buttons
-        JPanel createLoadPanel = getCreateLoadPanel();
-
-        // Instruction to enter project name
-        JLabel projectInstruction = getProjectInstruction();
-
-        // Text field initialized with "project.json"
-        JTextField projectName = getProjectName();
+        JPanel createOpenPanel = getCreateOpenPanel();
 
         projectPanel.add(welcomeMessage);
-        projectPanel.add(instructionLabel);
-        projectPanel.add(createLoadPanel);
-        projectPanel.add(projectInstruction);
-        projectPanel.add(Box.createVerticalStrut(5)); // Insert a vertical strut of 5 pixels here
-        projectPanel.add(projectName);
-        projectPanel.add(Box.createVerticalStrut(50));
+        projectPanel.add(createOpenPanel);
 
-        // Add an ActionListener to the "Create" button to enable the projectInstruction when clicked
         createButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                projectInstruction.setVisible(true);
-                projectName.setVisible(true);
-                nextButton.setEnabled(true);
+                performCreateAction();
             }
         });
 
         // Add an ActionListener to the "Load" button to load a project file when clicked
-        loadButton.addActionListener(new ActionListener() {
+        openButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                JFileChooser fileChooser = new JFileChooser();
-                fileChooser.setCurrentDirectory(new File(System.getProperty("user.home"))); // Open the user's home directory
-
-                int result = fileChooser.showOpenDialog(frame);  // Show the file open dialog
-
-                if (result == JFileChooser.APPROVE_OPTION) {
-                    File selectedFile = fileChooser.getSelectedFile();
-
-                    if (selectedFile.getName().endsWith(".json")) {
-                        // The selected file has a .json extension
-                        System.out.println("Selected JSON file: " + selectedFile.getAbsolutePath());
-                        // You can proceed to read and process this JSON file
-
-                        // If file read successfully, enable the buttons and perform the next action
-                        performNextAction();
-                        nextButton.setEnabled(true);
-                        backButton.setEnabled(true);
-                        // If the file was read successfully:
-                    } else {
-                        // Show an error message or a notification
-                        JOptionPane.showMessageDialog(frame, "Please select a valid JSON file.", "Invalid File Type", JOptionPane.ERROR_MESSAGE);
-                    }
-                }
+                performOpenAction();
             }
         });
 
         return projectPanel;
     }
 
-    private JLabel getWelcomeMessage() {
-
-        String message = "<html><center>Welcome to the Coordination_ORU<br>GUI Interface!</center></html>";
-        JLabel welcomeLabel = new JLabel(message, SwingConstants.CENTER);
-        welcomeLabel.setFont(new Font(welcomeLabel.getFont().getName(), Font.BOLD, 24));
-        welcomeLabel.setBorder(new EmptyBorder(20, 0, 10, 0));  // Adjust space as per your requirement
-        welcomeLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
-        return welcomeLabel;
-    }
-
-    private JLabel getInstructionLabel() {
-        JLabel instructionLabel = new JLabel("Please create/load the project file.", SwingConstants.CENTER);
-        instructionLabel.setFont(new Font(instructionLabel.getFont().getName(), Font.PLAIN, 20));
-        instructionLabel.setBorder(new EmptyBorder(10, 0, 0, 0));
-        instructionLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
-        return instructionLabel;
-    }
-
-    private JPanel getCreateLoadPanel() {
-        JPanel createLoadPanel = new JPanel(new GridBagLayout());
-        GridBagConstraints createLoadConstraints = new GridBagConstraints();
+    private JPanel getCreateOpenPanel() {
+        JPanel createOpenPanel = new JPanel(new GridBagLayout());
+        GridBagConstraints createOpenConstraints = new GridBagConstraints();
 
         // Common constraints
-        createLoadConstraints.weightx = 1.0;  // Distribute space evenly between the buttons
-        createLoadConstraints.fill = GridBagConstraints.HORIZONTAL;  // Make buttons occupy the entire cell horizontally
-        createLoadConstraints.gridy = 0;  // All buttons on the same row
-        createLoadConstraints.insets = new Insets(0, 30, 0, 30);  // Some padding between the buttons
+        createOpenConstraints.weightx = 1.0;  // Distribute space evenly between the buttons
+        createOpenConstraints.fill = GridBagConstraints.HORIZONTAL;  // Make buttons occupy the entire cell horizontally
+        createOpenConstraints.gridy = 0;  // All buttons on the same row
+        createOpenConstraints.insets = new Insets(0, 30, 0, 30);  // Some padding between the buttons
 
-        createButton = new JButton("Create");
-        createLoadConstraints.gridx = 0;  // Column 0
-        createLoadPanel.add(createButton, createLoadConstraints);
+        createButton = new JButton("Create Project");
+        createOpenConstraints.gridx = 0;  // Column 0
+        createOpenPanel.add(createButton, createOpenConstraints);
 
-        loadButton = new JButton("Load");
-        createLoadConstraints.gridx = 1;  // Column 1
-        createLoadPanel.add(loadButton, createLoadConstraints);
-        createLoadPanel.setAlignmentX(Component.CENTER_ALIGNMENT);
-        return createLoadPanel;
-    }
+        openButton = new JButton("Open Project");
+        createOpenConstraints.gridx = 1;  // Column 1
+        createOpenPanel.add(openButton, createOpenConstraints);
 
-    private JLabel getProjectInstruction() {
-        JLabel projectNameInstruction = new JLabel("Enter the name of project file:", SwingConstants.CENTER);
-        projectNameInstruction.setBorder(new EmptyBorder(5, 0, 0, 0));
-        projectNameInstruction.setAlignmentX(Component.CENTER_ALIGNMENT);
-        projectNameInstruction.setVisible(false);  // Disable the instruction label initially
-        return projectNameInstruction;
-    }
-
-    private JTextField getProjectName() {
-        JTextField projectNameField = new JTextField("project.json");
-
-        int singleLineHeight = projectNameField.getPreferredSize().height; // Get the default preferred height (single line)
-        projectNameField.setPreferredSize(new Dimension(300, singleLineHeight));
-        projectNameField.setMinimumSize(new Dimension(300, singleLineHeight));
-        projectNameField.setMaximumSize(new Dimension(300, singleLineHeight));
-        projectNameField.setHorizontalAlignment(JTextField.CENTER); // Center the text inside the JTextField
-        projectNameField.setVisible(false);
-        return projectNameField;
+        createOpenPanel.setAlignmentX(Component.CENTER_ALIGNMENT);
+        return createOpenPanel;
     }
 
     /**
@@ -256,7 +210,6 @@ public class GUIInterface {
      * Initializes the button panel with Back, Next, Save, and Run buttons.
      */
     private void initializeButtonPanel() {
-        JPanel buttonPanel = new JPanel(new GridBagLayout());
         GridBagConstraints constraints = new GridBagConstraints();
 
         // Common constraints
@@ -310,6 +263,7 @@ public class GUIInterface {
         // TODO: Add actionListeners for Save and Run as needed
 
         frame.add(buttonPanel, BorderLayout.SOUTH);
+        buttonPanel.setVisible(false);
     }
 
     /**
@@ -373,18 +327,458 @@ public class GUIInterface {
         }
     }
 
-    private void performLoadAction() {
+    private void performCreateAction() {
 
+        // Initialize the JFileChooser to the user's home directory
+        JFileChooser fileChooser = new JFileChooser(System.getProperty("user.home"));
+
+        // Set it to files only (not directories)
+        fileChooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
+        fileChooser.setDialogTitle("Choose a location to save the project");
+
+        // Use a custom file filter to only allow files with .json extension
+        FileNameExtensionFilter filter = new FileNameExtensionFilter("JSON Files", "json");
+        fileChooser.setFileFilter(filter);
+
+        int result = fileChooser.showSaveDialog(frame);
+
+        if (result == JFileChooser.APPROVE_OPTION) {
+            File selectedFile = fileChooser.getSelectedFile();
+
+            // Append .json extension if it doesn't already exist
+            if (!selectedFile.getAbsolutePath().endsWith(".json")) {
+                selectedFile = new File(selectedFile + ".json");
+            }
+
+            // Check if the file already exists
+            if (selectedFile.exists()) {
+                JOptionPane.showMessageDialog(frame, "A file with this name already exists.", "Error", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+
+            try {
+                if (selectedFile.createNewFile()) {
+                    // Write an initial empty JSON structure to the file
+                    FileWriter writer = new FileWriter(selectedFile);
+                    writer.write("{}");  // Write an empty JSON object
+                    writer.close();
+
+                    JOptionPane.showMessageDialog(frame, "Project file created successfully!", "Success", JOptionPane.INFORMATION_MESSAGE);
+
+                    // Move to the next action after successful file creation
+                    performNextAction();
+
+                } else {
+                    JOptionPane.showMessageDialog(frame, "Failed to create project file.", "Error", JOptionPane.ERROR_MESSAGE);
+                }
+            } catch (IOException i) {
+                i.printStackTrace();
+                JOptionPane.showMessageDialog(frame, "An error occurred while creating the file.", "Error", JOptionPane.ERROR_MESSAGE);
+            }
+        }
+    }
+
+    private void getCreateMapPanel() {
+        // Create the Map panel and set layout
+        JPanel mapPanel = new JPanel();
+        mapPanel.setLayout(new BoxLayout(mapPanel, BoxLayout.Y_AXIS));
+
+        // Create a label with instructions
+        JLabel mapMessage = new DisplayLine().createLine(Font.PLAIN, 20, "Please select a valid map file:");
+        // TODO Maybe it is better to show image path, may be not
+
+        nextButton.setEnabled(false);
+
+        // Create a button to open the file chooser dialog
+        JButton chooseFileButton = new JButton("Choose File");
+        chooseFileButton.setAlignmentX(Component.CENTER_ALIGNMENT);
+        chooseFileButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                // Open a file chooser dialog for PNG files
+                JFileChooser fileChooser = new JFileChooser(System.getProperty("user.home"));
+                FileNameExtensionFilter filter = new FileNameExtensionFilter("PNG Files", "png");
+                fileChooser.setFileFilter(filter);
+
+                int result = fileChooser.showOpenDialog(frame);
+
+                if (result == JFileChooser.APPROVE_OPTION) {
+                    // User selected a PNG file
+                    File selectedFile = fileChooser.getSelectedFile();
+                    selectedImagePath = selectedFile.getAbsolutePath();  // Store the path in the variable
+                    // Open the PNG file in a new window using the existing method
+                    createAndShowImageFrame(selectedImagePath);
+
+//                    projectData.setMap(selectedImagePath); FIXME
+                    nextButton.setEnabled(true);
+                }
+            }
+        });
+
+        // Add components to the Map panel
+        mapPanel.add(mapMessage);
+        mapPanel.add(chooseFileButton);
+
+        // Replace the content of the "Map" tab with the Map panel
+        tabbedPane.setComponentAt(1, mapPanel); // Assuming "Map" tab index is 1
+    }
+
+    private void getCreateVehiclesPanel() {
+
+        // Create the Vehicles panel
+        JPanel vehiclesPanel = new JPanel(new BorderLayout());
+
+        // Left side: Display message and Delete Vehicle button
+        JPanel leftPanel = new JPanel(new BorderLayout());
+        JLabel messageLabel = new JLabel("Vehicles");
+        leftPanel.add(messageLabel, BorderLayout.NORTH);
+        JButton deleteVehicleButton = new JButton("Delete Vehicle");
+        leftPanel.add(deleteVehicleButton, BorderLayout.SOUTH);
+
+        // Right side: 14 rows with labels, components, and text fields, and Add Vehicle button
+        JPanel rightPanel = new JPanel(new GridLayout(14, 2)); // 14 rows, 2 columns
+
+        // Create labels for each row
+        JLabel[] labels = {
+                new JLabel("Name:"),
+                new JLabel("Width (m):"),
+                new JLabel("Length (m):"),
+                new JLabel("Max. Velocity (m/s):"),
+                new JLabel("Max. Acceleration (m/s^2):"),
+                new JLabel("Color:"),
+                new JLabel("Initial Location:"),
+                new JLabel("Goal Location:"),
+                new JLabel("Human Operated:"),
+                new JLabel("Look Ahead Distance (m):")
+        };
+
+        // Create JComboBox for "Color" with specific options
+        String[] colorOptions = {"Red", "Green", "Yellow", "Blue", "Black"};
+        JComboBox<String> colorComboBox = new JComboBox<>(colorOptions);
+
+        System.out.println(projectData);
+        // Create JComboBox for "Initial Location" and "Goal Location" with 20 options
+        String[] locationOptions = {"mainTunnelLeft", "mainTunnelRight", "entrance", "drawPoint12", "drawPoint13",
+                "drawPoint14", "drawPoint27", "drawPoint28", "drawPoint29", "drawPoint29A", "drawPoint30",
+                "drawPoint31", "drawPoint32", "drawPoint32A", "drawPoint33", "drawPoint34", "drawPoint35",
+                "orePass1", "orePass2", "orePass3"};
+        JComboBox<String> initialLocationComboBox = new JComboBox<>(locationOptions);
+        JComboBox<String> goalLocationComboBox = new JComboBox<>(locationOptions);
+
+        // Create text fields for other properties
+        JTextField[] fields = {
+                new JTextField(),
+                new JTextField(),
+                new JTextField(),
+                new JTextField(),
+                new JTextField()
+        };
+
+        // Create checkbox for "Human Operated"
+        JCheckBox humanOperatedCheckBox = new JCheckBox("Human Operated");
+
+        // Create label and text field for "Look Ahead Distance" initially set to not visible
+        JLabel lookAheadDistanceLabel = new JLabel("Look Ahead Distance (m):");
+        JTextField lookAheadDistanceField = new JTextField();
+        lookAheadDistanceLabel.setVisible(false); // Initially not visible
+        lookAheadDistanceField.setVisible(false); // Initially not visible
+
+        // Add components to the right panel
+        rightPanel.add(labels[0]);
+        rightPanel.add(fields[0]); // Name
+        rightPanel.add(labels[1]);
+        rightPanel.add(fields[1]); // Width
+        rightPanel.add(labels[2]);
+        rightPanel.add(fields[2]); // Length
+        rightPanel.add(labels[3]);
+        rightPanel.add(fields[3]); // Max. Velocity
+        rightPanel.add(labels[4]);
+        rightPanel.add(fields[4]); // Max. Acceleration
+        rightPanel.add(labels[5]);
+        rightPanel.add(colorComboBox); // Color
+        rightPanel.add(labels[6]);
+        rightPanel.add(initialLocationComboBox); // Initial Location
+        rightPanel.add(labels[7]);
+        rightPanel.add(goalLocationComboBox); // Goal Location
+        rightPanel.add(labels[8]);
+        rightPanel.add(humanOperatedCheckBox); // Human Operated
+
+        // Add an ActionListener to the checkbox to control the visibility of the "Look Ahead Distance" components
+        humanOperatedCheckBox.addActionListener(e -> {
+            boolean isSelected = humanOperatedCheckBox.isSelected();
+            lookAheadDistanceLabel.setVisible(isSelected);
+            lookAheadDistanceField.setVisible(isSelected);
+            rightPanel.revalidate(); // Revalidate the panel to reflect the changes
+        });
+
+        // Add the "Look Ahead Distance" components to the right panel
+        rightPanel.add(lookAheadDistanceLabel); // Look Ahead Distance Label
+        rightPanel.add(lookAheadDistanceField); // Look Ahead Distance Text Field
+
+        // Add Vehicle button to the bottom of the right panel
+        JButton addVehicleButton = new JButton("Add Vehicle");
+        rightPanel.add(addVehicleButton);
+
+        // Create a JSplitPane to divide the JFrame horizontally
+        JSplitPane splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, leftPanel, rightPanel);
+        splitPane.setResizeWeight(0.2); // Set the initial width ratio
+
+        // Add the split pane to the Vehicles panel
+        vehiclesPanel.add(splitPane, BorderLayout.CENTER);
+
+        // Replace the content of the "Vehicles" tab with the Vehicles panel
+        tabbedPane.setComponentAt(2, vehiclesPanel); // Assuming "Vehicles" tab index is 2
+    }
+
+    private void performOpenAction() {
+
+        openActionPerformed = true;
+
+        // Initialize the JFileChooser to the user's home directory
+        JFileChooser fileChooser = new JFileChooser(System.getProperty("user.home"));
+
+        // Set it to allow selecting only files (not directories)
+        fileChooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
+        fileChooser.setDialogTitle("Open a project file");
+
+        // Use a custom file filter to only allow files with .json extension
+        FileNameExtensionFilter filter = new FileNameExtensionFilter("JSON Files", "json");
+        fileChooser.setFileFilter(filter);
+
+        int result = fileChooser.showOpenDialog(frame);
+
+        if (result == JFileChooser.APPROVE_OPTION) {
+            File selectedFile = fileChooser.getSelectedFile();
+
+            try {
+                // Read the JSON file into a JsonObject
+                JsonObject jsonObject = parseJsonFromFile(selectedFile);
+
+                // Use Gson to parse the JSON data into a ProjectData object
+                projectData = new Gson().fromJson(jsonObject, ProjectData.class);
+                String imagePath = getImageFilePath(projectData.getMap());
+                String currentDirectory = System.getProperty("user.dir");
+                String imageFilePath = currentDirectory + "/maps/" + imagePath;
+
+                SwingUtilities.invokeLater(() -> createAndShowImageFrame(imageFilePath));
+
+            } catch (IOException e) {
+                e.printStackTrace();
+                JOptionPane.showMessageDialog(frame, "An error occurred while reading the file.", "Error", JOptionPane.ERROR_MESSAGE);
+            }
+        }
+        performNextAction();
+    }
+
+    private void getOpenMapPanel() {
+        // Create the Map panel and set layout
+        JPanel mapPanel = new JPanel();
+        mapPanel.setLayout(new BoxLayout(mapPanel, BoxLayout.Y_AXIS));
+
+        // Create a label with instructions
+        JLabel mapMessage = new DisplayLine().createLine(Font.PLAIN, 20, "Do you want to update the map file:");
+
+        // Create a button to open the file chooser dialog
+        JButton chooseFileButton = new JButton("Choose File");
+        chooseFileButton.setAlignmentX(Component.CENTER_ALIGNMENT);
+        chooseFileButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                // Open a file chooser dialog for PNG files
+                JFileChooser fileChooser = new JFileChooser(System.getProperty("user.home"));
+                FileNameExtensionFilter filter = new FileNameExtensionFilter("PNG Files", "png");
+                fileChooser.setFileFilter(filter);
+
+                int result = fileChooser.showOpenDialog(frame);
+
+                if (result == JFileChooser.APPROVE_OPTION) {
+                    // User selected a PNG file
+                    File selectedFile = fileChooser.getSelectedFile();
+                    selectedImagePath = selectedFile.getAbsolutePath();  // Store the path in the variable
+                    // Open the PNG file in a new window using the existing method
+                    createAndShowImageFrame(selectedImagePath);
+                }
+            }
+        });
+
+        // Add components to the Map panel
+        mapPanel.add(mapMessage);
+        mapPanel.add(chooseFileButton);
+
+        // Replace the content of the "Map" tab with the Map panel
+        tabbedPane.setComponentAt(1, mapPanel); // Assuming "Map" tab index is 1
+
+    }
+
+    private void getOpenVehiclesPanel() {
+        // Create the Vehicles panel
+        JPanel vehiclesPanel = new JPanel(new BorderLayout());
+
+        // Left side: Display message and Delete Vehicle button
+        JPanel leftPanel = new JPanel(new BorderLayout());
+        JLabel messageLabel = new JLabel("Vehicles");
+        leftPanel.add(messageLabel, BorderLayout.NORTH);
+
+        // Create a JTextArea to display robot names
+        JTextArea VehicleNamesTextArea = new JTextArea(10, 20); // Rows, Columns
+        VehicleNamesTextArea.setEditable(false); // Make it non-editable
+
+        // Populate the JTextArea with robot names from ProjectData
+//        var vehicles = projectData.getRobots();
+//        System.out.println(vehicles);
+//        for (Vehicle vehicle : vehicles) {
+//            VehicleNamesTextArea.append(vehicle.getName() + "\n");
+//        }
+
+        leftPanel.add(new JScrollPane(VehicleNamesTextArea), BorderLayout.CENTER);
+
+        JButton deleteVehicleButton = new JButton("Delete Vehicle");
+        leftPanel.add(deleteVehicleButton, BorderLayout.SOUTH);
+
+        // Right side: 14 rows with labels, components, and text fields, and Add Vehicle button
+        JPanel rightPanel = new JPanel(new GridLayout(14, 2)); // 14 rows, 2 columns
+
+        // Create labels for each row
+        JLabel[] labels = {
+                new JLabel("Name:"),
+                new JLabel("Width (m):"),
+                new JLabel("Length (m):"),
+                new JLabel("Max. Velocity (m/s):"),
+                new JLabel("Max. Acceleration (m/s^2):"),
+                new JLabel("Color:"),
+                new JLabel("Initial Location:"),
+                new JLabel("Goal Location:"),
+                new JLabel("Human Operated:"),
+                new JLabel("Look Ahead Distance (m):")
+        };
+
+        // Create JComboBox for "Color" with specific options
+        String[] colorOptions = {"Red", "Green", "Yellow", "Blue", "Black"};
+        JComboBox<String> colorComboBox = new JComboBox<>(colorOptions);
+
+        Map<String, Pose> listOfAllPoses = projectData.getListOfAllPoses();
+        String[] locationOptions = listOfAllPoses.keySet().toArray(new String[0]);
+
+        JComboBox<String> initialLocationComboBox = new JComboBox<>(locationOptions);
+        JComboBox<String> goalLocationComboBox = new JComboBox<>(locationOptions);
+
+        // Create text fields for other properties
+        JTextField[] fields = {
+                new JTextField(),
+                new JTextField(),
+                new JTextField(),
+                new JTextField(),
+                new JTextField()
+        };
+
+        // Create checkbox for "Human Operated"
+        JCheckBox humanOperatedCheckBox = new JCheckBox("Human Operated");
+
+        // Create label and text field for "Look Ahead Distance" initially set to not visible
+        JLabel lookAheadDistanceLabel = new JLabel("Look Ahead Distance (m):");
+        JTextField lookAheadDistanceField = new JTextField();
+        lookAheadDistanceLabel.setVisible(false); // Initially not visible
+        lookAheadDistanceField.setVisible(false); // Initially not visible
+
+        // Add components to the right panel
+        rightPanel.add(labels[0]);
+        rightPanel.add(fields[0]); // Name
+        rightPanel.add(labels[1]);
+        rightPanel.add(fields[1]); // Width
+        rightPanel.add(labels[2]);
+        rightPanel.add(fields[2]); // Length
+        rightPanel.add(labels[3]);
+        rightPanel.add(fields[3]); // Max. Velocity
+        rightPanel.add(labels[4]);
+        rightPanel.add(fields[4]); // Max. Acceleration
+        rightPanel.add(labels[5]);
+        rightPanel.add(colorComboBox); // Color
+        rightPanel.add(labels[6]);
+        rightPanel.add(initialLocationComboBox); // Initial Location
+        rightPanel.add(labels[7]);
+        rightPanel.add(goalLocationComboBox); // Goal Location
+        rightPanel.add(labels[8]);
+        rightPanel.add(humanOperatedCheckBox); // Human Operated
+
+        // Add an ActionListener to the checkbox to control the visibility of the "Look Ahead Distance" components
+        humanOperatedCheckBox.addActionListener(e -> {
+            boolean isSelected = humanOperatedCheckBox.isSelected();
+            lookAheadDistanceLabel.setVisible(isSelected);
+            lookAheadDistanceField.setVisible(isSelected);
+            rightPanel.revalidate(); // Revalidate the panel to reflect the changes
+        });
+
+        // Add the "Look Ahead Distance" components to the right panel
+        rightPanel.add(lookAheadDistanceLabel); // Look Ahead Distance Label
+        rightPanel.add(lookAheadDistanceField); // Look Ahead Distance Text Field
+
+        // Add Vehicle button to the bottom of the right panel
+        JButton addVehicleButton = new JButton("Add Vehicle");
+        rightPanel.add(addVehicleButton);
+
+        // Create a JSplitPane to divide the JFrame horizontally
+        JSplitPane splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, leftPanel, rightPanel);
+        splitPane.setResizeWeight(0.2); // Set the initial width ratio
+
+        // Add the split pane to the Vehicles panel
+        vehiclesPanel.add(splitPane, BorderLayout.CENTER);
+
+        // Replace the content of the "Vehicles" tab with the Vehicles panel
+        tabbedPane.setComponentAt(2, vehiclesPanel); // Assuming "Vehicles" tab index is 2
+    }
+
+    private JsonObject parseJsonFromFile(File file) throws IOException {
+        // Use FileReader to read the JSON file
+        try (FileReader reader = new FileReader(file)) {
+            try (JsonReader jsonReader = new JsonReader(reader)) {
+                Gson gson = new Gson();
+                return gson.fromJson(jsonReader, JsonObject.class);
+            } catch (JsonParseException e) {
+                e.printStackTrace();
+                throw new IOException("Error parsing JSON file", e);
+            }
+        }
+    }
+
+    public String getImageFilePath(String yamlFilePath) {
+        try (BufferedReader reader = new BufferedReader(new FileReader(yamlFilePath))) {
+            String line;
+            while ((line = reader.readLine()) != null) {
+                if (line.trim().startsWith("image:")) {
+                    String[] parts = line.split(":");
+                    if (parts.length >= 2) {
+                        return parts[1].trim();
+                    }
+                }
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 
     private void performNextAction() {
         int selectedIndex = tabbedPane.getSelectedIndex();
         if (selectedIndex < tabbedPane.getTabCount() - 1) {
+            if (!openActionPerformed && selectedIndex == 0) { // Check if the "Open" action was not performed and the selected tab is "Map"
+                getCreateMapPanel(); // Call the method to create and display the welcome message
+            } else if (openActionPerformed && selectedIndex == 0) {
+                buttonPanel.setVisible(true);
+                nextButton.setEnabled(true);
+                getOpenMapPanel();
+            } else if (!openActionPerformed && selectedIndex == 1) {
+                getCreateVehiclesPanel();
+            } else if (openActionPerformed && selectedIndex == 1) {
+                getOpenVehiclesPanel();
+            }
             tabbedPane.setSelectedIndex(selectedIndex + 1);
+            buttonPanel.setVisible(true);
             backButton.setEnabled(true);
+            nextButton.setEnabled(true);
         }
         // Any other 'next' actions you'd like to perform...
     }
+
 
     private void performBackAction() {
         int selectedIndex = tabbedPane.getSelectedIndex();
@@ -392,10 +786,9 @@ public class GUIInterface {
             tabbedPane.setSelectedIndex(selectedIndex - 1);
         }
         if (selectedIndex == 1) {
-            backButton.setEnabled(false);
+            buttonPanel.setVisible(false);
         }
         // Any other 'back' actions you'd like to perform...
     }
-
 }
 

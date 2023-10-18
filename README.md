@@ -20,7 +20,7 @@ The approach makes very few assumptions on robot controllers, and can be used wi
 
 The coordination method is based on the _trajectory envelope_ representation provided by the <a href="http://metacsp.org">Meta-CSP framework</a>. This representation is detailed in
 
-* Federico Pecora, Marcello Cirillo, Dimitar Dimitrov, <a href="http://ieeexplore.ieee.org/abstract/document/6385862/">On Mission-Dependent Coordination of Multiple Vehicles under Spatial and Temporal Constraints</a>, IEEE/RSJ International Conference on Intelligent Robots and Systems (2012), pp. 5262-5269.
+* Federico Pecora, Marcello Cirillo, Dimitar Dimitrov, <a href="http://ieeexplore.ieee.org/abstract/document/6385862/">On Mission-Dependent Coordination of Multiple Vehicles under Spatial and Temporal Constraints</a>, IEEE/RSJ International Conference on Intelligent vehicles and Systems (2012), pp. 5262-5269.
 
 In short, a trajectory envelope is a set of spatio-temporal constraints on a robot's trajectory. A trajectory envelope spans over a _path_, which is a sequence of _poses_ ```<p1, ... pn>```. In the current implementation, the spatial constraints defining a trajectory envelope are computed as the sweep of the robot's footprint over the path.
 
@@ -117,7 +117,7 @@ for a list of all provided examples and instructions on how to run them (and/or 
 ## Sponsors
 This project is supported by
 
-* The <a href="http://semanticrobots.oru.se">Semantic Robots</a> Research Profile, funded by the <a href="http://www.kks.se/">Swedish Knowledge Foundation</a>
+* The <a href="http://semanticrobots.oru.se">Semantic vehicles</a> Research Profile, funded by the <a href="http://www.kks.se/">Swedish Knowledge Foundation</a>
 * The <a href="https://iliad-project.eu/">ILIAD Project</a>, funded by the <a href="https://ec.europa.eu/programmes/horizon2020/">EC H2020 Program</a>
 * The iQMobility Project, funded by <a href="https://www.vinnova.se/">Vinnova</a>
 

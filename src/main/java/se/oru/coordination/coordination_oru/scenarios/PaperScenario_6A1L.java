@@ -20,13 +20,16 @@ public class PaperScenario_6A1L {
         String absolutePath = System.getProperty("user.dir");
         String resultsDirectory = absolutePath + "/src/main/java/se/oru/coordination/coordination_oru/results/lookAheadPaper_2023";
         final String YAML_FILE = "maps/mine-map-paper-2023.yaml";
-        double lookAheadDistance = 15;
+        double lookAheadDistance = 2.0;
         double timeIntervalInSeconds = 0.25;
-        int updateCycleTime = 200;
-        int terminationInMinutes = 30;
-        int numOfCallsForLookAheadRobot = 20;
+        int updateCycleTime = 100;
+        int terminationInMinutes = 60;
+        int numOfCallsForLookAheadRobot = 10;
         boolean visualization = true;
         boolean writeRobotReports = true;
+        // Everything including velocity, acceleration, lookahead, length and width is scaled by 0.1
+        final double MAX_VELOCITY = 1.0;
+        final double MAX_ACCELERATION = 0.1;
 
         final Pose mainTunnelLeft = new Pose(14.25, 22.15, Math.PI);
         final Pose mainTunnelRight = new Pose(114.15, 40.05, Math.PI);
@@ -54,13 +57,13 @@ public class PaperScenario_6A1L {
         final Pose[] autonomousRobotGoal3 = {orePass3};
         final Pose[] limitedLookAheadRobotGoal = {mainTunnelLeft};
 
-        var autonomousRobot1 = new AutonomousVehicle(1, Color.YELLOW, 5.0, 2.0, 0.9, 0.5);
-        var autonomousRobot2 = new AutonomousVehicle(1, Color.YELLOW, 5.0, 2.0, 0.9, 0.5);
-        var autonomousRobot3 = new AutonomousVehicle(1, Color.YELLOW, 5.0, 2.0, 0.9, 0.5);
-        var autonomousRobot4 = new AutonomousVehicle(1, Color.YELLOW, 5.0, 2.0, 0.9, 0.5);
-        var autonomousRobot5 = new AutonomousVehicle(1, Color.YELLOW, 5.0, 2.0, 0.9, 0.5);
-        var autonomousRobot6 = new AutonomousVehicle(1, Color.YELLOW, 5.0, 2.0, 0.9, 0.5);
-        var lookAheadRobot = new LookAheadVehicle(1, lookAheadDistance, Color.GREEN, 5.0, 2.0, 0.9, 0.5);
+        var autonomousRobot1 = new AutonomousVehicle(1, Color.YELLOW, MAX_VELOCITY, MAX_ACCELERATION, 0.9, 0.5);
+        var autonomousRobot2 = new AutonomousVehicle(1, Color.YELLOW, MAX_VELOCITY, MAX_ACCELERATION, 0.9, 0.5);
+        var autonomousRobot3 = new AutonomousVehicle(1, Color.YELLOW, MAX_VELOCITY, MAX_ACCELERATION, 0.9, 0.5);
+        var autonomousRobot4 = new AutonomousVehicle(1, Color.YELLOW, MAX_VELOCITY, MAX_ACCELERATION, 0.9, 0.5);
+        var autonomousRobot5 = new AutonomousVehicle(1, Color.YELLOW, MAX_VELOCITY, MAX_ACCELERATION, 0.9, 0.5);
+        var autonomousRobot6 = new AutonomousVehicle(1, Color.YELLOW, MAX_VELOCITY, MAX_ACCELERATION, 0.9, 0.5);
+        var lookAheadRobot = new LookAheadVehicle(1, lookAheadDistance, Color.GREEN, MAX_VELOCITY, MAX_ACCELERATION, 0.9, 0.5);
 
         autonomousRobot1.getPlan(drawPoint28, autonomousRobotGoal1, YAML_FILE, true);
         autonomousRobot2.getPlan(drawPoint30, autonomousRobotGoal1, YAML_FILE, true);
@@ -71,7 +74,7 @@ public class PaperScenario_6A1L {
         lookAheadRobot.getPlan(entrance, limitedLookAheadRobotGoal, YAML_FILE, true);
 
         // Instantiate a trajectory envelope coordinator.
-        var tec = new TrajectoryEnvelopeCoordinatorSimulation(5.0, 2.5);
+        var tec = new TrajectoryEnvelopeCoordinatorSimulation(1000, 1000, MAX_VELOCITY, MAX_ACCELERATION);
         tec.setupSolver(0, 100000000);
         tec.startInference();
 
