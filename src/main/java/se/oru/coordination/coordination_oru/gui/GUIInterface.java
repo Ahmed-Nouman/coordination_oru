@@ -1,10 +1,17 @@
 package se.oru.coordination.coordination_oru.gui;
+import se.oru.coordination.coordination_oru.Mission;
 import se.oru.coordination.coordination_oru.gui.ProjectData.*;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
 import com.google.gson.stream.JsonReader;
+import se.oru.coordination.coordination_oru.simulation2D.TrajectoryEnvelopeCoordinatorSimulation;
+import se.oru.coordination.coordination_oru.util.BrowserVisualization;
+import se.oru.coordination.coordination_oru.util.Heuristics;
+import se.oru.coordination.coordination_oru.util.Missions;
+import se.oru.coordination.coordination_oru.vehicles.AutonomousVehicle;
+import org.metacsp.multi.spatioTemporal.paths.Pose;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;
@@ -16,6 +23,7 @@ import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
 import java.awt.image.BufferedImage;
 import java.io.*;
+import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -28,12 +36,15 @@ public class GUIInterface extends javax.swing.JFrame {
     private static JButton openButton;
     private static JButton nextButton;
     private static JButton backButton;
+    private static JButton saveButton;
+    private static JButton runButton;
     private final JFrame frame;
+    private JFrame imageFrame = null;
     private final JTabbedPane tabbedPane;
     private boolean openActionPerformed = false; // Flag to track if "Open" action was performed
     private ProjectData projectData;
     private String selectedImagePath;  // Variable to store the selected image path
-    private JPanel buttonPanel = new JPanel(new GridBagLayout());
+    private final JPanel buttonPanel = new JPanel(new GridBagLayout());
 
     /**
      * Constructor for the GUIInterface. Initializes the GUI components.
@@ -84,20 +95,20 @@ public class GUIInterface extends javax.swing.JFrame {
         SwingUtilities.invokeLater(GUIInterface::new);
     }
 
-    private static void createAndShowImageFrame(String imagePath) {
-        JFrame frame = new JFrame("Image Viewer");
-        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+    private void createAndShowImageFrame(String imagePath) {
+        imageFrame = new JFrame("Image Viewer");
+        imageFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 
         try {
             BufferedImage image = ImageIO.read(new File(imagePath));
             ImageIcon icon = new ImageIcon(image);
 
             JLabel label = new JLabel(icon);
-            frame.add(label, BorderLayout.CENTER);
+            imageFrame.add(label, BorderLayout.CENTER);
 
-            frame.pack();
-            frame.setLocationRelativeTo(null); // Center the frame on screen
-            frame.setVisible(true);
+            imageFrame.pack();
+            imageFrame.setLocationRelativeTo(null); // Center the frame on screen
+            imageFrame.setVisible(true);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -109,7 +120,10 @@ public class GUIInterface extends javax.swing.JFrame {
         JPanel projectPanel = new JPanel();
         projectPanel.setLayout(new BoxLayout(projectPanel, BoxLayout.Y_AXIS));
 
-        // Welcome to label with bigger font and some vertical space above it
+        // Create a rigid vertical strut for spacing at the top
+        projectPanel.add(Box.createVerticalStrut(40)); // Adjust the height (40 in this example) as needed
+
+        // Welcome to label with bigger font
         JLabel welcomeMessage = new DisplayLine().createLine(Font.BOLD, 24, "Welcome to Coordination_ORU!");
 
         // Create a panel for the Create and Load buttons
@@ -117,6 +131,9 @@ public class GUIInterface extends javax.swing.JFrame {
 
         projectPanel.add(welcomeMessage);
         projectPanel.add(createOpenPanel);
+
+        // Create a rigid vertical strut for spacing at the bottom
+        projectPanel.add(Box.createVerticalStrut(40)); // Adjust the height as needed
 
         createButton.addActionListener(new ActionListener() {
             @Override
@@ -234,18 +251,29 @@ public class GUIInterface extends javax.swing.JFrame {
         });
 
         // Save button
-        JButton saveButton = new JButton("Save");
+        saveButton = new JButton("Save");
         saveButton.setEnabled(false);
         constraints.gridx = 1;  // Column 1
         constraints.insets = new Insets(0, padding, 0, padding);  // Padding on both sides
         buttonPanel.add(saveButton, constraints);
+        saveButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent actionEvent) { performSaveAction();
+            }
+        });
 
         // Run button
-        JButton runButton = new JButton("Run");
+        runButton = new JButton("Run");
         runButton.setEnabled(false);
         constraints.gridx = 2;  // Column 2
         constraints.insets = new Insets(0, padding, 0, padding);  // Padding on both sides
         buttonPanel.add(runButton, constraints);
+        runButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent actionEvent) {
+                performRunAction();
+            }
+        });
 
         // Next button
         nextButton = new JButton("Next");
@@ -260,10 +288,98 @@ public class GUIInterface extends javax.swing.JFrame {
             }
         });
 
-        // TODO: Add actionListeners for Save and Run as needed
-
         frame.add(buttonPanel, BorderLayout.SOUTH);
         buttonPanel.setVisible(false);
+    }
+
+    private void performRunAction() {
+        System.out.println("Simulation Running");
+        runButton.setEnabled(false);
+        backButton.setEnabled(false);
+        nextButton.setEnabled(false);
+        imageFrame.dispose();
+
+        final String YAML_FILE = projectData.getMap();
+        double timeIntervalInSeconds = 0.25;
+        int updateCycleTime = 100;
+        int terminationInMinutes = 30;
+        boolean writeRobotReports = false;
+
+        final Pose mainTunnelLeft = new Pose(14.25, 22.15, Math.PI);
+        final Pose mainTunnelRight = new Pose(114.15, 40.05, Math.PI);
+        final Pose entrance = new Pose(115.35, 3.75, Math.PI);
+        final Pose drawPoint12 = new Pose(88.35, 101.05, -Math.PI / 2);
+        final Pose drawPoint13 = new Pose(95.75, 100.85, Math.PI);
+        final Pose drawPoint14 = new Pose(102.45, 98.05, Math.PI);
+        final Pose drawPoint27 = new Pose(17.95, 54.35, Math.PI);
+        final Pose drawPoint28 = new Pose(25.05, 58.35, -Math.PI / 2);
+        final Pose drawPoint29 = new Pose(31.95, 58.75, Math.PI);
+        final Pose drawPoint29A = new Pose(39.35, 54.15, Math.PI);
+        final Pose drawPoint30 = new Pose(46.25, 49.85, -Math.PI / 2);
+        final Pose drawPoint31 = new Pose(53.25, 49.25, -Math.PI / 2);
+        final Pose drawPoint32 = new Pose(60.35, 53.05, -Math.PI / 2);
+        final Pose drawPoint32A = new Pose(67.55, 55.45, -Math.PI / 2);
+        final Pose drawPoint33 = new Pose(74.25, 73.45, -Math.PI / 2);
+        final Pose drawPoint34 = new Pose(81.35, 79.45, -Math.PI / 2);
+        final Pose drawPoint35 = new Pose(88.45, 81.95, -Math.PI / 2);
+        final Pose orePass1 = new Pose(28.45, 15.05, -Math.PI / 2);
+        final Pose orePass2 = new Pose(76.35, 31.05, -Math.PI / 2.7);
+        final Pose orePass3 = new Pose(92.65, 33.15, -Math.PI / 2);
+
+        AutonomousVehicle V1 = null;
+        AutonomousVehicle V2 = null;
+
+        AutonomousVehicle[] vehiclesArray = new AutonomousVehicle[projectData.getVehicles().size()];
+
+        int i = 0;
+        for (Map.Entry<String, Vehicle> entry : projectData.getVehicles().entrySet()) {
+            String vehicleName = entry.getKey();
+            Vehicle vehicleData = entry.getValue();
+            vehiclesArray[i] = new AutonomousVehicle(1, Color.YELLOW, vehicleData.getMaxVelocity(), //FIXME color AND Poses Strings
+                    vehicleData.getMaxAcceleration(), 0.9, 0.5);
+            i++;
+        }
+
+        V1 = vehiclesArray[0];
+        V2 = vehiclesArray[1];
+
+        V1.getPlan(entrance, new Pose[]{mainTunnelLeft}, YAML_FILE, true);
+        V2.getPlan(drawPoint28, new Pose[]{orePass1}, YAML_FILE, true); //FIXME All Strings to data types
+
+        // Instantiate a trajectory envelope coordinator.
+        var tec = new TrajectoryEnvelopeCoordinatorSimulation(1000, 1000, 1.0, 0.1);
+        tec.setupSolver(0, 100000000);
+        tec.startInference();
+
+        tec.setDefaultFootprint(V1.getFootprint());
+        tec.placeRobot(V1.getID(), entrance);
+        tec.placeRobot(V2.getID(), drawPoint28);
+
+        // Set Heuristics
+        var heuristic = new Heuristics();
+        tec.addComparator(heuristic.closest());
+        String heuristicName = heuristic.getHeuristicName();
+
+        // Set up a simple GUI (null means an empty map, otherwise provide yaml file)
+        var viz = new BrowserVisualization();
+        viz.setMap(YAML_FILE);
+        viz.setFontScale(2.5);
+        viz.setInitialTransform(8.6, 30.2, -0.73);
+        tec.setVisualization(viz);
+
+        var m1 = new Mission(V1.getID(), V1.getPath());
+        var m2 = new Mission(V2.getID(), V2.getPath());
+
+        Missions.enqueueMission(m1);
+        Missions.enqueueMission(m2);
+
+        Missions.startMissionDispatchers(tec, writeRobotReports,
+                timeIntervalInSeconds, terminationInMinutes, heuristicName,
+                updateCycleTime, null);
+    }
+
+    private void performSaveAction() {
+        System.out.println("Project Saved");
     }
 
     /**
@@ -367,6 +483,7 @@ public class GUIInterface extends javax.swing.JFrame {
 
                     // Move to the next action after successful file creation
                     performNextAction();
+                    nextButton.setEnabled(false);
 
                 } else {
                     JOptionPane.showMessageDialog(frame, "Failed to create project file.", "Error", JOptionPane.ERROR_MESSAGE);
@@ -382,6 +499,9 @@ public class GUIInterface extends javax.swing.JFrame {
         // Create the Map panel and set layout
         JPanel mapPanel = new JPanel();
         mapPanel.setLayout(new BoxLayout(mapPanel, BoxLayout.Y_AXIS));
+
+        // Create a rigid vertical strut for spacing at the top
+        mapPanel.add(Box.createVerticalStrut(40)); // Adjust the height (40 in this example) as needed
 
         // Create a label with instructions
         JLabel mapMessage = new DisplayLine().createLine(Font.PLAIN, 20, "Please select a valid map file:");
@@ -409,7 +529,7 @@ public class GUIInterface extends javax.swing.JFrame {
                     // Open the PNG file in a new window using the existing method
                     createAndShowImageFrame(selectedImagePath);
 
-//                    projectData.setMap(selectedImagePath); FIXME
+                    //projectData.setMap(selectedImagePath); FIXME
                     nextButton.setEnabled(true);
                 }
             }
@@ -417,7 +537,11 @@ public class GUIInterface extends javax.swing.JFrame {
 
         // Add components to the Map panel
         mapPanel.add(mapMessage);
+        mapPanel.add(Box.createVerticalStrut(20)); // Adjust the height (40 in this example) as needed
         mapPanel.add(chooseFileButton);
+
+        // Create a rigid vertical strut for spacing at the bottom
+        mapPanel.add(Box.createVerticalStrut(40)); // Adjust the height as needed
 
         // Replace the content of the "Map" tab with the Map panel
         tabbedPane.setComponentAt(1, mapPanel); // Assuming "Map" tab index is 1
@@ -428,11 +552,14 @@ public class GUIInterface extends javax.swing.JFrame {
         // Create the Vehicles panel
         JPanel vehiclesPanel = new JPanel(new BorderLayout());
 
+        // Create a rigid vertical strut for spacing at the top
+        vehiclesPanel.add(Box.createVerticalStrut(40), BorderLayout.NORTH);
+
         // Left side: Display message and Delete Vehicle button
         JPanel leftPanel = new JPanel(new BorderLayout());
-        JLabel messageLabel = new JLabel("Vehicles");
+        JLabel messageLabel = new JLabel("Vehicles List");
         leftPanel.add(messageLabel, BorderLayout.NORTH);
-        JButton deleteVehicleButton = new JButton("Delete Vehicle");
+        JButton deleteVehicleButton = new JButton("Delete");
         leftPanel.add(deleteVehicleButton, BorderLayout.SOUTH);
 
         // Right side: 14 rows with labels, components, and text fields, and Add Vehicle button
@@ -516,7 +643,7 @@ public class GUIInterface extends javax.swing.JFrame {
         rightPanel.add(lookAheadDistanceField); // Look Ahead Distance Text Field
 
         // Add Vehicle button to the bottom of the right panel
-        JButton addVehicleButton = new JButton("Add Vehicle");
+        JButton addVehicleButton = new JButton("Add");
         rightPanel.add(addVehicleButton);
 
         // Create a JSplitPane to divide the JFrame horizontally
@@ -525,6 +652,9 @@ public class GUIInterface extends javax.swing.JFrame {
 
         // Add the split pane to the Vehicles panel
         vehiclesPanel.add(splitPane, BorderLayout.CENTER);
+
+        // Create a rigid vertical strut for spacing at the bottom
+        vehiclesPanel.add(Box.createVerticalStrut(40), BorderLayout.SOUTH);
 
         // Replace the content of the "Vehicles" tab with the Vehicles panel
         tabbedPane.setComponentAt(2, vehiclesPanel); // Assuming "Vehicles" tab index is 2
@@ -575,8 +705,11 @@ public class GUIInterface extends javax.swing.JFrame {
         JPanel mapPanel = new JPanel();
         mapPanel.setLayout(new BoxLayout(mapPanel, BoxLayout.Y_AXIS));
 
+        // Create a rigid vertical strut for spacing at the top
+        mapPanel.add(Box.createVerticalStrut(40)); // Adjust the height (40 in this example) as needed
+
         // Create a label with instructions
-        JLabel mapMessage = new DisplayLine().createLine(Font.PLAIN, 20, "Do you want to update the map file:");
+        JLabel mapMessage = new DisplayLine().createLine(Font.PLAIN, 20, "Would you like to update the map file:");
 
         // Create a button to open the file chooser dialog
         JButton chooseFileButton = new JButton("Choose File");
@@ -603,11 +736,14 @@ public class GUIInterface extends javax.swing.JFrame {
 
         // Add components to the Map panel
         mapPanel.add(mapMessage);
+        mapPanel.add(Box.createVerticalStrut(20)); // Adjust the height (20 in this example) as needed
         mapPanel.add(chooseFileButton);
+
+        // Create a rigid vertical strut for spacing at the bottom
+        mapPanel.add(Box.createVerticalStrut(40)); // Adjust the height as needed
 
         // Replace the content of the "Map" tab with the Map panel
         tabbedPane.setComponentAt(1, mapPanel); // Assuming "Map" tab index is 1
-
     }
 
     private void getOpenVehiclesPanel() {
@@ -616,27 +752,29 @@ public class GUIInterface extends javax.swing.JFrame {
 
         // Left side: Display message and Delete Vehicle button
         JPanel leftPanel = new JPanel(new BorderLayout());
-        JLabel messageLabel = new JLabel("Vehicles");
+        JLabel messageLabel = new JLabel("Vehicles List");
         leftPanel.add(messageLabel, BorderLayout.NORTH);
 
-        // Create a JTextArea to display robot names
-        JTextArea VehicleNamesTextArea = new JTextArea(10, 20); // Rows, Columns
-        VehicleNamesTextArea.setEditable(false); // Make it non-editable
+        // Create a JList to display robot names and a DefaultListModel to manage its content
+        DefaultListModel<String> listModel = new DefaultListModel<>();
+        JList<String> vehicleNamesList = new JList<>(listModel);
+        vehicleNamesList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 
-        // Populate the JTextArea with robot names from ProjectData
-//        var vehicles = projectData.getRobots();
-//        System.out.println(vehicles);
-//        for (Vehicle vehicle : vehicles) {
-//            VehicleNamesTextArea.append(vehicle.getName() + "\n");
-//        }
+        // Populate the JList with robot names from ProjectData
+        var vehicles = projectData.getVehicles();
+        for (String vehicleName : vehicles.keySet()) {
+            listModel.addElement(vehicleName);
+        }
 
-        leftPanel.add(new JScrollPane(VehicleNamesTextArea), BorderLayout.CENTER);
+        leftPanel.add(new JScrollPane(vehicleNamesList), BorderLayout.CENTER);
 
-        JButton deleteVehicleButton = new JButton("Delete Vehicle");
+        JButton deleteVehicleButton = performDeleteAction(vehicleNamesList, listModel);
         leftPanel.add(deleteVehicleButton, BorderLayout.SOUTH);
 
         // Right side: 14 rows with labels, components, and text fields, and Add Vehicle button
-        JPanel rightPanel = new JPanel(new GridLayout(14, 2)); // 14 rows, 2 columns
+        JPanel rightPanel = new JPanel(new BorderLayout()); // Change GridLayout to BorderLayout
+        JPanel formPanel = new JPanel(new GridLayout(14, 2)); // 14 rows, 2 columns
+        // TODO Add Human Vehicles
 
         // Create labels for each row
         JLabel[] labels = {
@@ -656,7 +794,7 @@ public class GUIInterface extends javax.swing.JFrame {
         String[] colorOptions = {"Red", "Green", "Yellow", "Blue", "Black"};
         JComboBox<String> colorComboBox = new JComboBox<>(colorOptions);
 
-        Map<String, Pose> listOfAllPoses = projectData.getListOfAllPoses();
+        Map<String, ProjectData.Pose> listOfAllPoses = projectData.getListOfAllPoses();
         String[] locationOptions = listOfAllPoses.keySet().toArray(new String[0]);
 
         JComboBox<String> initialLocationComboBox = new JComboBox<>(locationOptions);
@@ -681,24 +819,24 @@ public class GUIInterface extends javax.swing.JFrame {
         lookAheadDistanceField.setVisible(false); // Initially not visible
 
         // Add components to the right panel
-        rightPanel.add(labels[0]);
-        rightPanel.add(fields[0]); // Name
-        rightPanel.add(labels[1]);
-        rightPanel.add(fields[1]); // Width
-        rightPanel.add(labels[2]);
-        rightPanel.add(fields[2]); // Length
-        rightPanel.add(labels[3]);
-        rightPanel.add(fields[3]); // Max. Velocity
-        rightPanel.add(labels[4]);
-        rightPanel.add(fields[4]); // Max. Acceleration
-        rightPanel.add(labels[5]);
-        rightPanel.add(colorComboBox); // Color
-        rightPanel.add(labels[6]);
-        rightPanel.add(initialLocationComboBox); // Initial Location
-        rightPanel.add(labels[7]);
-        rightPanel.add(goalLocationComboBox); // Goal Location
-        rightPanel.add(labels[8]);
-        rightPanel.add(humanOperatedCheckBox); // Human Operated
+        formPanel.add(labels[0]);
+        formPanel.add(fields[0]); // Name
+        formPanel.add(labels[1]);
+        formPanel.add(fields[1]); // Width
+        formPanel.add(labels[2]);
+        formPanel.add(fields[2]); // Length
+        formPanel.add(labels[3]);
+        formPanel.add(fields[3]); // Max. Velocity
+        formPanel.add(labels[4]);
+        formPanel.add(fields[4]); // Max. Acceleration
+        formPanel.add(labels[5]);
+        formPanel.add(colorComboBox); // Color
+        formPanel.add(labels[6]);
+        formPanel.add(initialLocationComboBox); // Initial Location
+        formPanel.add(labels[7]);
+        formPanel.add(goalLocationComboBox); // Goal Location
+        formPanel.add(labels[8]);
+        formPanel.add(humanOperatedCheckBox); // Human Operated
 
         // Add an ActionListener to the checkbox to control the visibility of the "Look Ahead Distance" components
         humanOperatedCheckBox.addActionListener(e -> {
@@ -713,8 +851,10 @@ public class GUIInterface extends javax.swing.JFrame {
         rightPanel.add(lookAheadDistanceField); // Look Ahead Distance Text Field
 
         // Add Vehicle button to the bottom of the right panel
-        JButton addVehicleButton = new JButton("Add Vehicle");
-        rightPanel.add(addVehicleButton);
+        JButton addVehicleButton = new JButton("Add");
+        addVehicleButton.setPreferredSize(new Dimension(30, 30));  // 30 in width, 30 in height
+        rightPanel.add(formPanel, BorderLayout.CENTER);
+        rightPanel.add(addVehicleButton, BorderLayout.SOUTH);
 
         // Create a JSplitPane to divide the JFrame horizontally
         JSplitPane splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, leftPanel, rightPanel);
@@ -725,6 +865,27 @@ public class GUIInterface extends javax.swing.JFrame {
 
         // Replace the content of the "Vehicles" tab with the Vehicles panel
         tabbedPane.setComponentAt(2, vehiclesPanel); // Assuming "Vehicles" tab index is 2
+    }
+
+    private JButton performDeleteAction(JList<String> vehicleNamesList, DefaultListModel<String> listModel) {
+        JButton deleteVehicleButton = new JButton("Delete");
+        deleteVehicleButton.addActionListener(e -> {
+            int selectedIndex = vehicleNamesList.getSelectedIndex();
+            if (selectedIndex != -1) {
+                String selectedVehicleName = vehicleNamesList.getSelectedValue();
+
+                // Remove the vehicle from the map of vehicles in projectData
+                Map<String, Vehicle> vehiclesMap = projectData.getVehicles();
+                vehiclesMap.remove(selectedVehicleName);
+
+                // Remove the vehicle name from the list model
+                listModel.remove(selectedIndex);
+
+                // Clear the list selection
+                vehicleNamesList.clearSelection();
+            }
+        });
+        return deleteVehicleButton;
     }
 
     private JsonObject parseJsonFromFile(File file) throws IOException {
@@ -760,6 +921,10 @@ public class GUIInterface extends javax.swing.JFrame {
     private void performNextAction() {
         int selectedIndex = tabbedPane.getSelectedIndex();
         if (selectedIndex < tabbedPane.getTabCount() - 1) {
+            tabbedPane.setSelectedIndex(selectedIndex + 1);
+            buttonPanel.setVisible(true);
+            backButton.setEnabled(true);
+            nextButton.setEnabled(true);
             if (!openActionPerformed && selectedIndex == 0) { // Check if the "Open" action was not performed and the selected tab is "Map"
                 getCreateMapPanel(); // Call the method to create and display the welcome message
             } else if (openActionPerformed && selectedIndex == 0) {
@@ -770,15 +935,14 @@ public class GUIInterface extends javax.swing.JFrame {
                 getCreateVehiclesPanel();
             } else if (openActionPerformed && selectedIndex == 1) {
                 getOpenVehiclesPanel();
+            } else if (selectedIndex == 2) {
+                nextButton.setEnabled(false);
+                runButton.setEnabled(true);
+                saveButton.setEnabled(true);
             }
-            tabbedPane.setSelectedIndex(selectedIndex + 1);
-            buttonPanel.setVisible(true);
-            backButton.setEnabled(true);
-            nextButton.setEnabled(true);
         }
         // Any other 'next' actions you'd like to perform...
     }
-
 
     private void performBackAction() {
         int selectedIndex = tabbedPane.getSelectedIndex();

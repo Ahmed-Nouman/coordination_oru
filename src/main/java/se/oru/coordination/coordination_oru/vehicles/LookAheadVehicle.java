@@ -30,6 +30,9 @@ public class LookAheadVehicle extends AbstractVehicle {
      * @param maxAcceleration   The maximum acceleration of the robot.
      * @param xLength           The length of the robot along the X-axis.
      * @param yLength           The length of the robot along the Y-axis.
+     *                          // TODO Fix the initial call to getLimited, It should be complete path.
+     *                          // TODO Create a lookAheadScaled Method in AAbstract Class to write correct filename
+     *                          // TODO that map scale needs to multiplied automatically with velocity and distance
      */
     public LookAheadVehicle(int priorityID, double lookAheadDistance, Color color, double maxVelocity, double maxAcceleration, double xLength, double yLength) {
         super(priorityID, color, maxVelocity, maxAcceleration, xLength, yLength);

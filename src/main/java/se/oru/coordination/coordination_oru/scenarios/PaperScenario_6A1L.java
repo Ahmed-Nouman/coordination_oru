@@ -4,32 +4,32 @@ import org.metacsp.multi.spatioTemporal.paths.Pose;
 import se.oru.coordination.coordination_oru.ConstantAccelerationForwardModel;
 import se.oru.coordination.coordination_oru.Mission;
 import se.oru.coordination.coordination_oru.simulation2D.TrajectoryEnvelopeCoordinatorSimulation;
-import se.oru.coordination.coordination_oru.util.BrowserVisualization;
-import se.oru.coordination.coordination_oru.util.Heuristics;
-import se.oru.coordination.coordination_oru.util.Missions;
-import se.oru.coordination.coordination_oru.util.RandomRobotCaller;
+import se.oru.coordination.coordination_oru.util.*;
 import se.oru.coordination.coordination_oru.vehicles.AutonomousVehicle;
 import se.oru.coordination.coordination_oru.vehicles.LookAheadVehicle;
 
 import java.awt.*;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 
 public class PaperScenario_6A1L {
-    public static void main(String[] args) throws FileNotFoundException {
+    public static void main(String[] args) throws IOException {
 
         String absolutePath = System.getProperty("user.dir");
         String resultsDirectory = absolutePath + "/src/main/java/se/oru/coordination/coordination_oru/results/lookAheadPaper_2023";
         final String YAML_FILE = "maps/mine-map-paper-2023.yaml";
-        double lookAheadDistance = 2.0;
+        double lookAheadDistance = 12.0;
         double timeIntervalInSeconds = 0.25;
         int updateCycleTime = 100;
-        int terminationInMinutes = 60;
-        int numOfCallsForLookAheadRobot = 10;
+        int terminationInMinutes = 30;
+        int numOfCallsForLookAheadRobot = 5;
         boolean visualization = true;
         boolean writeRobotReports = true;
         // Everything including velocity, acceleration, lookahead, length and width is scaled by 0.1
         final double MAX_VELOCITY = 1.0;
         final double MAX_ACCELERATION = 0.1;
+
+//        double lookAheadDistanceScaled = lookAheadDistance * (new MapResolution().getMapResolution(YAML_FILE));
 
         final Pose mainTunnelLeft = new Pose(14.25, 22.15, Math.PI);
         final Pose mainTunnelRight = new Pose(114.15, 40.05, Math.PI);

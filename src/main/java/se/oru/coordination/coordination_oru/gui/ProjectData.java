@@ -1,13 +1,14 @@
 package se.oru.coordination.coordination_oru.gui;
 
-import java.util.List;
+import java.awt.*;
 import java.util.Map;
 
 public class ProjectData {
     private String map;
-    private List<Vehicle> vehicles;
+    private Map<String, Vehicle> vehicles;
     private Map<String, Pose> listOfAllPoses;
 
+    // In ProjectData class:
     public String getMap() {
         return map;
     }
@@ -16,11 +17,11 @@ public class ProjectData {
         this.map = map;
     }
 
-    public List<Vehicle> getRobots() {
+    public Map<String, Vehicle> getVehicles() {
         return vehicles;
     }
 
-    public void setRobots(List<Vehicle> vehicles) {
+    public void setVehicles(Map<String, Vehicle> vehicles) {
         this.vehicles = vehicles;
     }
 
@@ -32,28 +33,54 @@ public class ProjectData {
         this.listOfAllPoses = listOfAllPoses;
     }
 
-    // Define any additional methods or constructors as needed
-
     // Inner class representing a Robot
     public static class Vehicle {
-        public String getName() {
-            return name;
-        }
-
-        public void setName(String name) {
-            this.name = name;
-        }
-
-        private String name;
         private double maxVelocity;
         private double maxAcceleration;
         private String color;
         private String initialPose;
         private String goalPoses;
 
-        // Getter and setter methods for Robot fields
+        // In Vehicle inner class:
+        public double getMaxVelocity() {
+            return maxVelocity;
+        }
 
-        // Define any additional methods or constructors as needed
+        public void setMaxVelocity(double maxVelocity) {
+            this.maxVelocity = maxVelocity;
+        }
+
+        public double getMaxAcceleration() {
+            return maxAcceleration;
+        }
+
+        public void setMaxAcceleration(double maxAcceleration) {
+            this.maxAcceleration = maxAcceleration;
+        }
+
+        public String getColor() {
+            return color;
+        }
+
+        public void setColor(String color) {
+            this.color = color;
+        }
+
+        public String getInitialPose() {
+            return initialPose;
+        }
+
+        public void setInitialPose(String initialPose) {
+            this.initialPose = initialPose;
+        }
+
+        public String getGoalPoses() {
+            return goalPoses;
+        }
+
+        public void setGoalPoses(String goalPoses) {
+            this.goalPoses = goalPoses;
+        }
     }
 
     // Inner class representing a Pose
@@ -62,8 +89,29 @@ public class ProjectData {
         private double y;
         private double angle;
 
-        // Getter and setter methods for Pose fields
+        // In Pose inner class:
+        public double getX() {
+            return x;
+        }
 
-        // Define any additional methods or constructors as needed
+        public void setX(double x) {
+            this.x = x;
+        }
+
+        public double getY() {
+            return y;
+        }
+
+        public void setY(double y) {
+            this.y = y;
+        }
+
+        public double getAngle() {
+            return angle;
+        }
+
+        public void setAngle(double angle) {
+            this.angle = angle;
+        }
     }
 }

@@ -4,7 +4,6 @@ from pathlib import Path
 import math
 
 base_directory = '../results/lookAheadPaper_2023/'
-output_filename = 'ReportsMerged.csv'
 
 def compute_distance(x1, y1, x2, y2):
     return math.sqrt((x2 - x1)**2 + (y2 - y1)**2)
@@ -19,6 +18,12 @@ for subdir, _, files in os.walk(base_directory):
     
     highest_robot_num = max(robot_numbers)
 
+    # Extract the folder name from the path and remove the string after the last underscore
+    folder_name = os.path.basename(subdir).rsplit('_', 1)[0]
+
+    # Modify the output filename to include the modified folder name
+    output_filename = f'{folder_name}.csv'
+    
     output_path = Path(subdir) / output_filename
     if output_path.exists():
         output_path.unlink()  # Remove the file if it already exists
