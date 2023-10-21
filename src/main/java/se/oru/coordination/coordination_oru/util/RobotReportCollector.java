@@ -35,7 +35,8 @@ public class RobotReportCollector {
      * @param intervalInMillis     The time interval (in milliseconds) between collecting and writing robot data.
      * @param terminationInMinutes The termination time (in minutes) for stopping the data collection.
      */
-    public void handleRobotReports(TrajectoryEnvelopeCoordinator tec, String folderName, long intervalInMillis, long terminationInMinutes) {
+    public void handleRobotReports(TrajectoryEnvelopeCoordinator tec, String folderName, long intervalInMillis,
+                                   long terminationInMinutes, double scaleAdjustment) {
         ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
         AtomicLong startTime = new AtomicLong(System.currentTimeMillis());
 
@@ -92,12 +93,12 @@ public class RobotReportCollector {
                         String rowData = String.format("%s;%d;%.2f;%.2f;%.2f;%d;%.2f;%.2f;%d%n",
                                 currentTimestamp,
                                 report.getRobotID(),
-                                pose.getX(),
-                                pose.getY(),
-                                pose.getTheta(),
+                                pose.getX() * scaleAdjustment,             // Multiply x_pose
+                                pose.getY() * scaleAdjustment,             // Multiply y_pose
+                                pose.getTheta(),                           // Theta remains unchanged
                                 report.getPathIndex(),
-                                report.getVelocity(),
-                                report.getDistanceTraveled(),
+                                report.getVelocity() * scaleAdjustment,    // Multiply velocity
+                                report.getDistanceTraveled() * scaleAdjustment,   // Multiply distance
                                 report.getCriticalPoint());
                         writer.write(rowData);
                     }

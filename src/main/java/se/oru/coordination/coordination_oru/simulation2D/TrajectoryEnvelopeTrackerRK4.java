@@ -36,12 +36,26 @@ public abstract class TrajectoryEnvelopeTrackerRK4 extends AbstractTrajectoryEnv
 	public void setUseInternalCriticalPoints(boolean value) {
 		this.useInternalCPs = value;
 	}
-	
+
+	public TrajectoryEnvelopeTrackerRK4(TrajectoryEnvelope te, int timeStep, double temporalResolution, double maxVelocity, double maxAcceleration, TrajectoryEnvelopeCoordinator tec, TrackingCallback cb) {
+		super(te, temporalResolution, tec, timeStep, cb);
+		this.MAX_VELOCITY = maxVelocity;
+		this.MAX_ACCELERATION = maxAcceleration;
+		this.state = new State(0.0, 0.0);
+		this.totalDistance = this.computeDistance(0, traj.getPose().length-1);
+		this.overallDistance = totalDistance;
+		this.computeInternalCriticalPoints();
+		this.slowDownProfile = this.getSlowdownProfile();
+		this.positionToSlowDown = this.computePositionToSlowDown();
+		this.th = new Thread(this, "RK4 tracker " + te.getComponent());
+		this.th.setPriority(Thread.MAX_PRIORITY);
+	}
+
 	public TrajectoryEnvelopeTrackerRK4(TrajectoryEnvelope te, int timeStep, double temporalResolution, TrajectoryEnvelopeCoordinatorSimulation tec, TrackingCallback cb) {
 		this(te, timeStep, temporalResolution, 1.0, 0.1, tec, cb);
 		setNumberOfReplicas(tec.getNumberOfReplicas(), tec.getControlPeriod());
 	}
-	
+
 	private void computeInternalCriticalPoints() {
 		this.curvatureDampening = new double[te.getTrajectory().getPose().length];
 		this.curvatureDampening[0] = 1.0;
@@ -59,7 +73,7 @@ public abstract class TrajectoryEnvelopeTrackerRK4 extends AbstractTrajectoryEnv
 			this.curvatureDampening[i+1] = 1.0;
 		}
 	}
-	
+
 	public void setCurvatureDampening(int index, double dampening) {
 		this.curvatureDampening[index] = dampening;
 	}
@@ -71,11 +85,11 @@ public abstract class TrajectoryEnvelopeTrackerRK4 extends AbstractTrajectoryEnv
 	public void resetCurvatureDampening() {
 		for (int i  = 0; i < curvatureDampening.length; i++) curvatureDampening[i] = 1.0;
 	}
-	
+
 	public double[] getCurvatureDampening() {
 		return this.curvatureDampening;
 	}
-	
+
 	private void computeCurvatureDampening() {
 		PoseSteering[] path = this.traj.getPoseSteering();
 		double deltaSinTheta = 0;
@@ -96,21 +110,7 @@ public abstract class TrajectoryEnvelopeTrackerRK4 extends AbstractTrajectoryEnv
 		if (!backwards) return curvatureDampening[index];
 		return curvatureDampening[this.traj.getPose().length-1-index];
 	}
-	
-	public TrajectoryEnvelopeTrackerRK4(TrajectoryEnvelope te, int timeStep, double temporalResolution, double maxVelocity, double maxAcceleration, TrajectoryEnvelopeCoordinator tec, TrackingCallback cb) {
-		super(te, temporalResolution, tec, timeStep, cb);
-		this.MAX_VELOCITY = maxVelocity;
-		this.MAX_ACCELERATION = maxAcceleration;
-		this.state = new State(0.0, 0.0);
-		this.totalDistance = this.computeDistance(0, traj.getPose().length-1);
-		this.overallDistance = totalDistance;
-		this.computeInternalCriticalPoints();
-		this.slowDownProfile = this.getSlowdownProfile();
-		this.positionToSlowDown = this.computePositionToSlowDown();
-		this.th = new Thread(this, "RK4 tracker " + te.getComponent());
-		this.th.setPriority(Thread.MAX_PRIORITY);
-	}
-	
+
 	@Override
 	protected void onTrajectoryEnvelopeUpdate() {
 		synchronized(reportsList) { //FIXME not ok, all the mutex should be changed
@@ -124,7 +124,7 @@ public abstract class TrajectoryEnvelopeTrackerRK4 extends AbstractTrajectoryEnv
 			reportTimeLists.clear(); //semplify to avoid discontinuities ... to be fixed.
 		}
 	}
-	
+
 	@Override
 	public void startTracking() {		
 		while (this.th == null) {
@@ -482,8 +482,8 @@ public abstract class TrajectoryEnvelopeTrackerRK4 extends AbstractTrajectoryEnv
 				currentPathIndex = poses.length-1;
 				pose = poses[currentPathIndex];
 			}
-//			return new RobotReport(te.getRobotID(), pose, currentPathIndex, state.getVelocity(), state.getPosition(), this.criticalPoint);
-			return new RobotReport(te.getRobotID(), pose, currentPathIndex, 10*state.getVelocity(), 10*state.getPosition(), this.criticalPoint);
+			return new RobotReport(te.getRobotID(), pose, currentPathIndex, state.getVelocity(), state.getPosition(), this.criticalPoint);
+//			return new RobotReport(te.getRobotID(), pose, currentPathIndex, 10*state.getVelocity(), 10*state.getPosition(), this.criticalPoint);
 		}
 	}
 

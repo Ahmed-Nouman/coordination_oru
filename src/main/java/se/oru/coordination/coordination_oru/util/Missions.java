@@ -1142,11 +1142,11 @@ public class Missions {
 	 */
 	public static void startMissionDispatchers(TrajectoryEnvelopeCoordinator tec, boolean writeReports, double intervalInSeconds,
 											   int terminationInMinutes, String heuristicName,
-											   int coordinationTime, String resultDirectory) {
+											   int inferenceCycleTime, String resultDirectory, double scaleAdjustment) {
 
 		// Write robot reports to resultDirectory folder in .csv format
 		writeReports(tec, writeReports, intervalInSeconds,
-				terminationInMinutes, heuristicName, coordinationTime, resultDirectory);
+				terminationInMinutes, heuristicName, inferenceCycleTime, resultDirectory, scaleAdjustment);
 
 		// Add autonomous robots only for mission looping
 		addRobotsForLooping(tec);
@@ -1259,19 +1259,22 @@ public class Missions {
 	/**
 	 * Writes robot reports to the specified directory based on the provided conditions.
 	 * Robot reports are generated at an interval and for a duration defined by the user.
-	 * The method also accommodates heuristic information for the simulation.
+	 * The method also incorporates the heuristic information used for the simulation.
+	 * The reported values, including the robot's pose and speed, can be scaled using the {@code scaleAdjustment} parameter.
 	 *
-	 * @param tec                The {@link TrajectoryEnvelopeCoordinator} managing the missions.
-	 * @param writeReports       Determines if reports should be written. {@code true} for writing, {@code false} otherwise.
-	 * @param intervalInSeconds  The time interval (in seconds) between consecutive report generations.
+	 * @param tec                  The {@link TrajectoryEnvelopeCoordinator} managing the missions.
+	 * @param writeReports         If {@code true}, the method will write reports, otherwise, it won't.
+	 * @param intervalInSeconds    The time interval (in seconds) between consecutive report generations.
 	 * @param terminationInMinutes The maximum duration (in minutes) for which reports should be written.
-	 * @param heuristicName      The name of the heuristic used during the simulation.
-	 * @param updateCycleTime    The cycle time for updating the coordination thread.
-	 * @param resultDirectory    The directory path where the robot reports will be saved.
+	 * @param heuristicName        The name of the heuristic used during the simulation.
+	 * @param inferenceCycleTime   The cycle time (in milliseconds) for updating the coordination thread.
+	 * @param resultDirectory      The directory path where the robot reports will be saved.
+	 * @param scaleAdjustment      A scaling factor to adjust the reported values of robot pose and speed.
 	 */
 	public static void writeReports(TrajectoryEnvelopeCoordinator tec,
 									boolean writeReports, double intervalInSeconds, int terminationInMinutes,
-									String heuristicName, int updateCycleTime, String resultDirectory) {
+									String heuristicName, int inferenceCycleTime, String resultDirectory,
+									double scaleAdjustment) {
 		double updatedLookAheadDistance = 0.0;
 		double lookAheadDistance = 0.0;
 
@@ -1292,9 +1295,10 @@ public class Missions {
 			System.out.println("Writing robot reports.");
 			double distance = lookAheadDistance > 0 ? lookAheadDistance : updatedLookAheadDistance;
 
-			String filePath = createFile(distance, heuristicName, updateCycleTime, resultDirectory);
+			String filePath = createFile(distance * scaleAdjustment, heuristicName, inferenceCycleTime, resultDirectory);
 			var reportCollector = new RobotReportCollector();
-			reportCollector.handleRobotReports(tec, filePath, (long) (1000 * intervalInSeconds), terminationInMinutes);
+			reportCollector.handleRobotReports(tec, filePath, (long) (1000 * intervalInSeconds),
+					terminationInMinutes, scaleAdjustment);
 		} else {
 			System.out.println("Not writing robot reports.");
 		}

@@ -375,7 +375,7 @@ public class GUIInterface extends javax.swing.JFrame {
 
         Missions.startMissionDispatchers(tec, writeRobotReports,
                 timeIntervalInSeconds, terminationInMinutes, heuristicName,
-                updateCycleTime, null);
+                updateCycleTime, null, 1);
     }
 
     private void performSaveAction() {
