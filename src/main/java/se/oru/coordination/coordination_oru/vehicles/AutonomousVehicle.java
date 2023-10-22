@@ -14,99 +14,97 @@ import java.io.File;
 public class AutonomousVehicle extends AbstractVehicle {
     public static ReedsSheppCarPlanner.PLANNING_ALGORITHM planningAlgorithm = ReedsSheppCarPlanner.PLANNING_ALGORITHM.RRTConnect;
 
-    public AutonomousVehicle(int id, int priorityID, Color color, Color colorInMotion, double maxVelocity, double maxAcceleration, double xLength, double yLength) {
-        super(id, priorityID, color, colorInMotion, maxVelocity, maxAcceleration, xLength, yLength);
+    public AutonomousVehicle(int id, int priorityID, Color color, double maxVelocity, double maxAcceleration, double length, double width) {
+        super(id, priorityID, color, maxVelocity, maxAcceleration, length, width);
     }
 
-    public AutonomousVehicle(int priorityID, Color color, Color colorInMotion, double maxVelocity, double maxAcceleration, double xLength, double yLength) {
-        super(vehicleNumber, priorityID, color, colorInMotion, maxVelocity, maxAcceleration, xLength, yLength);
-    }
-
-    public AutonomousVehicle(int priorityID, Color color, double maxVelocity, double maxAcceleration, double xLength, double yLength) {
-        super(vehicleNumber, priorityID, color, null, maxVelocity, maxAcceleration, xLength, yLength);
+    public AutonomousVehicle(int priorityID, Color color, double maxVelocity, double maxAcceleration, double length, double width) {
+        super(vehicleNumber, priorityID, color, maxVelocity, maxAcceleration, length, width);
     }
 
     public AutonomousVehicle() {
-        super(vehicleNumber, 1, Color.YELLOW, null, 5, 2, 0.5, 0.5);
+        super(vehicleNumber, 1, Color.YELLOW, 5, 2, 0.5, 0.5);
     }
 
+    /**
+     * Generates a path for the robot using the default planning algorithm and parameters.
+     *
+     * @param initial     The initial pose of the robot.
+     * @param goals       An array of goal poses.
+     * @param map         The map used for planning.
+     * @param inversePath A flag indicating whether the inverse path should also be computed.
+     */
     @Override
     public void getPlan(Pose initial, Pose[] goals, String map, Boolean inversePath) {
-        String filenameCache = null;
-        PoseSteering[] path = null;
-        if (goals.length == 1) {
-            Pose goal = goals[0];
-            String base = poseToString(initial) + "_" + poseToString(goal) + "_" + planningAlgorithm + (inversePath ? "_inv" : "");
-
-            filenameCache = "paths/" + FilenameUtils.getBaseName(map) + "/" + base + ".path";
-            if (new File(filenameCache).isFile()) {
-                path = Missions.loadPathFromFile(filenameCache);
-            }
-        }
-
-        if (path == null) {
-            var rsp = new ReedsSheppCarPlanner(planningAlgorithm);
-            rsp.setMap(map);
-            rsp.setRadius(0.01);
-            rsp.setPlanningTimeInSecs(60);
-            rsp.setFootprint(super.getFootprint());
-            rsp.setTurningRadius(0.01);
-            rsp.setDistanceBetweenPathPoints(0.1);
-
-            PoseSteering[] pathFwd;
-            PoseSteering[] pathInv;
-            rsp.setStart(initial);
-            rsp.setGoals(goals);
-            rsp.plan();
-            if (rsp.getPath() == null) throw new NoPathFoundError();
-            pathFwd = rsp.getPath();
-            if (inversePath) {
-                pathInv = rsp.getPathInv();
-                path = (PoseSteering[]) ArrayUtils.addAll(pathFwd, pathInv);
-            } else {
-                path = pathFwd;
-            }
-        }
-
-        VehiclesHashMap.getVehicle(this.getID()).setPath(path);
+        getPlan(initial, goals, map, inversePath, ReedsSheppCarPlanner.PLANNING_ALGORITHM.RRTConnect, 0.01, 60, 0.01, 0.1);
     }
 
-    private static String poseToString(Pose pose) {
-        return round3(pose.getX()) + "," + round3(pose.getY()) + "," + round3(pose.getTheta());
+    /**
+     * Generates a path for the robot using the specified planning algorithm and parameters.
+     *
+     * @param initial                   The initial pose of the robot.
+     * @param goals                     An array of goal poses.
+     * @param map                       The map used for planning.
+     * @param inversePath               A flag indicating whether the inverse path should also be computed.
+     * @param planningAlgorithm         The planning algorithm to be used.
+     * @param radius                    The radius used for planning.
+     * @param planningTime              The maximum planning time in seconds.
+     * @param turningRadius             The turning radius of the robot.
+     * @param distanceBetweenPathPoints The distance between path points in the generated path.
+     */
+    public void getPlan(Pose initial, Pose[] goals, String map, Boolean inversePath, ReedsSheppCarPlanner.PLANNING_ALGORITHM planningAlgorithm,
+                        double radius, double planningTime, double turningRadius, double distanceBetweenPathPoints) {
+
+        var rsp = configureReedsSheppCarPlanner(planningAlgorithm, map, radius, planningTime, turningRadius, distanceBetweenPathPoints);
+        generatePath(rsp, initial, goals, inversePath);
     }
 
-    private static double round3(double x) {
-        return Math.round(x * 1000) / 1000.0;
-    }
-
-    public PoseSteering[] getPlan(Pose initial, Pose[] goals, String map, Boolean inversePath, ReedsSheppCarPlanner.PLANNING_ALGORITHM planningAlgorithm,
-                                  double radius, double planningTime, double turningRadius, double distanceBetweenPathPoints) {
-
+    /**
+     * Configures a ReedsSheppCarPlanner instance with the specified parameters.
+     *
+     * @param planningAlgorithm         The planning algorithm to be used.
+     * @param map                       The map used for planning.
+     * @param radius                    The radius used for planning.
+     * @param planningTime              The maximum planning time in seconds.
+     * @param turningRadius             The turning radius of the robot.
+     * @param distanceBetweenPathPoints The distance between path points in the generated path.
+     * @return A configured ReedsSheppCarPlanner instance.
+     */
+    private ReedsSheppCarPlanner configureReedsSheppCarPlanner(ReedsSheppCarPlanner.PLANNING_ALGORITHM planningAlgorithm, String map, double radius,
+                                                               double planningTime, double turningRadius, double distanceBetweenPathPoints) {
         var rsp = new ReedsSheppCarPlanner(planningAlgorithm);
         rsp.setMap(map);
         rsp.setRadius(radius);
         rsp.setPlanningTimeInSecs(planningTime);
-        rsp.setFootprint(super.getFootprint());
+        rsp.setFootprint(getFootPrint());
         rsp.setTurningRadius(turningRadius);
         rsp.setDistanceBetweenPathPoints(distanceBetweenPathPoints);
+        return rsp;
+    }
 
-        PoseSteering[] pathFwd;
-        PoseSteering[] pathInv;
-        PoseSteering[] path;
+    /**
+     * Generates a path for the robot using the provided ReedsSheppCarPlanner instance.
+     *
+     * @param rsp         The ReedsSheppCarPlanner instance used for planning.
+     * @param initial     The initial pose of the robot.
+     * @param goals       An array of goal poses.
+     * @param inversePath A flag indicating whether the inverse path should also be computed.
+     */
+    private void generatePath(ReedsSheppCarPlanner rsp, Pose initial, Pose[] goals, Boolean inversePath) {
         rsp.setStart(initial);
         rsp.setGoals(goals);
         rsp.plan();
-        if (rsp.getPath() == null) throw new Error("No path found.");
-        pathFwd = rsp.getPath();
-        if (inversePath) {
-            pathInv = rsp.getPathInv();
-            path = (PoseSteering[]) ArrayUtils.addAll(pathFwd, pathInv);
+
+        if (rsp.getPath() == null) {
+            throw new Error("No path found.");
         }
-        else {
-            path = pathFwd;
-        }
-        VehiclesHashMap.getVehicle(this.getID()).setPath(path);
-        return path;
+
+        var pathFwd = rsp.getPath();
+        var path = inversePath ? (PoseSteering[]) ArrayUtils.addAll(pathFwd, rsp.getPathInv()) : pathFwd;
+        VehiclesHashMap.getVehicle(getID()).setPath(path);
     }
 
+    private static String poseToString(Pose pose) {
+        return round(pose.getX()) + "," + round(pose.getY()) + "," + round(pose.getTheta());
+    }
 }

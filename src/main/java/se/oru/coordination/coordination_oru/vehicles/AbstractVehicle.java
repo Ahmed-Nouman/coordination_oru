@@ -1,22 +1,11 @@
 package se.oru.coordination.coordination_oru.vehicles;
 
 import com.vividsolutions.jts.geom.Coordinate;
-import org.apache.commons.io.FileUtils;
 import org.metacsp.multi.spatioTemporal.paths.Pose;
 import org.metacsp.multi.spatioTemporal.paths.PoseSteering;
-import se.oru.coordination.coordination_oru.RobotReport;
 
 import java.awt.*;
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.text.SimpleDateFormat;
 import java.util.Arrays;
-import java.util.Date;
-import java.util.concurrent.TimeUnit;
 
 /**
  * AbstractRobot is an abstract class representing a generic robot with common attributes and methods.
@@ -33,30 +22,12 @@ public abstract class AbstractVehicle {
     private final String type = this.getClass().getSimpleName();
     private final double maxVelocity;
     private final double maxAcceleration;
-    private final double xLength;
-    private final double yLength;
+    private final double length;
+    private final double width;
     private final Coordinate[] footprint;
-    public Coordinate[] innerFootprint = null;
-    private final double startTime = System.nanoTime();
     private Color color;
-    private final Color colorInMotion;
-    public RobotReport currentRobotReport = new RobotReport(-1, null, -1, 0.0, 0.0, -1);
-    public RobotReport lastRobotReport = new RobotReport(-1, null, -1, 0.0, 0.0, -1);
-    private double totalDistance;
-    private double totalTime;
-    private int cycles;
-    private double maxWaitingTime;
-    private double currentWaitingTime;
-    private double totalWaitingTime;
-    private int stops;
     private PoseSteering[] path;
     private double pathLength;
-    private boolean isRundirPrepared = false;
-    public boolean isAdaptiveTracker = false;
-    private static final String rundirsRoot = "logs/rundirs";
-    private static final String dateString = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
-    private static final String rundirCurrent = rundirsRoot + "/current";
-    public static String scenarioId;
 
     /**
      * Constructs an AbstractRobot object with the specified parameters.
@@ -68,20 +39,19 @@ public abstract class AbstractVehicle {
      * @param color           The color of the robot when stationary.
      * @param maxVelocity     The maximum velocity of the robot.
      * @param maxAcceleration The maximum acceleration of the robot.
-     * @param xLength         The length of the robot along the x-axis.
-     * @param yLength         The length of the robot along the y-axis.
+     * @param length          The length of the robot.
+     * @param width           The length of the robot.
      * @throws IllegalStateException if a robot with the same ID already exists.
      */
-    public AbstractVehicle(int ID, int priorityID, Color color, Color colorInMotion, double maxVelocity, double maxAcceleration, double xLength, double yLength) {
+    public AbstractVehicle(int ID, int priorityID, Color color, double maxVelocity, double maxAcceleration, double length, double width) {
         this.ID = ID;
         this.priorityID = priorityID;
         this.color = color;
-        this.colorInMotion = colorInMotion;
         this.maxVelocity = maxVelocity;
         this.maxAcceleration = maxAcceleration;
-        this.xLength = xLength;
-        this.yLength = yLength;
-        this.footprint = makeFootprint(xLength, yLength);
+        this.length = length;
+        this.width = width;
+        this.footprint = makeFootprint(length, width);
 
         AbstractVehicle existingVehicle = VehiclesHashMap.getVehicle(ID);
         if (existingVehicle != null) {
@@ -92,20 +62,16 @@ public abstract class AbstractVehicle {
         vehicleNumber++;
     }
 
-    public AbstractVehicle(int priorityID, Color color, Color colorInMotion, double maxVelocity, double maxAcceleration, double xLength, double yLength) {
-        this(vehicleNumber + 1, priorityID, color, colorInMotion, maxVelocity, maxAcceleration, xLength, yLength);
+    public AbstractVehicle(int priorityID, Color color, double maxVelocity, double maxAcceleration, double length, double width) {
+        this(vehicleNumber, priorityID, color, maxVelocity, maxAcceleration, length, width);
     }
 
-    public AbstractVehicle(int priorityID, Color color, double maxVelocity, double maxAcceleration, double xLength, double yLength) {
-        this(vehicleNumber, priorityID, color, null, maxVelocity, maxAcceleration, xLength, yLength);
-    }
-
-    public static Coordinate[] makeFootprint(double xLength, double yLength) {
+    public static Coordinate[] makeFootprint(double length, double width) {
         return new Coordinate[]{               // FIXME Currently allows four sided vehicles only
-                new Coordinate(-xLength, yLength),        //back left
-                new Coordinate(xLength, yLength),         //back right
-                new Coordinate(xLength, -yLength),        //front right
-                new Coordinate(-xLength, -yLength)        //front left
+                new Coordinate(-length, width),        //back left
+                new Coordinate(length, width),         //back right
+                new Coordinate(length, -width),        //front right
+                new Coordinate(-length, -width)        //front left
         };
     }
 
@@ -118,11 +84,10 @@ public abstract class AbstractVehicle {
                 ", color=" + color +
                 ", maxVelocity=" + maxVelocity +
                 ", maxAcceleration=" + maxAcceleration +
-                ", xLength=" + xLength +
-                ", yLength=" + yLength +
+                ", xLength=" + length +
+                ", yLength=" + width +
                 ", footprint=" + Arrays.toString(footprint) +
-                (innerFootprint == null ? "" : ", innerFootprint=" + Arrays.toString(innerFootprint)) +
-                '}';
+                "}";
     }
 
     /**
@@ -136,133 +101,24 @@ public abstract class AbstractVehicle {
      */
     public abstract void getPlan(Pose initial, Pose[] goals, String map, Boolean inversePath);
 
-    private static boolean isStopped(RobotReport rr) {
-        return rr.getVelocity() < 1e-3;
-    }
-
-    public synchronized void updateStatistics() {
-        // Loading and unloading times and stoppages are not considered
-        if ((this.currentRobotReport.getPathIndex() == -1) && (this.lastRobotReport.getPathIndex() != -1))
-            this.cycles++;
-
-        double totalTimeNew = round(System.nanoTime() - startTime) / 1_000_000_000;
-        double delta = totalTimeNew - totalTime;
-        this.totalTime = totalTimeNew;
-
-        this.totalDistance = (pathLength * cycles + currentRobotReport.getDistanceTraveled());
-
-        if (! isStopped(this.currentRobotReport)) {
-            this.currentWaitingTime = 0;
-        } else {
-            if (! isStopped(this.lastRobotReport)) {
-                this.stops++;
-            }
-
-            this.currentWaitingTime += delta;
-            this.totalWaitingTime += delta;
-        }
-        this.maxWaitingTime = Math.max(currentWaitingTime, maxWaitingTime);
-    }
-
-    public void writeStatistics() {
-
-        try {
-            String subdir = dateString + (scenarioId == null ? "" : "_" + scenarioId);
-            File dir = new File(rundirsRoot + "/" + subdir);
-            if (!isRundirPrepared) {
-                dir.mkdirs();
-                FileUtils.cleanDirectory(dir);
-
-                Path current = Path.of(rundirCurrent);
-                Files.deleteIfExists(current);
-                Files.createSymbolicLink(current, Path.of(subdir));
-
-                isRundirPrepared = true;
-            }
-
-            File file = new File(dir + "/" + this.ID + ".csv");
-            FileWriter fw = new FileWriter(file.getAbsoluteFile(), false);
-            BufferedWriter bw = new BufferedWriter(fw);
-
-            bw.write("Date," + dateString + "\n");
-            bw.write("Scenario ID," + scenarioId + "\n");
-            bw.write("Vehicle ID," + this.getID() + "\n");
-            bw.write("Vehicle type," + this.type + "\n");
-
-            bw.write("Cycle distance (m)," + this.pathLength + "\n");
-            bw.write("No. of completed cycles," + this.cycles + "\n");
-            bw.write("Total distance travelled (m)," + round(totalDistance) + "\n");
-
-            bw.write("No. of stops," + this.stops + "\n");
-            bw.write("Total waiting time (s)," + round(totalWaitingTime) + "\n");
-            bw.write("Maximum waiting time (s)," + round(maxWaitingTime) + "\n");
-            bw.write("Total simulation time (s)," + round(totalTime) + "\n");
-
-            bw.write("Maximum acceleration (m/s^2)," + round(maxAcceleration) + "\n");
-            bw.write("Maximum speed (m/s)," + round(maxVelocity) + "\n");
-            bw.write("Average speed (m/s)," + round(totalDistance / totalTime) + "\n");
-
-            bw.close();
-
-        } catch (IOException e) {
-            throw new RuntimeException(e.getMessage());
-        }
-    }
-
-    /**
-     * Blinks the robot's color between the original color and a specified toggle color for a given duration.
-     *
-     * @param colorOriginal    The original color of the robot.
-     * @param colorToggle      The color to toggle to during blinking.
-     * @param blinkTimeSeconds The duration of the blink in seconds.
-     * @throws InterruptedException if the sleep operation is interrupted.
-     */
-    public void blinkRobot(Color colorOriginal, Color colorToggle, long blinkTimeSeconds) throws InterruptedException {
-        VehiclesHashMap.getVehicle(ID).setVehicleColor(colorToggle);
-        TimeUnit.SECONDS.sleep(blinkTimeSeconds);
-        VehiclesHashMap.getVehicle(ID).setVehicleColor(colorOriginal);
-    }
-
-    public Color getVehicleColor() {
-        return currentRobotReport.getVelocity() > 0.1 ? color : colorInMotion;
-    }
-
-    public Coordinate[] getFootprint() {
-        return footprint;
-    }
-
-    public RobotReport getCurrentRobotReport() {
-        return currentRobotReport;
-    }
-
-    public synchronized void setCurrentRobotReport(RobotReport currentRobotReport) {
-        this.lastRobotReport = this.currentRobotReport;
-        this.currentRobotReport = currentRobotReport;
-        updateStatistics();
-    }
-
     protected static double round(double value) {
         return Math.round(value * 10.0) / 10.0;
-    }
-
-    public RobotReport getLastRobotReport() {
-        return lastRobotReport;
-    }
-
-    public double getXLength() {
-        return xLength;
-    }
-
-    public double getYLength() {
-        return yLength;
     }
 
     public int getID() {
         return ID;
     }
 
-    public void setVehicleColor(Color color) {
+    public Coordinate[] getFootprint() {
+        return footprint;
+    }
+
+    public void setColor(Color color) {
         this.color = color;
+    }
+
+    public Color getColor() {
+        return color;
     }
 
     public String getColorCode() {
@@ -295,6 +151,14 @@ public abstract class AbstractVehicle {
         setPlanLength(path);
     }
 
+    public double getLength() {
+        return length;
+    }
+
+    public double getWidth() {
+        return width;
+    }
+
     public double getMaxVelocity() {
         return maxVelocity;
     }
@@ -305,9 +169,5 @@ public abstract class AbstractVehicle {
 
     public String getType() {
         return type;
-    }
-
-    public Color getColor() {
-        return color;
     }
 }

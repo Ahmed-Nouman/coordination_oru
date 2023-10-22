@@ -25,7 +25,7 @@ public class PaperScenario_6A1L {
         int terminationInMinutes = 5;
         int numOfCallsForLookAheadRobot = 1;
         boolean visualization = true;
-        boolean writeRobotReports = true;
+        boolean writeRobotReports = false;
 
         // Everything including velocity, acceleration, lookahead, length and width is scaled by 0.1
         final double MAX_VELOCITY = 1.0;
@@ -54,6 +54,14 @@ public class PaperScenario_6A1L {
         final Pose orePass2 = new Pose(76.35, 31.05, -Math.PI / 2.7);
         final Pose orePass3 = new Pose(92.65, 33.15, -Math.PI / 2);
 
+        final Pose autonomousRobotInitial1 = drawPoint28;
+        final Pose autonomousRobotInitial2 = drawPoint30;
+        final Pose autonomousRobotInitial3 = drawPoint32A;
+        final Pose autonomousRobotInitial4 = drawPoint34;
+        final Pose autonomousRobotInitial5 = drawPoint35;
+        final Pose autonomousRobotInitial6 = drawPoint12;
+        final Pose lookAheadRobotInitial = entrance;
+
         final Pose[] autonomousRobotGoal1 = {orePass1};
         final Pose[] autonomousRobotGoal2 = {orePass2};
         final Pose[] autonomousRobotGoal3 = {orePass3};
@@ -67,13 +75,13 @@ public class PaperScenario_6A1L {
         var autonomousRobot6 = new AutonomousVehicle(1, Color.YELLOW, MAX_VELOCITY, MAX_ACCELERATION, X_LENGTH, Y_LENGTH);
         var lookAheadRobot = new LookAheadVehicle(1, lookAheadDistance, Color.GREEN, MAX_VELOCITY, MAX_ACCELERATION, X_LENGTH, Y_LENGTH);
 
-        autonomousRobot1.getPlan(drawPoint28, autonomousRobotGoal1, YAML_FILE, true);
-        autonomousRobot2.getPlan(drawPoint30, autonomousRobotGoal1, YAML_FILE, true);
-        autonomousRobot3.getPlan(drawPoint32A, autonomousRobotGoal2, YAML_FILE, true);
-        autonomousRobot4.getPlan(drawPoint34, autonomousRobotGoal2, YAML_FILE, true);
-        autonomousRobot5.getPlan(drawPoint35, autonomousRobotGoal3, YAML_FILE, true);
-        autonomousRobot6.getPlan(drawPoint12, autonomousRobotGoal3, YAML_FILE, true);
-        lookAheadRobot.getPlan(mainTunnelRight, limitedLookAheadRobotGoal, YAML_FILE, true);
+        autonomousRobot1.getPlan(autonomousRobotInitial1, autonomousRobotGoal1, YAML_FILE, true);
+        autonomousRobot2.getPlan(autonomousRobotInitial2, autonomousRobotGoal1, YAML_FILE, true);
+        autonomousRobot3.getPlan(autonomousRobotInitial3, autonomousRobotGoal2, YAML_FILE, true);
+        autonomousRobot4.getPlan(autonomousRobotInitial4, autonomousRobotGoal2, YAML_FILE, true);
+        autonomousRobot5.getPlan(autonomousRobotInitial5, autonomousRobotGoal3, YAML_FILE, true);
+        autonomousRobot6.getPlan(autonomousRobotInitial6, autonomousRobotGoal3, YAML_FILE, true);
+        lookAheadRobot.getPlan(lookAheadRobotInitial, limitedLookAheadRobotGoal, YAML_FILE, false);
 
         // Instantiate a trajectory envelope coordinator.
         var tec = new TrajectoryEnvelopeCoordinatorSimulation(1000, 1000, MAX_VELOCITY, MAX_ACCELERATION);
@@ -104,13 +112,13 @@ public class PaperScenario_6A1L {
                 tec.getRobotTrackingPeriodInMillis(lookAheadRobot.getID())));
 
         tec.setDefaultFootprint(lookAheadRobot.getFootprint());
-        tec.placeRobot(autonomousRobot1.getID(), drawPoint28);
-        tec.placeRobot(autonomousRobot2.getID(), drawPoint30);
-        tec.placeRobot(autonomousRobot3.getID(), drawPoint32A);
-        tec.placeRobot(autonomousRobot4.getID(), drawPoint34);
-        tec.placeRobot(autonomousRobot5.getID(), drawPoint35);
-        tec.placeRobot(autonomousRobot6.getID(), drawPoint12);
-        tec.placeRobot(lookAheadRobot.getID(), mainTunnelRight);
+        tec.placeRobot(autonomousRobot1.getID(), autonomousRobotInitial1);
+        tec.placeRobot(autonomousRobot2.getID(), autonomousRobotInitial2);
+        tec.placeRobot(autonomousRobot3.getID(), autonomousRobotInitial3);
+        tec.placeRobot(autonomousRobot4.getID(), autonomousRobotInitial4);
+        tec.placeRobot(autonomousRobot5.getID(), autonomousRobotInitial5);
+        tec.placeRobot(autonomousRobot6.getID(), autonomousRobotInitial6);
+        tec.placeRobot(lookAheadRobot.getID(), lookAheadRobotInitial);
 
         // Set Heuristics
         var heuristic = new Heuristics();
