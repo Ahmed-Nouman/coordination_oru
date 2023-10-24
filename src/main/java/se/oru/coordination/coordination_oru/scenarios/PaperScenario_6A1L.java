@@ -137,14 +137,14 @@ public class PaperScenario_6A1L {
             tec.setVisualization(viz);
         }
 
-        var lookAheadRobotInitialPlan = lookAheadRobot.getLimitedPath(lookAheadRobot.getID(), lookAheadDistance, tec);
+//        var lookAheadRobotInitialPlan = lookAheadRobot.getLimitedPath(lookAheadRobot.getID(), lookAheadDistance, tec);
         var m1 = new Mission(autonomousRobot1.getID(), autonomousRobot1.getPath());
         var m2 = new Mission(autonomousRobot2.getID(), autonomousRobot2.getPath());
         var m3 = new Mission(autonomousRobot3.getID(), autonomousRobot3.getPath());
         var m4 = new Mission(autonomousRobot4.getID(), autonomousRobot4.getPath());
         var m5 = new Mission(autonomousRobot5.getID(), autonomousRobot5.getPath());
         var m6 = new Mission(autonomousRobot6.getID(), autonomousRobot6.getPath());
-        var m7 = new Mission(lookAheadRobot.getID(), lookAheadRobotInitialPlan);
+        var m7 = new Mission(lookAheadRobot.getID(), lookAheadRobot.getPath(lookAheadDistance, tec));
 //        m4.setStoppingPoint(orePass3, 10000); //FIXME I think it does not work.
 
         var randomRobotCaller = new RandomRobotCaller(numOfCallsForLookAheadRobot, terminationInMinutes);
@@ -156,7 +156,6 @@ public class PaperScenario_6A1L {
         Missions.enqueueMission(m4);
         Missions.enqueueMission(m5);
         Missions.enqueueMission(m6);
-        Missions.enqueueMission(m7);
         Missions.setMap(YAML_FILE);
 
         Missions.startMissionDispatchers(tec, writeRobotReports,

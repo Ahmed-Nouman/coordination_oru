@@ -132,6 +132,10 @@ public class LookAheadVehicle extends AbstractVehicle {
         VehiclesHashMap.getVehicle(getID()).setPath(path);
     }
 
+    public PoseSteering[] getPath(double lookAheadDistance, TrajectoryEnvelopeCoordinator tec) {
+        return getLimitedPath(getID(), lookAheadDistance, tec);
+    }
+
     /**
      * Retrieves a limited path for the LookAheadRobot up to a specified look ahead distance.
      *
