@@ -1,29 +1,30 @@
 package se.oru.coordination.coordination_oru.vehicles;
 
-import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang.ArrayUtils;
 import org.metacsp.multi.spatioTemporal.paths.Pose;
 import org.metacsp.multi.spatioTemporal.paths.PoseSteering;
 import se.oru.coordination.coordination_oru.motionplanning.ompl.ReedsSheppCarPlanner;
-import se.oru.coordination.coordination_oru.util.Missions;
-import se.oru.coordination.coordination_oru.util.NoPathFoundError;
 
 import java.awt.*;
-import java.io.File;
 
 public class AutonomousVehicle extends AbstractVehicle {
     public static ReedsSheppCarPlanner.PLANNING_ALGORITHM planningAlgorithm = ReedsSheppCarPlanner.PLANNING_ALGORITHM.RRTConnect;
 
-    public AutonomousVehicle(int id, int priorityID, Color color, double maxVelocity, double maxAcceleration, double length, double width) {
-        super(id, priorityID, color, maxVelocity, maxAcceleration, length, width);
+    public AutonomousVehicle(int id, int priorityID, Color color, double maxVelocity, double maxAcceleration,
+                             double length, double width, Pose initialPose, Pose[] goalPoses, double safetyDistance) {
+        super(id, priorityID, color, maxVelocity, maxAcceleration, length, width, initialPose,
+                goalPoses, safetyDistance);
     }
 
-    public AutonomousVehicle(int priorityID, Color color, double maxVelocity, double maxAcceleration, double length, double width) {
-        super(vehicleNumber, priorityID, color, maxVelocity, maxAcceleration, length, width);
+    public AutonomousVehicle(int priorityID, Color color, double maxVelocity, double maxAcceleration, double length,
+                             double width, Pose initialPose, Pose[] goalPoses, double safetyDistance) {
+        super(vehicleNumber, priorityID, color, maxVelocity, maxAcceleration, length, width, initialPose,
+                goalPoses, safetyDistance);
     }
 
-    public AutonomousVehicle() {
-        super(vehicleNumber, 1, Color.YELLOW, 5, 2, 0.5, 0.5);
+    public AutonomousVehicle(Pose initialPose, Pose[] goalPoses) {
+        super(vehicleNumber, 1, Color.YELLOW, 1.0, 0.1, 0.5, 0.5,
+                initialPose, goalPoses, 0);
     }
 
     /**
@@ -36,7 +37,8 @@ public class AutonomousVehicle extends AbstractVehicle {
      */
     @Override
     public void getPlan(Pose initial, Pose[] goals, String map, Boolean inversePath) {
-        getPlan(initial, goals, map, inversePath, ReedsSheppCarPlanner.PLANNING_ALGORITHM.RRTConnect, 0.01, 60, 0.01, 0.1);
+        getPlan(initial, goals, map, inversePath, ReedsSheppCarPlanner.PLANNING_ALGORITHM.RRTConnect, 0.01,
+                60, 0.01, 0.1);
     }
 
     /**
@@ -55,7 +57,8 @@ public class AutonomousVehicle extends AbstractVehicle {
     public void getPlan(Pose initial, Pose[] goals, String map, Boolean inversePath, ReedsSheppCarPlanner.PLANNING_ALGORITHM planningAlgorithm,
                         double radius, double planningTime, double turningRadius, double distanceBetweenPathPoints) {
 
-        var rsp = configureReedsSheppCarPlanner(planningAlgorithm, map, radius, planningTime, turningRadius, distanceBetweenPathPoints);
+        var rsp = configureReedsSheppCarPlanner(planningAlgorithm, map, radius, planningTime, turningRadius,
+                distanceBetweenPathPoints);
         generatePath(rsp, initial, goals, inversePath);
     }
 

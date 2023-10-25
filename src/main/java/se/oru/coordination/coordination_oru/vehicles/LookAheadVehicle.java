@@ -32,13 +32,15 @@ public class LookAheadVehicle extends AbstractVehicle {
      * @param width           The width of the robot.
      *                          // TODO Fix the initial call to getLimited, It should be complete path.
      */
-    public LookAheadVehicle(int priorityID, double lookAheadDistance, Color color, double maxVelocity, double maxAcceleration, double length, double width) {
-        super(priorityID, color, maxVelocity, maxAcceleration, length, width);
+    public LookAheadVehicle(int priorityID, double lookAheadDistance, Color color, double maxVelocity, double maxAcceleration,
+                            double length, double width, Pose initialPose, Pose[] goalPoses, double safetyDistance) {
+        super(priorityID, color, maxVelocity, maxAcceleration, length, width, initialPose, goalPoses, safetyDistance);
         this.lookAheadDistance = lookAheadDistance;
     }
 
-    public LookAheadVehicle(double lookAheadDistance) {
-        super(1, Color.RED, 5, 2, 0.5, 0.5);
+    public LookAheadVehicle(double lookAheadDistance, Pose initialPose, Pose[] goalPoses) {
+        super(1, Color.RED, 1.0, 0.1, 0.5, 0.5,
+                initialPose, goalPoses, 0);
         this.lookAheadDistance = lookAheadDistance;
     }
 

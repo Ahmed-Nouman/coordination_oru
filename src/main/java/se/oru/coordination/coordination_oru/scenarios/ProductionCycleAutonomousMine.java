@@ -38,16 +38,26 @@ public class ProductionCycleAutonomousMine {
         final Pose workStation2 = new Pose(20.15, 9.05, -Math.PI / 2);
         final Pose workStation3 = new Pose(17.35, 9.65, -Math.PI / 2);
 
-        final Pose[] autonomousVehicleGoal = {orePass};
+        // FIXME Maybe try smaller motion plans
+        final Pose[] drillRigGoal = {drawPoint38, drawPoint18, drawPoint24, workStation1};
+        final Pose[] chargingVehicleGoal = {drawPoint38, drawPoint18, drawPoint24, workStation2};
+        final Pose[] waterVehicleGoal = {drawPoint24, drawPoint23, drawPoint22, drawPoint21,
+                drawPoint20, drawPoint19, drawPoint18, drawPoint17, drawPoint16, drawPoint15,
+                drawPoint36, drawPoint37, drawPoint38, workStation3};
 
-        var drillVehicle = new AutonomousVehicle(1, Color.MAGENTA, 5, 2, 0.5, 0.5);
-        var chargingVehicle = new AutonomousVehicle(1, Color.PINK, 5, 2, 0.5, 0.5);
-        var waterVehicle = new AutonomousVehicle(1, Color.BLUE, 5, 2, 0.5, 0.5);
+        var drillVehicle = new AutonomousVehicle(1, Color.MAGENTA, 5, 2,
+                0.5, 0.5, mainTunnelLeft, drillRigGoal, 0);
+        var chargingVehicle = new AutonomousVehicle(1, Color.PINK, 5, 2,
+                0.5, 0.5, mainTunnelLeft, chargingVehicleGoal, 0);
+        var waterVehicle = new AutonomousVehicle(1, Color.BLUE, 5, 2,
+                0.5, 0.5, mainTunnelLeft, waterVehicleGoal, 0);
 
-        var autonomousVehicle1 = new AutonomousVehicle();
-        var autonomousVehicle2 = new AutonomousVehicle();
-        autonomousVehicle1.getPlan(drawPoint16, autonomousVehicleGoal, YAML_FILE, true);
-        autonomousVehicle2.getPlan(drawPoint23, autonomousVehicleGoal, YAML_FILE, true);
+        var autonomousVehicle1 = new AutonomousVehicle(drawPoint16, new Pose[] {orePass});
+        var autonomousVehicle2 = new AutonomousVehicle(drawPoint23, new Pose[] {orePass});
+        autonomousVehicle1.getPlan(autonomousVehicle1.getInitialPose(), autonomousVehicle1.getGoalPoses(),
+                YAML_FILE, true);
+        autonomousVehicle2.getPlan(autonomousVehicle2.getInitialPose(), autonomousVehicle2.getGoalPoses(),
+                YAML_FILE, true);
 
         // Instantiate a trajectory envelope coordinator.
         final var tec = new TrajectoryEnvelopeCoordinatorSimulation(2000, 1000, 5, 2);
@@ -57,8 +67,8 @@ public class ProductionCycleAutonomousMine {
         tec.startInference();
 
         tec.setDefaultFootprint(autonomousVehicle1.getFootprint());
-        tec.placeRobot(autonomousVehicle1.getID(), drawPoint16);
-        tec.placeRobot(autonomousVehicle2.getID(), drawPoint23);
+        tec.placeRobot(autonomousVehicle1.getID(), autonomousVehicle1.getInitialPose());
+        tec.placeRobot(autonomousVehicle2.getID(), autonomousVehicle2.getInitialPose());
         tec.setForwardModel(autonomousVehicle1.getID(), new ConstantAccelerationForwardModel(autonomousVehicle1.getMaxAcceleration(), autonomousVehicle1.getMaxVelocity(), tec.getTemporalResolution(),
                 tec.getControlPeriod(), tec.getRobotTrackingPeriodInMillis(autonomousVehicle1.getID())));
         tec.setForwardModel(autonomousVehicle2.getID(), new ConstantAccelerationForwardModel(autonomousVehicle2.getMaxAcceleration(), autonomousVehicle2.getMaxVelocity(), tec.getTemporalResolution(),
@@ -93,16 +103,9 @@ public class ProductionCycleAutonomousMine {
         tec.setForwardModel(waterVehicle.getID(), new ConstantAccelerationForwardModel(waterVehicle.getMaxAcceleration(), waterVehicle.getMaxVelocity(), tec.getTemporalResolution(),
                 tec.getControlPeriod(), tec.getRobotTrackingPeriodInMillis(waterVehicle.getID())));
 
-        // FIXME Maybe try smaller motion plans
-        final Pose[] drillRigGoal = {drawPoint38, drawPoint18, drawPoint24, workStation1};
-        final Pose[] chargingVehicleGoal = {drawPoint38, drawPoint18, drawPoint24, workStation2};
-        final Pose[] waterVehicleGoal = {drawPoint24, drawPoint23, drawPoint22, drawPoint21,
-                drawPoint20, drawPoint19, drawPoint18, drawPoint17, drawPoint16, drawPoint15,
-                drawPoint36, drawPoint37, drawPoint38, workStation3};
-
-        drillVehicle.getPlan(mainTunnelLeft, drillRigGoal, YAML_FILE, false);
-        chargingVehicle.getPlan(mainTunnelRight, chargingVehicleGoal, YAML_FILE, false);
-        waterVehicle.getPlan(mainTunnelRight, waterVehicleGoal, YAML_FILE, false,
+        drillVehicle.getPlan(drillVehicle.getInitialPose(), drillRigGoal, YAML_FILE, false);
+        chargingVehicle.getPlan(chargingVehicle.getInitialPose(), chargingVehicleGoal, YAML_FILE, false);
+        waterVehicle.getPlan(waterVehicle.getInitialPose(), waterVehicleGoal, YAML_FILE, false,
                 ReedsSheppCarPlanner.PLANNING_ALGORITHM.RRTConnect, 0.01, 120,
                 0.01, 0.1);
 

@@ -7,7 +7,6 @@ public class Point {
 
     Point()
     {
-        ;
     }
 
     Point(double x,double y,double theta)

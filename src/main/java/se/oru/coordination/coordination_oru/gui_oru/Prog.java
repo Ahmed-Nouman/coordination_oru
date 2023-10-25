@@ -1,21 +1,17 @@
 package se.oru.coordination.coordination_oru.gui_oru;
 
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.util.Comparator;
-import org.json.simple.parser.ParseException;
 import com.vividsolutions.jts.geom.Coordinate;
-import javax.swing.JTextArea;
-import se.oru.coordination.coordination_oru.CriticalSection;
-import se.oru.coordination.coordination_oru.Mission;
-import se.oru.coordination.coordination_oru.RobotAtCriticalSection;
-import se.oru.coordination.coordination_oru.RobotReport;
-import se.oru.coordination.coordination_oru.TrackingCallback;
+import org.json.simple.parser.ParseException;
+import se.oru.coordination.coordination_oru.*;
 import se.oru.coordination.coordination_oru.simulation2D.TrajectoryEnvelopeCoordinatorSimulation;
 import se.oru.coordination.coordination_oru.util.JTSDrawingPanelVisualization;
 import se.oru.coordination.coordination_oru.util.Missions;
+
+import javax.swing.*;
+import java.io.File;
+import java.io.IOException;
+import java.util.Comparator;
 
 public class Prog {
 
@@ -27,7 +23,7 @@ public class Prog {
 
     public static JTextArea textArea = null;
     
-    public void progRun(int iteration_Experiment) throws InterruptedException, FileNotFoundException, IOException, ParseException{
+    public void progRun(int iteration_Experiment) throws InterruptedException, IOException, ParseException{
 
         pkg = GuiTool.pkg;
 
@@ -244,7 +240,7 @@ public class Prog {
 			
                     myRobot[i].setSpeed(tec,pkg.robotJson[i].velocity, pkg.robotJson[i].accleration);
 
-                    myRobot[i].placeRobot(tec,"a"+(i+1)+""+1);
+                    myRobot[i].placeRobot(tec, "a"+(i+1)+1);
 
                     //Set up private motion planners.
                     myRobot[i].setMap(pkg.yamlFile);
@@ -270,7 +266,7 @@ public class Prog {
                             way_2=k+1;
                             if(way_2>pkg.robotJson[i].path.length) break;
 
-                            myRobot[i].setMission("a"+(i+1)+""+way_1,"a"+(i+1)+""+way_2);
+                            myRobot[i].setMission("a"+(i+1)+way_1, "a"+(i+1)+way_2);
                             k++;
                         }
                     }

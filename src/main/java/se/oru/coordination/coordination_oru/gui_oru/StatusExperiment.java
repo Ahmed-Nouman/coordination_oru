@@ -67,7 +67,7 @@ public class StatusExperiment {
 
     public static void update()
     {
-        if(isCompleteExperiment()==false)  //اذا لم تنتهي التجربة نخرج من التابع وإلا يستمر في الكود 
+        if(!isCompleteExperiment())  //اذا لم تنتهي التجربة نخرج من التابع وإلا يستمر في الكود
             return;
 
         i_iteration++;

@@ -1,22 +1,17 @@
 package se.oru.coordination.coordination_oru.gui_oru;
 
-import java.io.BufferedWriter;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.PrintWriter;
-
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 
+import java.io.*;
+
 
 
 public class JsonFile {
 
-    static void readDataFromJson(String fileName,PkgRobotWithMap pkg) throws FileNotFoundException, IOException, ParseException
+    static void readDataFromJson(String fileName,PkgRobotWithMap pkg) throws IOException, ParseException
     {        
 
         Object o = new JSONParser().parse(new FileReader(fileName));
@@ -123,7 +118,7 @@ public class JsonFile {
             if(countPathR[i]!=0)
             {
                 int indW=robotJson[i].path.length - countPathR[i];
-                writeFile(fileName, "a"+(i+1)+""+(indW + 1)+"	"+robotJson[i].path[indW].x+" "+robotJson[i].path[indW].y+" "+robotJson[i].path[indW].theta+" 0.0", true);
+                writeFile(fileName, "a"+(i+1)+(indW + 1)+"	"+robotJson[i].path[indW].x+" "+robotJson[i].path[indW].y+" "+robotJson[i].path[indW].theta+" 0.0", true);
                 countPathR[i]--;
                 isContinue=true;
 

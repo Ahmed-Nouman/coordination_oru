@@ -5,12 +5,13 @@
 package se.oru.coordination.coordination_oru.gui_oru;
 
 
+import se.oru.coordination.coordination_oru.Mission;
+import se.oru.coordination.coordination_oru.simulation2D.TrajectoryEnvelopeCoordinatorSimulation;
+
+import javax.swing.*;
 import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.swing.JTextArea;
-import se.oru.coordination.coordination_oru.Mission;
-import se.oru.coordination.coordination_oru.simulation2D.TrajectoryEnvelopeCoordinatorSimulation;
 
 /**
  *
@@ -63,7 +64,7 @@ public class StatusRobot {
     public static boolean []finish;
     public static boolean []statusThread;
     static long []endTimeOfRobot;
-    public static int iterRobot[];
+    public static int[] iterRobot;
     public static void setCountOfRobot(int count_robot,int[] iterationRobots)
     {
         countOfRobot=count_robot;
@@ -172,25 +173,18 @@ public class StatusRobot {
     
     public boolean isDrive()
     {
-        if(currentPP>0)
-            return true;
-        
-        return false;
+        return currentPP > 0;
     }
     
     public boolean isStop()
     {
-        if(currentPP==-1)
-        {
-            return true;
-        }
-        return false;
+        return currentPP == -1;
     }
     
     public boolean Driving(int robotID,boolean writeLog)
     {
 
-        if(isDrive() && writeLog == true && is_Drive==false)
+        if(isDrive() && writeLog && !is_Drive)
         {
             is_Drive=true;
             is_Stop=false;
@@ -232,7 +226,7 @@ public class StatusRobot {
             i_Stop++;
             return true;
         }
-        if(isDrive() && writeLog == false)
+        if(isDrive() && !writeLog)
         {
             is_Drive=true;
             is_Stop=false;
@@ -244,7 +238,7 @@ public class StatusRobot {
     
     public boolean Stoping(int robotID,boolean writeLog)
     {
-        if(isFirstOpen == false)
+        if(!isFirstOpen)
         {
             isFirstOpen = true;
             JsonFile.writeFile(csvFileName,"",false);
@@ -255,7 +249,7 @@ public class StatusRobot {
         //isStop() يعني هلأ توقف
         //is_Stop يعني لم يتوقف قبل هل مرة او يعني يسبقه حدث السير  وذلك عندما يأخذ قيمة خطأ
         //writeLog يعني طباعة ماذا يحدث اذا كان صحيح واذا كان خطأ لم يطبع شيء وذلك لتحقيق للتابع على ان يكون فيه تابع اختبار للروبوت لكي نعرف حالته
-        if(isStop() && writeLog == true && is_Stop==false)
+        if(isStop() && writeLog && !is_Stop)
         {
             is_Drive=false;
             is_Stop=true;
@@ -289,7 +283,7 @@ public class StatusRobot {
             
             return true;
         }
-        if(isStop() && writeLog == false)
+        if(isStop() && !writeLog)
         {
             if(i_Stop == arrMission.size()) //اذا وصل للاخير
             {
@@ -310,7 +304,7 @@ public class StatusRobot {
     boolean IsEndPosition = false;   //لم يتوقف قبل هل مرة عند نهاية المسار
     public boolean currentIsEndPosition(int robotID,boolean writeLog)  //لمعرفة هل الروبوت وصل لنهاية المسار ام لأ
     {
-        if(IsEndPosition == true)  
+        if(IsEndPosition)
         {
                 iterRobot[robotID-1]--;
             
@@ -344,10 +338,10 @@ public class StatusRobot {
         //if(!StatusExperiment.isCompleteExperiment())
         //return false;
         for(int i=0;i<countOfRobot;i++)
-            if(finish[i]==false)      //اذا كانت احد الروبوتات لم ينتهي قم بالخروج من التابع وإلا استمر في التعليمات التالية
+            if(!finish[i])      //اذا كانت احد الروبوتات لم ينتهي قم بالخروج من التابع وإلا استمر في التعليمات التالية
                 return false;
         
-        if(isFinishExperiment==false)
+        if(!isFinishExperiment)
         {
             isFinishExperiment=true;
             iterExperiment++;

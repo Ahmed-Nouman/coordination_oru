@@ -17,16 +17,16 @@ public class TwoAutonomousRobots {
         final Pose drawPoint21 = new Pose(52.95, 87.75, -Math.PI / 2);
         final Pose orePass = new Pose(54.35, 11.25, -Math.PI / 2);
 
-        final Pose[] autonomousRobotGoal1 = {orePass};
-        final Pose[] autonomousRobotGoal2 = {mainTunnelRight};
-
-        var autonomousRobot1 = new AutonomousVehicle();
-        var autonomousRobot2 = new AutonomousVehicle();
-        autonomousRobot1.getPlan(drawPoint21, autonomousRobotGoal1, YAML_FILE, true);
-        autonomousRobot2.getPlan(mainTunnelLeft, autonomousRobotGoal1, YAML_FILE, true);
+        var autonomousRobot1 = new AutonomousVehicle(drawPoint21, new Pose[] {orePass});
+        var autonomousRobot2 = new AutonomousVehicle(mainTunnelLeft, new Pose[] {mainTunnelRight});
+        autonomousRobot1.getPlan(autonomousRobot1.getInitialPose(), autonomousRobot1.getGoalPoses(),
+                YAML_FILE, true);
+        autonomousRobot2.getPlan(autonomousRobot2.getInitialPose(), autonomousRobot2.getGoalPoses(), YAML_FILE,
+                true);
 
         // Instantiate a trajectory envelope coordinator.
-        var tec = new TrajectoryEnvelopeCoordinatorSimulation(2000, 1000, 5, 2);
+        var tec = new TrajectoryEnvelopeCoordinatorSimulation(2000, 1000,
+                5, 2);
 
         // Sets up MetaCSP solver
         tec.setupSolver(0, 100000000);
@@ -37,8 +37,8 @@ public class TwoAutonomousRobots {
 //        var heuristics = new Heuristics().closest();
 //        tec.addComparator(heuristics);
 //        tec.setDefaultFootprint(autonomousRobot1.getFootPrint());
-        tec.placeRobot(autonomousRobot1.getID(), drawPoint21);
-        tec.placeRobot(autonomousRobot2.getID(), mainTunnelLeft);
+        tec.placeRobot(autonomousRobot1.getID(), autonomousRobot1.getInitialPose());
+        tec.placeRobot(autonomousRobot2.getID(), autonomousRobot2.getInitialPose());
 //        tec.addComparator(new Heuristics().closest());
 //        tec.setUseInternalCriticalPoints(false);
 //        tec.setYieldIfParking(true);

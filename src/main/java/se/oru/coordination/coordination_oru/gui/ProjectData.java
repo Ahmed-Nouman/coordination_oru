@@ -1,6 +1,5 @@
 package se.oru.coordination.coordination_oru.gui;
 
-import java.awt.*;
 import java.util.Map;
 
 public class ProjectData {

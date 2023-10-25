@@ -21,7 +21,6 @@ public class PkgRobotWithMap {
     }
     PkgRobotWithMap()
     {
-        ;
     }
     
     //لاضافة روبوت الى داخل البكج الذي يحوي جميع الروبوتات

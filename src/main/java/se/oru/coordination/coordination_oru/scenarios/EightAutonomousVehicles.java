@@ -26,26 +26,32 @@ public class EightAutonomousVehicles {
         final Pose drawPoint24 = new Pose(74.85, 84.45, -Math.PI / 2);
         final Pose orePass = new Pose(54.35, 11.25, -Math.PI / 2);
 
-        final Pose[] autonomousVehicleGoal = {orePass};
-        final Pose[] autonomousVehicle8Goal = {mainTunnelRight};
-
         //TODO I think controller kills everything up
-        var autonomousVehicle1 = new AutonomousVehicle();
-        var autonomousVehicle2 = new AutonomousVehicle();
-        var autonomousVehicle3 = new AutonomousVehicle();
-        var autonomousVehicle4 = new AutonomousVehicle();
-        var autonomousVehicle5 = new AutonomousVehicle();
-        var autonomousVehicle6 = new AutonomousVehicle();
-        var autonomousVehicle7 = new AutonomousVehicle();
-        var autonomousVehicle8 = new AutonomousVehicle();
-        autonomousVehicle1.getPlan(drawPoint17, autonomousVehicleGoal, YAML_FILE, true);
-        autonomousVehicle2.getPlan(drawPoint19, autonomousVehicleGoal, YAML_FILE, true);
-        autonomousVehicle3.getPlan(drawPoint20, autonomousVehicleGoal, YAML_FILE, true);
-        autonomousVehicle4.getPlan(drawPoint21, autonomousVehicleGoal, YAML_FILE, true);
-        autonomousVehicle5.getPlan(drawPoint22, autonomousVehicleGoal, YAML_FILE, true);
-        autonomousVehicle6.getPlan(drawPoint23, autonomousVehicleGoal, YAML_FILE, true);
-        autonomousVehicle7.getPlan(drawPoint24, autonomousVehicleGoal, YAML_FILE, true);
-        autonomousVehicle8.getPlan(mainTunnelLeft, autonomousVehicle8Goal, YAML_FILE, true);
+        var autonomousVehicle1 = new AutonomousVehicle(drawPoint17, new Pose[] {orePass});
+        var autonomousVehicle2 = new AutonomousVehicle(drawPoint19, new Pose[] {orePass});
+        var autonomousVehicle3 = new AutonomousVehicle(drawPoint20, new Pose[] {orePass});
+        var autonomousVehicle4 = new AutonomousVehicle(drawPoint21, new Pose[] {orePass});
+        var autonomousVehicle5 = new AutonomousVehicle(drawPoint22, new Pose[] {orePass});
+        var autonomousVehicle6 = new AutonomousVehicle(drawPoint23, new Pose[] {orePass});
+        var autonomousVehicle7 = new AutonomousVehicle(drawPoint24, new Pose[] {orePass});
+        var autonomousVehicle8 = new AutonomousVehicle(mainTunnelLeft, new Pose[] {mainTunnelRight});
+
+        autonomousVehicle1.getPlan(autonomousVehicle1.getInitialPose(), autonomousVehicle1.getGoalPoses(),
+                YAML_FILE, true);
+        autonomousVehicle2.getPlan(autonomousVehicle2.getInitialPose(), autonomousVehicle2.getGoalPoses(),
+                YAML_FILE, true);
+        autonomousVehicle3.getPlan(autonomousVehicle3.getInitialPose(), autonomousVehicle3.getGoalPoses(),
+                YAML_FILE,true);
+        autonomousVehicle4.getPlan(autonomousVehicle4.getInitialPose(), autonomousVehicle4.getGoalPoses(),
+                YAML_FILE, true);
+        autonomousVehicle5.getPlan(autonomousVehicle5.getInitialPose(), autonomousVehicle5.getGoalPoses(),
+                YAML_FILE,true);
+        autonomousVehicle6.getPlan(autonomousVehicle6.getInitialPose(), autonomousVehicle6.getGoalPoses(),
+                YAML_FILE, true);
+        autonomousVehicle7.getPlan(autonomousVehicle7.getInitialPose(), autonomousVehicle7.getGoalPoses(),
+                YAML_FILE, true);
+        autonomousVehicle8.getPlan(autonomousVehicle8.getInitialPose(), autonomousVehicle8.getGoalPoses(),
+                YAML_FILE, true);
 
         // Instantiate a trajectory envelope coordinator.
         final var tec = new TrajectoryEnvelopeCoordinatorSimulation(2000, 1000, 5, 2);
@@ -55,14 +61,14 @@ public class EightAutonomousVehicles {
         tec.startInference();
 
         tec.setDefaultFootprint(autonomousVehicle1.getFootprint());
-        tec.placeRobot(autonomousVehicle1.getID(), drawPoint17);
-        tec.placeRobot(autonomousVehicle2.getID(), drawPoint19);
-        tec.placeRobot(autonomousVehicle3.getID(), drawPoint20);
-        tec.placeRobot(autonomousVehicle4.getID(), drawPoint21);
-        tec.placeRobot(autonomousVehicle5.getID(), drawPoint22);
-        tec.placeRobot(autonomousVehicle6.getID(), drawPoint23);
-        tec.placeRobot(autonomousVehicle7.getID(), drawPoint24);
-        tec.placeRobot(autonomousVehicle8.getID(), mainTunnelLeft);
+        tec.placeRobot(autonomousVehicle1.getID(), autonomousVehicle1.getInitialPose());
+        tec.placeRobot(autonomousVehicle2.getID(), autonomousVehicle2.getInitialPose());
+        tec.placeRobot(autonomousVehicle3.getID(), autonomousVehicle3.getInitialPose());
+        tec.placeRobot(autonomousVehicle4.getID(), autonomousVehicle4.getInitialPose());
+        tec.placeRobot(autonomousVehicle5.getID(), autonomousVehicle5.getInitialPose());
+        tec.placeRobot(autonomousVehicle6.getID(), autonomousVehicle6.getInitialPose());
+        tec.placeRobot(autonomousVehicle7.getID(), autonomousVehicle7.getInitialPose());
+        tec.placeRobot(autonomousVehicle8.getID(), autonomousVehicle8.getInitialPose());
 
         tec.addComparator(new Heuristics().closest());
         tec.setUseInternalCriticalPoints(false);

@@ -19,13 +19,13 @@ public class OneAutonomousOneLookAheadVehicles {
         final Pose orePass = new Pose(54.35,11.25,-Math.PI/2);
         final String YAML_FILE = "maps/mine-map-test.yaml";
 
-        final Pose[] autonomousVehicleGoal = {orePass};
-        final Pose[] limitedPredictabilityVehicleGoal = {mainTunnelRight};
 
-        var autonomousVehicle = new AutonomousVehicle();
-        var lookAheadVehicle = new LookAheadVehicle(predictableDistance);
-        autonomousVehicle.getPlan(drawPoint21, autonomousVehicleGoal, YAML_FILE, true);
-        lookAheadVehicle.getPlan(mainTunnelLeft, limitedPredictabilityVehicleGoal, YAML_FILE, true);
+        var autonomousVehicle = new AutonomousVehicle(drawPoint21, new Pose[] {orePass});
+        var lookAheadVehicle = new LookAheadVehicle(predictableDistance, mainTunnelLeft, new Pose[] {mainTunnelRight});
+        autonomousVehicle.getPlan(autonomousVehicle.getInitialPose(), autonomousVehicle.getGoalPoses(),
+                YAML_FILE, true);
+        lookAheadVehicle.getPlan(lookAheadVehicle.getInitialPose(), lookAheadVehicle.getGoalPoses(),
+                YAML_FILE, true);
 
         // Instantiate a trajectory envelope coordinator.
         var tec = new TrajectoryEnvelopeCoordinatorSimulation(2000, 1000, 5, 2);
@@ -35,8 +35,8 @@ public class OneAutonomousOneLookAheadVehicles {
         tec.startInference();
 
         tec.setDefaultFootprint(autonomousVehicle.getFootprint());
-        tec.placeRobot(autonomousVehicle.getID(), drawPoint21);
-        tec.placeRobot(lookAheadVehicle.getID(), mainTunnelLeft);
+        tec.placeRobot(autonomousVehicle.getID(), autonomousVehicle.getInitialPose());
+        tec.placeRobot(lookAheadVehicle.getID(), lookAheadVehicle.getInitialPose());
         tec.addComparator(new Heuristics().closest());
         tec.setUseInternalCriticalPoints(false);
         tec.setYieldIfParking(true);

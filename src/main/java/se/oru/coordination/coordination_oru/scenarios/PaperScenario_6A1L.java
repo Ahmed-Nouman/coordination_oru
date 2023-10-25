@@ -54,36 +54,37 @@ public class PaperScenario_6A1L {
         final Pose orePass2 = new Pose(76.35, 31.05, -Math.PI / 2.7);
         final Pose orePass3 = new Pose(92.65, 33.15, -Math.PI / 2);
 
-        final Pose autonomousRobotInitial1 = drawPoint28;
-        final Pose autonomousRobotInitial2 = drawPoint30;
-        final Pose autonomousRobotInitial3 = drawPoint32A;
-        final Pose autonomousRobotInitial4 = drawPoint34;
-        final Pose autonomousRobotInitial5 = drawPoint35;
-        final Pose autonomousRobotInitial6 = drawPoint12;
-        final Pose lookAheadRobotInitial = entrance;
+        var autonomousRobot1 = new AutonomousVehicle(1, Color.YELLOW, MAX_VELOCITY, MAX_ACCELERATION,
+                X_LENGTH, Y_LENGTH, drawPoint28, new Pose[] {orePass1}, 0);
+        var autonomousRobot2 = new AutonomousVehicle(1, Color.YELLOW, MAX_VELOCITY, MAX_ACCELERATION,
+                X_LENGTH, Y_LENGTH, drawPoint30, new Pose[] {orePass1}, 0);
+        var autonomousRobot3 = new AutonomousVehicle(1, Color.YELLOW, MAX_VELOCITY, MAX_ACCELERATION,
+                X_LENGTH, Y_LENGTH, drawPoint32A, new Pose[] {orePass2}, 0);
+        var autonomousRobot4 = new AutonomousVehicle(1, Color.YELLOW, MAX_VELOCITY, MAX_ACCELERATION,
+                X_LENGTH, Y_LENGTH, drawPoint34, new Pose[] {orePass2}, 0);
+        var autonomousRobot5 = new AutonomousVehicle(1, Color.YELLOW, MAX_VELOCITY, MAX_ACCELERATION,
+                X_LENGTH, Y_LENGTH, drawPoint35, new Pose[] {orePass3}, 0);
+        var autonomousRobot6 = new AutonomousVehicle(1, Color.YELLOW, MAX_VELOCITY, MAX_ACCELERATION,
+                X_LENGTH, Y_LENGTH, drawPoint12, new Pose[] {orePass3}, 0);
+        var lookAheadRobot = new LookAheadVehicle(1, lookAheadDistance, Color.GREEN, MAX_VELOCITY,
+                MAX_ACCELERATION, X_LENGTH, Y_LENGTH, entrance, new Pose[] {mainTunnelLeft}, 0);
 
-        final Pose[] autonomousRobotGoal1 = {orePass1};
-        final Pose[] autonomousRobotGoal2 = {orePass2};
-        final Pose[] autonomousRobotGoal3 = {orePass3};
-        final Pose[] limitedLookAheadRobotGoal = {mainTunnelLeft};
+        autonomousRobot1.getPlan(autonomousRobot1.getInitialPose(), autonomousRobot1.getGoalPoses(),
+                YAML_FILE, true);
+        autonomousRobot2.getPlan(autonomousRobot2.getInitialPose(), autonomousRobot2.getGoalPoses(),
+                YAML_FILE, true);
+        autonomousRobot3.getPlan(autonomousRobot3.getInitialPose(), autonomousRobot3.getGoalPoses(),
+                YAML_FILE, true);
+        autonomousRobot4.getPlan(autonomousRobot4.getInitialPose(), autonomousRobot4.getGoalPoses(),
+                YAML_FILE, true);
+        autonomousRobot5.getPlan(autonomousRobot5.getInitialPose(), autonomousRobot5.getGoalPoses(),
+                YAML_FILE, true);
+        autonomousRobot6.getPlan(autonomousRobot6.getInitialPose(), autonomousRobot6.getGoalPoses(),
+                YAML_FILE, true);
+        lookAheadRobot.getPlan(lookAheadRobot.getInitialPose(), lookAheadRobot.getGoalPoses(),
+                YAML_FILE, false);
 
-        var autonomousRobot1 = new AutonomousVehicle(1, Color.YELLOW, MAX_VELOCITY, MAX_ACCELERATION, X_LENGTH, Y_LENGTH);
-        var autonomousRobot2 = new AutonomousVehicle(1, Color.YELLOW, MAX_VELOCITY, MAX_ACCELERATION, X_LENGTH, Y_LENGTH);
-        var autonomousRobot3 = new AutonomousVehicle(1, Color.YELLOW, MAX_VELOCITY, MAX_ACCELERATION, X_LENGTH, Y_LENGTH);
-        var autonomousRobot4 = new AutonomousVehicle(1, Color.YELLOW, MAX_VELOCITY, MAX_ACCELERATION, X_LENGTH, Y_LENGTH);
-        var autonomousRobot5 = new AutonomousVehicle(1, Color.YELLOW, MAX_VELOCITY, MAX_ACCELERATION, X_LENGTH, Y_LENGTH);
-        var autonomousRobot6 = new AutonomousVehicle(1, Color.YELLOW, MAX_VELOCITY, MAX_ACCELERATION, X_LENGTH, Y_LENGTH);
-        var lookAheadRobot = new LookAheadVehicle(1, lookAheadDistance, Color.GREEN, MAX_VELOCITY, MAX_ACCELERATION, X_LENGTH, Y_LENGTH);
-
-        autonomousRobot1.getPlan(autonomousRobotInitial1, autonomousRobotGoal1, YAML_FILE, true);
-        autonomousRobot2.getPlan(autonomousRobotInitial2, autonomousRobotGoal1, YAML_FILE, true);
-        autonomousRobot3.getPlan(autonomousRobotInitial3, autonomousRobotGoal2, YAML_FILE, true);
-        autonomousRobot4.getPlan(autonomousRobotInitial4, autonomousRobotGoal2, YAML_FILE, true);
-        autonomousRobot5.getPlan(autonomousRobotInitial5, autonomousRobotGoal3, YAML_FILE, true);
-        autonomousRobot6.getPlan(autonomousRobotInitial6, autonomousRobotGoal3, YAML_FILE, true);
-        lookAheadRobot.getPlan(lookAheadRobotInitial, limitedLookAheadRobotGoal, YAML_FILE, false);
-
-        // Instantiate a trajectory envelope coordinator.
+        // Instantiate a trajectory envelope coordinator. TODO Velocity and acceleration are hard coded for tec.
         var tec = new TrajectoryEnvelopeCoordinatorSimulation(1000, 1000, MAX_VELOCITY, MAX_ACCELERATION);
         tec.setupSolver(0, 100000000);
         tec.startInference();
@@ -112,13 +113,13 @@ public class PaperScenario_6A1L {
                 tec.getRobotTrackingPeriodInMillis(lookAheadRobot.getID())));
 
         tec.setDefaultFootprint(lookAheadRobot.getFootprint());
-        tec.placeRobot(autonomousRobot1.getID(), autonomousRobotInitial1);
-        tec.placeRobot(autonomousRobot2.getID(), autonomousRobotInitial2);
-        tec.placeRobot(autonomousRobot3.getID(), autonomousRobotInitial3);
-        tec.placeRobot(autonomousRobot4.getID(), autonomousRobotInitial4);
-        tec.placeRobot(autonomousRobot5.getID(), autonomousRobotInitial5);
-        tec.placeRobot(autonomousRobot6.getID(), autonomousRobotInitial6);
-        tec.placeRobot(lookAheadRobot.getID(), lookAheadRobotInitial);
+        tec.placeRobot(autonomousRobot1.getID(), autonomousRobot1.getInitialPose());
+        tec.placeRobot(autonomousRobot2.getID(), autonomousRobot2.getInitialPose());
+        tec.placeRobot(autonomousRobot3.getID(), autonomousRobot3.getInitialPose());
+        tec.placeRobot(autonomousRobot4.getID(), autonomousRobot4.getInitialPose());
+        tec.placeRobot(autonomousRobot5.getID(), autonomousRobot5.getInitialPose());
+        tec.placeRobot(autonomousRobot6.getID(), autonomousRobot6.getInitialPose());
+        tec.placeRobot(lookAheadRobot.getID(), lookAheadRobot.getInitialPose());
 
         // Set Heuristics
         var heuristic = new Heuristics();
@@ -137,7 +138,6 @@ public class PaperScenario_6A1L {
             tec.setVisualization(viz);
         }
 
-//        var lookAheadRobotInitialPlan = lookAheadRobot.getLimitedPath(lookAheadRobot.getID(), lookAheadDistance, tec);
         var m1 = new Mission(autonomousRobot1.getID(), autonomousRobot1.getPath());
         var m2 = new Mission(autonomousRobot2.getID(), autonomousRobot2.getPath());
         var m3 = new Mission(autonomousRobot3.getID(), autonomousRobot3.getPath());
@@ -145,7 +145,6 @@ public class PaperScenario_6A1L {
         var m5 = new Mission(autonomousRobot5.getID(), autonomousRobot5.getPath());
         var m6 = new Mission(autonomousRobot6.getID(), autonomousRobot6.getPath());
         var m7 = new Mission(lookAheadRobot.getID(), lookAheadRobot.getPath(lookAheadDistance, tec));
-//        m4.setStoppingPoint(orePass3, 10000); //FIXME I think it does not work.
 
         var randomRobotCaller = new RandomRobotCaller(numOfCallsForLookAheadRobot, terminationInMinutes);
         randomRobotCaller.scheduleRandomCalls(m7);

@@ -40,26 +40,30 @@ public class ProductionScenario {
         final Pose orePass3 = new Pose(62.95, 9.75, -Math.PI / 2);
         final Pose orePass4 = new Pose(69.15, 53.15, -Math.PI / 2);
 
-        final Pose[] autonomousRobotGoal1 = {orePass1};
-        final Pose[] autonomousRobotGoal2 = {orePass2};
-        final Pose[] autonomousRobotGoal3 = {orePass3};
-        final Pose[] autonomousRobotGoal4 = {orePass4};
-        final Pose[] autonomousRobotGoal5 = {mainTunnelRight};
-        final Pose[] drillRigGoal = {drillPoint2};
+        var autonomousRobot1 = new AutonomousVehicle(2, Color.YELLOW, 5, 2, 2,
+                1, drawPoint1, new Pose[] {orePass1}, 0);
+        var autonomousRobot2 = new AutonomousVehicle(2, Color.YELLOW, 5, 2, 2,
+                1, drawPoint2, new Pose[] {orePass2}, 0);
+        var autonomousRobot3 = new AutonomousVehicle(2, Color.YELLOW, 5, 2, 2,
+                1, drawPoint3, new Pose[] {orePass3}, 0);
+        var autonomousRobot4 = new AutonomousVehicle(2, Color.YELLOW, 5, 2, 2,
+                1, drawPoint4, new Pose[] {orePass4}, 0);
+        var autonomousRobot5 = new AutonomousVehicle(1, Color.RED, 0.05, 0.02,
+                3.5, 3.5, mainTunnelLeft, new Pose[] {mainTunnelRight}, 0);
+        var drillRig = new LookAheadVehicle(2, drillLookAheadDistance, Color.GREEN, 5,
+                2, 2, 1, drillPoint, new Pose[] {drawPoint2}, 0);
 
-        var autonomousRobot1 = new AutonomousVehicle(2, Color.YELLOW, 5, 2, 2, 1);
-        var autonomousRobot2 = new AutonomousVehicle(2, Color.YELLOW, 5, 2, 2, 1);
-        var autonomousRobot3 = new AutonomousVehicle(2, Color.YELLOW, 5, 2, 2, 1);
-        var autonomousRobot4 = new AutonomousVehicle(2, Color.YELLOW, 5, 2, 2, 1);
-        var autonomousRobot5 = new AutonomousVehicle(1, Color.RED, 0.05, 0.02, 3.5, 3.5);
-        var drillRig = new LookAheadVehicle(2, drillLookAheadDistance, Color.GREEN, 5, 2, 2, 1);
-
-        autonomousRobot1.getPlan(drawPoint1, autonomousRobotGoal1, YAML_FILE, true);
-        autonomousRobot2.getPlan(drawPoint2, autonomousRobotGoal2, YAML_FILE, true);
-        autonomousRobot3.getPlan(drawPoint3, autonomousRobotGoal3, YAML_FILE, true);
-        autonomousRobot4.getPlan(drawPoint4, autonomousRobotGoal4, YAML_FILE, true);
-        autonomousRobot5.getPlan(mainTunnelLeft, autonomousRobotGoal5, YAML_FILE, true);
-        drillRig.getPlan(drillPoint, drillRigGoal, YAML_FILE, false);
+        autonomousRobot1.getPlan(autonomousRobot1.getInitialPose(), autonomousRobot1.getGoalPoses(),
+                YAML_FILE, true);
+        autonomousRobot2.getPlan(autonomousRobot2.getInitialPose(), autonomousRobot2.getGoalPoses(),
+                YAML_FILE, true);
+        autonomousRobot3.getPlan(autonomousRobot3.getInitialPose(), autonomousRobot3.getGoalPoses(),
+                YAML_FILE, true);
+        autonomousRobot4.getPlan(autonomousRobot4.getInitialPose(), autonomousRobot4.getGoalPoses(),
+                YAML_FILE, true);
+        autonomousRobot5.getPlan(autonomousRobot5.getInitialPose(), autonomousRobot5.getGoalPoses(),
+                YAML_FILE, true);
+        drillRig.getPlan(drillRig.getInitialPose(), drillRig.getGoalPoses(), YAML_FILE, false);
 
         // Instantiate a trajectory envelope coordinator.
         var tec = new TrajectoryEnvelopeCoordinatorSimulation(2000, 1000, 5, 2);
@@ -90,12 +94,12 @@ public class ProductionScenario {
         };
         tec.setDefaultFootprint(drillRig.getFootprint());
         tec.setFootprint(autonomousRobot5.getID(), fp5);
-        tec.placeRobot(autonomousRobot1.getID(), drawPoint1);
-        tec.placeRobot(autonomousRobot2.getID(), drawPoint2);
-        tec.placeRobot(autonomousRobot3.getID(), drawPoint3);
-        tec.placeRobot(autonomousRobot4.getID(), drawPoint4);
-        tec.placeRobot(autonomousRobot5.getID(), mainTunnelLeft);
-        tec.placeRobot(drillRig.getID(), drillPoint);
+        tec.placeRobot(autonomousRobot1.getID(), autonomousRobot1.getInitialPose());
+        tec.placeRobot(autonomousRobot2.getID(), autonomousRobot2.getInitialPose());
+        tec.placeRobot(autonomousRobot3.getID(), autonomousRobot3.getInitialPose());
+        tec.placeRobot(autonomousRobot4.getID(), autonomousRobot4.getInitialPose());
+        tec.placeRobot(autonomousRobot5.getID(), autonomousRobot5.getInitialPose());
+        tec.placeRobot(drillRig.getID(), drillRig.getInitialPose());
 
         // Set Heuristics
         var heuristic = new Heuristics();

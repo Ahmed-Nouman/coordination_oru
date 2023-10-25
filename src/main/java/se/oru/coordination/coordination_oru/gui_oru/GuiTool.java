@@ -4,18 +4,14 @@
  */
 package se.oru.coordination.coordination_oru.gui_oru;
 
-import java.io.IOException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import javax.swing.DefaultListModel;
-import javax.swing.JButton;
-import javax.swing.JLabel;
-import javax.swing.JList;
-import javax.swing.JTextArea;
-import javax.swing.JTextField;
 import org.json.simple.parser.ParseException;
 import se.oru.coordination.coordination_oru.simulation2D.TrajectoryEnvelopeCoordinatorSimulation;
 import se.oru.coordination.coordination_oru.util.Missions;
+
+import javax.swing.*;
+import java.io.IOException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  *
@@ -86,7 +82,7 @@ public class GuiTool{
     
     public static void btn_Apply(boolean isNewRobot,JButton btn_newRobot,int indexOfList,JList listRobots,JTextField textBox_name,JTextField textBox_velocity,JTextField textBox_acceleration,JTextField textBox_color, JTextArea textBox_size, JTextArea textBox_path,JTextField textBox_iterationRobot2, JLabel textBox_map)
     {
-        if(isNewRobot==true) //هنا يعني لم يتم اضافة روبوت جديد اي لم يتم الضغط على زر روبوت جديد
+        if(isNewRobot) //هنا يعني لم يتم اضافة روبوت جديد اي لم يتم الضغط على زر روبوت جديد
         {
             //هنا يتم تعديل بيانات الروبوت
             pkg.robotJson[indexOfList].name=textBox_name.getText();
@@ -104,7 +100,7 @@ public class GuiTool{
         {
             PkgRobotWithMap newPkg = new PkgRobotWithMap();
             newPkg.robotJson =new RobotJson[1];
-            newPkg.yamlFile = new String();
+            newPkg.yamlFile = "";
             newPkg.robotJson[0] = new RobotJson();
             newPkg.robotJson[0].name=textBox_name.getText();
             newPkg.robotJson[0].color=textBox_color.getText();

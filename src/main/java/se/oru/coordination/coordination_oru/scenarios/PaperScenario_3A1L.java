@@ -26,7 +26,7 @@ public class PaperScenario_3A1L {
         int terminationInMinutes = 30;
         int numOfCallsForLookAheadRobot = 5;
         boolean visualization = true;
-        boolean writeRobotReports = true;
+        boolean writeRobotReports = false;
 
         final Pose mainTunnelLeft = new Pose(14.25, 22.15, Math.PI);
         final Pose mainTunnelRight = new Pose(114.15, 40.05, Math.PI);
@@ -49,20 +49,23 @@ public class PaperScenario_3A1L {
         final Pose orePass2 = new Pose(76.35, 31.05, -Math.PI / 2.7);
         final Pose orePass3 = new Pose(92.65, 33.15, -Math.PI / 2);
 
-        final Pose[] autonomousRobotGoal1 = {orePass1};
-        final Pose[] autonomousRobotGoal2 = {orePass2};
-        final Pose[] autonomousRobotGoal3 = {orePass3};
-        final Pose[] limitedLookAheadRobotGoal = {mainTunnelLeft};
+        var autonomousRobot1 = new AutonomousVehicle(1, Color.YELLOW, 14, 3,
+                0.9, 0.5, drawPoint28, new Pose[]{orePass1}, 0);
+        var autonomousRobot2 = new AutonomousVehicle(1, Color.YELLOW, 14, 3,
+                0.9, 0.5, drawPoint32A, new Pose[] {orePass2}, 0);
+        var autonomousRobot3 = new AutonomousVehicle(1, Color.YELLOW, 14, 3,
+                0.9, 0.5, drawPoint35, new Pose[] {orePass3}, 0);
+        var lookAheadVehicle = new LookAheadVehicle(1, lookAheadDistance, Color.GREEN, 14,
+                3, 0.9, 0.5, entrance, new Pose[] {mainTunnelLeft}, 0);
 
-        var autonomousRobot1 = new AutonomousVehicle(1, Color.YELLOW, 14, 3, 0.9, 0.5);
-        var autonomousRobot2 = new AutonomousVehicle(1, Color.YELLOW, 14, 3, 0.9, 0.5);
-        var autonomousRobot3 = new AutonomousVehicle(1, Color.YELLOW, 14, 3, 0.9, 0.5);
-        var lookAheadVehicle = new LookAheadVehicle(1, lookAheadDistance, Color.GREEN, 14, 3, 0.9, 0.5);
-
-        autonomousRobot1.getPlan(drawPoint28, autonomousRobotGoal1, YAML_FILE, true);
-        autonomousRobot2.getPlan(drawPoint32A, autonomousRobotGoal2, YAML_FILE, true);
-        autonomousRobot3.getPlan(drawPoint35, autonomousRobotGoal3, YAML_FILE, true);
-        lookAheadVehicle.getPlan(entrance, limitedLookAheadRobotGoal, YAML_FILE, true);
+        autonomousRobot1.getPlan(autonomousRobot1.getInitialPose(), autonomousRobot1.getGoalPoses(),
+                YAML_FILE, true);
+        autonomousRobot2.getPlan(autonomousRobot2.getInitialPose(), autonomousRobot2.getGoalPoses(),
+                YAML_FILE, true);
+        autonomousRobot3.getPlan(autonomousRobot3.getInitialPose(), autonomousRobot3.getGoalPoses(),
+                YAML_FILE, true);
+        lookAheadVehicle.getPlan(lookAheadVehicle.getInitialPose(), lookAheadVehicle.getGoalPoses(),
+                YAML_FILE, true);
 
         // Instantiate a trajectory envelope coordinator.
         var tec = new TrajectoryEnvelopeCoordinatorSimulation(1000, 10000, 14, 3);
@@ -108,7 +111,7 @@ public class PaperScenario_3A1L {
         var m1 = new Mission(autonomousRobot1.getID(), autonomousRobot1.getPath());
         var m2 = new Mission(autonomousRobot2.getID(), autonomousRobot2.getPath());
         var m3 = new Mission(autonomousRobot3.getID(), autonomousRobot3.getPath());
-        var m4 = new Mission(lookAheadVehicle.getID(), lookAheadVehicle.getLimitedPath(lookAheadVehicle.getID(), lookAheadDistance, tec));
+        var m4 = new Mission(lookAheadVehicle.getID(), lookAheadVehicle.getPath());
 //        m4.setStoppingPoint(orePass3, 10000); FIXME I think it does not work.
 
         var randomRobotCaller = new RandomRobotCaller(numOfCallsForLookAheadRobot, terminationInMinutes);

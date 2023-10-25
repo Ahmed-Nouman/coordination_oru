@@ -1,7 +1,6 @@
 package se.oru.coordination.coordination_oru.scenarios;
 
 import org.metacsp.multi.spatioTemporal.paths.Pose;
-import org.metacsp.multi.spatioTemporal.paths.PoseSteering;
 import se.oru.coordination.coordination_oru.Mission;
 import se.oru.coordination.coordination_oru.simulation2D.TrajectoryEnvelopeCoordinatorSimulation;
 import se.oru.coordination.coordination_oru.util.BrowserVisualization;
@@ -30,44 +29,49 @@ public class SevenAutonomousOneLookAheadVehicles {
         final Pose drawPoint24 = new Pose(74.85,84.45,-Math.PI/2);
         final Pose orePass = new Pose(54.35,11.25,-Math.PI/2);
 
-        final Pose[] autonomousVehicleGoal = {orePass};
-        final Pose[] limitedPredictabilityVehicleGoal = {mainTunnelRight};
-
-        //TODO I think controller kills everything up
-        var lookAheadVehicle = new LookAheadVehicle(1,predictableDistance, Color.CYAN, 5, 2, 0.5, 0.5);
-        var autonomousVehicle1 = new AutonomousVehicle();
-        var autonomousVehicle2 = new AutonomousVehicle();
-        var autonomousVehicle3 = new AutonomousVehicle();
-        var autonomousVehicle4 = new AutonomousVehicle();
-        var autonomousVehicle5 = new AutonomousVehicle();
-        var autonomousVehicle6 = new AutonomousVehicle();
-        var autonomousVehicle7 = new AutonomousVehicle();
-        lookAheadVehicle.getPlan(mainTunnelLeft, limitedPredictabilityVehicleGoal, YAML_FILE, true);
-        autonomousVehicle1.getPlan(drawPoint17, autonomousVehicleGoal, YAML_FILE, true);
-        autonomousVehicle2.getPlan(drawPoint19, autonomousVehicleGoal, YAML_FILE, true);
-        autonomousVehicle3.getPlan(drawPoint20, autonomousVehicleGoal, YAML_FILE,true);
-        autonomousVehicle4.getPlan(drawPoint21, autonomousVehicleGoal, YAML_FILE, true);
-        autonomousVehicle5.getPlan(drawPoint22, autonomousVehicleGoal, YAML_FILE,true);
-        autonomousVehicle6.getPlan(drawPoint23, autonomousVehicleGoal, YAML_FILE, true);
-        autonomousVehicle7.getPlan(drawPoint24, autonomousVehicleGoal, YAML_FILE, true);
+        var lookAheadVehicle = new LookAheadVehicle(1,predictableDistance, Color.CYAN, 5, 2, 0.5, 0.5,
+                mainTunnelLeft, new Pose[] {mainTunnelRight}, 0);
+        var autonomousVehicle1 = new AutonomousVehicle(drawPoint17, new Pose[] {orePass});
+        var autonomousVehicle2 = new AutonomousVehicle(drawPoint19, new Pose[] {orePass});
+        var autonomousVehicle3 = new AutonomousVehicle(drawPoint20, new Pose[] {orePass});
+        var autonomousVehicle4 = new AutonomousVehicle(drawPoint21, new Pose[] {orePass});
+        var autonomousVehicle5 = new AutonomousVehicle(drawPoint22, new Pose[] {orePass});
+        var autonomousVehicle6 = new AutonomousVehicle(drawPoint23, new Pose[] {orePass});
+        var autonomousVehicle7 = new AutonomousVehicle(drawPoint24, new Pose[] {orePass});
+        lookAheadVehicle.getPlan(lookAheadVehicle.getInitialPose(), lookAheadVehicle.getGoalPoses(),
+                YAML_FILE, true);
+        autonomousVehicle1.getPlan(autonomousVehicle1.getInitialPose(), autonomousVehicle1.getGoalPoses(),
+                YAML_FILE, true);
+        autonomousVehicle2.getPlan(autonomousVehicle2.getInitialPose(), autonomousVehicle2.getGoalPoses(),
+                YAML_FILE, true);
+        autonomousVehicle3.getPlan(autonomousVehicle3.getInitialPose(), autonomousVehicle3.getGoalPoses(),
+                YAML_FILE,true);
+        autonomousVehicle4.getPlan(autonomousVehicle4.getInitialPose(), autonomousVehicle4.getGoalPoses(),
+                YAML_FILE, true);
+        autonomousVehicle5.getPlan(autonomousVehicle5.getInitialPose(), autonomousVehicle5.getGoalPoses(),
+                YAML_FILE,true);
+        autonomousVehicle6.getPlan(autonomousVehicle6.getInitialPose(), autonomousVehicle6.getGoalPoses(),
+                YAML_FILE, true);
+        autonomousVehicle7.getPlan(autonomousVehicle7.getInitialPose(), autonomousVehicle7.getGoalPoses(),
+                YAML_FILE, true);
 
         // Instantiate a trajectory envelope coordinator.
-        final var tec = new TrajectoryEnvelopeCoordinatorSimulation(2000, 1000, 5, 2);
+        final var tec = new TrajectoryEnvelopeCoordinatorSimulation(2000, 1000,
+                5, 2);
         // Need to set up infrastructure that maintains the representation
         tec.setupSolver(0, 100000000);
         // Start the thread that checks and enforces dependencies at every clock tick
         tec.startInference();
 
-        PoseSteering[] lookAheadInitialPlan = lookAheadVehicle.getLimitedPath(lookAheadVehicle.getID(), predictableDistance, tec);
         tec.setDefaultFootprint(autonomousVehicle1.getFootprint());
-        tec.placeRobot(autonomousVehicle1.getID(), drawPoint17);
-        tec.placeRobot(autonomousVehicle2.getID(), drawPoint19);
-        tec.placeRobot(autonomousVehicle3.getID(), drawPoint20);
-        tec.placeRobot(autonomousVehicle4.getID(), drawPoint21);
-        tec.placeRobot(autonomousVehicle5.getID(), drawPoint22);
-        tec.placeRobot(autonomousVehicle6.getID(), drawPoint23);
-        tec.placeRobot(autonomousVehicle7.getID(), drawPoint24);
-        tec.placeRobot(lookAheadVehicle.getID(), mainTunnelLeft);
+        tec.placeRobot(autonomousVehicle1.getID(), autonomousVehicle1.getInitialPose());
+        tec.placeRobot(autonomousVehicle2.getID(), autonomousVehicle2.getInitialPose());
+        tec.placeRobot(autonomousVehicle3.getID(), autonomousVehicle3.getInitialPose());
+        tec.placeRobot(autonomousVehicle4.getID(), autonomousVehicle4.getInitialPose());
+        tec.placeRobot(autonomousVehicle5.getID(), autonomousVehicle5.getInitialPose());
+        tec.placeRobot(autonomousVehicle6.getID(), autonomousVehicle6.getInitialPose());
+        tec.placeRobot(autonomousVehicle7.getID(), autonomousVehicle7.getInitialPose());
+        tec.placeRobot(lookAheadVehicle.getID(), lookAheadVehicle.getInitialPose());
         tec.addComparator(new Heuristics().closest());
         tec.setUseInternalCriticalPoints(false);
         tec.setYieldIfParking(true);
@@ -87,7 +91,7 @@ public class SevenAutonomousOneLookAheadVehicles {
         var m5 = new Mission(autonomousVehicle5.getID(), autonomousVehicle5.getPath());
         var m6 = new Mission(autonomousVehicle6.getID(), autonomousVehicle6.getPath());
         var m7 = new Mission(autonomousVehicle7.getID(), autonomousVehicle7.getPath());
-        var m8 = new Mission(lookAheadVehicle.getID(), lookAheadInitialPlan);
+        var m8 = new Mission(lookAheadVehicle.getID(), lookAheadVehicle.getPath());
 
         Missions.enqueueMission(m1);
         Missions.enqueueMission(m2);

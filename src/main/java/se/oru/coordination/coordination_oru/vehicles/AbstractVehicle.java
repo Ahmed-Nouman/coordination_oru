@@ -26,9 +26,11 @@ public abstract class AbstractVehicle {
     private final double width;
     private final Coordinate[] footprint;
     private Color color;
+    private Pose initialPose;
+    private Pose[] goalPoses;
+    private double safetyDistance;
     private PoseSteering[] path;
     private double pathLength;
-
     /**
      * Constructs an AbstractRobot object with the specified parameters.
      * It initializes the robot's ID, priorityID, color, maxVelocity, maxAcceleration, and footprint.
@@ -41,9 +43,13 @@ public abstract class AbstractVehicle {
      * @param maxAcceleration The maximum acceleration of the robot.
      * @param length          The length of the robot.
      * @param width           The length of the robot.
+     * @param initialPose     The initial Pose of the robot.
+     * @param goalPoses       The goal Poses of the robot.
+     * @param safetyDistance  The safety distance of the robot.
      * @throws IllegalStateException if a robot with the same ID already exists.
      */
-    public AbstractVehicle(int ID, int priorityID, Color color, double maxVelocity, double maxAcceleration, double length, double width) {
+    public AbstractVehicle(int ID, int priorityID, Color color, double maxVelocity, double maxAcceleration,
+                           double length, double width, Pose initialPose, Pose[] goalPoses, double safetyDistance) {
         this.ID = ID;
         this.priorityID = priorityID;
         this.color = color;
@@ -51,6 +57,9 @@ public abstract class AbstractVehicle {
         this.maxAcceleration = maxAcceleration;
         this.length = length;
         this.width = width;
+        this.initialPose = initialPose;
+        this.goalPoses = goalPoses;
+        this.safetyDistance = safetyDistance;
         this.footprint = makeFootprint(length, width);
 
         AbstractVehicle existingVehicle = VehiclesHashMap.getVehicle(ID);
@@ -61,11 +70,11 @@ public abstract class AbstractVehicle {
         VehiclesHashMap.getList().put(this.ID, this);
         vehicleNumber++;
     }
-
-    public AbstractVehicle(int priorityID, Color color, double maxVelocity, double maxAcceleration, double length, double width) {
-        this(vehicleNumber, priorityID, color, maxVelocity, maxAcceleration, length, width);
+    public AbstractVehicle(int priorityID, Color color, double maxVelocity, double maxAcceleration, double length,
+                           double width, Pose initialPose, Pose[] goalPoses, double safetyDistance) {
+        this(vehicleNumber, priorityID, color, maxVelocity, maxAcceleration, length, width, initialPose,
+                goalPoses, safetyDistance);
     }
-
     public static Coordinate[] makeFootprint(double length, double width) {
         return new Coordinate[]{               // FIXME Currently allows four sided vehicles only
                 new Coordinate(-length, width),        //back left
@@ -91,7 +100,8 @@ public abstract class AbstractVehicle {
     }
 
     /**
-     * Generates the plan for the robot given the initial pose, goal poses, map, and whether the path should be reversed.
+     * Generates the plan for the robot given the initial pose, goal poses, map, and whether the path
+     * should be reversed.
      * The subclasses should provide the concrete implementation for this method.
      *
      * @param initial     The initial pose of the robot.
@@ -170,4 +180,29 @@ public abstract class AbstractVehicle {
     public String getType() {
         return type;
     }
+
+    public double getSafetyDistance() {
+        return safetyDistance;
+    }
+
+    public void setSafetyDistance(double safetyDistance) {
+        this.safetyDistance = safetyDistance;
+    }
+
+    public Pose getInitialPose() {
+        return initialPose;
+    }
+
+    public void setInitialPose(Pose initialPose) {
+        this.initialPose = initialPose;
+    }
+
+    public Pose[] getGoalPoses() {
+        return goalPoses;
+    }
+
+    public void setGoalPoses(Pose[] goalPoses) {
+        this.goalPoses = goalPoses;
+    }
+
 }

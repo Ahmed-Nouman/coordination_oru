@@ -1,7 +1,6 @@
 package se.oru.coordination.coordination_oru.gui;
 
 import javax.swing.*;
-import javax.swing.border.EmptyBorder;
 import java.awt.*;
 
 public class DisplayLine {

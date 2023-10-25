@@ -1,8 +1,8 @@
 package se.oru.coordination.coordination_oru.gui_oru;
+
+import javax.swing.*;
 import java.util.Timer;
 import java.util.TimerTask;
-import javax.swing.JButton;
-import javax.swing.JLabel;
 
 public class T_timer {
     public static long updataTime = 1;

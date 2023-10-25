@@ -26,7 +26,6 @@ public class RobotJson {
     
     RobotJson()
     {
-        ;
     }
 
     void setCountOfSize(int n)

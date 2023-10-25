@@ -5,18 +5,14 @@
 package se.oru.coordination.coordination_oru.gui_oru;
 
 import addPath.ImageWindow;
-import javax.swing.JFileChooser;
-import java.io.File;
+import org.json.simple.parser.ParseException;
 
-import java.awt.Color;
-import java.awt.Image;
+import javax.swing.*;
+import java.awt.*;
+import java.io.File;
 import java.io.IOException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.swing.DefaultListModel;
-import javax.swing.ImageIcon;
-import javax.swing.JOptionPane;
-import org.json.simple.parser.ParseException;
 
 
 
@@ -991,7 +987,7 @@ public class interface1 extends javax.swing.JFrame {
         
         // ######################## New Robot #########################
         
-        if(isNewRobot==true) // click newRobot
+        if(isNewRobot) // click newRobot
         {
             btn_newRobot.setText("Cancel");
             this.textBox_name.setText("newRobot");
@@ -1091,7 +1087,7 @@ public class interface1 extends javax.swing.JFrame {
         interfaceEnable(true);
         this.btn_Test.setEnabled(true);
         this.btn_run.setEnabled(true);
-        if(isNewRobot==false)
+        if(!isNewRobot)
         {
             this.listRobot1.setSelectedIndex(this.listRobot1.getModel().getSize()-1);
             isNewRobot = true;
@@ -1262,7 +1258,7 @@ public class interface1 extends javax.swing.JFrame {
         }
         else
         {
-            GuiTool.pkg.experimentIteration = (long) 1;
+            GuiTool.pkg.experimentIteration = 1;
         }
         GuiTool.btn_save(fileName);
     }//GEN-LAST:event_btn_Save1ActionPerformed
@@ -1397,7 +1393,7 @@ public class interface1 extends javax.swing.JFrame {
     /**
      * @param args the command line arguments
      */
-    public static void main(String args[]) {
+    public static void main(String[] args) {
         /* Set the Nimbus look and feel */
         //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
         /* If Nimbus (introduced in Java SE 6) is not available, stay with the default look and feel.

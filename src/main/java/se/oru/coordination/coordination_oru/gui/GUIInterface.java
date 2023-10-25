@@ -1,17 +1,17 @@
 package se.oru.coordination.coordination_oru.gui;
-import se.oru.coordination.coordination_oru.Mission;
-import se.oru.coordination.coordination_oru.gui.ProjectData.*;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
 import com.google.gson.stream.JsonReader;
+import org.metacsp.multi.spatioTemporal.paths.Pose;
+import se.oru.coordination.coordination_oru.Mission;
+import se.oru.coordination.coordination_oru.gui.ProjectData.Vehicle;
 import se.oru.coordination.coordination_oru.simulation2D.TrajectoryEnvelopeCoordinatorSimulation;
 import se.oru.coordination.coordination_oru.util.BrowserVisualization;
 import se.oru.coordination.coordination_oru.util.Heuristics;
 import se.oru.coordination.coordination_oru.util.Missions;
 import se.oru.coordination.coordination_oru.vehicles.AutonomousVehicle;
-import org.metacsp.multi.spatioTemporal.paths.Pose;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;
@@ -23,7 +23,6 @@ import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
 import java.awt.image.BufferedImage;
 import java.io.*;
-import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -336,7 +335,8 @@ public class GUIInterface extends javax.swing.JFrame {
             String vehicleName = entry.getKey();
             Vehicle vehicleData = entry.getValue();
             vehiclesArray[i] = new AutonomousVehicle(1, Color.YELLOW, vehicleData.getMaxVelocity(), //FIXME color AND Poses Strings
-                    vehicleData.getMaxAcceleration(), 0.9, 0.5);
+                    vehicleData.getMaxAcceleration(), 0.9, 0.5, drawPoint12, new Pose[] {orePass3},
+                    0);
             i++;
         }
 
