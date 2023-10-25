@@ -1,4 +1,4 @@
-1/*
+/*
  * coordination_oru_ros - Online coordination for multiple robots
  *
  * Copyright (C) 2017 Federico Pecora
@@ -18,6 +18,12 @@
  *
  */
 
+plugins {
+  id 'java'
+  id 'application'
+  id 'org.openjfx.javafxplugin' version '0.0.8'
+}
+
 apply plugin: 'java'
 apply plugin: 'eclipse'
 
@@ -28,7 +34,7 @@ apply plugin: 'maven'
 // your package is used as a binary.
 apply plugin: 'application'
 // The main class that will be executed when you do 'gradle run'
-mainClassName = 'se.oru.coordination.coordination_oru.demo.DemoLauncher'
+mainClassName = 'se.oru.coordination.coordination_oru.gui_JavaFX.GUI'
 
 repositories {
   mavenLocal()
@@ -44,6 +50,11 @@ configurations.all {
 version = '0.6.3'//'0.0.0-SNAPSHOT'
 // Call your group something meaninful, e.g., '<inverse-url>.<project-name>'
 group = 'se.oru.coordination'
+
+javafx{
+    modules = ['javafx.controls', 'javafx.fxml', 'javafx.media', 'javafx.graphics']
+    version = '17'
+}
 
 dependencies {
 
@@ -82,6 +93,14 @@ dependencies {
   
   implementation fileTree(dir: 'lib', include: '**/*.jar')
   implementation 'com.googlecode.json-simple:json-simple:1.1.1'
+  implementation 'org.openjfx:javafx:17'
+  implementation 'org.openjfx:javafx-base:17'
+  implementation 'org.openjfx:javafx-graphics:17'
+  implementation 'org.openjfx:javafx-controls:17'
+  implementation 'org.openjfx:javafx-fxml:17'
+  implementation 'org.openjfx:javafx-swing:17'
+  implementation 'org.openjfx:javafx-media:17'
+  implementation 'org.openjfx:javafx-web:17'
 
 }
 
