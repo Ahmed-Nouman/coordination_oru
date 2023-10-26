@@ -87,13 +87,36 @@ public class Heuristics {
     public Comparator<RobotAtCriticalSection> lookAheadRobotsFirst() {
         heuristicName = "LOOK_AHEAD_ROBOTS_FIRST";
         return (o1, o2) -> {
-            boolean isO1LookAhead = VehiclesHashMap.getVehicle(o1.getRobotReport().getRobotID()).getClass().getSimpleName().equals("LookAheadRobot");
-            boolean isO2LookAhead = VehiclesHashMap.getVehicle(o2.getRobotReport().getRobotID()).getClass().getSimpleName().equals("LookAheadRobot");
+            boolean isO1LookAhead = VehiclesHashMap.getVehicle(o1.getRobotReport().getRobotID()).getClass().getSimpleName().equals("LookAheadVehicle");
+            boolean isO2LookAhead = VehiclesHashMap.getVehicle(o2.getRobotReport().getRobotID()).getClass().getSimpleName().equals("LookAheadVehicle");
 
             if (isO1LookAhead && !isO2LookAhead) {
                 return -1; // o1 is a look-ahead robot and o2 is not, so o1 should go first
             } else if (!isO1LookAhead && isO2LookAhead) {
                 return 1; // o2 is a look-ahead robot and o1 is not, so o2 should go first
+            } else {
+                return 0; // both or neither are look-ahead robots, so they are considered equal
+            }
+        };
+    }
+
+    /**
+     * Returns a comparator for determining the order based on whether the robot is an autonomous robot.
+     * Autonomous robots are given priority over other robots.
+     * If two robots are both look-ahead or both not look-ahead, they are considered equal.
+     *
+     * @return The comparator for autonomous heuristic.
+     */
+    public Comparator<RobotAtCriticalSection> autonomousFirst() {
+        heuristicName = "AUTONOMOUS_FIRST";
+        return (o1, o2) -> {
+            boolean isO1Autonomous = VehiclesHashMap.getVehicle(o1.getRobotReport().getRobotID()).getClass().getSimpleName().equals("Autonomous");
+            boolean isO2Autonomous = VehiclesHashMap.getVehicle(o2.getRobotReport().getRobotID()).getClass().getSimpleName().equals("Autonomous");
+
+            if (isO1Autonomous && !isO2Autonomous) {
+                return -1; // o1 is an autonomous robot and o2 is not, so o1 should go first
+            } else if (!isO1Autonomous && isO2Autonomous) {
+                return 1; // o2 is an autonomous robot and o1 is not, so o2 should go first
             } else {
                 return 0; // both or neither are look-ahead robots, so they are considered equal
             }

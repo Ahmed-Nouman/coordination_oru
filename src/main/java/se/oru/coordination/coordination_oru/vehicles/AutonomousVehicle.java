@@ -6,6 +6,10 @@ import org.metacsp.multi.spatioTemporal.paths.PoseSteering;
 import se.oru.coordination.coordination_oru.motionplanning.ompl.ReedsSheppCarPlanner;
 
 import java.awt.*;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.AbstractMap;
+import java.util.ArrayList;
 
 public class AutonomousVehicle extends AbstractVehicle {
     public static ReedsSheppCarPlanner.PLANNING_ALGORITHM planningAlgorithm = ReedsSheppCarPlanner.PLANNING_ALGORITHM.RRTConnect;
@@ -105,6 +109,105 @@ public class AutonomousVehicle extends AbstractVehicle {
         var pathFwd = rsp.getPath();
         var path = inversePath ? (PoseSteering[]) ArrayUtils.addAll(pathFwd, rsp.getPathInv()) : pathFwd;
         VehiclesHashMap.getVehicle(getID()).setPath(path);
+    }
+
+    /**
+     * Generates a path for the robot using the provided ReedsSheppCarPlanner instance.
+     *
+     * @param rsp         The ReedsSheppCarPlanner instance used for planning.
+     * @param initial     The initial pose of the robot.
+     * @param goal       The goal pose of the robot.
+     */
+    private PoseSteering[] generatePath(ReedsSheppCarPlanner rsp, Pose initial, Pose goal) {
+        rsp.setStart(initial);
+        rsp.setGoals(goal);
+        rsp.plan();
+        var path = rsp.getPath();
+
+        if (rsp.getPath() == null) {
+            throw new Error("No path found.");
+        }
+
+        return path;
+    }
+
+    /**
+     * Represents a segment plan containing a path plan and waiting time.
+     */
+    private static class SegmentPlan {
+        public PoseSteering[] path;
+        public int waitingTime;
+
+        public SegmentPlan(PoseSteering[] path, int waitingTime) {
+            this.path = path;
+            this.waitingTime = waitingTime;
+        }
+    }
+
+    /**
+     * Plans paths between segments of poses defined by goalPoses.
+     *
+     * @param initialPose  The initial pose.
+     * @param goalPoses    The array of goal poses.
+     * @param waitingTime  Waiting time at each goal in seconds.
+     * @return A HashMap containing planned paths and waiting times for path segments.
+     */
+    public Map<Integer, SegmentPlan> getPlanSegments(Pose initialPose, Pose[] goalPoses, int waitingTime, String map,
+                                                     ReedsSheppCarPlanner.PLANNING_ALGORITHM planningAlgorithm,
+                                                     double radius, double planningTime, double turningRadius,
+                                                     double distanceBetweenPathPoints) {
+        Map<Integer, SegmentPlan> planSegments = new HashMap<>();
+        var rsp = configureReedsSheppCarPlanner(planningAlgorithm, map, radius, planningTime, turningRadius,
+                distanceBetweenPathPoints);
+
+        Pose start = initialPose;
+        for (int i = 0; i < goalPoses.length; i++) {
+            Pose goal = goalPoses[i];
+
+            // We use the existing generatePath method to obtain the plan for the segment
+            PoseSteering[] segmentPath = generatePath(rsp, start, goal);
+
+            // Storing the segment plan in the map
+            planSegments.put(i, new SegmentPlan(segmentPath, waitingTime));
+
+            // Updating start for next segment
+            start = goal;
+        }
+
+        return planSegments;
+    }
+
+    /**
+     * Plans paths between segments of poses defined by goalPoses.
+     *
+     * @param initialPose  The initial pose.
+     * @param goalPoses    The array of goal poses.
+     * @param waitingTimesArray Waiting time at each goal in seconds.
+     * @return A HashMap containing planned paths and waiting times for path segments.
+     */
+    public Map<Integer, AbstractMap.SimpleEntry<PoseSteering[], Integer>> getPlanSegments(Pose initialPose, Pose[] goalPoses, int[] waitingTimesArray, String map) {
+        if (goalPoses.length != waitingTimesArray.length) {
+            throw new IllegalArgumentException("The length of goalPoses must be equal to the length of waitingTimes");
+        }
+
+        Map<Integer, AbstractMap.SimpleEntry<PoseSteering[], Integer>> planSegments = new HashMap<>();
+        var rsp = configureReedsSheppCarPlanner(planningAlgorithm, map, 0.1, 60, 0.01, 0.1);
+
+        Pose start = initialPose;
+        for (int i = 0; i < goalPoses.length; i++) {
+            Pose goal = goalPoses[i];
+
+            // We use the existing generatePath method to obtain the plan for the segment
+            PoseSteering[] segmentPath = generatePath(rsp, start, goal);
+
+            // Storing the segment plan in the map
+            planSegments.put(i, new AbstractMap.SimpleEntry<>(segmentPath, waitingTimesArray[i]));
+
+            // Updating start for next segment
+            start = goal;
+        }
+
+        return planSegments;
     }
 
     private static String poseToString(Pose pose) {

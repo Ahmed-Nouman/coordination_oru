@@ -2,6 +2,7 @@ package se.oru.coordination.coordination_oru.scenarios;
 
 import org.metacsp.multi.spatioTemporal.paths.Pose;
 import se.oru.coordination.coordination_oru.Mission;
+import se.oru.coordination.coordination_oru.motionplanning.ompl.ReedsSheppCarPlanner;
 import se.oru.coordination.coordination_oru.simulation2D.TrajectoryEnvelopeCoordinatorSimulation;
 import se.oru.coordination.coordination_oru.util.BrowserVisualization;
 import se.oru.coordination.coordination_oru.util.Missions;
@@ -18,11 +19,14 @@ public class TwoAutonomousRobots {
         final Pose orePass = new Pose(54.35, 11.25, -Math.PI / 2);
 
         var autonomousRobot1 = new AutonomousVehicle(drawPoint21, new Pose[] {orePass});
-        var autonomousRobot2 = new AutonomousVehicle(mainTunnelLeft, new Pose[] {mainTunnelRight});
-        autonomousRobot1.getPlan(autonomousRobot1.getInitialPose(), autonomousRobot1.getGoalPoses(),
-                YAML_FILE, true);
-        autonomousRobot2.getPlan(autonomousRobot2.getInitialPose(), autonomousRobot2.getGoalPoses(), YAML_FILE,
+        var autonomousRobot2 = new AutonomousVehicle(mainTunnelLeft, new Pose[] {mainTunnelRight, mainTunnelLeft});
+        int[] waitingTimes = {1000, 1500};
+        autonomousRobot1.getPlan(autonomousRobot1.getInitialPose(), autonomousRobot1.getGoalPoses(), YAML_FILE,
                 true);
+        // TODO save plan segments inside the class
+        // TODO update the mission enqueue by plan segments
+        var planSegments = autonomousRobot2.getPlanSegments(autonomousRobot2.getInitialPose(),
+                autonomousRobot2.getGoalPoses(), waitingTimes, YAML_FILE);
 
         // Instantiate a trajectory envelope coordinator.
         var tec = new TrajectoryEnvelopeCoordinatorSimulation(2000, 1000,
@@ -51,8 +55,9 @@ public class TwoAutonomousRobots {
         viz.setInitialTransform(9, 45, -3.5);
         tec.setVisualization(viz);
 
+
         var m1 = new Mission(autonomousRobot1.getID(), autonomousRobot1.getPath());
-        var m2 = new Mission(autonomousRobot2.getID(), autonomousRobot2.getPath());
+        var m2 = new Mission(autonomousRobot2.getID(), planSegments.get(0).getKey());
 
         Missions.enqueueMission(m1);
         Missions.enqueueMission(m2);
