@@ -37,7 +37,7 @@ import java.util.zip.ZipOutputStream;
 
 /**
  * This class collects utility methods for storing {@link Mission}s, regulating their dispatch, maintaining locations
- * and paths (i.e., a roadmap), finding shortest paths through the roadmap, and extracting information from YAML files.
+ * and paths (i.e., a roadmap), finding the shortest paths through the roadmap, and extracting information from YAML files.
  * 
  * @author fpa
  *
@@ -1423,7 +1423,17 @@ public class Missions {
 		Mission followerMission = new Mission(followerID, followerPath);
 		return followerMission;
 	}
-	
+
+	public static void enqueueMissionsFromMap(AutonomousVehicle vehicle) {
+		Map<Integer, AbstractMap.SimpleEntry<PoseSteering[], Integer>> planSegmentsMap = vehicle.getPlanSegmentsMap();
+
+		for (Map.Entry<Integer, AbstractMap.SimpleEntry<PoseSteering[], Integer>> entry : planSegmentsMap.entrySet()) {
+			var mission = new Mission(vehicle.getID(), entry.getValue().getKey());
+			Missions.enqueueMission(mission);
+		}
+	}
+
+
 	public static Set<String> getAllGraphVertices() {
 		return graph.vertexSet();
 	}

@@ -6,13 +6,14 @@ import org.metacsp.multi.spatioTemporal.paths.PoseSteering;
 import se.oru.coordination.coordination_oru.motionplanning.ompl.ReedsSheppCarPlanner;
 
 import java.awt.*;
+import java.util.AbstractMap;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.AbstractMap;
-import java.util.ArrayList;
 
 public class AutonomousVehicle extends AbstractVehicle {
     public static ReedsSheppCarPlanner.PLANNING_ALGORITHM planningAlgorithm = ReedsSheppCarPlanner.PLANNING_ALGORITHM.RRTConnect;
+
+    private Map<Integer, AbstractMap.SimpleEntry<PoseSteering[], Integer>> planSegmentsMap;
 
     public AutonomousVehicle(int id, int priorityID, Color color, double maxVelocity, double maxAcceleration,
                              double length, double width, Pose initialPose, Pose[] goalPoses, double safetyDistance) {
@@ -135,15 +136,15 @@ public class AutonomousVehicle extends AbstractVehicle {
      * Represents a segment plan containing a path plan and waiting time.
      */
     private static class SegmentPlan {
+
         public PoseSteering[] path;
         public int waitingTime;
-
         public SegmentPlan(PoseSteering[] path, int waitingTime) {
             this.path = path;
             this.waitingTime = waitingTime;
         }
-    }
 
+    }
     /**
      * Plans paths between segments of poses defined by goalPoses.
      *
@@ -182,12 +183,11 @@ public class AutonomousVehicle extends AbstractVehicle {
      *
      * @param initialPose  The initial pose.
      * @param goalPoses    The array of goal poses.
-     * @param waitingTimesArray Waiting time at each goal in seconds.
-     * @return A HashMap containing planned paths and waiting times for path segments.
+     * @param waitingTimesArray Waiting time at each goal in seconds except for the last goal pose.
      */
-    public Map<Integer, AbstractMap.SimpleEntry<PoseSteering[], Integer>> getPlanSegments(Pose initialPose, Pose[] goalPoses, int[] waitingTimesArray, String map) {
-        if (goalPoses.length != waitingTimesArray.length) {
-            throw new IllegalArgumentException("The length of goalPoses must be equal to the length of waitingTimes");
+    public void getPlanSegments(Pose initialPose, Pose[] goalPoses, int[] waitingTimesArray, String map) {
+        if (goalPoses.length - 1 != waitingTimesArray.length) {
+            throw new IllegalArgumentException("The length of waitingTimesArray must be one less than the length of goalPoses");
         }
 
         Map<Integer, AbstractMap.SimpleEntry<PoseSteering[], Integer>> planSegments = new HashMap<>();
@@ -201,16 +201,21 @@ public class AutonomousVehicle extends AbstractVehicle {
             PoseSteering[] segmentPath = generatePath(rsp, start, goal);
 
             // Storing the segment plan in the map
-            planSegments.put(i, new AbstractMap.SimpleEntry<>(segmentPath, waitingTimesArray[i]));
+            int waitingTime = (i < waitingTimesArray.length) ? waitingTimesArray[i] : 0;
+            planSegments.put(i, new AbstractMap.SimpleEntry<>(segmentPath, waitingTime));
 
             // Updating start for next segment
             start = goal;
         }
-
-        return planSegments;
+        planSegmentsMap = planSegments;
     }
+
 
     private static String poseToString(Pose pose) {
         return round(pose.getX()) + "," + round(pose.getY()) + "," + round(pose.getTheta());
+    }
+
+    public Map<Integer, AbstractMap.SimpleEntry<PoseSteering[], Integer>> getPlanSegmentsMap() {
+        return planSegmentsMap;
     }
 }

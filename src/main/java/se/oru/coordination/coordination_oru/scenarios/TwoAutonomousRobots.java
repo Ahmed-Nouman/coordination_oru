@@ -2,7 +2,6 @@ package se.oru.coordination.coordination_oru.scenarios;
 
 import org.metacsp.multi.spatioTemporal.paths.Pose;
 import se.oru.coordination.coordination_oru.Mission;
-import se.oru.coordination.coordination_oru.motionplanning.ompl.ReedsSheppCarPlanner;
 import se.oru.coordination.coordination_oru.simulation2D.TrajectoryEnvelopeCoordinatorSimulation;
 import se.oru.coordination.coordination_oru.util.BrowserVisualization;
 import se.oru.coordination.coordination_oru.util.Missions;
@@ -20,12 +19,11 @@ public class TwoAutonomousRobots {
 
         var autonomousRobot1 = new AutonomousVehicle(drawPoint21, new Pose[] {orePass});
         var autonomousRobot2 = new AutonomousVehicle(mainTunnelLeft, new Pose[] {mainTunnelRight, mainTunnelLeft});
-        int[] waitingTimes = {1000, 1500};
+        int[] waitingTimes = {100};
         autonomousRobot1.getPlan(autonomousRobot1.getInitialPose(), autonomousRobot1.getGoalPoses(), YAML_FILE,
                 true);
-        // TODO save plan segments inside the class
-        // TODO update the mission enqueue by plan segments
-        var planSegments = autonomousRobot2.getPlanSegments(autonomousRobot2.getInitialPose(),
+        // TODO Include time delays
+        autonomousRobot2.getPlanSegments(autonomousRobot2.getInitialPose(),
                 autonomousRobot2.getGoalPoses(), waitingTimes, YAML_FILE);
 
         // Instantiate a trajectory envelope coordinator.
@@ -56,12 +54,11 @@ public class TwoAutonomousRobots {
         tec.setVisualization(viz);
 
 
-        var m1 = new Mission(autonomousRobot1.getID(), autonomousRobot1.getPath());
-        var m2 = new Mission(autonomousRobot2.getID(), planSegments.get(0).getKey());
-
-        Missions.enqueueMission(m1);
-        Missions.enqueueMission(m2);
         Missions.setMap(YAML_FILE);
+        var m1 = new Mission(autonomousRobot1.getID(), autonomousRobot1.getPath());
+        Missions.enqueueMission(m1);
+
+        Missions.enqueueMissionsFromMap(autonomousRobot2);
 
         Missions.startMissionDispatchers(tec, 1, 2);
     }
