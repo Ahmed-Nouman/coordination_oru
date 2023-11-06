@@ -44,7 +44,7 @@ public abstract class AbstractTrajectoryEnvelopeCoordinator {
 
 	public static String TITLE = "coordination_oru - Robot-agnostic online coordination for multiple robots";
 	public static String COPYRIGHT = "Copyright \u00a9 2017-" + Calendar.getInstance().get(Calendar.YEAR) + " Federico Pecora";
-	public static String[] CONTRIBUTORS = {"Anna Mannucci", "Chittaranjan Swaminathan", "Paolo Forte"};
+	public static String[] CONTRIBUTORS = {"Anna Mannucci", "Chittaranjan Swaminathan", "Paolo Forte", "Ahmed Nouman", "Olga Mironenko"};
 
 	//null -> public (GPL3) license
 	public static String LICENSE = null;

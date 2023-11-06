@@ -20,8 +20,9 @@ public abstract class AbstractVehicle {
     private final int ID;
     private final int priorityID;
     private final String type = this.getClass().getSimpleName();
-    private final double maxVelocity;
-    private final double maxAcceleration;
+    private double maxVelocity;
+    private double maxAcceleration;
+    private int trackingPeriod;
     private final double length;
     private final double width;
     private final Coordinate[] footprint;
@@ -41,6 +42,7 @@ public abstract class AbstractVehicle {
      * @param color           The color of the robot when stationary.
      * @param maxVelocity     The maximum velocity of the robot.
      * @param maxAcceleration The maximum acceleration of the robot.
+     * @param trackingPeriod  The tracking period of the robot.
      * @param length          The length of the robot.
      * @param width           The length of the robot.
      * @param initialPose     The initial Pose of the robot.
@@ -49,12 +51,13 @@ public abstract class AbstractVehicle {
      * @throws IllegalStateException if a robot with the same ID already exists.
      */
     public AbstractVehicle(int ID, int priorityID, Color color, double maxVelocity, double maxAcceleration,
-                           double length, double width, Pose initialPose, Pose[] goalPoses, double safetyDistance) {
+                           int trackingPeriod, double length, double width, Pose initialPose, Pose[] goalPoses, double safetyDistance) {
         this.ID = ID;
         this.priorityID = priorityID;
         this.color = color;
         this.maxVelocity = maxVelocity;
         this.maxAcceleration = maxAcceleration;
+        this.trackingPeriod = trackingPeriod;
         this.length = length;
         this.width = width;
         this.initialPose = initialPose;
@@ -70,9 +73,9 @@ public abstract class AbstractVehicle {
         VehiclesHashMap.getList().put(this.ID, this);
         vehicleNumber++;
     }
-    public AbstractVehicle(int priorityID, Color color, double maxVelocity, double maxAcceleration, double length,
-                           double width, Pose initialPose, Pose[] goalPoses, double safetyDistance) {
-        this(vehicleNumber, priorityID, color, maxVelocity, maxAcceleration, length, width, initialPose,
+    public AbstractVehicle(int priorityID, Color color, double maxVelocity, double maxAcceleration, int trackingPeriod,
+                           double length, double width, Pose initialPose, Pose[] goalPoses, double safetyDistance) {
+        this(vehicleNumber, priorityID, color, maxVelocity, maxAcceleration, trackingPeriod, length, width, initialPose,
                 goalPoses, safetyDistance);
     }
     public static Coordinate[] makeFootprint(double length, double width) {
@@ -83,7 +86,6 @@ public abstract class AbstractVehicle {
                 new Coordinate(-length, -width)        //front left
         };
     }
-
     @Override
     public String toString() {
         return "AbstractVehicle{" +
@@ -93,6 +95,7 @@ public abstract class AbstractVehicle {
                 ", color=" + color +
                 ", maxVelocity=" + maxVelocity +
                 ", maxAcceleration=" + maxAcceleration +
+                ", trackingPeriod=" + trackingPeriod +
                 ", xLength=" + length +
                 ", yLength=" + width +
                 ", footprint=" + Arrays.toString(footprint) +
@@ -169,12 +172,28 @@ public abstract class AbstractVehicle {
         return width;
     }
 
+    public void setMaxVelocity(double maxVelocity) {
+        this.maxVelocity = maxVelocity;
+    }
+
     public double getMaxVelocity() {
         return maxVelocity;
     }
 
+    public void setMaxAcceleration(double maxAcceleration) {
+        this.maxAcceleration = maxAcceleration;
+    }
+
     public double getMaxAcceleration() {
         return maxAcceleration;
+    }
+
+    public void setTrackingPeriod(int trackingPeriod) {
+        this.trackingPeriod = trackingPeriod;
+    }
+
+    public Integer getTrackingPeriod() {
+        return trackingPeriod;
     }
 
     public String getType() {
@@ -204,5 +223,4 @@ public abstract class AbstractVehicle {
     public void setGoalPoses(Pose[] goalPoses) {
         this.goalPoses = goalPoses;
     }
-
 }

@@ -6,6 +6,7 @@ import org.metacsp.multi.spatioTemporal.paths.Pose;
 import org.metacsp.multi.spatioTemporal.paths.PoseSteering;
 import org.metacsp.multi.spatioTemporal.paths.TrajectoryEnvelope;
 import se.oru.coordination.coordination_oru.*;
+import se.oru.coordination.coordination_oru.vehicles.VehiclesHashMap;
 
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -18,17 +19,15 @@ public class TrajectoryEnvelopeCoordinatorSimulation extends TrajectoryEnvelopeC
 	public static TrajectoryEnvelopeCoordinatorSimulation tec = null;
 	protected static final long START_TIME = Calendar.getInstance().getTimeInMillis();
 	protected boolean useInternalCPs = true;
-	
 	protected boolean checkCollisions = false;
 	protected ArrayList<CollisionEvent> collisionsList = new ArrayList<CollisionEvent>();
 	protected Thread collisionThread = null;
-	
-	protected AtomicInteger totalMsgsLost = new AtomicInteger(0);
+	protected AtomicInteger totalMessagesLost = new AtomicInteger(0);
 	protected AtomicInteger totalPacketsLost = new AtomicInteger(0);
-	
 	protected double DEFAULT_MAX_VELOCITY;
 	protected double DEFAULT_MAX_ACCELERATION;
-	
+	protected int DEFAULT_ROBOT_TRACKING_PERIOD;
+
 	/**
 	 * The default footprint used for robots if none is specified.
 	 * NOTE: coordinates in footprints must be given in CCW or CW order.
@@ -44,32 +43,10 @@ public class TrajectoryEnvelopeCoordinatorSimulation extends TrajectoryEnvelopeC
 	 * Dimension of the default footprint.
 	 */
 	public static double MAX_DEFAULT_FOOTPRINT_DIMENSION = 4.4;
-	
-	/**
-	 * Enable the collision checking thread.
-	 * @param enable <code>true</code>  if the thread for checking collisions should be enabled.
-	 */
-	public void setCheckCollisions(boolean enable) {
-		this.checkCollisions = enable;
-	}
-		
-	/** 
-	 * Just for statistic purposes (simulation).
-	 */
-	public void incrementLostMsgsCounter() {
-		this.totalMsgsLost.incrementAndGet();
-	}
-	
-	/** 
-	 * Just for statistic purposes (simulation).
-	 */
-	public void incrementLostPacketsCounter() {
-		this.totalPacketsLost.incrementAndGet();
-	}
-	
+
 	/**
 	 * Create a new {@link TrajectoryEnvelopeCoordinatorSimulation} with given parameters.
-	 * @param CONTROL_PERIOD The control period of the coordinator (e.g., 1000 msec)
+	 * @param CONTROL_PERIOD The control period of the coordinator (e.g., 1000 milliseconds)
 	 * @param TEMPORAL_RESOLUTION The temporal resolution at which the control period is specified (e.g., 1000)
 	 * @param MAX_VELOCITY The maximum speed of a robot (used to appropriately instantiate the {@link TrajectoryEnvelopeTrackerRK4} instances).
 	 * @param MAX_ACCELERATION The maximum acceleration/deceleration of a robot (used to appropriately instantiate the {@link TrajectoryEnvelopeTrackerRK4} instances).
@@ -82,7 +59,7 @@ public class TrajectoryEnvelopeCoordinatorSimulation extends TrajectoryEnvelopeC
 		this.DEFAULT_ROBOT_TRACKING_PERIOD = DEFAULT_ROBOT_TRACKING_PERIOD;
 		tec = this;
 	}
-	
+
 	/**
 	 * Create a new {@link TrajectoryEnvelopeCoordinatorSimulation} with the following default values:
 	 * <ul>
@@ -108,7 +85,7 @@ public class TrajectoryEnvelopeCoordinatorSimulation extends TrajectoryEnvelopeC
 	public TrajectoryEnvelopeCoordinatorSimulation(double MAX_VELOCITY, double MAX_ACCELERATION) {
 		this(1000, 1000, MAX_VELOCITY, MAX_ACCELERATION, 30);
 	}
-	
+
 	/**
 	 * Create a new {@link TrajectoryEnvelopeCoordinatorSimulation} with the following default values:
 	 * <ul>
@@ -121,7 +98,29 @@ public class TrajectoryEnvelopeCoordinatorSimulation extends TrajectoryEnvelopeC
 	 * </ul>
 	 */
 	public TrajectoryEnvelopeCoordinatorSimulation() {
-		this(1000, 1000, 10.0, 1.0, 30);
+		this(1000, 1000, 5.0, 1.0, 30);
+	}
+
+	/**
+	 * Enable the collision checking thread.
+	 * @param enable <code>true</code>  if the thread for checking collisions should be enabled.
+	 */
+	public void setCheckCollisions(boolean enable) {
+		this.checkCollisions = enable;
+	}
+
+	/**
+	 * Just for statistic purposes (simulation).
+	 */
+	public void incrementLostMessagesCounter() {
+		this.totalMessagesLost.incrementAndGet();
+	}
+
+	/**
+	 * Just for statistic purposes (simulation).
+	 */
+	public void incrementLostPacketsCounter() {
+		this.totalPacketsLost.incrementAndGet();
 	}
 
 	private ArrayList<Integer> computeStoppingPoints(PoseSteering[] poses) {
@@ -164,7 +163,6 @@ public class TrajectoryEnvelopeCoordinatorSimulation extends TrajectoryEnvelopeC
 		return true;
 	}
 
-
 	/**
 	 * Enable (default) or disable the use of internal critical points in the {@link TrajectoryEnvelopeTrackerRK4} trackers.
 	 * @param value <code>true</code> if these critical points should be used to slow down, <code>false</code> otherwise.
@@ -180,6 +178,7 @@ public class TrajectoryEnvelopeCoordinatorSimulation extends TrajectoryEnvelopeC
 	 */
 	@Override
 	public Double getRobotMaxVelocity(int robotID) {
+		robotMaxVelocity = VehiclesHashMap.getVehicleMaxVelocities();
 		if (this.robotMaxVelocity.containsKey(robotID)) 
 			return this.robotMaxVelocity.get(robotID);
 		return DEFAULT_MAX_VELOCITY;
@@ -192,9 +191,23 @@ public class TrajectoryEnvelopeCoordinatorSimulation extends TrajectoryEnvelopeC
 	 */
 	@Override
 	public Double getRobotMaxAcceleration(int robotID) {
+		robotMaxAcceleration = VehiclesHashMap.getVehicleMaxAccelerations();
 		if (this.robotMaxAcceleration.containsKey(robotID)) 
 			return this.robotMaxAcceleration.get(robotID);
 		return DEFAULT_MAX_ACCELERATION;
+	}
+
+	/**
+	 * Get the tracking period of a given robot (milliseconds).
+	 * @param robotID The ID of the robot.
+	 * @return The tracking period of the robot (or the default value if not specified).
+	 */
+	@Override
+	public Integer getRobotTrackingPeriodInMillis(int robotID) {
+		robotTrackingPeriodInMillis = VehiclesHashMap.getVehicleTrackingPeriod();
+		if (this.robotTrackingPeriodInMillis.containsKey(robotID))
+			return this.robotTrackingPeriodInMillis.get(robotID);
+		return DEFAULT_ROBOT_TRACKING_PERIOD;
 	}
 	
 	@Override
@@ -227,8 +240,7 @@ public class TrajectoryEnvelopeCoordinatorSimulation extends TrajectoryEnvelopeC
 	 * @return A {@link Geometry} representing the default footprint of robots.
 	 */
 	public Geometry getDefaultFootprintPolygon() {
-		Geometry fpGeom = TrajectoryEnvelope.createFootprintPolygon(DEFAULT_FOOTPRINT);
-		return fpGeom;
+        return TrajectoryEnvelope.createFootprintPolygon(DEFAULT_FOOTPRINT);
 	}
 	
 	/**
@@ -326,7 +338,7 @@ public class TrajectoryEnvelopeCoordinatorSimulation extends TrajectoryEnvelopeC
 			
 		}
 		ret.add(CONNECTOR_BRANCH + 			"Obsolete crit sect .. " + criticalSectionCounter.get() + ".");
-		ret.add(CONNECTOR_BRANCH + 			"Messages sent ....... " + totalMsgsSent.get() + ", lost: " + totalMsgsLost.get() + ", retransmitted: " + totalMsgsReTx.get() + ". Packets lost: " + totalPacketsLost.get() + ", number of replicas: " + numberOfReplicas + ".");
+		ret.add(CONNECTOR_BRANCH + 			"Messages sent ....... " + totalMsgsSent.get() + ", lost: " + totalMessagesLost.get() + ", retransmitted: " + totalMsgsReTx.get() + ". Packets lost: " + totalPacketsLost.get() + ", number of replicas: " + numberOfReplicas + ".");
 		ret.add(CONNECTOR_BRANCH + 			"Unalive states ...... " + nonliveStatesDetected.get() + ", avoided: " + nonliveStatesAvoided.get() + ", revised according to heuristic: " + currentOrdersHeurusticallyDecided.get() + ".");
 		ret.add(CONNECTOR_LEAF + 			"Re-planned paths .... " + replanningTrialsCounter.get() + ", successful: " + successfulReplanningTrialsCounter.get() + ".");
 		return ret.toArray(new String[ret.size()]);

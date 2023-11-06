@@ -15,20 +15,20 @@ public class AutonomousVehicle extends AbstractVehicle {
 
     private Map<Integer, AbstractMap.SimpleEntry<PoseSteering[], Integer>> planSegmentsMap;
 
-    public AutonomousVehicle(int id, int priorityID, Color color, double maxVelocity, double maxAcceleration,
+    public AutonomousVehicle(int id, int priorityID, Color color, double maxVelocity, double maxAcceleration, int trackingPeriod,
                              double length, double width, Pose initialPose, Pose[] goalPoses, double safetyDistance) {
-        super(id, priorityID, color, maxVelocity, maxAcceleration, length, width, initialPose,
+        super(id, priorityID, color, maxVelocity, maxAcceleration, trackingPeriod, length, width, initialPose,
                 goalPoses, safetyDistance);
     }
 
-    public AutonomousVehicle(int priorityID, Color color, double maxVelocity, double maxAcceleration, double length,
+    public AutonomousVehicle(int priorityID, Color color, double maxVelocity, double maxAcceleration, int trackingPeriod, double length,
                              double width, Pose initialPose, Pose[] goalPoses, double safetyDistance) {
-        super(vehicleNumber, priorityID, color, maxVelocity, maxAcceleration, length, width, initialPose,
+        super(vehicleNumber, priorityID, color, maxVelocity, maxAcceleration, trackingPeriod, length, width, initialPose,
                 goalPoses, safetyDistance);
     }
 
     public AutonomousVehicle(Pose initialPose, Pose[] goalPoses) {
-        super(vehicleNumber, 1, Color.YELLOW, 1.0, 0.1, 0.5, 0.5,
+        super(vehicleNumber, 1, Color.YELLOW, 5.0, 1.0, 30, 0.5, 0.5,
                 initialPose, goalPoses, 0);
     }
 

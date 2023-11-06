@@ -18,7 +18,10 @@ public class TwoAutonomousRobots {
         final Pose orePass = new Pose(54.35, 11.25, -Math.PI / 2);
 
         var autonomousRobot1 = new AutonomousVehicle(drawPoint21, new Pose[] {orePass});
+        autonomousRobot1.setMaxVelocity(10);
+        System.out.println(autonomousRobot1.getTrackingPeriod());
         var autonomousRobot2 = new AutonomousVehicle(mainTunnelLeft, new Pose[] {mainTunnelRight, mainTunnelLeft});
+        autonomousRobot2.setMaxVelocity(1);
         int[] waitingTimes = {100};
         autonomousRobot1.getPlan(autonomousRobot1.getInitialPose(), autonomousRobot1.getGoalPoses(), YAML_FILE,
                 true);
@@ -27,8 +30,7 @@ public class TwoAutonomousRobots {
                 autonomousRobot2.getGoalPoses(), waitingTimes, YAML_FILE);
 
         // Instantiate a trajectory envelope coordinator.
-        var tec = new TrajectoryEnvelopeCoordinatorSimulation(2000, 1000,
-                5, 2);
+        var tec = new TrajectoryEnvelopeCoordinatorSimulation();
 
         // Sets up MetaCSP solver
         tec.setupSolver(0, 100000000);
@@ -49,7 +51,7 @@ public class TwoAutonomousRobots {
         // Set up a simple GUI (null means an empty map, otherwise provide yaml file)
         var viz = new BrowserVisualization();
         viz.setMap(YAML_FILE);
-        viz.setFontScale(4);
+        viz.setFontScale(2);
         viz.setInitialTransform(9, 45, -3.5);
         tec.setVisualization(viz);
 

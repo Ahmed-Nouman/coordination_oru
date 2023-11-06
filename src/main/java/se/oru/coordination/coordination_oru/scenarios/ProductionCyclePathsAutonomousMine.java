@@ -37,11 +37,11 @@ public class ProductionCyclePathsAutonomousMine {
         final Pose workStation2 = new Pose(20.15, 9.05, -Math.PI / 2);
         final Pose workStation3 = new Pose(17.35, 9.65, -Math.PI / 2);
 
-        var drillVehicle = new AutonomousVehicle(1, Color.MAGENTA, 5, 2, 0.5,
+        var drillVehicle = new AutonomousVehicle(1, Color.MAGENTA, 5, 2, 100, 0.5,
                 0.5, mainTunnelLeft, new Pose[] {drawPoint38}, 0);
-        var chargingVehicle = new AutonomousVehicle(1, Color.PINK, 5, 2, 0.5,
+        var chargingVehicle = new AutonomousVehicle(1, Color.PINK, 5, 2, 1000, 0.5,
                 0.5, drawPoint15, new Pose[] {orePass}, 0);
-        var waterVehicle = new AutonomousVehicle(1, Color.BLUE, 5, 2, 0.5,
+        var waterVehicle = new AutonomousVehicle(1, Color.BLUE, 5, 2, 1000, 0.5,
                 0.5, drawPoint17, new Pose[] {drawPoint17}, 0);
 
         var autonomousVehicle1 = new AutonomousVehicle(drawPoint16, new Pose[] {orePass});

@@ -30,6 +30,7 @@ public class PaperScenario_6A1L {
         // Everything including velocity, acceleration, lookahead, length and width is scaled by 0.1
         final double MAX_VELOCITY = 1.0;
         final double MAX_ACCELERATION = 0.1;
+        final int TRACKING_PERIOD = 1000;
         final double X_LENGTH = 0.9;
         final double Y_LENGTH = 0.6;
 
@@ -54,20 +55,20 @@ public class PaperScenario_6A1L {
         final Pose orePass2 = new Pose(76.35, 31.05, -Math.PI / 2.7);
         final Pose orePass3 = new Pose(92.65, 33.15, -Math.PI / 2);
 
-        var autonomousRobot1 = new AutonomousVehicle(1, Color.YELLOW, MAX_VELOCITY, MAX_ACCELERATION,
+        var autonomousRobot1 = new AutonomousVehicle(1, Color.YELLOW, MAX_VELOCITY, MAX_ACCELERATION, TRACKING_PERIOD,
                 X_LENGTH, Y_LENGTH, drawPoint28, new Pose[] {orePass1}, 0);
-        var autonomousRobot2 = new AutonomousVehicle(1, Color.YELLOW, MAX_VELOCITY, MAX_ACCELERATION,
+        var autonomousRobot2 = new AutonomousVehicle(1, Color.YELLOW, MAX_VELOCITY, MAX_ACCELERATION, TRACKING_PERIOD,
                 X_LENGTH, Y_LENGTH, drawPoint30, new Pose[] {orePass1}, 0);
-        var autonomousRobot3 = new AutonomousVehicle(1, Color.YELLOW, MAX_VELOCITY, MAX_ACCELERATION,
+        var autonomousRobot3 = new AutonomousVehicle(1, Color.YELLOW, MAX_VELOCITY, MAX_ACCELERATION, TRACKING_PERIOD,
                 X_LENGTH, Y_LENGTH, drawPoint32A, new Pose[] {orePass2}, 0);
-        var autonomousRobot4 = new AutonomousVehicle(1, Color.YELLOW, MAX_VELOCITY, MAX_ACCELERATION,
+        var autonomousRobot4 = new AutonomousVehicle(1, Color.YELLOW, MAX_VELOCITY, MAX_ACCELERATION, TRACKING_PERIOD,
                 X_LENGTH, Y_LENGTH, drawPoint34, new Pose[] {orePass2}, 0);
-        var autonomousRobot5 = new AutonomousVehicle(1, Color.YELLOW, MAX_VELOCITY, MAX_ACCELERATION,
+        var autonomousRobot5 = new AutonomousVehicle(1, Color.YELLOW, MAX_VELOCITY, MAX_ACCELERATION, TRACKING_PERIOD,
                 X_LENGTH, Y_LENGTH, drawPoint35, new Pose[] {orePass3}, 0);
-        var autonomousRobot6 = new AutonomousVehicle(1, Color.YELLOW, MAX_VELOCITY, MAX_ACCELERATION,
+        var autonomousRobot6 = new AutonomousVehicle(1, Color.YELLOW, MAX_VELOCITY, MAX_ACCELERATION, TRACKING_PERIOD,
                 X_LENGTH, Y_LENGTH, drawPoint12, new Pose[] {orePass3}, 0);
-        var lookAheadRobot = new LookAheadVehicle(1, lookAheadDistance, Color.GREEN, MAX_VELOCITY,
-                MAX_ACCELERATION, X_LENGTH, Y_LENGTH, entrance, new Pose[] {mainTunnelLeft}, 0);
+        var lookAheadRobot = new LookAheadVehicle(1, lookAheadDistance, Color.GREEN, MAX_VELOCITY, MAX_ACCELERATION,
+                TRACKING_PERIOD, X_LENGTH, Y_LENGTH, entrance, new Pose[] {mainTunnelLeft}, 0);
 
         autonomousRobot1.getPlan(autonomousRobot1.getInitialPose(), autonomousRobot1.getGoalPoses(),
                 YAML_FILE, true);

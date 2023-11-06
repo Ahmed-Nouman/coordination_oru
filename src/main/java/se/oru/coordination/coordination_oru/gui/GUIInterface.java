@@ -335,7 +335,7 @@ public class GUIInterface extends javax.swing.JFrame {
             String vehicleName = entry.getKey();
             Vehicle vehicleData = entry.getValue();
             vehiclesArray[i] = new AutonomousVehicle(1, Color.YELLOW, vehicleData.getMaxVelocity(), //FIXME color AND Poses Strings
-                    vehicleData.getMaxAcceleration(), 0.9, 0.5, drawPoint12, new Pose[] {orePass3},
+                    vehicleData.getMaxAcceleration(), 1000, 0.9, 0.5, drawPoint12, new Pose[] {orePass3},
                     0);
             i++;
         }

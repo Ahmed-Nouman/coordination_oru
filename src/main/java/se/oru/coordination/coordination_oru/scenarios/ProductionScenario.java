@@ -40,18 +40,18 @@ public class ProductionScenario {
         final Pose orePass3 = new Pose(62.95, 9.75, -Math.PI / 2);
         final Pose orePass4 = new Pose(69.15, 53.15, -Math.PI / 2);
 
-        var autonomousRobot1 = new AutonomousVehicle(2, Color.YELLOW, 5, 2, 2,
+        var autonomousRobot1 = new AutonomousVehicle(2, Color.YELLOW, 5, 2, 1000, 2,
                 1, drawPoint1, new Pose[] {orePass1}, 0);
-        var autonomousRobot2 = new AutonomousVehicle(2, Color.YELLOW, 5, 2, 2,
+        var autonomousRobot2 = new AutonomousVehicle(2, Color.YELLOW, 5, 2, 1000, 2,
                 1, drawPoint2, new Pose[] {orePass2}, 0);
-        var autonomousRobot3 = new AutonomousVehicle(2, Color.YELLOW, 5, 2, 2,
+        var autonomousRobot3 = new AutonomousVehicle(2, Color.YELLOW, 5, 2, 1000, 2,
                 1, drawPoint3, new Pose[] {orePass3}, 0);
-        var autonomousRobot4 = new AutonomousVehicle(2, Color.YELLOW, 5, 2, 2,
+        var autonomousRobot4 = new AutonomousVehicle(2, Color.YELLOW, 5, 2, 1000, 2,
                 1, drawPoint4, new Pose[] {orePass4}, 0);
-        var autonomousRobot5 = new AutonomousVehicle(1, Color.RED, 0.05, 0.02,
+        var autonomousRobot5 = new AutonomousVehicle(1, Color.RED, 0.05, 0.02, 1000,
                 3.5, 3.5, mainTunnelLeft, new Pose[] {mainTunnelRight}, 0);
         var drillRig = new LookAheadVehicle(2, drillLookAheadDistance, Color.GREEN, 5,
-                2, 2, 1, drillPoint, new Pose[] {drawPoint2}, 0);
+                2, 1000, 2, 1, drillPoint, new Pose[] {drawPoint2}, 0);
 
         autonomousRobot1.getPlan(autonomousRobot1.getInitialPose(), autonomousRobot1.getGoalPoses(),
                 YAML_FILE, true);

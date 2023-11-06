@@ -28,18 +28,18 @@ public class LookAheadVehicle extends AbstractVehicle {
      * @param color             The color of the robot when stationary.
      * @param maxVelocity       The maximum velocity of the robot.
      * @param maxAcceleration   The maximum acceleration of the robot.
-     * @param length           The length of the robot.
-     * @param width           The width of the robot.
-     *                          // TODO Fix the initial call to getLimited, It should be complete path.
+     * @param trackingPeriod    The tracking period of the robot.
+     * @param length            The length of the robot.
+     * @param width             The width of the robot.
      */
     public LookAheadVehicle(int priorityID, double lookAheadDistance, Color color, double maxVelocity, double maxAcceleration,
-                            double length, double width, Pose initialPose, Pose[] goalPoses, double safetyDistance) {
-        super(priorityID, color, maxVelocity, maxAcceleration, length, width, initialPose, goalPoses, safetyDistance);
+                            int trackingPeriod, double length, double width, Pose initialPose, Pose[] goalPoses, double safetyDistance) {
+        super(priorityID, color, maxVelocity, maxAcceleration, trackingPeriod, length, width, initialPose, goalPoses, safetyDistance);
         this.lookAheadDistance = lookAheadDistance;
     }
 
     public LookAheadVehicle(double lookAheadDistance, Pose initialPose, Pose[] goalPoses) {
-        super(1, Color.RED, 1.0, 0.1, 0.5, 0.5,
+        super(1, Color.RED, 5.0, 1.0, 30, 0.5, 0.5,
                 initialPose, goalPoses, 0);
         this.lookAheadDistance = lookAheadDistance;
     }
