@@ -6,8 +6,11 @@ import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
 import javafx.stage.FileChooser;
@@ -20,49 +23,119 @@ import java.nio.file.Files;
 
 public class GUI extends Application {
 
+    private final Stage stage = new Stage();
     private final Label pathLabel = new Label("");  // To display the file path
-    private String filenameJSON = "";
-    private final JsonParser parser = new JsonParser();
-    private ProjectData data;
-    private final Button backButton = new Button("Back");
-    private final Button nextButton = new Button("Next");
+    private String filenameYAML = "";
+    private final JsonParser jsonParser = new JsonParser();
+    private ProjectData projectData;
+    private YamlData yamlData;
+    private final YamlParser yamlParser = new YamlParser();
+    private final Button nextProjectButton = new Button("Next");
+    private final Button backMapButton = new Button("Back");
+    private final Button nextMapButton = new Button("Next");
     public static void main(String[] args) {
         launch(args);
     }
 
     @Override
-    public void start(Stage primaryStage) {
+    public void start(Stage stage) {
 
-        Scene projectScene = getProjectScene(primaryStage);
-        primaryStage.setTitle("Coordination_ORU");
-        primaryStage.setScene(projectScene);
-        primaryStage.show();
+        Scene projectScene = getProjectScene();
+        stage.setTitle("Coordination_ORU");
+        stage.setScene(projectScene);
+        stage.show();
 
-        nextButton.setOnAction( e -> primaryStage.setScene(getMapScene(primaryStage)));
+        nextProjectButton.setOnAction( e -> {
+            stage.setScene(getMapScene());
+            stage.centerOnScreen();
+        });
+
+        nextMapButton.setOnAction( e -> {
+            stage.setScene(getVehicleScene());
+            stage.centerOnScreen();
+        });
+
+        backMapButton.setOnAction( e -> {
+            // FIXME Centering Issue
+            stage.setScene(getProjectScene());
+            stage.centerOnScreen();
+            nextProjectButton.setVisible(true);
+        });
 
     }
 
-    private Scene getMapScene(Stage stage) {
+    private Scene getMapScene() {
 
         BorderPane borderPane = new BorderPane();
 
-        Text changeMapMessage = new Text("Change the map: ");
-        borderPane.setTop(changeMapMessage);
+        VBox vBox = new VBox();
 
-        // Set alignment to center for the Text node
-        BorderPane.setAlignment(changeMapMessage, Pos.CENTER);
+        Text changeMapMessage = new Text("Would you like to change the map? ");
 
-        // Add spacing to the top of the BorderPane for the Text node
-        BorderPane.setMargin(changeMapMessage, new Insets(20, 0, 0, 0)); // 20px top spacing
+        yamlData = yamlParser.parse(projectData.getMap());
+        String imageFile = yamlData.getImage();
+        Image mapImage = new Image("file:" + "/home/ra2/mine-map-paper-2023.png"); // FIXME Path problem
+        // TODO Update the map names
 
-        return new Scene(borderPane, 400, 300);
+        // Set the preferred dimensions for the image
+        double preferredWidth = 800; // you can set this value to whatever width you want
+        double preferredHeight = 640; // you can set this value to whatever height you want
+
+        ImageView imageView = new ImageView(mapImage);
+        imageView.setFitWidth(preferredWidth);
+        imageView.setFitHeight(preferredHeight);
+        imageView.setPreserveRatio(true); // This will keep the image's aspect ratio
+
+        Button changeMapButton = new Button("Change Map");
+
+        vBox.getChildren().addAll(changeMapMessage, imageView, changeMapButton);
+        vBox.setAlignment(Pos.CENTER);
+        vBox.setSpacing(10);
+        borderPane.setCenter(vBox);
+        var leftPane = new StackPane(backMapButton);
+        var rightPane = new StackPane(nextMapButton);
+        borderPane.setLeft(leftPane);
+        borderPane.setRight(rightPane);
+
+        BorderPane.setMargin(leftPane, new Insets(0, 0, 0, 60)); // 20px top spacing
+        BorderPane.setMargin(rightPane, new Insets(0, 60, 0, 0)); // 20px top spacing
+
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.setInitialDirectory(new File(System.getProperty("user.home")));
+
+        changeMapButton.setOnAction(e -> {
+            fileChooser.setTitle("Choose Map File");
+            fileChooser.getExtensionFilters().clear();
+            fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("YAML Files", "*.yaml"));
+            File file = fileChooser.showOpenDialog(stage);
+
+            if (file != null) {
+                try {
+                    // TODO Update projectData
+                    // TODO Show the Updated map
+                    String content = new String(Files.readAllBytes(file.toPath()));
+                    filenameYAML = file.getAbsolutePath();
+//                    pathLabel.setText("File opened: " + filenameYAML);
+//                    projectData = jsonParser.parse(filenameYAML);
+                } catch (IOException ex) {
+                    DialogBox.display("Error", "Could not read the file.");
+                }
+            }
+        });
+
+        return new Scene(borderPane, 1024, 720);
     }
 
-    private Scene getProjectScene(Stage stage) {
+    private Scene getVehicleScene() {
+        BorderPane borderPane = new BorderPane();
+        return new Scene(borderPane, 1024, 720);
+    }
+
+    private Scene getProjectScene() {
 
         BorderPane borderPane = new BorderPane();
 
-        nextButton.setVisible(false);
+        nextProjectButton.setVisible(false);
 
         VBox vbox = new VBox(40); // 40px spacing between elements
         vbox.setAlignment(Pos.CENTER); // Center alignment for all children of VBox
@@ -88,14 +161,14 @@ public class GUI extends Application {
             if (file != null) {
                 // Ensure the file has .json extension
                 if (!file.getName().endsWith(".json")) {
-                    filenameJSON = file.getAbsolutePath() + ".json";
-                    file = new File(filenameJSON);
+                    filenameYAML = file.getAbsolutePath() + ".json";
+                    file = new File(filenameYAML);
                 }
 
                 try (FileWriter fileWriter = new FileWriter(file)) {
                     fileWriter.write("{}"); // Save empty JSON or default data
                     pathLabel.setText("File created: " + file.getAbsolutePath());
-                    nextButton.setVisible(true);
+                    nextProjectButton.setVisible(true);
                 } catch (IOException ex) {
                     pathLabel.setText("Error: Could not save the file.");
                 }
@@ -111,10 +184,10 @@ public class GUI extends Application {
             if (file != null) {
                 try {
                     String content = new String(Files.readAllBytes(file.toPath()));
-                    filenameJSON = file.getAbsolutePath();
-                    pathLabel.setText("File opened: " + filenameJSON);
-                    nextButton.setVisible(true);
-                    data = parser.parse(filenameJSON);
+                    filenameYAML = file.getAbsolutePath();
+                    pathLabel.setText("File opened: " + filenameYAML);
+                    nextProjectButton.setVisible(true);
+                    projectData = jsonParser.parse(filenameYAML);
                 } catch (IOException ex) {
                     DialogBox.display("Error", "Could not read the file.");
                 }
@@ -122,11 +195,12 @@ public class GUI extends Application {
         });
 
         hbox.getChildren().addAll(createProject, openProject); // Add buttons to HBox
-        vbox.getChildren().addAll(welcomeMessage, hbox, pathLabel, nextButton); // Add HBox (with buttons) to VBox below the text
+        vbox.getChildren().addAll(welcomeMessage, hbox, pathLabel, nextProjectButton); // Add HBox (with buttons) to VBox below the text
 
         borderPane.setCenter(vbox);
 
         return new Scene(borderPane, 400, 300);
     }
+
 }
 
