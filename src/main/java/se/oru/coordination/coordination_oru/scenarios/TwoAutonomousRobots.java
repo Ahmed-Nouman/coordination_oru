@@ -7,6 +7,8 @@ import se.oru.coordination.coordination_oru.util.BrowserVisualization;
 import se.oru.coordination.coordination_oru.util.Missions;
 import se.oru.coordination.coordination_oru.vehicles.AutonomousVehicle;
 
+import java.awt.*;
+
 public class TwoAutonomousRobots {
     public static void main(String[] args) {
 
@@ -19,6 +21,7 @@ public class TwoAutonomousRobots {
 
         var autonomousRobot1 = new AutonomousVehicle(drawPoint21, new Pose[] {orePass});
         autonomousRobot1.setMaxVelocity(10);
+        autonomousRobot1.setColor(Color.RED);
         System.out.println(autonomousRobot1.getTrackingPeriod());
         var autonomousRobot2 = new AutonomousVehicle(mainTunnelLeft, new Pose[] {mainTunnelRight, mainTunnelLeft});
         autonomousRobot2.setMaxVelocity(1);
@@ -51,7 +54,7 @@ public class TwoAutonomousRobots {
         // Set up a simple GUI (null means an empty map, otherwise provide yaml file)
         var viz = new BrowserVisualization();
         viz.setMap(YAML_FILE);
-        viz.setFontScale(2);
+        viz.setFontScale(1.5);
         viz.setInitialTransform(9, 45, -3.5);
         tec.setVisualization(viz);
 

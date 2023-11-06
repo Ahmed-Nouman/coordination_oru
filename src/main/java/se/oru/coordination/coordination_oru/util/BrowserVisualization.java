@@ -16,6 +16,7 @@ import org.metacsp.multi.spatioTemporal.paths.Pose;
 import org.metacsp.multi.spatioTemporal.paths.PoseSteering;
 import org.metacsp.multi.spatioTemporal.paths.TrajectoryEnvelope;
 import se.oru.coordination.coordination_oru.RobotReport;
+import se.oru.coordination.coordination_oru.vehicles.AbstractVehicle;
 import se.oru.coordination.coordination_oru.vehicles.VehiclesHashMap;
 
 import javax.imageio.ImageIO;
@@ -28,6 +29,7 @@ import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
+import java.util.Objects;
 
 public class BrowserVisualization implements FleetVisualization {
 	
@@ -209,30 +211,39 @@ public class BrowserVisualization implements FleetVisualization {
 		double y = rr.getPathIndex() != -1 ? rr.getPose().getY() : te.getTrajectory().getPose()[0].getY();
 		double theta = rr.getPathIndex() != -1 ? rr.getPose().getTheta() : te.getTrajectory().getPose()[0].getTheta();
 
-		String extraData = "";
 		String name = "R" + te.getRobotID();
 
-		// Show percentage of path-completed
-//		int percent = rr.getPathIndex() < 0 ? 0 : (int) Math.round((double) rr.getPathIndex() / (double) te.getPathLength() * 100);
-//		String extraData = ":" + (extraStatusInfo == null || extraStatusInfo.length == 0 ? "" : " ") + percent + "%";
+		// Show Representation
+		String representation = "Percentage";
+		String extraData = getExtraData(te, rr, extraStatusInfo, representation);
 
-		// Show path Index
-//		if (extraStatusInfo != null) {
-//			for (String st : extraStatusInfo) {
-//				extraData += " | " + st;
-//			}
-//		}
-		
-		Geometry geom = TrajectoryEnvelope.getFootprint(te.getFootprint(), x, y, theta);
-		this.updateRobotFootprintArea(geom);
+		Geometry geometry = TrajectoryEnvelope.getFootprint(te.getFootprint(), x, y, theta);
+		this.updateRobotFootprintArea(geometry);
 		double scale = Math.sqrt(robotFootprintArea)*0.2;
 		Geometry arrowGeom = createArrow(rr.getPose(), robotFootprintXDim/scale, scale);
-		String jsonString = "{ \"operation\" : \"addGeometry\", \"data\" : " + this.geometryToJSONString(name, geom, VehiclesHashMap.getVehicle(rr.getRobotID()).getColorCode(), -1, true, extraData) + "}";
+		String jsonString = "{ \"operation\" : \"addGeometry\", \"data\" : " + this.geometryToJSONString(name, geometry, VehiclesHashMap.getVehicle(rr.getRobotID()).getColorCode(), -1, true, extraData) + "}";
 		String jsonStringArrow = "{ \"operation\" : \"addGeometry\", \"data\" : " + this.geometryToJSONString("_"+name, arrowGeom, "#ffffff", -1, true, null) + "}";
 		enqueueMessage(jsonString);
 		enqueueMessage(jsonStringArrow);
 	}
-	
+
+	private static String getExtraData(TrajectoryEnvelope te, RobotReport rr, String[] extraStatusInfo, String representation) {
+		if (Objects.equals(representation, "Name")) {
+			return "";
+		} else if (Objects.equals(representation, "PathIndex")) {
+			return ":" + (extraStatusInfo == null || extraStatusInfo.length == 0 ? "" : " ") + rr.getPathIndex();
+		}
+		else {
+			String extraData = "";
+			if (rr.getPathIndex() != -1 && te.getPathLength() != 0) {
+				double percentage = ((double) rr.getPathIndex() / te.getPathLength()) * 100;
+				String roundedPercentage = String.format("%.1f", percentage);
+				if (percentage <= 100) extraData = ":" + (extraStatusInfo == null || extraStatusInfo.length == 0 ? "" : " ") + roundedPercentage + "%";
+			}
+			return extraData;
+		}
+	}
+
 	@Override
 	public void displayRobotState(Polygon fp, RobotReport rr, String... extraStatusInfo) {
 		double x = rr.getPose().getX();
