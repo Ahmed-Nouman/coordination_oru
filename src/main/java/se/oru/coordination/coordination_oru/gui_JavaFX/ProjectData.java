@@ -15,32 +15,47 @@ public class ProjectData {
         this.map = map;
     }
 
+    public void setVehicles(Map<String, Vehicle> vehicles) {
+        this.vehicles = vehicles;
+    }
+
     public Map<String, Vehicle> getVehicles() {
         return vehicles;
     }
 
-    public void setVehicles(Map<String, Vehicle> vehicles) {
-        this.vehicles = vehicles;
+    // Method to add a single vehicle to the map
+    public void addVehicle(String key, Vehicle vehicle) {
+        this.vehicles.put(key, vehicle);
+    }
+
+    public void removeVehicle(String key) {
+        this.vehicles.remove(key);
+    }
+
+    public void setListOfAllPoses(Map<String, Pose> listOfAllPoses) {
+        this.listOfAllPoses = listOfAllPoses;
     }
 
     public Map<String, Pose> getListOfAllPoses() {
         return listOfAllPoses;
     }
 
-    public void setListOfAllPoses(Map<String, Pose> listOfAllPoses) {
-        this.listOfAllPoses = listOfAllPoses;
+    // Method to add a single pose to the map
+    public void addPose(String key, Pose pose) {
+        this.listOfAllPoses.put(key, pose);
     }
 }
 
 class Vehicle {
     private double maxVelocity;
-
     private double maxAcceleration;
+    private int trackingPeriod;
+    private double safetyDistance;
     private String color;
     private String type;
+    private double lookAheadDistance;
     private String initialPose;
     private String goalPoses;
-
     public double getMaxVelocity() {
         return maxVelocity;
     }
@@ -55,6 +70,22 @@ class Vehicle {
 
     public void setMaxAcceleration(double maxAcceleration) {
         this.maxAcceleration = maxAcceleration;
+    }
+
+    public int getTrackingPeriod() {
+        return trackingPeriod;
+    }
+
+    public void setTrackingPeriod(int trackingPeriod) {
+        this.trackingPeriod = trackingPeriod;
+    }
+
+    public double getSafetyDistance() {
+        return safetyDistance;
+    }
+
+    public void setSafetyDistance(double safetyDistance) {
+        this.safetyDistance = safetyDistance;
     }
 
     public String getColor() {
@@ -88,11 +119,18 @@ class Vehicle {
     public void setGoalPoses(String goalPoses) {
         this.goalPoses = goalPoses;
     }
+
+    public double getLookAheadDistance() {
+        return lookAheadDistance;
+    }
+
+    public void setLookAheadDistance(double lookAheadDistance) {
+        this.lookAheadDistance = lookAheadDistance;
+    }
 }
 
 class Pose {
     private double x;
-
     private double y;
     private double angle;
 
