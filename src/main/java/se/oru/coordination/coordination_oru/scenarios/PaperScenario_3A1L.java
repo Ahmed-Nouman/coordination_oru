@@ -49,7 +49,7 @@ public class PaperScenario_3A1L {
         final Pose orePass2 = new Pose(76.35, 31.05, -Math.PI / 2.7);
         final Pose orePass3 = new Pose(92.65, 33.15, -Math.PI / 2);
 
-        var autonomousRobot1 = new AutonomousVehicle(1, Color.YELLOW, 14, 3, 30,
+        var autonomousRobot1 = new AutonomousVehicle(1, Color.YELLOW, 100, 3, 30,
                 0.9, 0.5, drawPoint28, new Pose[]{orePass1}, 0);
         var autonomousRobot2 = new AutonomousVehicle(1, Color.YELLOW, 14, 3, 30,
                 0.9, 0.5, drawPoint32A, new Pose[] {orePass2}, 0);

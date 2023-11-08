@@ -205,6 +205,23 @@ public class BrowserVisualization implements FleetVisualization {
 		}
 	}
 
+	private static String getExtraData(TrajectoryEnvelope te, RobotReport rr, String[] extraStatusInfo, String representation) {
+		if (Objects.equals(representation, "Name")) {
+			return "";
+		} else if (Objects.equals(representation, "PathIndex")) {
+			return ":" + (extraStatusInfo == null || extraStatusInfo.length == 0 ? "" : " ") + rr.getPathIndex();
+		}
+		else {
+			String extraData = "";
+			if (rr.getPathIndex() != -1 && te.getPathLength() != 0) {
+				double percentage = ((double) rr.getPathIndex() / te.getPathLength()) * 100;
+				String roundedPercentage = String.format("%.1f", percentage);
+				if (percentage <= 100) extraData = ":" + (extraStatusInfo == null || extraStatusInfo.length == 0 ? "" : " ") + roundedPercentage + "%";
+			}
+			return extraData;
+		}
+	}
+
 	@Override
 	public void displayRobotState(TrajectoryEnvelope te, RobotReport rr, String... extraStatusInfo) {
 		double x = rr.getPathIndex() != -1 ? rr.getPose().getX() : te.getTrajectory().getPose()[0].getX();
@@ -225,23 +242,6 @@ public class BrowserVisualization implements FleetVisualization {
 		String jsonStringArrow = "{ \"operation\" : \"addGeometry\", \"data\" : " + this.geometryToJSONString("_"+name, arrowGeom, "#ffffff", -1, true, null) + "}";
 		enqueueMessage(jsonString);
 		enqueueMessage(jsonStringArrow);
-	}
-
-	private static String getExtraData(TrajectoryEnvelope te, RobotReport rr, String[] extraStatusInfo, String representation) {
-		if (Objects.equals(representation, "Name")) {
-			return "";
-		} else if (Objects.equals(representation, "PathIndex")) {
-			return ":" + (extraStatusInfo == null || extraStatusInfo.length == 0 ? "" : " ") + rr.getPathIndex();
-		}
-		else {
-			String extraData = "";
-			if (rr.getPathIndex() != -1 && te.getPathLength() != 0) {
-				double percentage = ((double) rr.getPathIndex() / te.getPathLength()) * 100;
-				String roundedPercentage = String.format("%.1f", percentage);
-				if (percentage <= 100) extraData = ":" + (extraStatusInfo == null || extraStatusInfo.length == 0 ? "" : " ") + roundedPercentage + "%";
-			}
-			return extraData;
-		}
 	}
 
 	@Override

@@ -9,12 +9,14 @@ import org.metacsp.multi.spatioTemporal.paths.TrajectoryEnvelope;
 import org.metacsp.utility.UI.JTSDrawingPanel;
 import se.oru.coordination.coordination_oru.RobotReport;
 import se.oru.coordination.coordination_oru.simulation2D.TrajectoryEnvelopeCoordinatorSimulation;
+import se.oru.coordination.coordination_oru.vehicles.VehiclesHashMap;
 
 import javax.swing.*;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Objects;
 
 public class JTSDrawingPanelVisualization implements FleetVisualization {
 
@@ -38,6 +40,22 @@ public class JTSDrawingPanelVisualization implements FleetVisualization {
 		topFrame.setSize(width,height);
 	}
 
+	private static String getExtraData(TrajectoryEnvelope te, RobotReport rr, String[] extraStatusInfo, String representation) {
+		if (Objects.equals(representation, "Name")) {
+			return "";
+		} else if (Objects.equals(representation, "PathIndex")) {
+			return ":" + (extraStatusInfo == null || extraStatusInfo.length == 0 ? "" : " ") + rr.getPathIndex();
+		}
+		else {
+			String extraData = "";
+			if (rr.getPathIndex() != -1 && te.getPathLength() != 0) {
+				double percentage = ((double) rr.getPathIndex() / te.getPathLength()) * 100;
+				String roundedPercentage = String.format("%.1f", percentage);
+				if (percentage <= 100) extraData = ":" + (extraStatusInfo == null || extraStatusInfo.length == 0 ? "" : " ") + roundedPercentage + "%";
+			}
+			return extraData;
+		}
+	}
 	@Override
 	public void displayRobotState(TrajectoryEnvelope te, RobotReport rr, String ... extraStatusInfo) {
 		double x = rr.getPose().getX();
@@ -49,8 +67,8 @@ public class JTSDrawingPanelVisualization implements FleetVisualization {
 				name += ("\\"+st);
 			}
 		}
-		if (rr.getPathIndex() != -1) panel.addGeometry(name, TrajectoryEnvelope.getFootprint(te.getFootprint(), x, y, theta), false, true, false, "#FF0000");
-		else panel.addGeometry(name, TrajectoryEnvelope.getFootprint(te.getFootprint(), te.getTrajectory().getPose()[0].getX(), te.getTrajectory().getPose()[0].getY(), te.getTrajectory().getPose()[0].getTheta()), false, true, false, "#4286F4");
+		if (rr.getPathIndex() != -1) panel.addGeometry(name, TrajectoryEnvelope.getFootprint(te.getFootprint(), x, y, theta), false, true, false, VehiclesHashMap.getVehicle(te.getRobotID()).getColorCode());
+		else panel.addGeometry(name, TrajectoryEnvelope.getFootprint(te.getFootprint(), te.getTrajectory().getPose()[0].getX(), te.getTrajectory().getPose()[0].getY(), te.getTrajectory().getPose()[0].getTheta()), false, true, false, VehiclesHashMap.getVehicle(te.getRobotID()).getColorCode());
 	}
 	
 	@Override
@@ -74,7 +92,7 @@ public class JTSDrawingPanelVisualization implements FleetVisualization {
 	
 	private void setupGUI(String mapYAMLFile) {
 		//Show everything in a GUI (the trackers update vehicle positions in real time, see below)
-		this.panel = JTSDrawingPanel.makeEmpty("Current status of robots");
+		this.panel = JTSDrawingPanel.makeEmpty("Simulation of the scenario");
 		//setPriorityOfEDT(Thread.MIN_PRIORITY);
 		//setPriorityOfEDT(Thread.MAX_PRIORITY);
 		panel.setSmoothTransitions(true);
