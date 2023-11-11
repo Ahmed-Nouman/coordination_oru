@@ -3,7 +3,7 @@ package se.oru.coordination.coordination_oru.scenarios;
 import org.metacsp.multi.spatioTemporal.paths.Pose;
 import se.oru.coordination.coordination_oru.Mission;
 import se.oru.coordination.coordination_oru.simulation2D.TrajectoryEnvelopeCoordinatorSimulation;
-import se.oru.coordination.coordination_oru.util.BrowserVisualization;
+import se.oru.coordination.coordination_oru.util.JTSDrawingPanelVisualization;
 import se.oru.coordination.coordination_oru.util.Missions;
 import se.oru.coordination.coordination_oru.vehicles.AutonomousVehicle;
 
@@ -20,9 +20,9 @@ public class TwoAutonomousRobots {
         final Pose orePass = new Pose(54.35, 11.25, -Math.PI / 2);
 
         var autonomousRobot1 = new AutonomousVehicle(drawPoint21, new Pose[] {orePass});
+        autonomousRobot1.setName("Robot");
         autonomousRobot1.setMaxVelocity(10);
         autonomousRobot1.setColor(Color.RED);
-        System.out.println(autonomousRobot1.getTrackingPeriod());
         var autonomousRobot2 = new AutonomousVehicle(mainTunnelLeft, new Pose[] {mainTunnelRight, mainTunnelLeft});
         autonomousRobot2.setMaxVelocity(1);
         int[] waitingTimes = {100};
@@ -52,10 +52,10 @@ public class TwoAutonomousRobots {
 //        tec.setBreakDeadlocks(true, false, false);
 
         // Set up a simple GUI (null means an empty map, otherwise provide yaml file)
-        var viz = new BrowserVisualization();
+        var viz = new JTSDrawingPanelVisualization();
         viz.setMap(YAML_FILE);
-        viz.setFontScale(1.5);
-        viz.setInitialTransform(9, 45, -3.5);
+//        viz.setFontScale(1.5);
+//        viz.setInitialTransform(9, 45, -3.5);
         tec.setVisualization(viz);
 
 

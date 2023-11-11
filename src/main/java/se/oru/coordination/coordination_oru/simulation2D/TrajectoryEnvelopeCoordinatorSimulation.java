@@ -19,7 +19,7 @@ public class TrajectoryEnvelopeCoordinatorSimulation extends TrajectoryEnvelopeC
 	public static TrajectoryEnvelopeCoordinatorSimulation tec = null;
 	protected static final long START_TIME = Calendar.getInstance().getTimeInMillis();
 	protected boolean useInternalCPs = true;
-	protected boolean checkCollisions = false;
+	protected boolean checkCollisions = false; // TODO Check if it works
 	protected ArrayList<CollisionEvent> collisionsList = new ArrayList<CollisionEvent>();
 	protected Thread collisionThread = null;
 	protected AtomicInteger totalMessagesLost = new AtomicInteger(0);
@@ -31,7 +31,7 @@ public class TrajectoryEnvelopeCoordinatorSimulation extends TrajectoryEnvelopeC
 	/**
 	 * The default footprint used for robots if none is specified.
 	 * NOTE: coordinates in footprints must be given in CCW or CW order.
-	 */
+	 */ // FIXME
 	public static Coordinate[] DEFAULT_FOOTPRINT = new Coordinate[] {
 			new Coordinate(-1.7, 0.7),	//back left
 			new Coordinate(-1.7, -0.7),	//back right

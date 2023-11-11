@@ -10,44 +10,74 @@ import java.awt.*;
 import java.util.Arrays;
 
 /**
- * LookAheadRobot is a subclass of AbstractRobot that represents robots capable of predicting
- * their path up to a certain distance. The class provides methods for updating the paths of LookAheadRobots
- * in the TrajectoryEnvelopeCoordinator and generating limited paths based on the look ahead distance.
+ * The LookAheadVehicle class represents a type of vehicle that has the capability to predict and plan
+ * its path up to a specified look-ahead distance. This class extends AbstractVehicle, inheriting
+ * its basic attributes and functionalities while adding specialized features for look-ahead path planning.
+ *
+ * <p>This class is particularly useful in scenarios where dynamic path adjustment is required based on
+ * real-time conditions or constraints, allowing for more efficient and safe navigation.</p>
+ *
+ * <p>Key functionalities:</p>
+ * <ul>
+ *     <li>Path updating in accordance with the vehicle's current state and look-ahead distance.</li>
+ *     <li>Generation of limited paths considering the look-ahead distance for precise movement planning.</li>
+ * </ul>
  *
  * @author anm
  */
-public class LookAheadVehicle extends AbstractVehicle {
 
-    private final double lookAheadDistance;
+public class LookAheadVehicle extends AbstractVehicle {
+    private double lookAheadDistance;
 
     /**
-     * Constructs a new LookAheadRobot with the specified parameters.
+     * Constructs a new LookAheadVehicle with the specified parameters.
      *
-     * @param priorityID        The priority ID of the robot.
-     * @param lookAheadDistance The maximum distance ahead in the path to consider.
-     * @param color             The color of the robot when stationary.
-     * @param maxVelocity       The maximum velocity of the robot.
-     * @param maxAcceleration   The maximum acceleration of the robot.
-     * @param trackingPeriod    The tracking period of the robot.
-     * @param length            The length of the robot.
-     * @param width             The width of the robot.
+     * @param id                Unique identifier of the vehicle.
+     * @param name              Name of the vehicle.
+     * @param lookAheadDistance The maximum distance ahead on the path that the vehicle considers for planning.
+     * @param priorityID        Priority identifier of the vehicle.
+     * @param color             Visual representation color of the vehicle.
+     * @param maxVelocity       Maximum velocity that the vehicle can achieve.
+     * @param maxAcceleration   Maximum acceleration rate of the vehicle.
+     * @param trackingPeriod    The duration over which the vehicle's state is tracked.
+     * @param length            Physical length of the vehicle.
+     * @param width             Physical width of the vehicle.
+     * @param initialPose       Initial pose of the vehicle in the environment.
+     * @param goalPoses         Target poses that the vehicle aims to reach.
+     * @param safetyDistance    Minimum safe distance to be maintained from other objects.
      */
-    public LookAheadVehicle(int priorityID, double lookAheadDistance, Color color, double maxVelocity, double maxAcceleration,
+    public LookAheadVehicle(int id, String name, double lookAheadDistance, int priorityID, Color color, double maxVelocity, double maxAcceleration,
                             int trackingPeriod, double length, double width, Pose initialPose, Pose[] goalPoses, double safetyDistance) {
-        super(priorityID, color, maxVelocity, maxAcceleration, trackingPeriod, length, width, initialPose, goalPoses, safetyDistance);
+        super(id, name, priorityID, color, maxVelocity, maxAcceleration, trackingPeriod, length, width, initialPose,
+                goalPoses, safetyDistance);
         this.lookAheadDistance = lookAheadDistance;
+    }
+
+    public LookAheadVehicle(String name, double lookAheadDistance, int priorityID, Color color, double maxVelocity, double maxAcceleration,
+                            int trackingPeriod, double length, double width, Pose initialPose, Pose[] goalPoses, double safetyDistance) {
+        this(vehicleNumber, name, lookAheadDistance, priorityID, color, maxVelocity, maxAcceleration, trackingPeriod, length, width, initialPose,
+                goalPoses, safetyDistance);
     }
 
     public LookAheadVehicle(double lookAheadDistance, Pose initialPose, Pose[] goalPoses) {
-        super(1, Color.RED, 5.0, 1.0, 30, 0.5, 0.5,
-                initialPose, goalPoses, 0);
-        this.lookAheadDistance = lookAheadDistance;
+        this(vehicleNumber, null, lookAheadDistance, 1, Color.YELLOW, 5.0, 1.0, 30,
+                0.5, 0.5, initialPose, goalPoses, 0);
+    }
+
+    public LookAheadVehicle(double lookAheadDistance) {
+        this(vehicleNumber, null,  lookAheadDistance,  1, Color.YELLOW, 5.0, 1.0, 30,
+                0.5, 0.5, null, null, 0);
+    }
+    public LookAheadVehicle() {
+        this(vehicleNumber, null,  20,  1, Color.YELLOW, 5.0, 1.0, 30,
+                0.5, 0.5, null, null, 0);
     }
 
     /**
-     * Updates the path of all LookAheadRobots in the TrajectoryEnvelopeCoordinator.
+     * Updates the path of all LookAheadVehicles in the TrajectoryEnvelopeCoordinator.
      *
-     * @param tec The TrajectoryEnvelopeCoordinator containing the robots.
+     * @param tec The TrajectoryEnvelopeCoordinator containing the vehicles.
+     * @param lookAheadVehicle The LookAheadVehicle for which the path needs to be updated.
      */
     public synchronized void updateLookAheadRobotPath(TrajectoryEnvelopeCoordinator tec, LookAheadVehicle lookAheadVehicle) {
         if (tec.isDriving(lookAheadVehicle.getID()) && lookAheadVehicle.getLookAheadDistance() != -1) {
@@ -57,113 +87,42 @@ public class LookAheadVehicle extends AbstractVehicle {
     }
 
     /**
-     * Generates a path for the robot using the default planning algorithm and parameters.
+     * Retrieves the path for the LookAheadVehicle.
      *
-     * @param initial     The initial pose of the robot.
-     * @param goals       An array of goal poses.
-     * @param map         The map used for planning.
-     * @param inversePath A flag indicating whether the inverse path should also be computed.
+     * @param lookAheadDistance The look-ahead distance to consider for path generation.
+     * @param tec               The TrajectoryEnvelopeCoordinator containing the vehicles.
+     * @return An array of PoseSteering objects representing the path.
      */
-    @Override
-    public void getPlan(Pose initial, Pose[] goals, String map, Boolean inversePath) {
-        getPlan(initial, goals, map, inversePath, ReedsSheppCarPlanner.PLANNING_ALGORITHM.RRTConnect, 0.01, 60, 0.01, 0.1);
-    }
-
-    /**
-     * Generates a path for the robot using the specified planning algorithm and parameters.
-     *
-     * @param initial                   The initial pose of the robot.
-     * @param goals                     An array of goal poses.
-     * @param map                       The map used for planning.
-     * @param inversePath               A flag indicating whether the inverse path should also be computed.
-     * @param planningAlgorithm         The planning algorithm to be used.
-     * @param radius                    The radius used for planning.
-     * @param planningTime              The maximum planning time in seconds.
-     * @param turningRadius             The turning radius of the robot.
-     * @param distanceBetweenPathPoints The distance between path points in the generated path.
-     */
-    public void getPlan(Pose initial, Pose[] goals, String map, Boolean inversePath, ReedsSheppCarPlanner.PLANNING_ALGORITHM planningAlgorithm,
-                        double radius, double planningTime, double turningRadius, double distanceBetweenPathPoints) {
-
-        var rsp = configureReedsSheppCarPlanner(planningAlgorithm, map, radius, planningTime, turningRadius, distanceBetweenPathPoints);
-        generatePath(rsp, initial, goals, inversePath);
-    }
-
-    /**
-     * Configures a ReedsSheppCarPlanner instance with the specified parameters.
-     *
-     * @param planningAlgorithm         The planning algorithm to be used.
-     * @param map                       The map used for planning.
-     * @param radius                    The radius used for planning.
-     * @param planningTime              The maximum planning time in seconds.
-     * @param turningRadius             The turning radius of the robot.
-     * @param distanceBetweenPathPoints The distance between path points in the generated path.
-     * @return A configured ReedsSheppCarPlanner instance.
-     */
-    private ReedsSheppCarPlanner configureReedsSheppCarPlanner(ReedsSheppCarPlanner.PLANNING_ALGORITHM planningAlgorithm, String map, double radius,
-                                                               double planningTime, double turningRadius, double distanceBetweenPathPoints) {
-        var rsp = new ReedsSheppCarPlanner(planningAlgorithm);
-        rsp.setMap(map);
-        rsp.setRadius(radius);
-        rsp.setPlanningTimeInSecs(planningTime);
-        rsp.setFootprint(getFootPrint());
-        rsp.setTurningRadius(turningRadius);
-        rsp.setDistanceBetweenPathPoints(distanceBetweenPathPoints);
-        return rsp;
-    }
-
-    /**
-     * Generates a path for the robot using the provided ReedsSheppCarPlanner instance.
-     *
-     * @param rsp         The ReedsSheppCarPlanner instance used for planning.
-     * @param initial     The initial pose of the robot.
-     * @param goals       An array of goal poses.
-     * @param inversePath A flag indicating whether the inverse path should also be computed.
-     */
-    private void generatePath(ReedsSheppCarPlanner rsp, Pose initial, Pose[] goals, Boolean inversePath) {
-        rsp.setStart(initial);
-        rsp.setGoals(goals);
-        rsp.plan();
-
-        if (rsp.getPath() == null) {
-            throw new Error("No path found.");
-        }
-
-        var pathFwd = rsp.getPath();
-        var path = inversePath ? (PoseSteering[]) ArrayUtils.addAll(pathFwd, rsp.getPathInv()) : pathFwd;
-        VehiclesHashMap.getVehicle(getID()).setPath(path);
-    }
-
     public PoseSteering[] getPath(double lookAheadDistance, TrajectoryEnvelopeCoordinator tec) {
         return getLimitedPath(getID(), lookAheadDistance, tec);
     }
 
     /**
-     * Retrieves a limited path for the LookAheadRobot up to a specified look ahead distance.
+     * Retrieves a limited path for the LookAheadVehicle up to a specified look-ahead distance.
      *
-     * @param robotID           The ID of the robot for which the path is being generated.
+     * @param vehicleID         The ID of the vehicle for which the path is being generated.
      * @param lookAheadDistance The maximum distance ahead in the path to consider.
-     * @param tec               The TrajectoryEnvelopeCoordinator containing the robots.
+     * @param tec               The TrajectoryEnvelopeCoordinator containing the vehicles.
      * @return An array of PoseSteering objects representing the limited path.
      */
-    public synchronized PoseSteering[] getLimitedPath(int robotID, double lookAheadDistance, TrajectoryEnvelopeCoordinator tec) {
+    public synchronized PoseSteering[] getLimitedPath(int vehicleID, double lookAheadDistance, TrajectoryEnvelopeCoordinator tec) {
         if (lookAheadDistance < 0) {
             return getPath(); // Return the full path if lookAheadDistance is negative
         }
 
         double distance = 0.0;
-        var robotReport = tec.getRobotReport(robotID);
+        var vehicleReport = tec.getRobotReport(vehicleID);
         var fullPath = getPath();
 
-        if (robotReport == null) {
+        if (vehicleReport == null) {
             // Handle the case when the RobotReport is null, e.g., return an empty path or throw a custom exception
-            System.err.println("Error: RobotReport for robotID " + robotID + " not found.");
+            System.err.println("Error: RobotReport for vehicleID " + vehicleID + " not found.");
             return new PoseSteering[0];
         }
 
-        double currentDistance = robotReport.getDistanceTraveled();
+        double currentDistance = vehicleReport.getDistanceTraveled();
         double totalDistance = getPlanLength();
-        int pathIndex = Math.max(robotReport.getPathIndex(), 0); // Avoid null point exception for starting
+        int pathIndex = Math.max(vehicleReport.getPathIndex(), 0); // Avoid null point exception for starting
 
         for (; pathIndex < fullPath.length - 1 && distance <= lookAheadDistance; pathIndex++) {
             if ((currentDistance + lookAheadDistance) >= totalDistance) {
@@ -177,6 +136,9 @@ public class LookAheadVehicle extends AbstractVehicle {
         return Arrays.copyOfRange(fullPath, 0, pathIndex);
     }
 
+    public void setLookAheadDistance(double lookAheadDistance) {
+        this.lookAheadDistance = lookAheadDistance;
+    }
     public double getLookAheadDistance() {
         return lookAheadDistance;
     }

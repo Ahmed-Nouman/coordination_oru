@@ -229,6 +229,9 @@ public class BrowserVisualization implements FleetVisualization {
 		double theta = rr.getPathIndex() != -1 ? rr.getPose().getTheta() : te.getTrajectory().getPose()[0].getTheta();
 
 		String name = "R" + te.getRobotID();
+		if (VehiclesHashMap.getVehicle(te.getRobotID()).getName() != null) {
+			name = VehiclesHashMap.getVehicle(te.getRobotID()).getName();
+		}
 
 		// Show Representation
 		String representation = "Percentage";
@@ -238,8 +241,10 @@ public class BrowserVisualization implements FleetVisualization {
 		this.updateRobotFootprintArea(geometry);
 		double scale = Math.sqrt(robotFootprintArea)*0.2;
 		Geometry arrowGeom = createArrow(rr.getPose(), robotFootprintXDim/scale, scale);
-		String jsonString = "{ \"operation\" : \"addGeometry\", \"data\" : " + this.geometryToJSONString(name, geometry, VehiclesHashMap.getVehicle(rr.getRobotID()).getColorCode(), -1, true, extraData) + "}";
-		String jsonStringArrow = "{ \"operation\" : \"addGeometry\", \"data\" : " + this.geometryToJSONString("_"+name, arrowGeom, "#ffffff", -1, true, null) + "}";
+		String jsonString = "{ \"operation\" : \"addGeometry\", \"data\" : " + this.geometryToJSONString(name, geometry,
+				VehiclesHashMap.getVehicle(rr.getRobotID()).getColorCode(), -1, true, extraData) + "}";
+		String jsonStringArrow = "{ \"operation\" : \"addGeometry\", \"data\" : " + this.geometryToJSONString("_"+
+				name, arrowGeom, "#ffffff", -1, true, null) + "}";
 		enqueueMessage(jsonString);
 		enqueueMessage(jsonStringArrow);
 	}
@@ -251,6 +256,9 @@ public class BrowserVisualization implements FleetVisualization {
 		double theta = rr.getPose().getTheta();
 
 		String name = "R" + rr.getRobotID();
+		if (VehiclesHashMap.getVehicle(rr.getRobotID()).getName() != null) {
+			name = VehiclesHashMap.getVehicle(rr.getRobotID()).getName();
+		}
 
 		// Show percentage of path-completed
 		int percent = rr.getPathIndex() < 0 ? 0 : (int) Math.round((double) rr.getPathIndex() / VehiclesHashMap.getVehicle(rr.getRobotID()).getPlanLength() * 100);

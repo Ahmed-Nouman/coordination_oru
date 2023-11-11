@@ -2,11 +2,10 @@ package se.oru.coordination.coordination_oru.gui_JavaFX;
 
 import java.util.List;
 
-public class YamlData {
+public class MapData {
     private String image;
-
     private double resolution;
-    private List<Double> origin; // assuming origin is a list of doubles
+    private List<Double> origin;
     private int negate;
     private double occupied_thresh;
 

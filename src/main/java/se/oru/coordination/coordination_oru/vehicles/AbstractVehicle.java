@@ -1,58 +1,82 @@
 package se.oru.coordination.coordination_oru.vehicles;
 
 import com.vividsolutions.jts.geom.Coordinate;
+import org.apache.commons.lang.ArrayUtils;
 import org.metacsp.multi.spatioTemporal.paths.Pose;
 import org.metacsp.multi.spatioTemporal.paths.PoseSteering;
+import se.oru.coordination.coordination_oru.motionplanning.ompl.ReedsSheppCarPlanner;
 
 import java.awt.*;
+import java.util.AbstractMap;
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
- * AbstractRobot is an abstract class representing a generic robot with common attributes and methods.
- * It should be extended by concrete robot classes with specific implementations.
- * The class keeps track of the robot's ID, priorityID, color,
- * maxVelocity, maxAcceleration, and footprint of the robot.
+ * The AbstractVehicle class is an abstract base class for representing different types of vehicles.
+ * It provides common properties and functionalities that are applicable across various vehicle types.
+ * Specific types of vehicles should extend this class to tailor implementations to their needs.
+ * <p>
+ * Key features of this class include:
+ * - Unique identification and prioritization of vehicles.
+ * - Configuration of vehicle dynamics like maximum velocity and acceleration.
+ * - Geometric properties such as vehicle's footprint, length, and width.
+ * - Visual representation through color.
+ * - Setting initial and goal poses for navigation.
+ * - Incorporation of safety measures like maintaining a safe distance.
+ * - Ability to generate and update the vehicle's path.
+ * <p>
+ * This class also lays the groundwork for implementing planning and movement algorithms in subclasses,
+ * allowing for customization of specific vehicle behaviors.
  *
  * @author anm
  */
+
 public abstract class AbstractVehicle {
     public static int vehicleNumber = 1;
     private final int ID;
+    private String name;
     private final int priorityID;
     private final String type = this.getClass().getSimpleName();
     private double maxVelocity;
     private double maxAcceleration;
     private int trackingPeriod;
-    private final double length;
-    private final double width;
-    private final Coordinate[] footprint;
+    private double length;
+    private double width;
+    private Coordinate[] footprint;
     private Color color;
     private Pose initialPose;
     private Pose[] goalPoses;
     private double safetyDistance;
     private PoseSteering[] path;
     private double pathLength;
+    public static ReedsSheppCarPlanner.PLANNING_ALGORITHM planningAlgorithm = ReedsSheppCarPlanner.PLANNING_ALGORITHM.RRTConnect;
+    private Map<Integer, AbstractMap.SimpleEntry<PoseSteering[], Integer>> planSegmentsMap;
+
     /**
-     * Constructs an AbstractRobot object with the specified parameters.
-     * It initializes the robot's ID, priorityID, color, maxVelocity, maxAcceleration, and footprint.
-     * If a robot with the same ID already exists, an IllegalStateException is thrown.
+     * Constructs an AbstractVehicle object with the specified parameters.
+     * It initializes the vehicle's ID, priorityID, color, maxVelocity, maxAcceleration, and footprint.
+     * If a vehicle with the same ID already exists, an IllegalStateException is thrown.
      *
-     * @param ID              The unique identifier of the robot.
-     * @param priorityID      The priority identifier of the robot.
-     * @param color           The color of the robot when stationary.
-     * @param maxVelocity     The maximum velocity of the robot.
-     * @param maxAcceleration The maximum acceleration of the robot.
-     * @param trackingPeriod  The tracking period of the robot.
-     * @param length          The length of the robot.
-     * @param width           The length of the robot.
-     * @param initialPose     The initial Pose of the robot.
-     * @param goalPoses       The goal Poses of the robot.
-     * @param safetyDistance  The safety distance of the robot.
-     * @throws IllegalStateException if a robot with the same ID already exists.
+     * @param ID              Unique identifier of the vehicle.
+     * @param name            Name of the vehicle.
+     * @param priorityID      Priority identifier of the vehicle, used for handling conflicts or scheduling.
+     * @param color           Color of the vehicle for visual representation.
+     * @param maxVelocity     Maximum velocity the vehicle can attain.
+     * @param maxAcceleration Maximum rate of change of velocity.
+     * @param trackingPeriod  Duration over which the vehicle's state is monitored.
+     * @param length          Physical length of the vehicle.
+     * @param width           Physical width of the vehicle.
+     * @param initialPose     Starting pose of the vehicle in the environment.
+     * @param goalPoses       Array of target poses for the vehicle to reach.
+     * @param safetyDistance  Minimum distance to maintain from the critical section for safety.
+     * @throws IllegalStateException if a vehicle with the provided ID already exists.
+     *
      */
-    public AbstractVehicle(int ID, int priorityID, Color color, double maxVelocity, double maxAcceleration,
+    public AbstractVehicle(int ID, String name, int priorityID, Color color, double maxVelocity, double maxAcceleration,
                            int trackingPeriod, double length, double width, Pose initialPose, Pose[] goalPoses, double safetyDistance) {
         this.ID = ID;
+        this.name = name;
         this.priorityID = priorityID;
         this.color = color;
         this.maxVelocity = maxVelocity;
@@ -73,11 +97,6 @@ public abstract class AbstractVehicle {
         VehiclesHashMap.getList().put(this.ID, this);
         vehicleNumber++;
     }
-    public AbstractVehicle(int priorityID, Color color, double maxVelocity, double maxAcceleration, int trackingPeriod,
-                           double length, double width, Pose initialPose, Pose[] goalPoses, double safetyDistance) {
-        this(vehicleNumber, priorityID, color, maxVelocity, maxAcceleration, trackingPeriod, length, width, initialPose,
-                goalPoses, safetyDistance);
-    }
     public static Coordinate[] makeFootprint(double length, double width) {
         return new Coordinate[]{               // FIXME Currently allows four sided vehicles only
                 new Coordinate(-length, width),        //back left
@@ -86,34 +105,215 @@ public abstract class AbstractVehicle {
                 new Coordinate(-length, -width)        //front left
         };
     }
+
     @Override
     public String toString() {
         return "AbstractVehicle{" +
                 "ID=" + ID +
+                ", name='" + name + '\'' +
                 ", priorityID=" + priorityID +
                 ", type='" + type + '\'' +
-                ", color=" + color +
+                ", color=" + getColorCode() +
                 ", maxVelocity=" + maxVelocity +
                 ", maxAcceleration=" + maxAcceleration +
                 ", trackingPeriod=" + trackingPeriod +
-                ", xLength=" + length +
-                ", yLength=" + width +
+                ", length=" + length +
+                ", width=" + width +
+                ", initialPose=" + initialPose +
+                ", goalPoses=" + Arrays.toString(goalPoses) +
+                ", safetyDistance=" + safetyDistance +
+                ", pathLength=" + pathLength +
                 ", footprint=" + Arrays.toString(footprint) +
-                "}";
+                '}';
     }
 
     /**
-     * Generates the plan for the robot given the initial pose, goal poses, map, and whether the path
-     * should be reversed.
-     * The subclasses should provide the concrete implementation for this method.
+     * Generates a path for the vehicle using the default planning algorithm and parameters.
      *
-     * @param initial     The initial pose of the robot.
+     * @param initial     The initial pose of the vehicle.
      * @param goals       An array of goal poses.
      * @param map         The map used for planning.
-     * @param inversePath A flag indicating if the path should be reversed.
+     * @param inversePath A flag indicating whether the inverse path should also be computed.
      */
-    public abstract void getPlan(Pose initial, Pose[] goals, String map, Boolean inversePath);
+    public void getPlan(Pose initial, Pose[] goals, String map, Boolean inversePath) {
+        getPlan(initial, goals, map, inversePath, ReedsSheppCarPlanner.PLANNING_ALGORITHM.RRTConnect, 0.01,
+                60, 0.01, 0.1);
+    }
 
+    /**
+     * Generates a path for the vehicle using the specified planning algorithm and parameters.
+     *
+     * @param initial                   The initial pose of the vehicle.
+     * @param goals                     An array of goal poses.
+     * @param map                       The map used for planning.
+     * @param inversePath               A flag indicating whether the inverse path should also be computed.
+     * @param planningAlgorithm         The planning algorithm to be used.
+     * @param radius                    The radius used for planning.
+     * @param planningTime              The maximum planning time in seconds.
+     * @param turningRadius             The turning radius of the vehicle.
+     * @param distanceBetweenPathPoints The distance between path points in the generated path.
+     */
+    public void getPlan(Pose initial, Pose[] goals, String map, Boolean inversePath, ReedsSheppCarPlanner.PLANNING_ALGORITHM planningAlgorithm,
+                        double radius, double planningTime, double turningRadius, double distanceBetweenPathPoints) {
+
+        var rsp = configureReedsSheppCarPlanner(planningAlgorithm, map, radius, planningTime, turningRadius,
+                distanceBetweenPathPoints);
+        generatePath(rsp, initial, goals, inversePath);
+    }
+
+    /**
+     * Configures a ReedsSheppCarPlanner instance with the specified parameters.
+     *
+     * @param planningAlgorithm         The planning algorithm to be used.
+     * @param map                       The map used for planning.
+     * @param radius                    The radius used for planning.
+     * @param planningTime              The maximum planning time in seconds.
+     * @param turningRadius             The turning radius of the vehicle.
+     * @param distanceBetweenPathPoints The distance between path points in the generated path.
+     * @return A configured ReedsSheppCarPlanner instance.
+     */
+    private ReedsSheppCarPlanner configureReedsSheppCarPlanner(ReedsSheppCarPlanner.PLANNING_ALGORITHM planningAlgorithm, String map, double radius,
+                                                               double planningTime, double turningRadius, double distanceBetweenPathPoints) {
+        var rsp = new ReedsSheppCarPlanner(planningAlgorithm);
+        rsp.setMap(map);
+        rsp.setRadius(radius);
+        rsp.setPlanningTimeInSecs(planningTime);
+        rsp.setFootprint(getFootPrint());
+        rsp.setTurningRadius(turningRadius);
+        rsp.setDistanceBetweenPathPoints(distanceBetweenPathPoints);
+        return rsp;
+    }
+
+    /**
+     * Generates a path for the vehicle using the provided ReedsSheppCarPlanner instance.
+     * If no path is found, the program prints an error message and exits.
+     *
+     * @param rsp         The ReedsSheppCarPlanner instance used for planning.
+     * @param initial     The initial pose of the vehicle.
+     * @param goals       An array of goal poses.
+     * @param inversePath A flag indicating whether the inverse path should also be computed.
+     */
+    private void generatePath(ReedsSheppCarPlanner rsp, Pose initial, Pose[] goals, Boolean inversePath) {
+        rsp.setStart(initial);
+        rsp.setGoals(goals);
+        rsp.plan();
+
+        if (rsp.getPath() == null) {
+            System.err.println("No path found.");
+            System.exit(1); // Exit the program
+        }
+
+        var pathFwd = rsp.getPath();
+        var path = inversePath ? (PoseSteering[]) ArrayUtils.addAll(pathFwd, rsp.getPathInv()) : pathFwd;
+        VehiclesHashMap.getVehicle(getID()).setPath(path);
+    }
+
+    /**
+     * Generates a path for the vehicle using the provided ReedsSheppCarPlanner instance.
+     * If no path is found, the program prints an error message and exits.
+     *
+     * @param rsp         The ReedsSheppCarPlanner instance used for planning.
+     * @param initial     The initial pose of the vehicle.
+     * @param goal        The goal pose of the vehicle.
+     * @return            An array of PoseSteering objects representing the planned path.
+     */
+    private PoseSteering[] generatePath(ReedsSheppCarPlanner rsp, Pose initial, Pose goal) {
+        rsp.setStart(initial);
+        rsp.setGoals(new Pose[]{goal});
+        rsp.plan();
+        var path = rsp.getPath();
+
+        if (path == null) {
+            System.err.println("No path found.");
+            System.exit(1); // Exit the program
+        }
+        return path;
+    }
+
+    /**
+     * Represents a segment plan containing a path plan and waiting time.
+     */
+    private static class SegmentPlan {
+
+        public PoseSteering[] path;
+        public int waitingTime;
+        public SegmentPlan(PoseSteering[] path, int waitingTime) {
+            this.path = path;
+            this.waitingTime = waitingTime;
+        }
+
+    }
+    /**
+     * Plans paths between segments of poses defined by goalPoses.
+     *
+     * @param initialPose  The initial pose.
+     * @param goalPoses    The array of goal poses.
+     * @param waitingTime  Waiting time at each goal in seconds.
+     * @return A HashMap containing planned paths and waiting times for path segments.
+     */
+    public Map<Integer, SegmentPlan> getPlanSegments(Pose initialPose, Pose[] goalPoses, int waitingTime, String map,
+                                                     ReedsSheppCarPlanner.PLANNING_ALGORITHM planningAlgorithm,
+                                                     double radius, double planningTime, double turningRadius,
+                                                     double distanceBetweenPathPoints) {
+        Map<Integer, SegmentPlan> planSegments = new HashMap<>();
+        var rsp = configureReedsSheppCarPlanner(planningAlgorithm, map, radius, planningTime, turningRadius,
+                distanceBetweenPathPoints);
+
+        Pose start = initialPose;
+        for (int i = 0; i < goalPoses.length; i++) {
+            Pose goal = goalPoses[i];
+
+            // We use the existing generatePath method to obtain the plan for the segment
+            PoseSteering[] segmentPath = generatePath(rsp, start, goal);
+
+            // Storing the segment plan in the map
+            planSegments.put(i, new SegmentPlan(segmentPath, waitingTime));
+
+            // Updating start for next segment
+            start = goal;
+        }
+        return planSegments;
+    }
+
+    /**
+     * Plans paths between segments of poses defined by goalPoses.
+     *
+     * @param initialPose  The initial pose.
+     * @param goalPoses    The array of goal poses.
+     * @param waitingTimesArray Waiting time at each goal in seconds except for the last goal pose.
+     */
+    public void getPlanSegments(Pose initialPose, Pose[] goalPoses, int[] waitingTimesArray, String map) {
+        if (goalPoses.length - 1 != waitingTimesArray.length) {
+            throw new IllegalArgumentException("The length of waitingTimesArray must be one less than the length of goalPoses");
+        }
+
+        Map<Integer, AbstractMap.SimpleEntry<PoseSteering[], Integer>> planSegments = new HashMap<>();
+        var rsp = configureReedsSheppCarPlanner(planningAlgorithm, map, 0.1, 60, 0.01, 0.1);
+
+        Pose start = initialPose;
+        for (int i = 0; i < goalPoses.length; i++) {
+            Pose goal = goalPoses[i];
+
+            // We use the existing generatePath method to obtain the plan for the segment
+            PoseSteering[] segmentPath = generatePath(rsp, start, goal);
+
+            // Storing the segment plan in the map
+            int waitingTime = (i < waitingTimesArray.length) ? waitingTimesArray[i] : 0;
+            planSegments.put(i, new AbstractMap.SimpleEntry<>(segmentPath, waitingTime));
+
+            // Updating start for next segment
+            start = goal;
+        }
+        planSegmentsMap = planSegments;
+    }
+
+    private static String poseToString(Pose pose) {
+        return round(pose.getX()) + "," + round(pose.getY()) + "," + round(pose.getTheta());
+    }
+
+    public Map<Integer, AbstractMap.SimpleEntry<PoseSteering[], Integer>> getPlanSegmentsMap() {
+        return planSegmentsMap;
+    }
     protected static double round(double value) {
         return Math.round(value * 10.0) / 10.0;
     }
@@ -124,7 +324,7 @@ public abstract class AbstractVehicle {
 
     public Coordinate[] getFootprint() {
         return footprint;
-    }
+    } //TODO Each vehicle should be able to have a separate footprint in tec not the default one
 
     public void setColor(Color color) {
         this.color = color;
@@ -140,6 +340,9 @@ public abstract class AbstractVehicle {
 
     public Coordinate[] getFootPrint() {
         return footprint;
+    }
+    public void setFootprint(Coordinate[] footprint) {
+        this.footprint = footprint;
     }
 
     public double getPlanLength() {
@@ -164,8 +367,18 @@ public abstract class AbstractVehicle {
         setPlanLength(path);
     }
 
+    public void setLength(double length) {
+        this.length = length;
+        this.footprint = makeFootprint(length, width);
+    }
+
     public double getLength() {
         return length;
+    }
+
+    public void setWidth(double width) {
+        this.width = width;
+        this.footprint = makeFootprint(length, width);
     }
 
     public double getWidth() {
@@ -223,4 +436,25 @@ public abstract class AbstractVehicle {
     public void setGoalPoses(Pose[] goalPoses) {
         this.goalPoses = goalPoses;
     }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public int getPriorityID() {
+        return priorityID;
+    }
+
+    public double getPathLength() {
+        return pathLength;
+    }
+
+    public void setPathLength(double pathLength) {
+        this.pathLength = pathLength;
+    }
+
 }

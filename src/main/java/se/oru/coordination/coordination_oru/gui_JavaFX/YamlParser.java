@@ -7,10 +7,10 @@ import java.io.InputStream;
 
 public class YamlParser {
 
-    public YamlData parse(String filenameYAML) {
+    public MapData parse(String filenameYAML) {
         Yaml yaml = new Yaml();
         try (InputStream in = new FileInputStream(filenameYAML)) {
-            return yaml.loadAs(in, YamlData.class);
+            return yaml.loadAs(in, MapData.class);
         } catch (IOException e) {
             throw new RuntimeException("Error parsing YAML file: " + filenameYAML, e);
         }
