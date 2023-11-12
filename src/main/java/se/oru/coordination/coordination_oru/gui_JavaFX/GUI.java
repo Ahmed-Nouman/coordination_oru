@@ -253,9 +253,6 @@ public class GUI extends Application {
         // Visual
         BorderPane borderPane = new BorderPane();
 
-        // Left Pane
-        Button deleteVehicleButton = new Button("Delete Vehicle");
-        updateVehiclesList(borderPane, deleteVehicleButton);
 
         // Right Pane
         var rightPane = new VBox();
@@ -276,32 +273,38 @@ public class GUI extends Application {
         Text name = new Text("Name of Vehicle: ");
         GridPane.setConstraints(name, 0, 0);
         TextField nameField = new TextField();   // TODO Make Choicebox width same as TextField
+        nameField.setPromptText("vehicle");
         GridPane.setConstraints(nameField, 1, 0);
         Text length = new Text("Length (m): ");
         GridPane.setConstraints(length, 0, 1);
         TextField lengthField = new TextField();
+        lengthField.setPromptText("0.9");
         GridPane.setConstraints(lengthField, 1, 1);
         Text width = new Text("Width (m): ");
         GridPane.setConstraints(width, 0, 2);
         TextField widthField = new TextField();
+        widthField.setPromptText("0.6");
         GridPane.setConstraints(widthField, 1, 2);
         Text maxVelocity = new Text("Max. Velocity (m/s): ");
         GridPane.setConstraints(maxVelocity, 0, 3);
         TextField maxVelocityField = new TextField();
+        maxVelocityField.setPromptText("10.0");
         GridPane.setConstraints(maxVelocityField, 1, 3);
         Text maxAcceleration = new Text("Max. Acceleration (m/s^2): ");
         GridPane.setConstraints(maxAcceleration, 0, 4);
         TextField maxAccelerationField = new TextField();
+        maxAccelerationField.setPromptText("1.0");
         GridPane.setConstraints(maxAccelerationField, 1, 4);
         Text safetyDistance = new Text("Safety Distance (m): ");
         GridPane.setConstraints(safetyDistance, 0, 5);
         TextField safetyDistanceField = new TextField();
+        safetyDistanceField.setPromptText("0.5");
         GridPane.setConstraints(safetyDistanceField, 1, 5);
         Text color = new Text("Color: ");
         GridPane.setConstraints(color, 0, 6);
         ChoiceBox<String> colorField = new ChoiceBox<>();
         colorField.getItems().addAll("Yellow", "Red", "Blue", "Green", "Black", "White", "Cyan", "Orange");
-        colorField.setValue(colorField.getItems().get(0)); // FIXME Get first value
+        colorField.setValue(colorField.getItems().get(0));
         GridPane.setConstraints(colorField, 1, 6);
         Text initialPose = new Text("Initial Pose: ");
         GridPane.setConstraints(initialPose, 0, 7);
@@ -324,6 +327,7 @@ public class GUI extends Application {
         lookAheadDistance.setVisible(false);
         GridPane.setConstraints(lookAheadDistance, 0, 10);
         TextField lookAheadDistanceField = new TextField();
+        lookAheadDistanceField.setPromptText("20.0");
         GridPane.setConstraints(lookAheadDistanceField, 1, 10);
         lookAheadDistanceField.setVisible(false);
         Button addVehicleButton = new Button("Add Vehicle");
@@ -344,6 +348,12 @@ public class GUI extends Application {
         borderPane.setBottom(bottomPane);
         BorderPane.setMargin(bottomPane, new Insets(0, 0, 20, 350)); // 20px top spacing
 
+        // Left Pane
+        Button deleteVehicleButton = new Button("Delete Vehicle");
+        updateVehiclesList(borderPane, deleteVehicleButton, projectData, nameField, lengthField, widthField,
+                maxVelocityField, maxAccelerationField, safetyDistanceField, colorField, initialPoseField,
+                goalPoseField, isHumanField, lookAheadDistanceField);
+
         // Working
 
         // isHuman checkbox
@@ -363,7 +373,9 @@ public class GUI extends Application {
             var vehicle = getAddedVehicle(isHumanField, lookAheadDistanceField, nameField, maxVelocityField, maxAccelerationField,
                     safetyDistanceField, colorField, lengthField, widthField, initialPoseField, goalPoseField);
             projectData.addVehicle(nameField.getText(), vehicle);
-            updateVehiclesList(borderPane, deleteVehicleButton);
+            updateVehiclesList(borderPane, deleteVehicleButton, projectData, nameField, lengthField, widthField,
+                    maxVelocityField, maxAccelerationField, safetyDistanceField, colorField, initialPoseField,
+                    goalPoseField, isHumanField, lookAheadDistanceField);
         });
 
         // Delete vehicle button
@@ -371,7 +383,9 @@ public class GUI extends Application {
             String selectedVehicle = vehiclesList.getSelectionModel().getSelectedItem(); // Get the selected item
             vehiclesList.getItems().remove(selectedVehicle); // Remove from ListView
             projectData.removeVehicle(selectedVehicle); // Remove from ProjectData
-            updateVehiclesList(borderPane, deleteVehicleButton); // Update your ListView display
+            updateVehiclesList(borderPane, deleteVehicleButton, projectData, nameField, lengthField, widthField,
+                    maxVelocityField, maxAccelerationField, safetyDistanceField, colorField, initialPoseField,
+                    goalPoseField, isHumanField, lookAheadDistanceField);
         });
 
         return new Scene(borderPane, 1420, 800);
@@ -414,29 +428,29 @@ public class GUI extends Application {
         settingsPane.setVgap(10);
         settingsPane.setAlignment(Pos.CENTER);
 
-        Text heuristics = new Text("Heuristics: ");
+        Text heuristics = new Text("Heuristics: "); // TODO
         GridPane.setConstraints(heuristics, 0, 0);
         ChoiceBox<String> heuristicsField = new ChoiceBox<>();
         heuristicsField.getItems().addAll("Closest First", "Human First", "Autonomous First");
-        heuristicsField.setValue("Closest First");
+        heuristicsField.setValue(heuristicsField.getItems().get(0));
         GridPane.setConstraints(heuristicsField, 1, 0);
 
-        Text noOfRuns = new Text("No. of Runs: ");
+        Text noOfRuns = new Text("No. of Runs: "); // TODO
         GridPane.setConstraints(noOfRuns, 0, 1);
         TextField noOfRunsField = new TextField();
         GridPane.setConstraints(noOfRunsField, 1, 1);
 
-        Text simulationTime = new Text("Simulation Time (minutes): ");
+        Text simulationTime = new Text("Simulation Time (minutes): "); // TODO
         GridPane.setConstraints(simulationTime, 0, 2);
         GridPane.setConstraints(simulationTimeField, 1, 2);
 
-        Text reportsSaving = new Text("Saving Vehicles Reports: ");
+        Text reportsSaving = new Text("Saving Vehicles Reports: "); //TODO
         GridPane.setConstraints(reportsSaving, 0, 3);
         CheckBox reportsSavingField = new CheckBox();
         reportsSavingField.setSelected(true);
         GridPane.setConstraints(reportsSavingField, 1, 3);
 
-        Text reportsFolder = new Text("Folder to Save the Reports: ");
+        Text reportsFolder = new Text("Folder to Save the Reports: "); //TODO
         GridPane.setConstraints(reportsFolder, 0, 4);
         Button btnBrowse = getBrowseButton();
         GridPane.setConstraints(btnBrowse, 1, 4);
@@ -486,17 +500,48 @@ public class GUI extends Application {
         return btnBrowse;
     }
 
-    private void updateVehiclesList(BorderPane borderPane, Button deleteVehicleButton) {
+    private void updateVehiclesList(BorderPane borderPane, Button deleteVehicleButton, ProjectData projectData,
+                                    TextField nameField, TextField lengthField, TextField widthField,
+                                    TextField maxVelocityField, TextField maxAccelerationField,
+                                    TextField safetyDistanceField, ChoiceBox<String> colorField,
+                                    ChoiceBox<String> initialPoseField, ChoiceBox<String> goalPoseField,
+                                    CheckBox isHumanField, TextField lookAheadDistanceField) {
         VBox leftPane = new VBox();
         Text vehiclesText = new Text("Vehicles: ");
         getVehicles(vehiclesList);
         leftPane.setAlignment(Pos.CENTER);
         leftPane.getChildren().addAll(vehiclesText, vehiclesList, deleteVehicleButton);
         leftPane.setSpacing(10);
-        vehiclesList.getSelectionModel().select(0);
         borderPane.setLeft(leftPane);
         BorderPane.setMargin(leftPane, new Insets(0, 0, 0, 20)); // 20px top spacing
-    }
+
+        // Listener for list selection changes
+        vehiclesList.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
+            if (newValue != null) {
+                // Get the selected vehicle's details
+                ProjectData.Vehicle vehicle = projectData.getVehicles().get(newValue);
+
+                // Update the fields in the centerPane with the details of the selected vehicle
+                nameField.setText(vehicle.getType());
+                lengthField.setText(String.valueOf(vehicle.getLength()));
+                widthField.setText(String.valueOf(vehicle.getWidth()));
+                maxVelocityField.setText(String.valueOf(vehicle.getMaxVelocity()));
+                maxAccelerationField.setText(String.valueOf(vehicle.getMaxAcceleration()));
+                safetyDistanceField.setText(String.valueOf(vehicle.getSafetyDistance()));
+                colorField.setValue(vehicle.getColor());
+                initialPoseField.setValue(vehicle.getInitialPose());
+                if (vehicle.getGoalPoses() != null && vehicle.getGoalPoses().length > 0) {
+                    goalPoseField.setValue(vehicle.getGoalPoses()[0]);
+                }
+                isHumanField.setSelected(vehicle.getLookAheadDistance() > 0);
+                lookAheadDistanceField.setText(String.valueOf(vehicle.getLookAheadDistance()));
+                lookAheadDistanceField.setVisible(vehicle.getLookAheadDistance() > 0);
+            }
+        });
+
+        // Clear initial selection
+        vehiclesList.getSelectionModel().clearSelection();
+    } // TODO Data validation
 
     private ImageView getImageView() {
         String imageFile = projectData.getMap();

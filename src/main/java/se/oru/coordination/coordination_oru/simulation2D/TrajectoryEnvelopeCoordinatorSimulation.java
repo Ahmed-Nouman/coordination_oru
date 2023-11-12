@@ -337,9 +337,9 @@ public class TrajectoryEnvelopeCoordinatorSimulation extends TrajectoryEnvelopeC
 			}
 			
 		}
-		ret.add(CONNECTOR_BRANCH + 			"Obsolete crit sect .. " + criticalSectionCounter.get() + ".");
+		ret.add(CONNECTOR_BRANCH + 			"Obsolete critical sections .. " + criticalSectionCounter.get() + ".");
 		ret.add(CONNECTOR_BRANCH + 			"Messages sent ....... " + totalMsgsSent.get() + ", lost: " + totalMessagesLost.get() + ", retransmitted: " + totalMsgsReTx.get() + ". Packets lost: " + totalPacketsLost.get() + ", number of replicas: " + numberOfReplicas + ".");
-		ret.add(CONNECTOR_BRANCH + 			"Unalive states ...... " + nonliveStatesDetected.get() + ", avoided: " + nonliveStatesAvoided.get() + ", revised according to heuristic: " + currentOrdersHeurusticallyDecided.get() + ".");
+		ret.add(CONNECTOR_BRANCH + 			"Un-alive states ...... " + nonliveStatesDetected.get() + ", avoided: " + nonliveStatesAvoided.get() + ", revised according to heuristic: " + currentOrdersHeurusticallyDecided.get() + ".");
 		ret.add(CONNECTOR_LEAF + 			"Re-planned paths .... " + replanningTrialsCounter.get() + ", successful: " + successfulReplanningTrialsCounter.get() + ".");
 		return ret.toArray(new String[ret.size()]);
 	}
@@ -347,7 +347,7 @@ public class TrajectoryEnvelopeCoordinatorSimulation extends TrajectoryEnvelopeC
 	@Override
 	public void onCriticalSectionUpdate() {
 		
-		if (checkCollisions && (collisionThread == null) && (this.allCriticalSections.size() > 0)) {
+		if (checkCollisions && (collisionThread == null) && (!this.allCriticalSections.isEmpty())) {
 			// Start the collision checking thread. 
 			// The tread will be alive until there will be almost one critical section.
 			collisionThread = new Thread("Collision checking thread.") {
