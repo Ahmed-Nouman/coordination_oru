@@ -26,7 +26,6 @@ public class EightAutonomousVehicles {
         final Pose drawPoint24 = new Pose(74.85, 84.45, -Math.PI / 2);
         final Pose orePass = new Pose(54.35, 11.25, -Math.PI / 2);
 
-        //TODO I think controller kills everything up
         var autonomousVehicle1 = new AutonomousVehicle(drawPoint17, new Pose[] {orePass});
         var autonomousVehicle2 = new AutonomousVehicle(drawPoint19, new Pose[] {orePass});
         var autonomousVehicle3 = new AutonomousVehicle(drawPoint20, new Pose[] {orePass});

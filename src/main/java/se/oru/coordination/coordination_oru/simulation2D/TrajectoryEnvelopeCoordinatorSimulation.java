@@ -31,7 +31,7 @@ public class TrajectoryEnvelopeCoordinatorSimulation extends TrajectoryEnvelopeC
 	/**
 	 * The default footprint used for robots if none is specified.
 	 * NOTE: coordinates in footprints must be given in CCW or CW order.
-	 */ // FIXME
+	 */
 	public static Coordinate[] DEFAULT_FOOTPRINT = new Coordinate[] {
 			new Coordinate(-1.7, 0.7),	//back left
 			new Coordinate(-1.7, -0.7),	//back right

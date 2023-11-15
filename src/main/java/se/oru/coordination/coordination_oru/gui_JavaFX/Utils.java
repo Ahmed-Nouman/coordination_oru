@@ -8,12 +8,14 @@ import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import org.metacsp.multi.spatioTemporal.paths.Pose;
+import se.oru.coordination.coordination_oru.gui_JavaFX.ProjectData.Vehicle;
 
 import java.awt.*;
 import java.io.File;
@@ -96,7 +98,7 @@ public class Utils {
         });
     }
 
-    protected static ProjectData.Vehicle getAddedVehicle(CheckBox isHumanField, TextField lookAheadDistanceField,
+    protected static Vehicle getAddedVehicle(CheckBox isHumanField, TextField lookAheadDistanceField,
                                                          TextField maxVelocityField, TextField maxAccelerationField,
                                                          TextField safetyDistanceField, ComboBox<String> colorField,
                                                          TextField lengthField, TextField widthField, ComboBox<String> initialPoseField,
@@ -149,20 +151,25 @@ public class Utils {
         }
     }
 
-    protected static void updateVehiclesList(ListView<String> vehiclesList, BorderPane borderPane, Button deleteVehicleButton, ProjectData projectData,
+    protected static void updateVehiclesList(ListView<String> vehiclesList, BorderPane borderPane, Button addVehicleButton,
+                                             Button deleteVehicleButton, ProjectData projectData,
                                              TextField nameField, TextField lengthField, TextField widthField,
                                              TextField maxVelocityField, TextField maxAccelerationField,
                                              TextField safetyDistanceField, ComboBox<String> colorField,
                                              ComboBox<String> initialPoseField, ComboBox<String> goalPoseField,
-                                             CheckBox isHumanField, TextField lookAheadDistanceField) {
+                                             CheckBox isHumanField, Text lookAheadDistance,
+                                             TextField lookAheadDistanceField) {
         VBox leftPane = new VBox();
         Text vehiclesText = new Text("Vehicles: ");
         getVehicles(vehiclesList, projectData);
         leftPane.setAlignment(Pos.CENTER);
-        leftPane.getChildren().addAll(vehiclesText, vehiclesList, deleteVehicleButton);
+        HBox buttons = new HBox(addVehicleButton, deleteVehicleButton);
+        buttons.setAlignment(Pos.CENTER);
+        buttons.setSpacing(10);
+        leftPane.getChildren().addAll(vehiclesText, vehiclesList, buttons);
         leftPane.setSpacing(10);
         borderPane.setLeft(leftPane);
-        BorderPane.setMargin(leftPane, new Insets(0, 0, 0, 20)); // 20px top spacing
+        BorderPane.setMargin(leftPane, new Insets(0, 0, 0, 20));
 
         // Listener for list selection changes
         vehiclesList.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
@@ -183,13 +190,14 @@ public class Utils {
                     goalPoseField.setValue(vehicle.getGoalPoses()[0]);
                 }
                 isHumanField.setSelected(vehicle.getLookAheadDistance() > 0);
+                lookAheadDistance.setVisible(vehicle.getLookAheadDistance() > 0);
                 lookAheadDistanceField.setText(String.valueOf(vehicle.getLookAheadDistance()));
                 lookAheadDistanceField.setVisible(vehicle.getLookAheadDistance() > 0);
             }
         });
 
-        // Clear initial selection
-        vehiclesList.getSelectionModel().clearSelection();
+        // 1st item is initially selected
+        vehiclesList.getSelectionModel().selectFirst();
     }
 
     protected static ImageView getImageView(GUI gui) {
@@ -246,15 +254,11 @@ public class Utils {
         File file = fileChooser.showOpenDialog(gui.stage);
 
         if (file != null) {
-            try {
-                String content = new String(Files.readAllBytes(file.toPath())); // TODO Check if required
-                gui.filenameJSON = file.getAbsolutePath();
-                gui.pathLabel.setText("File opened: " + gui.filenameJSON);
-                gui.nextProjectButton.setVisible(true);
-                gui.projectData = gui.jsonParser.parse(gui.filenameJSON);
-            } catch (IOException ex) {
-                DialogBox.display("Error", "Could not read the file.");
-            }
+            // TODO Check if required
+            gui.filenameJSON = file.getAbsolutePath();
+            gui.pathLabel.setText("File opened: " + gui.filenameJSON);
+            gui.nextOpenProjectButton.setVisible(true);
+            gui.projectData = gui.jsonParser.parse(gui.filenameJSON);
         }
     }
 
@@ -268,16 +272,15 @@ public class Utils {
         File file = fileChooser.showSaveDialog(gui.stage);
 
         if (file != null) {
-            // Ensure the file has .json extension
             if (!file.getName().endsWith(".json")) {
                 gui.filenameJSON = file.getAbsolutePath() + ".json";
                 file = new File(gui.filenameJSON);
             }
 
             try (FileWriter fileWriter = new FileWriter(file)) {
-                fileWriter.write("{}"); // Save empty JSON or default data
+                fileWriter.write("{}");
                 gui.pathLabel.setText("File created: " + file.getAbsolutePath());
-                gui.nextProjectButton.setVisible(true);
+                gui.nextCreateProjectButton.setVisible(true);
             } catch (IOException ex) {
                 gui.pathLabel.setText("Error: Could not save the file.");
             }
