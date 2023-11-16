@@ -62,7 +62,7 @@ public class TwoAutonomousRobots {
         Missions.setMap(YAML_FILE);
         var m1 = new Mission(autonomousRobot1.getID(), autonomousRobot1.getPath());
         var m2 = new Mission(autonomousRobot2.getID(), autonomousRobot2.getPath());
-        m1.setStoppingPoint(drawPoint21, 10000);
+        m1.setStoppingPoint(orePass, 10000);
         Missions.enqueueMission(m1);
         Missions.enqueueMission(m2);
 //        tec.addMissions(m1);

@@ -19,18 +19,18 @@ public class PaperScenario_6A1L {
         final String YAML_FILE = "maps/mine-map-paper-2023.yaml";
         double mapResolution = new MapResolution().getMapResolution(YAML_FILE);
         double scaleAdjustment = 1.0 / mapResolution;
-        double lookAheadDistance = 6.0;
+        double lookAheadDistance = 45 / scaleAdjustment;
         double timeIntervalInSeconds = 0.1;
         int inferenceCycleTime = 100;
         int terminationInMinutes = 5;
         int numOfCallsForLookAheadRobot = 1;
         boolean visualization = true;
-        boolean writeRobotReports = false;
+        boolean writeRobotReports = true;
 
         // Everything including velocity, acceleration, lookahead, length and width is scaled by 0.1
         final double MAX_VELOCITY = 1.0;
         final double MAX_ACCELERATION = 0.1;
-        final int TRACKING_PERIOD = 1000;
+        final int TRACKING_PERIOD = 30;
         final double X_LENGTH = 0.9;
         final double Y_LENGTH = 0.6;
 
@@ -68,7 +68,7 @@ public class PaperScenario_6A1L {
         var autonomousRobot6 = new AutonomousVehicle("A6", 1, Color.YELLOW, MAX_VELOCITY, MAX_ACCELERATION, TRACKING_PERIOD,
                 X_LENGTH, Y_LENGTH, drawPoint12, new Pose[] {orePass3}, 0);
         var lookAheadRobot = new LookAheadVehicle("H1", lookAheadDistance, 1,  Color.GREEN, MAX_VELOCITY, MAX_ACCELERATION,
-                TRACKING_PERIOD, X_LENGTH, Y_LENGTH, entrance, new Pose[] {mainTunnelLeft}, 0);
+                TRACKING_PERIOD, X_LENGTH, Y_LENGTH, entrance, new Pose[] {mainTunnelLeft, entrance}, 0);
 
         autonomousRobot1.getPlan(autonomousRobot1.getInitialPose(), autonomousRobot1.getGoalPoses(),
                 YAML_FILE, true);

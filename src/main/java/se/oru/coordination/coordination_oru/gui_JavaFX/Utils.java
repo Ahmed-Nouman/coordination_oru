@@ -200,6 +200,69 @@ public class Utils {
         vehiclesList.getSelectionModel().selectFirst();
     }
 
+    protected static void updateVehiclesList(ListView<String> vehiclesList, BorderPane borderPane, Button addVehicleButton,
+                                             Button deleteVehicleButton, ProjectData projectData,
+                                             TextField nameField, TextField lengthField, TextField widthField,
+                                             TextField maxVelocityField, TextField maxAccelerationField,
+                                             TextField safetyDistanceField, TextField colorField,
+                                             TextField initialPoseField, ListView<String> goalPoseField,
+                                             CheckBox isHumanField, Text lookAheadDistance,
+                                             TextField lookAheadDistanceField) {
+        VBox leftPane = new VBox();
+        Text vehiclesText = new Text("Vehicles: ");
+        getVehicles(vehiclesList, projectData);
+        leftPane.setAlignment(Pos.CENTER);
+        HBox buttons = new HBox(addVehicleButton, deleteVehicleButton);
+        buttons.setAlignment(Pos.CENTER);
+        buttons.setSpacing(10);
+        leftPane.getChildren().addAll(vehiclesText, vehiclesList, buttons);
+        leftPane.setSpacing(10);
+        borderPane.setLeft(leftPane);
+        BorderPane.setMargin(leftPane, new Insets(0, 0, 0, 20));
+
+        // Listener for list selection changes
+        vehiclesList.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
+            if (newValue != null) {
+                // Get the selected vehicle's details
+                ProjectData.Vehicle vehicle = projectData.getVehicles().get(newValue);
+
+                // Update the fields in the centerPane with the details of the selected vehicle
+                nameField.setText(newValue);
+                lengthField.setText(String.valueOf(vehicle.getLength()));
+                widthField.setText(String.valueOf(vehicle.getWidth()));
+                maxVelocityField.setText(String.valueOf(vehicle.getMaxVelocity()));
+                maxAccelerationField.setText(String.valueOf(vehicle.getMaxAcceleration()));
+                safetyDistanceField.setText(String.valueOf(vehicle.getSafetyDistance()));
+                colorField.setText(vehicle.getColor());
+                initialPoseField.setText(vehicle.getInitialPose());
+                if (!projectData.getVehicles().isEmpty()) {
+                    goalPoseField.getItems().clear();
+                    Vehicle selectedVehicle = projectData.getVehicles().get(nameField.getText()); // Getting the first vehicle
+                    String startPose = selectedVehicle.getInitialPose();
+                    String[] goals = selectedVehicle.getGoalPoses();
+
+                    if (goals != null && goals.length > 0) {
+                        // Add the first mission step
+                        goalPoseField.getItems().add("(" + startPose + " -> " + goals[0] + ")");
+
+                        // Add subsequent mission steps
+                        for (int i = 0; i < goals.length - 1; i++) {
+                            goalPoseField.getItems().add("(" + goals[i] + " -> " + goals[i + 1] + ")");
+                        }
+                    }
+                }
+                listViewCentering(goalPoseField);
+                isHumanField.setSelected(vehicle.getLookAheadDistance() > 0);
+                lookAheadDistance.setVisible(vehicle.getLookAheadDistance() > 0);
+                lookAheadDistanceField.setText(String.valueOf(vehicle.getLookAheadDistance()));
+                lookAheadDistanceField.setVisible(vehicle.getLookAheadDistance() > 0);
+            }
+        });
+
+        // 1st item is initially selected
+        vehiclesList.getSelectionModel().selectFirst();
+    }
+
     protected static ImageView getImageView(GUI gui) {
         String imageFile = gui.projectData.getMap();
         String imagePath = String.join("/", Arrays.asList(imageFile.split("/")).subList(0,
@@ -219,6 +282,12 @@ public class Utils {
     protected static void getPoses(GUI gui, ComboBox<String> Poses) {
         for (String pose : gui.projectData.getListOfAllPoses().keySet()) {
             Poses.getItems().add(pose);
+        }
+    }
+
+    protected static void getPoses(GUI gui, TextField Poses) {
+        for (String pose : gui.projectData.getListOfAllPoses().keySet()) {
+            Poses.setText(Poses.getText() + pose + "\n");
         }
     }
 
@@ -254,10 +323,9 @@ public class Utils {
         File file = fileChooser.showOpenDialog(gui.stage);
 
         if (file != null) {
-            // TODO Check if required
             gui.filenameJSON = file.getAbsolutePath();
-            gui.pathLabel.setText("File opened: " + gui.filenameJSON);
-            gui.nextOpenProjectButton.setVisible(true);
+            gui.pathLabel.setText("Name of Project: " + file.getName());
+            gui.nextProjectButton.setVisible(true);
             gui.projectData = gui.jsonParser.parse(gui.filenameJSON);
         }
     }
@@ -279,8 +347,8 @@ public class Utils {
 
             try (FileWriter fileWriter = new FileWriter(file)) {
                 fileWriter.write("{}");
-                gui.pathLabel.setText("File created: " + file.getAbsolutePath());
-                gui.nextCreateProjectButton.setVisible(true);
+                gui.pathLabel.setText("Name of Project: " + file.getName());
+                gui.nextProjectButton.setVisible(true);
             } catch (IOException ex) {
                 gui.pathLabel.setText("Error: Could not save the file.");
             }

@@ -1836,7 +1836,7 @@ public abstract class AbstractTrajectoryEnvelopeCoordinator {
 		}
 	}
 
-	private static void printLicense() {
+	public static void printLicense() {
 		System.out.println("\n"+TrajectoryEnvelopeCoordinator.TITLE);
 		String cpr = TrajectoryEnvelopeCoordinator.COPYRIGHT;
 		for (String cont : TrajectoryEnvelopeCoordinator.CONTRIBUTORS) cpr += ", " + cont;

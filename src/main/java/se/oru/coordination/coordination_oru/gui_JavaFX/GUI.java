@@ -8,10 +8,9 @@ import javafx.geometry.VPos;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.image.ImageView;
-import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.GridPane;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.VBox;
+import javafx.scene.layout.*;
+import javafx.scene.text.Font;
+import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
 import se.oru.coordination.coordination_oru.ConstantAccelerationForwardModel;
@@ -23,6 +22,7 @@ import se.oru.coordination.coordination_oru.util.Missions;
 import se.oru.coordination.coordination_oru.vehicles.AbstractVehicle;
 import se.oru.coordination.coordination_oru.vehicles.AutonomousVehicle;
 import se.oru.coordination.coordination_oru.vehicles.LookAheadVehicle;
+
 import static se.oru.coordination.coordination_oru.gui_JavaFX.Utils.*;
 import se.oru.coordination.coordination_oru.gui_JavaFX.ProjectData.Vehicle;
 
@@ -34,17 +34,15 @@ public class GUI extends Application {
     private final TextField simulationTimeField = new TextField();
     final Stage stage = new Stage();
     final Label pathLabel = new Label("");
-    String filenameJSON = "";
+    private Boolean isNewProject = false;
+    protected String filenameJSON = "";
     final JsonParser jsonParser = new JsonParser();
     protected ProjectData projectData;
     protected MapData mapData;
     private final YamlParser yamlParser = new YamlParser();
-    final Button nextCreateProjectButton = new Button("Next");
-    final Button nextOpenProjectButton = new Button("Next");
-    private final Button backCreateMapButton = new Button("Back");
-    private final Button backOpenMapButton = new Button("Back");
-    private final Button nextCreateMapButton = new Button("Next");
-    private final Button nextOpenMapButton = new Button("Next");
+    protected final Button nextProjectButton = new Button("Next");
+    private final Button backMapButton = new Button("Back");
+    private final Button nextMapButton = new Button("Next");
     private final Button nextVehicleButton = new Button("Next");
     private final Button backVehicleButton = new Button("Back");
     private final Button runSimulationButton = new Button("Run");
@@ -52,6 +50,7 @@ public class GUI extends Application {
     private final Button resetSimulationButton =  new Button("Reset");
     private final Button backSimulationButton = new Button("Back");
     private final ListView<String> vehiclesList = new ListView<>();
+
     public static void main(String[] args) {
         launch(args);
     }
@@ -64,71 +63,49 @@ public class GUI extends Application {
         stage.setScene(projectScene);
         stage.show();
 
-        nextCreateProjectButton.setOnAction(e -> {
+        nextProjectButton.setOnAction(e -> {
             stage.setTitle("Coordination_ORU: Setting up the map");
-            stage.setScene(displayCreateMapScene());
+            stage.setScene(displayMapScene());
             stage.centerOnScreen();
         });
 
-        nextOpenProjectButton.setOnAction(e -> {
-            stage.setTitle("Coordination_ORU: Setting up the map");
-            stage.setScene(displayOpenMapScene());
-            stage.centerOnScreen();
-        });
-
-        nextCreateMapButton.setOnAction(e -> {
+        nextMapButton.setOnAction(e -> {
             stage.setTitle("Coordination_ORU: Setting the vehicles");
             stage.setScene(displayVehicleScene());
             stage.centerOnScreen();
         });
 
-        nextOpenMapButton.setOnAction(e -> {
-            stage.setTitle("Coordination_ORU: Setting the vehicles");
-            stage.setScene(displayVehicleScene());
-            stage.centerOnScreen();
-        });
-
-        backCreateMapButton.setOnAction(e -> {
+        backMapButton.setOnAction(e -> {
             stage.setTitle("Coordination_ORU");
             stage.setScene(displayProjectScene());
             stage.centerOnScreen();
-            nextCreateProjectButton.setVisible(true);
+            nextProjectButton.setVisible(true);
         });
 
-        backOpenMapButton.setOnAction(e -> {
-            // FIXME Centering Issue
-            stage.setTitle("Coordination_ORU");
-            stage.setScene(displayProjectScene());
-            stage.centerOnScreen();
-            nextOpenProjectButton.setVisible(true);
-        });
-
-        nextVehicleButton.setOnAction( e -> {
+        nextVehicleButton.setOnAction(e -> {
             stage.setTitle("Coordination_ORU: Setting the simulation");
             stage.setScene(displaySimulationScene());
             stage.centerOnScreen();
         });
 
-        backVehicleButton.setOnAction( e -> {
+        backVehicleButton.setOnAction(e -> {
             // FIXME Centering Issue
             stage.setTitle("Coordination_ORU: Setting the map");
-            stage.setScene(displayOpenMapScene());
+            stage.setScene(displayMapScene());
             stage.centerOnScreen();
         });
 
-        backSimulationButton.setOnAction( e -> {
+        backSimulationButton.setOnAction(e -> {
             stage.setTitle("Coordination_ORU: Setting the vehicles");
             stage.setScene(displayVehicleScene());
             stage.centerOnScreen();
         });
 
-        saveSimulationButton.setOnAction( e -> System.out.println("File saved"));
+        saveSimulationButton.setOnAction(e -> System.out.println("File saved"));
 
-        runSimulationButton.setOnAction( e -> {
-            runSimulation();
-        });
+        runSimulationButton.setOnAction(e -> runSimulation());
 
-        resetSimulationButton.setOnAction( e -> {
+        resetSimulationButton.setOnAction(e -> {
             stage.setTitle("Coordination_ORU");
             stage.setScene(displayProjectScene());
             stage.centerOnScreen();
@@ -136,88 +113,46 @@ public class GUI extends Application {
 
     }
 
-    private Scene displayProjectScene() {
-
-        BorderPane borderPane = new BorderPane();
-        nextCreateProjectButton.setVisible(false);
-        nextOpenProjectButton.setVisible(false);
-
-        // Center Pane
-        VBox centerPane = new VBox();
-        centerPane.setSpacing(40);
-
-        Text welcomeMessage = new Text("Welcome to Coordination_ORU!");
-
-        // Center - Button Pane
-        HBox buttonPane = new HBox();
-        buttonPane.setSpacing(40);
-        Button createProject = new Button("Create Project");
-        Button openProject = new Button("Open Project");
-        buttonPane.getChildren().addAll(createProject, openProject);
-        buttonPane.setAlignment(Pos.CENTER);
-
-        centerPane.getChildren().addAll(welcomeMessage, buttonPane, pathLabel, nextCreateProjectButton,
-                nextOpenProjectButton);
-        centerPane.setAlignment(Pos.CENTER);
-        borderPane.setCenter(centerPane);
-        BorderPane.setAlignment(centerPane, Pos.CENTER);
-
-        createProject.setOnAction(e -> fileJSONCreate(this));
-        openProject.setOnAction(e -> fileJSONOpen(this));
-
-        return new Scene(borderPane, 400, 300);
-    }
-
-    private Scene displayCreateMapScene() {
+    private Scene displayMapScene() {
 
         BorderPane borderPane = new BorderPane();
 
-        // Center Pane
+        // Top Pane
+        borderPane.setTop(MenuBar.getMenuBar(this));
+        MenuBar.disableSaveProject();
+        MenuBar.disableNewProject();
+        MenuBar.disableOpenProject();
+
         VBox centerPane = new VBox();
-        Text mapMessage = new Text("Please select a map: ");
-        Button browseMapButton = getBrowseButton(stage);
-        centerPane.getChildren().addAll(mapMessage, browseMapButton);
+        if (isNewProject) {
+
+            // Center Pane
+            Text mapMessage = new Text("Please select a map: ");
+            Button browseMapButton = getBrowseButton(stage);
+            centerPane.getChildren().addAll(mapMessage, browseMapButton);
+            // FIXME
 
 //        mapData = yamlParser.parse(projectData.getMap());
 //        ImageView imageView = getImageView(this);
 
 //        centerPane.getChildren().add(imageView);
+
+        }
+        else {
+
+            // Center Pane
+            mapData = yamlParser.parse(projectData.getMap());
+            ImageView imageView = getImageView(this);
+
+            centerPane.getChildren().add(imageView);
+
+        }
         centerPane.setAlignment(Pos.CENTER);
         centerPane.setSpacing(10);
         borderPane.setCenter(centerPane);
 
         // Bottom Pane
-        var bottomPane = new HBox();
-        bottomPane.setAlignment(Pos.CENTER);
-        bottomPane.setSpacing(350);
-        bottomPane.getChildren().addAll(backCreateMapButton, nextCreateMapButton);
-        borderPane.setBottom(bottomPane);
-        BorderPane.setMargin(bottomPane, new Insets(0, 0, 20, 0)); // 20px top spacing
-
-        return new Scene(borderPane, 800, 800);
-    }
-
-    private Scene displayOpenMapScene() {
-
-        BorderPane borderPane = new BorderPane();
-
-        // Center Pane
-        VBox centerPane = new VBox();
-        mapData = yamlParser.parse(projectData.getMap());
-        ImageView imageView = getImageView(this);
-
-        centerPane.getChildren().add(imageView);
-        centerPane.setAlignment(Pos.CENTER);
-        centerPane.setSpacing(10);
-        borderPane.setCenter(centerPane);
-
-        // Bottom Pane
-        var bottomPane = new HBox();
-        bottomPane.setAlignment(Pos.CENTER);
-        bottomPane.setSpacing(350);
-        bottomPane.getChildren().addAll(backOpenMapButton, nextOpenMapButton);
-        borderPane.setBottom(bottomPane);
-        BorderPane.setMargin(bottomPane, new Insets(0, 0, 20, 0)); // 20px top spacing
+        borderPane.setBottom(BottomPane.getBottomPane(backMapButton, nextMapButton));
 
         return new Scene(borderPane, 800, 800);
     }
@@ -225,6 +160,13 @@ public class GUI extends Application {
     private Scene displayVehicleScene() {
 
         BorderPane borderPane = new BorderPane();
+
+        // Top Pane
+        borderPane.setTop(MenuBar.getMenuBar(this));
+        MenuBar.disableSaveProject();
+        MenuBar.disableNewProject();
+        MenuBar.disableOpenProject();
+
         listViewCentering(vehiclesList);
 
         // Right Pane
@@ -287,33 +229,26 @@ public class GUI extends Application {
 
         Text color = new Text("Color: ");
         GridPane.setConstraints(color, 0, 6);
-        ComboBox<String> colorField = new ComboBox<>();
-        colorField.setDisable(true);
-        colorField.getItems().addAll("Yellow", "Red", "Blue", "Green", "Black", "White", "Cyan", "Orange");
-        colorField.getSelectionModel().selectFirst();
+        TextField colorField = new TextField();
+        colorField.setEditable(false);
         colorField.setPrefWidth(200);
-        listComboBoxCentering(colorField);
+        colorField.setAlignment(Pos.CENTER);
         GridPane.setConstraints(colorField, 1, 6);
 
-        Text initialPose = new Text("Initial Pose: ");
+        Text initialPose = new Text("Start Location: ");
         GridPane.setConstraints(initialPose, 0, 7);
-        ComboBox<String> initialPoseField = new ComboBox<>();
-        initialPoseField.setDisable(true);
+        TextField initialPoseField = new TextField();
+        initialPoseField.setEditable(false);
         getPoses(this, initialPoseField);
-        initialPoseField.getSelectionModel().selectFirst();
         initialPoseField.setPrefWidth(200);
-        listComboBoxCentering(initialPoseField);
+        initialPoseField.setAlignment(Pos.CENTER);
         GridPane.setConstraints(initialPoseField, 1, 7);
 
-        Text goalPose = new Text("Goal Pose: ");
+        Text goalPose = new Text("Goals: ");
         GridPane.setConstraints(goalPose, 0, 8);
-        ComboBox<String> goalPoseField = new ComboBox<>();
-        goalPoseField.setDisable(true);
-        getPoses(this, goalPoseField);
-        goalPoseField.setValue(new ArrayList<>(projectData.getListOfAllPoses().values()).size() > 1 ?
-                new ArrayList<>(projectData.getListOfAllPoses().keySet()).get(1) : null);
+        ListView<String> goalPoseField = new ListView<>();
         goalPoseField.setPrefWidth(200);
-        listComboBoxCentering(goalPoseField);
+        goalPoseField.setPrefHeight(120);
         GridPane.setConstraints(goalPoseField, 1, 8);
 
         Text isHuman = new Text("Human Operated: ");
@@ -348,12 +283,7 @@ public class GUI extends Application {
 //        BorderPane.setMargin(centerPane, new Insets(20, 20, 20, 20));
 
         // Bottom Pane
-        var bottomPane = new HBox();
-        bottomPane.setAlignment(Pos.BOTTOM_LEFT);
-        bottomPane.getChildren().addAll(backVehicleButton, nextVehicleButton);
-        bottomPane.setSpacing(500);
-        borderPane.setBottom(bottomPane);
-        BorderPane.setMargin(bottomPane, new Insets(0, 0, 20, 350)); // 20px top spacing
+        borderPane.setBottom(BottomPane.getBottomPane(backVehicleButton, nextVehicleButton));
 
         // Left Pane
         Button addVehicleButton = new Button("Add Vehicle");
@@ -444,7 +374,7 @@ public class GUI extends Application {
             listComboBoxCentering(colorVehicleField);
             GridPane.setConstraints(colorVehicleField, 1, 6);
 
-            Text initialPoseVehicle = new Text("Initial Pose: ");
+            Text initialPoseVehicle = new Text("Start Location: ");
             GridPane.setConstraints(initialPoseVehicle, 0, 7);
             ComboBox<String> initialPoseVehicleField = new ComboBox<>();
             getPoses(this, initialPoseVehicleField);
@@ -453,7 +383,7 @@ public class GUI extends Application {
             listComboBoxCentering(initialPoseVehicleField);
             GridPane.setConstraints(initialPoseVehicleField, 1, 7);
 
-            Text goalPoseVehicle = new Text("Goal Pose: ");
+            Text goalPoseVehicle = new Text("Goals: ");
             GridPane.setConstraints(goalPoseVehicle, 0, 8);
             ComboBox<String> goalPoseVehicleField = new ComboBox<>();
             getPoses(this, goalPoseVehicleField);
@@ -469,7 +399,6 @@ public class GUI extends Application {
             GridPane.setValignment(isHumanVehicleField, VPos.CENTER);
             GridPane.setHalignment(isHumanVehicleField, HPos.CENTER);
             GridPane.setConstraints(isHumanVehicleField, 1, 9);
-
 
             Text lookAheadDistanceVehicle = new Text("Look Ahead Distance (m): ");
             lookAheadDistanceVehicle.setVisible(false);
@@ -558,6 +487,11 @@ public class GUI extends Application {
 
         BorderPane borderPane = new BorderPane();
 
+        // Top Pane
+        borderPane.setTop(MenuBar.getMenuBar(this));
+        MenuBar.disableNewProject();
+        MenuBar.disableOpenProject();
+
         // Center Pane
         var centerPane = new VBox();
         centerPane.setSpacing(10);
@@ -605,15 +539,65 @@ public class GUI extends Application {
         BorderPane.setMargin(centerPane, new Insets(10, 0, 0, 0));
 
         // Bottom Pane
-        var bottomPane = new HBox();
-        bottomPane.setAlignment(Pos.CENTER);
-        bottomPane.getChildren().addAll(backSimulationButton, runSimulationButton, saveSimulationButton,
-                resetSimulationButton);
-        bottomPane.setSpacing(50);
-        borderPane.setBottom(bottomPane);
-        BorderPane.setMargin(bottomPane, new Insets(0, 0, 20, 0)); // 20px top spacing
+        borderPane.setBottom(BottomPane.getBottomPane(backSimulationButton, resetSimulationButton,
+                saveSimulationButton, runSimulationButton));
 
         return new Scene(borderPane, 600, 300);
+    }
+
+    /**
+     * Creates and returns a scene with a layout for project management.
+     *
+     * @return A new Scene containing the layout for project management.
+     */
+    private Scene displayProjectScene() {
+
+        BorderPane borderPane = new BorderPane();
+        nextProjectButton.setVisible(false);
+
+        // Top Pane
+        borderPane.setTop(MenuBar.getMenuBar(this));
+        MenuBar.disableSaveProject();
+
+        // Center Pane
+        VBox centerPane = new VBox();
+        centerPane.setSpacing(40);
+        centerPane.setPadding(new Insets(40, 0, 40, 0));
+
+        Text welcomeMessage = new Text("Welcome to Coordination_ORU!");
+        welcomeMessage.setFont(Font.font("System", FontWeight.SEMI_BOLD, 16));
+
+        // Center - Button Pane
+        HBox buttonPane = new HBox();
+        buttonPane.setSpacing(40);
+        Button newProject = new Button("New Project");
+        Button openProject = new Button("Open Project");
+        buttonPane.getChildren().addAll(newProject, openProject);
+        buttonPane.setAlignment(Pos.CENTER);
+
+        centerPane.getChildren().addAll(welcomeMessage, buttonPane, pathLabel);
+        centerPane.setAlignment(Pos.CENTER);
+
+        // Set VBox children to grow equally
+        VBox.setVgrow(buttonPane, Priority.ALWAYS);
+
+        borderPane.setCenter(centerPane);
+        BorderPane.setAlignment(centerPane, Pos.CENTER);
+
+        newProject.setOnAction(e -> {
+            fileJSONCreate(this);
+            isNewProject = true;
+            nextProjectButton.setVisible(true);
+        });
+        openProject.setOnAction(e -> {
+            fileJSONOpen(this);
+            nextProjectButton.setVisible(true);
+        });
+
+        // Bottom Pane
+        borderPane.setBottom(BottomPane.getBottomPane(nextProjectButton));
+
+        return new Scene(borderPane, 400, 300);
     }
 
     private void runSimulation() {
@@ -621,10 +605,11 @@ public class GUI extends Application {
         int runTime = 10; // FIXME Auto Load
         String resultsDirectory = System.getProperty("user.dir"); // FIXME Hard Coded
         final String YAML_FILE = projectData.getMap();
-        double lookAheadDistance = 6;
+        double mapResolution = mapData.getResolution();
+        double scaleAdjustment = 1 / mapResolution;
+        double lookAheadDistance = 45 / scaleAdjustment;
         double timeIntervalInSeconds = 0.25;
         int updateCycleTime = 100;
-        int numOfCallsForLookAheadRobot = 5;
         boolean writeRobotReports = false;
 
         // Instantiate a trajectory envelope coordinator.
@@ -681,7 +666,7 @@ public class GUI extends Application {
         Missions.setMap(YAML_FILE);
 
     Missions.startMissionDispatchers(tec, writeRobotReports, timeIntervalInSeconds,
-            runTime, heuristicName, updateCycleTime, resultsDirectory, mapData.getResolution());
+            runTime, heuristicName, updateCycleTime, resultsDirectory, scaleAdjustment);
         });
     }
 }
