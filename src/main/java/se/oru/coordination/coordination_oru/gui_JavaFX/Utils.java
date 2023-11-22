@@ -1,5 +1,6 @@
 package se.oru.coordination.coordination_oru.gui_JavaFX;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.*;
@@ -10,18 +11,16 @@ import javafx.scene.image.ImageView;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
+import javafx.scene.text.Font;
+import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
-import javafx.stage.DirectoryChooser;
 import javafx.stage.FileChooser;
-import javafx.stage.Stage;
 import org.metacsp.multi.spatioTemporal.paths.Pose;
-import se.oru.coordination.coordination_oru.gui_JavaFX.ProjectData.Vehicle;
+import org.yaml.snakeyaml.Yaml;
 
 import java.awt.*;
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.nio.file.Files;
+import java.io.*;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 
@@ -67,12 +66,12 @@ public class Utils {
         }
     }
 
-    protected static void listViewCentering(ListView<String> listView) {
+    protected static void listCentering(ListView<String> listView) {
         listView.setCellFactory(lv -> new ListCell<String>() {
             @Override
             protected void updateItem(String item, boolean empty) {
                 super.updateItem(item, empty);
-                if (empty) {
+                if (empty || item == null) {
                     setText(null);
                 } else {
                     setText(item);
@@ -82,7 +81,7 @@ public class Utils {
         });
     }
 
-    protected static void listComboBoxCentering(ComboBox<String> comboBox) {
+    protected static void listCentering(ComboBox<String> comboBox) {
         comboBox.setButtonCell(new ListCell<>() {
             @Override
             protected void updateItem(String item, boolean empty) {
@@ -97,28 +96,6 @@ public class Utils {
             }
         });
     }
-
-    protected static Vehicle getAddedVehicle(CheckBox isHumanField, TextField lookAheadDistanceField,
-                                                         TextField maxVelocityField, TextField maxAccelerationField,
-                                                         TextField safetyDistanceField, ComboBox<String> colorField,
-                                                         TextField lengthField, TextField widthField, ComboBox<String> initialPoseField,
-                                                         ComboBox<String> goalPoseField) {
-            ProjectData.Vehicle vehicle = new ProjectData.Vehicle();
-            vehicle.setType("Autonomous");
-            if (isHumanField.isSelected()) {
-                vehicle.setType("Human");
-                vehicle.setLookAheadDistance(Double.parseDouble(lookAheadDistanceField.getText()));
-            }
-            vehicle.setMaxVelocity(Double.parseDouble(maxVelocityField.getText()));
-            vehicle.setMaxAcceleration(Double.parseDouble(maxAccelerationField.getText()));
-            vehicle.setSafetyDistance(Double.parseDouble(safetyDistanceField.getText()));
-            vehicle.setColor(colorField.getValue());
-            vehicle.setLength(Double.parseDouble(lengthField.getText()));
-            vehicle.setWidth(Double.parseDouble(widthField.getText()));
-            vehicle.setInitialPose(initialPoseField.getValue());
-            vehicle.setGoalPoses(new String[]{goalPoseField.getValue()});
-            return vehicle;
-        }
 
     /**
      * Gets an array of Pose objects for the given pose names.
@@ -156,11 +133,12 @@ public class Utils {
                                              TextField nameField, TextField lengthField, TextField widthField,
                                              TextField maxVelocityField, TextField maxAccelerationField,
                                              TextField safetyDistanceField, ComboBox<String> colorField,
-                                             ComboBox<String> initialPoseField, ComboBox<String> goalPoseField,
+                                             ComboBox<String> initialPoseField, VBox goalPoseField,
                                              CheckBox isHumanField, Text lookAheadDistance,
                                              TextField lookAheadDistanceField) {
         VBox leftPane = new VBox();
         Text vehiclesText = new Text("Vehicles: ");
+        vehiclesText.setFont(Font.font("System", FontWeight.BOLD, 12));
         getVehicles(vehiclesList, projectData);
         leftPane.setAlignment(Pos.CENTER);
         HBox buttons = new HBox(addVehicleButton, deleteVehicleButton);
@@ -186,72 +164,9 @@ public class Utils {
                 safetyDistanceField.setText(String.valueOf(vehicle.getSafetyDistance()));
                 colorField.setValue(vehicle.getColor());
                 initialPoseField.setValue(vehicle.getInitialPose());
-                if (vehicle.getGoalPoses() != null && vehicle.getGoalPoses().length > 0) {
-                    goalPoseField.setValue(vehicle.getGoalPoses()[0]);
-                }
-                isHumanField.setSelected(vehicle.getLookAheadDistance() > 0);
-                lookAheadDistance.setVisible(vehicle.getLookAheadDistance() > 0);
-                lookAheadDistanceField.setText(String.valueOf(vehicle.getLookAheadDistance()));
-                lookAheadDistanceField.setVisible(vehicle.getLookAheadDistance() > 0);
-            }
-        });
-
-        // 1st item is initially selected
-        vehiclesList.getSelectionModel().selectFirst();
-    }
-
-    protected static void updateVehiclesList(ListView<String> vehiclesList, BorderPane borderPane, Button addVehicleButton,
-                                             Button deleteVehicleButton, ProjectData projectData,
-                                             TextField nameField, TextField lengthField, TextField widthField,
-                                             TextField maxVelocityField, TextField maxAccelerationField,
-                                             TextField safetyDistanceField, TextField colorField,
-                                             TextField initialPoseField, ListView<String> goalPoseField,
-                                             CheckBox isHumanField, Text lookAheadDistance,
-                                             TextField lookAheadDistanceField) {
-        VBox leftPane = new VBox();
-        Text vehiclesText = new Text("Vehicles: ");
-        getVehicles(vehiclesList, projectData);
-        leftPane.setAlignment(Pos.CENTER);
-        HBox buttons = new HBox(addVehicleButton, deleteVehicleButton);
-        buttons.setAlignment(Pos.CENTER);
-        buttons.setSpacing(10);
-        leftPane.getChildren().addAll(vehiclesText, vehiclesList, buttons);
-        leftPane.setSpacing(10);
-        borderPane.setLeft(leftPane);
-        BorderPane.setMargin(leftPane, new Insets(0, 0, 0, 20));
-
-        // Listener for list selection changes
-        vehiclesList.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
-            if (newValue != null) {
-                // Get the selected vehicle's details
-                ProjectData.Vehicle vehicle = projectData.getVehicles().get(newValue);
-
-                // Update the fields in the centerPane with the details of the selected vehicle
-                nameField.setText(newValue);
-                lengthField.setText(String.valueOf(vehicle.getLength()));
-                widthField.setText(String.valueOf(vehicle.getWidth()));
-                maxVelocityField.setText(String.valueOf(vehicle.getMaxVelocity()));
-                maxAccelerationField.setText(String.valueOf(vehicle.getMaxAcceleration()));
-                safetyDistanceField.setText(String.valueOf(vehicle.getSafetyDistance()));
-                colorField.setText(vehicle.getColor());
-                initialPoseField.setText(vehicle.getInitialPose());
-                if (!projectData.getVehicles().isEmpty()) {
-                    goalPoseField.getItems().clear();
-                    Vehicle selectedVehicle = projectData.getVehicles().get(nameField.getText()); // Getting the first vehicle
-                    String startPose = selectedVehicle.getInitialPose();
-                    String[] goals = selectedVehicle.getGoalPoses();
-
-                    if (goals != null && goals.length > 0) {
-                        // Add the first mission step
-                        goalPoseField.getItems().add("(" + startPose + " -> " + goals[0] + ")");
-
-                        // Add subsequent mission steps
-                        for (int i = 0; i < goals.length - 1; i++) {
-                            goalPoseField.getItems().add("(" + goals[i] + " -> " + goals[i + 1] + ")");
-                        }
-                    }
-                }
-                listViewCentering(goalPoseField);
+//                if (vehicle.getGoalPoses() != null && vehicle.getGoalPoses().length > 0) {
+//                    goalPoseField.setValue(vehicle.getGoalPoses()[0]);
+//                }
                 isHumanField.setSelected(vehicle.getLookAheadDistance() > 0);
                 lookAheadDistance.setVisible(vehicle.getLookAheadDistance() > 0);
                 lookAheadDistanceField.setText(String.valueOf(vehicle.getLookAheadDistance()));
@@ -291,67 +206,52 @@ public class Utils {
         }
     }
 
-    protected static Button getBrowseButton(Stage stage) {
-        DirectoryChooser directoryChooser = new DirectoryChooser();
-        directoryChooser.setTitle("Select Folder to Save the Vehicle Reports: ");
-
-        // Create the Browse button
-        Button btnBrowse = new Button("Browse");
-
-        // Set the action to be performed when the Browse button is clicked
-        btnBrowse.setOnAction(e -> {
-            // Show the directory chooser and get the selected directory
-            File selectedDirectory = directoryChooser.showDialog(stage);
-
-            // Check if a directory is selected
-            if (selectedDirectory != null) {
-                // Do something with the selected directory
-                // For example, print the path to the console or use it in your application
-                System.out.println("Folder selected: " + selectedDirectory.getAbsolutePath());
-            }
-        });
-        return btnBrowse;
-    }
-
-    static void fileJSONOpen(GUI gui) {
+    static File fileChooser(GUI gui, String dialogTitle, String extension) {
         FileChooser fileChooser = new FileChooser();
         fileChooser.setInitialDirectory(new File(System.getProperty("user.home")));
-
-        fileChooser.setTitle("Select a project file to open: ");
+        fileChooser.setTitle(dialogTitle);
         fileChooser.getExtensionFilters().clear();
-        fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("JSON Files", "*.json"));
-        File file = fileChooser.showOpenDialog(gui.stage);
+        String extensionDescription = extension.toUpperCase() + " Files";
+        fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter(extensionDescription, "*." + extension));
 
-        if (file != null) {
-            gui.filenameJSON = file.getAbsolutePath();
-            gui.pathLabel.setText("Name of Project: " + file.getName());
-            gui.nextProjectButton.setVisible(true);
-            gui.projectData = gui.jsonParser.parse(gui.filenameJSON);
-        }
+        return fileChooser.showOpenDialog(gui.stage);
     }
 
-    static void fileJSONCreate(GUI gui) {
+    static File fileCreator(GUI gui, String dialogTitle, String extension) {
         FileChooser fileChooser = new FileChooser();
         fileChooser.setInitialDirectory(new File(System.getProperty("user.home")));
-
-        fileChooser.setInitialFileName("Choose a folder and name of the project file: ");
+        fileChooser.setInitialFileName(dialogTitle);
         fileChooser.getExtensionFilters().clear();
-        fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("JSON Files", "*.json"));
+        String extensionDescription = extension.toUpperCase() + " Files";
+        fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter(extensionDescription, "*." + extension));
+
         File file = fileChooser.showSaveDialog(gui.stage);
 
         if (file != null) {
-            if (!file.getName().endsWith(".json")) {
-                gui.filenameJSON = file.getAbsolutePath() + ".json";
-                file = new File(gui.filenameJSON);
+            String fileExtension = "." + extension;
+            if (!file.getName().endsWith(fileExtension)) {
+                file = new File(file.getAbsolutePath() + fileExtension);
             }
+        }
 
-            try (FileWriter fileWriter = new FileWriter(file)) {
-                fileWriter.write("{}");
-                gui.pathLabel.setText("Name of Project: " + file.getName());
-                gui.nextProjectButton.setVisible(true);
-            } catch (IOException ex) {
-                gui.pathLabel.setText("Error: Could not save the file.");
-            }
+        return file;
+    }
+
+    protected static MapData parseYAML(String filenameYAML) {
+        Yaml yaml = new Yaml();
+        try (InputStream in = new FileInputStream(filenameYAML)) {
+            return yaml.loadAs(in, MapData.class);
+        } catch (IOException e) {
+            throw new RuntimeException("Error parsing YAML file: " + filenameYAML, e);
+        }
+    }
+
+    protected static ProjectData parseJSON(String filenameJSON) {
+        ObjectMapper objectMapper = new ObjectMapper();
+        try {
+            return objectMapper.readValue(Paths.get(filenameJSON).toFile(), ProjectData.class);
+        } catch (IOException e) {
+            throw new RuntimeException("Error parsing JSON file: " + filenameJSON, e);
         }
     }
 }

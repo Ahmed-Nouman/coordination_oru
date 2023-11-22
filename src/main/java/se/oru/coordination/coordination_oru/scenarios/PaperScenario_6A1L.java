@@ -19,7 +19,7 @@ public class PaperScenario_6A1L {
         final String YAML_FILE = "maps/mine-map-paper-2023.yaml";
         double mapResolution = new MapResolution().getMapResolution(YAML_FILE);
         double scaleAdjustment = 1.0 / mapResolution;
-        double lookAheadDistance = 45 / scaleAdjustment;
+        double lookAheadDistance = 95 / scaleAdjustment;
         double timeIntervalInSeconds = 0.1;
         int inferenceCycleTime = 100;
         int terminationInMinutes = 5;
@@ -124,7 +124,7 @@ public class PaperScenario_6A1L {
 
         // Set Heuristics
         var heuristic = new Heuristics();
-        tec.addComparator(heuristic.closest());
+        tec.addComparator(heuristic.lookAheadFirst());
         String heuristicName = heuristic.getHeuristicName();
 
         // Set Local Re-ordering and Local Re-Planning to break Deadlocks

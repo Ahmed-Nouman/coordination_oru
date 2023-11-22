@@ -4,8 +4,13 @@ import javafx.scene.control.*;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyCodeCombination;
 
-import static se.oru.coordination.coordination_oru.gui_JavaFX.Utils.fileJSONCreate;
-import static se.oru.coordination.coordination_oru.gui_JavaFX.Utils.fileJSONOpen;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.time.Year;
+
+import static se.oru.coordination.coordination_oru.gui_JavaFX.Utils.*;
+import static se.oru.coordination.coordination_oru.gui_JavaFX.Utils.parseJSON;
 
 public class MenuBar {
 
@@ -30,11 +35,37 @@ public class MenuBar {
         // File menu items
         newProject = new MenuItem("New Project...");
         newProject.setAccelerator(new KeyCodeCombination(KeyCode.N, KeyCodeCombination.CONTROL_DOWN));
-        newProject.setOnAction(e -> fileJSONCreate(gui));
+        newProject.setOnAction(e -> {
+            File selectedFile = fileCreator(gui, "Name of Project: ", "json");
+            if (selectedFile != null) {
+                gui.projectFile = selectedFile.getAbsolutePath();
+                gui.pathLabel.setText("Name of Project: " + selectedFile.getName());
+                gui.nextProjectButton.setVisible(true);
+
+                try (FileWriter fileWriter = new FileWriter(selectedFile)) {
+                    fileWriter.write("{}");
+                } catch (IOException ex) {
+                    gui.pathLabel.setText("Error: Could not save the file.");
+                }
+            }
+
+            gui.isNewProject = true;
+            gui.nextProjectButton.setVisible(true);
+        });
 
         openProject = new MenuItem("Open Project...");
         openProject.setAccelerator(new KeyCodeCombination(KeyCode.O, KeyCodeCombination.CONTROL_DOWN));
-        openProject.setOnAction(e -> fileJSONOpen(gui));
+        openProject.setOnAction(e -> {
+            File file = fileChooser(gui, "Select a project file to open: ", "json");
+            if (file != null) {
+                gui.projectFile = file.getAbsolutePath();
+                gui.pathLabel.setText("Name of Project: " + file.getName());
+                gui.nextProjectButton.setVisible(true);
+                gui.projectData = parseJSON(gui.projectFile);
+            }
+
+            gui.nextProjectButton.setVisible(true);
+        });
 
         saveProject = new MenuItem("Save Project");
         saveProject.setAccelerator(new KeyCodeCombination(KeyCode.S, KeyCodeCombination.CONTROL_DOWN));
@@ -55,9 +86,9 @@ public class MenuBar {
         about.setAccelerator(new KeyCodeCombination(KeyCode.A, KeyCodeCombination.CONTROL_DOWN));
 
         about.setOnAction(e -> {
-            String content = "Coordination_ORU - Robot-agnostic online coordination for multiple robots\n\n" +
-                    "Copyright: © 2017-2023\n\n" +
-                    "Authors: Federico Pecora, Anna Mannucci, Ahmed Nouman, Olga Mironenko\n";
+            String content = "A Framework for Multi-Robot Motion Planning, Coordination and Control.\n\n" +
+                    "Copyright: © 2017-" + String.valueOf(Year.now()) + "\n\n" +
+                    "Authors: Federico Pecora, Anna Mannucci, Franziska Klügl, Ahmed Nouman, Olga Mironenko\n";
             AlertBox.display("Coordination_ORU", content, Alert.AlertType.INFORMATION);
         });
 

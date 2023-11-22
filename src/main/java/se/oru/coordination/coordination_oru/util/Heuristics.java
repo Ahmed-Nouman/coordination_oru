@@ -84,8 +84,8 @@ public class Heuristics {
      *
      * @return The comparator for lookAheadRobot heuristic.
      */
-    public Comparator<RobotAtCriticalSection> lookAheadRobotsFirst() {
-        heuristicName = "LOOK_AHEAD_ROBOTS_FIRST";
+    public Comparator<RobotAtCriticalSection> lookAheadFirst() {
+        heuristicName = "LOOK_AHEAD_FIRST";
         return (o1, o2) -> {
             boolean isO1LookAhead = VehiclesHashMap.getVehicle(o1.getRobotReport().getRobotID()).getClass().getSimpleName().equals("LookAheadVehicle");
             boolean isO2LookAhead = VehiclesHashMap.getVehicle(o2.getRobotReport().getRobotID()).getClass().getSimpleName().equals("LookAheadVehicle");

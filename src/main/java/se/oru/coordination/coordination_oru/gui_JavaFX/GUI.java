@@ -24,23 +24,25 @@ import se.oru.coordination.coordination_oru.vehicles.AutonomousVehicle;
 import se.oru.coordination.coordination_oru.vehicles.LookAheadVehicle;
 
 import static se.oru.coordination.coordination_oru.gui_JavaFX.Utils.*;
+import static se.oru.coordination.coordination_oru.vehicles.VehiclesHashMap.getVehicle;
+
 import se.oru.coordination.coordination_oru.gui_JavaFX.ProjectData.Vehicle;
 
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Optional;
 
 public class GUI extends Application {
 
     private final TextField simulationTimeField = new TextField();
     final Stage stage = new Stage();
     final Label pathLabel = new Label("");
-    private Boolean isNewProject = false;
-    protected String filenameJSON = "";
-    final JsonParser jsonParser = new JsonParser();
+    protected Boolean isNewProject = false;
+    protected String projectFile = "";
     protected ProjectData projectData;
     protected MapData mapData;
-    private final YamlParser yamlParser = new YamlParser();
-    protected final Button nextProjectButton = new Button("Next");
+    protected Button nextProjectButton = new Button("Next");
     private final Button backMapButton = new Button("Back");
     private final Button nextMapButton = new Button("Next");
     private final Button nextVehicleButton = new Button("Next");
@@ -113,384 +115,12 @@ public class GUI extends Application {
 
     }
 
-    private Scene displayMapScene() {
-
-        BorderPane borderPane = new BorderPane();
-
-        // Top Pane
-        borderPane.setTop(MenuBar.getMenuBar(this));
-        MenuBar.disableSaveProject();
-        MenuBar.disableNewProject();
-        MenuBar.disableOpenProject();
-
-        VBox centerPane = new VBox();
-        if (isNewProject) {
-
-            // Center Pane
-            Text mapMessage = new Text("Please select a map: ");
-            Button browseMapButton = getBrowseButton(stage);
-            centerPane.getChildren().addAll(mapMessage, browseMapButton);
-            // FIXME
-
-//        mapData = yamlParser.parse(projectData.getMap());
-//        ImageView imageView = getImageView(this);
-
-//        centerPane.getChildren().add(imageView);
-
-        }
-        else {
-
-            // Center Pane
-            mapData = yamlParser.parse(projectData.getMap());
-            ImageView imageView = getImageView(this);
-
-            centerPane.getChildren().add(imageView);
-
-        }
-        centerPane.setAlignment(Pos.CENTER);
-        centerPane.setSpacing(10);
-        borderPane.setCenter(centerPane);
-
-        // Bottom Pane
-        borderPane.setBottom(BottomPane.getBottomPane(backMapButton, nextMapButton));
-
-        return new Scene(borderPane, 800, 800);
-    }
-
-    private Scene displayVehicleScene() {
-
-        BorderPane borderPane = new BorderPane();
-
-        // Top Pane
-        borderPane.setTop(MenuBar.getMenuBar(this));
-        MenuBar.disableSaveProject();
-        MenuBar.disableNewProject();
-        MenuBar.disableOpenProject();
-
-        listViewCentering(vehiclesList);
-
-        // Right Pane
-        var rightPane = new VBox();
-        ImageView imageView = getImageView(this);
-        rightPane.getChildren().addAll(imageView);
-        rightPane.setSpacing(10);
-        rightPane.setAlignment(Pos.CENTER);
-        borderPane.setRight(rightPane);
-//        BorderPane.setMargin(rightPane, new Insets(0, 20, 0, 0));
-
-        // Center Pane
-        var centerPane = new GridPane();
-//        centerPane.setPadding(new Insets(10, 10, 10, 10));
-        centerPane.setAlignment(Pos.CENTER);
-//        centerPane.setHgap(10);
-        centerPane.setVgap(10);
-
-        Text name = new Text("Name of Vehicle: ");
-        GridPane.setConstraints(name, 0, 0);
-        TextField nameField = new TextField();
-        nameField.setEditable(false);
-        nameField.setAlignment(Pos.CENTER);
-        GridPane.setConstraints(nameField, 1, 0);
-
-        Text length = new Text("Length (m): ");
-        GridPane.setConstraints(length, 0, 1);
-        TextField lengthField = new TextField();
-        lengthField.setEditable(false);
-        lengthField.setAlignment(Pos.CENTER);
-        GridPane.setConstraints(lengthField, 1, 1);
-
-        Text width = new Text("Width (m): ");
-        GridPane.setConstraints(width, 0, 2);
-        TextField widthField = new TextField();
-        widthField.setEditable(false);
-        widthField.setAlignment(Pos.CENTER);
-        GridPane.setConstraints(widthField, 1, 2);
-
-        Text maxVelocity = new Text("Max. Velocity (m/s): ");
-        GridPane.setConstraints(maxVelocity, 0, 3);
-        TextField maxVelocityField = new TextField();
-        maxVelocityField.setEditable(false);
-        maxVelocityField.setAlignment(Pos.CENTER);
-        GridPane.setConstraints(maxVelocityField, 1, 3);
-
-        Text maxAcceleration = new Text("Max. Acceleration (m/s^2): ");
-        GridPane.setConstraints(maxAcceleration, 0, 4);
-        TextField maxAccelerationField = new TextField();
-        maxAccelerationField.setEditable(false);
-        maxAccelerationField.setAlignment(Pos.CENTER);
-        GridPane.setConstraints(maxAccelerationField, 1, 4);
-
-        Text safetyDistance = new Text("Safety Distance (m): ");
-        GridPane.setConstraints(safetyDistance, 0, 5);
-        TextField safetyDistanceField = new TextField();
-        safetyDistanceField.setEditable(false);
-        safetyDistanceField.setAlignment(Pos.CENTER);
-        GridPane.setConstraints(safetyDistanceField, 1, 5);
-
-        Text color = new Text("Color: ");
-        GridPane.setConstraints(color, 0, 6);
-        TextField colorField = new TextField();
-        colorField.setEditable(false);
-        colorField.setPrefWidth(200);
-        colorField.setAlignment(Pos.CENTER);
-        GridPane.setConstraints(colorField, 1, 6);
-
-        Text initialPose = new Text("Start Location: ");
-        GridPane.setConstraints(initialPose, 0, 7);
-        TextField initialPoseField = new TextField();
-        initialPoseField.setEditable(false);
-        getPoses(this, initialPoseField);
-        initialPoseField.setPrefWidth(200);
-        initialPoseField.setAlignment(Pos.CENTER);
-        GridPane.setConstraints(initialPoseField, 1, 7);
-
-        Text goalPose = new Text("Goals: ");
-        GridPane.setConstraints(goalPose, 0, 8);
-        ListView<String> goalPoseField = new ListView<>();
-        goalPoseField.setPrefWidth(200);
-        goalPoseField.setPrefHeight(120);
-        GridPane.setConstraints(goalPoseField, 1, 8);
-
-        Text isHuman = new Text("Human Operated: ");
-        GridPane.setConstraints(isHuman, 0, 9);
-        CheckBox isHumanField = new CheckBox();
-        isHumanField.setDisable(true);
-        GridPane.setValignment(isHumanField, VPos.CENTER);
-        GridPane.setHalignment(isHumanField, HPos.CENTER);
-        GridPane.setConstraints(isHumanField, 1, 9);
-
-        Text lookAheadDistance = new Text("Look Ahead Distance (m): ");
-        lookAheadDistance.setVisible(false);
-        GridPane.setConstraints(lookAheadDistance, 0, 10);
-        TextField lookAheadDistanceField = new TextField();
-        lookAheadDistanceField.setEditable(false);
-        lookAheadDistanceField.setAlignment(Pos.CENTER);
-        GridPane.setConstraints(lookAheadDistanceField, 1, 10);
-        lookAheadDistanceField.setVisible(false);
-
-        centerPane.getChildren().addAll(name, nameField,
-                length, lengthField,
-                width, widthField,
-                maxVelocity, maxVelocityField,
-                maxAcceleration, maxAccelerationField,
-                initialPose, initialPoseField,
-                safetyDistance, safetyDistanceField,
-                color, colorField,
-                goalPose, goalPoseField,
-                isHuman, isHumanField,
-                lookAheadDistance, lookAheadDistanceField);
-        borderPane.setCenter(centerPane);
-//        BorderPane.setMargin(centerPane, new Insets(20, 20, 20, 20));
-
-        // Bottom Pane
-        borderPane.setBottom(BottomPane.getBottomPane(backVehicleButton, nextVehicleButton));
-
-        // Left Pane
-        Button addVehicleButton = new Button("Add Vehicle");
-        Button deleteVehicleButton = new Button("Delete Vehicle");
-
-        updateVehiclesList(vehiclesList, borderPane, addVehicleButton, deleteVehicleButton, projectData, nameField,
-                lengthField, widthField, maxVelocityField, maxAccelerationField, safetyDistanceField, colorField,
-                initialPoseField, goalPoseField, isHumanField, lookAheadDistance, lookAheadDistanceField);
-
-//        // isHuman checkbox
-//        isHumanField.setOnAction( e -> {
-//            if (isHumanField.isSelected()) {
-//                System.out.println("Enabled");
-//                lookAheadDistance.setVisible(true);
-//                lookAheadDistanceField.setVisible(true);
-//            }
-//            else {
-//                System.out.println("Disabled");
-//                lookAheadDistance.setVisible(false);
-//                lookAheadDistanceField.setVisible(false);
-//            }
-//        });
-
-        // Add vehicle button
-        addVehicleButton.setOnAction(e -> {
-
-            Dialog<Vehicle> dialogBox = new Dialog<>();
-            dialogBox.setTitle("Add Vehicle");
-
-            var addVehiclePane = new GridPane();
-            addVehiclePane.setAlignment(Pos.CENTER);
-            addVehiclePane.setVgap(10);
-            addVehiclePane.setPadding(new Insets(10, 10, 10, 10));
-
-            Text nameVehicle = new Text("Name of Vehicle: ");
-            GridPane.setConstraints(nameVehicle, 0, 0);
-            TextField nameVehicleField = new TextField();
-            nameVehicleField.setPromptText("vehicle");
-            nameVehicleField.setAlignment(Pos.CENTER);
-            GridPane.setConstraints(nameVehicleField, 1, 0);
-
-            Text lengthVehicle = new Text("Length (m): ");
-            GridPane.setConstraints(lengthVehicle, 0, 1);
-            TextField lengthVehicleField = new TextField();
-            lengthVehicleField.setPromptText("0.9");
-            lengthVehicleField.setAlignment(Pos.CENTER);
-            lengthVehicleField.textProperty().addListener((observable, oldValue, newValue) -> validateDouble(lengthVehicleField));
-            GridPane.setConstraints(lengthVehicleField, 1, 1);
-
-            Text widthVehicle = new Text("Width (m): ");
-            GridPane.setConstraints(widthVehicle, 0, 2);
-            TextField widthVehicleField = new TextField();
-            widthVehicleField.setPromptText("0.6");
-            widthVehicleField.setAlignment(Pos.CENTER);
-            widthVehicleField.textProperty().addListener((observable, oldValue, newValue) -> validateDouble(widthVehicleField));
-            GridPane.setConstraints(widthVehicleField, 1, 2);
-
-            Text maxVelocityVehicle = new Text("Max. Velocity (m/s): ");
-            GridPane.setConstraints(maxVelocityVehicle, 0, 3);
-            TextField maxVelocityVehicleField = new TextField();
-            maxVelocityVehicleField.setPromptText("10.0");
-            maxVelocityVehicleField.setAlignment(Pos.CENTER);
-            maxVelocityVehicleField.textProperty().addListener((observable, oldValue, newValue) -> validateDouble(maxVelocityVehicleField));
-            GridPane.setConstraints(maxVelocityVehicleField, 1, 3);
-
-            Text maxAccelerationVehicle = new Text("Max. Acceleration (m/s^2): ");
-            GridPane.setConstraints(maxAccelerationVehicle, 0, 4);
-            TextField maxAccelerationVehicleField = new TextField();
-            maxAccelerationVehicleField.setPromptText("1.0");
-            maxAccelerationVehicleField.setAlignment(Pos.CENTER);
-            maxAccelerationVehicleField.textProperty().addListener((observable, oldValue, newValue) -> validateDouble(maxAccelerationVehicleField));
-            GridPane.setConstraints(maxAccelerationVehicleField, 1, 4);
-
-            Text safetyDistanceVehicle = new Text("Safety Distance (m): ");
-            GridPane.setConstraints(safetyDistanceVehicle, 0, 5);
-            TextField safetyDistanceVehicleField = new TextField();
-            safetyDistanceVehicleField.setPromptText("0.5");
-            safetyDistanceVehicleField.setAlignment(Pos.CENTER);
-            safetyDistanceVehicleField.textProperty().addListener((observable, oldValue, newValue) -> validateDouble(safetyDistanceVehicleField));
-            GridPane.setConstraints(safetyDistanceVehicleField, 1, 5);
-
-            Text colorVehicle = new Text("Color: ");
-            GridPane.setConstraints(colorVehicle, 0, 6);
-            ComboBox<String> colorVehicleField = new ComboBox<>();
-            colorVehicleField.getItems().addAll("Yellow", "Red", "Blue", "Green", "Black", "White", "Cyan", "Orange");
-            colorVehicleField.getSelectionModel().selectFirst();
-            colorVehicleField.setPrefWidth(200);
-            listComboBoxCentering(colorVehicleField);
-            GridPane.setConstraints(colorVehicleField, 1, 6);
-
-            Text initialPoseVehicle = new Text("Start Location: ");
-            GridPane.setConstraints(initialPoseVehicle, 0, 7);
-            ComboBox<String> initialPoseVehicleField = new ComboBox<>();
-            getPoses(this, initialPoseVehicleField);
-            initialPoseVehicleField.getSelectionModel().selectFirst();
-            initialPoseVehicleField.setPrefWidth(200);
-            listComboBoxCentering(initialPoseVehicleField);
-            GridPane.setConstraints(initialPoseVehicleField, 1, 7);
-
-            Text goalPoseVehicle = new Text("Goals: ");
-            GridPane.setConstraints(goalPoseVehicle, 0, 8);
-            ComboBox<String> goalPoseVehicleField = new ComboBox<>();
-            getPoses(this, goalPoseVehicleField);
-            goalPoseVehicleField.setValue(new ArrayList<>(projectData.getListOfAllPoses().values()).size() > 1 ?
-                    new ArrayList<>(projectData.getListOfAllPoses().keySet()).get(1) : null);
-            goalPoseVehicleField.setPrefWidth(200);
-            listComboBoxCentering(goalPoseVehicleField);
-            GridPane.setConstraints(goalPoseVehicleField, 1, 8);
-
-            Text isHumanVehicle = new Text("Human Operated: ");
-            GridPane.setConstraints(isHumanVehicle, 0, 9);
-            CheckBox isHumanVehicleField = new CheckBox();
-            GridPane.setValignment(isHumanVehicleField, VPos.CENTER);
-            GridPane.setHalignment(isHumanVehicleField, HPos.CENTER);
-            GridPane.setConstraints(isHumanVehicleField, 1, 9);
-
-            Text lookAheadDistanceVehicle = new Text("Look Ahead Distance (m): ");
-            lookAheadDistanceVehicle.setVisible(false);
-            GridPane.setConstraints(lookAheadDistanceVehicle, 0, 10);
-            TextField lookAheadDistanceVehicleField = new TextField();
-            lookAheadDistanceVehicleField.setPromptText("20.0");
-            lookAheadDistanceVehicleField.textProperty().addListener((observable, oldValue, newValue) ->
-                    validateDouble(lookAheadDistanceVehicleField));
-            lookAheadDistanceVehicleField.setAlignment(Pos.CENTER);
-            GridPane.setConstraints(lookAheadDistanceVehicleField, 1, 10);
-            lookAheadDistanceVehicleField.setVisible(false);
-
-            // isHumanVehicle checkbox
-            isHumanVehicleField.setOnAction( v -> {
-                if (isHumanVehicleField.isSelected()) {
-                    lookAheadDistanceVehicle.setVisible(true);
-                    lookAheadDistanceVehicleField.setVisible(true);
-                }
-                else {
-                    lookAheadDistanceVehicle.setVisible(false);
-                    lookAheadDistanceVehicleField.setVisible(false);
-                }
-            });
-
-            addVehiclePane.getChildren().addAll(nameVehicle, nameVehicleField,
-                    lengthVehicle, lengthVehicleField,
-                    widthVehicle, widthVehicleField,
-                    maxVelocityVehicle, maxVelocityVehicleField,
-                    maxAccelerationVehicle, maxAccelerationVehicleField,
-                    initialPoseVehicle, initialPoseVehicleField,
-                    safetyDistanceVehicle, safetyDistanceVehicleField,
-                    colorVehicle, colorVehicleField,
-                    goalPoseVehicle, goalPoseVehicleField,
-                    isHumanVehicle, isHumanVehicleField,
-                    lookAheadDistanceVehicle, lookAheadDistanceVehicleField);
-
-            // Create the Add and Cancel buttons
-            ButtonType addButton = new ButtonType("Add", ButtonBar.ButtonData.OK_DONE);
-            ButtonType cancelButton = new ButtonType("Cancel", ButtonBar.ButtonData.CANCEL_CLOSE);
-            dialogBox.getDialogPane().getButtonTypes().addAll(addButton, cancelButton);
-
-            // Set the dialogBox's content
-            dialogBox.getDialogPane().setContent(addVehiclePane);
-
-            // Handle the result from the dialogBox
-            dialogBox.setResultConverter(dialogButton -> {
-                if (dialogButton == addButton) {
-                    // Collect the data from the input fields and create a new vehicle
-                    return getAddedVehicle(isHumanVehicleField, lookAheadDistanceVehicleField,
-                            maxVelocityVehicleField, maxAccelerationVehicleField,
-                            safetyDistanceVehicleField, colorVehicleField,
-                            lengthVehicleField, widthVehicleField, initialPoseVehicleField,
-                            goalPoseVehicleField);
-                }
-                return null;
-            });
-
-            // Show the dialogBox and wait for the user's response
-            Optional<Vehicle> result = dialogBox.showAndWait();
-
-            // Process the result
-            result.ifPresent(vehicle -> {
-                projectData.addVehicle(nameVehicleField.getText(), vehicle);
-                updateVehiclesList(vehiclesList, borderPane, addVehicleButton, deleteVehicleButton, projectData, nameVehicleField,
-                        lengthVehicleField, widthVehicleField, maxVelocityVehicleField, maxAccelerationVehicleField, safetyDistanceVehicleField, colorVehicleField,
-                        initialPoseVehicleField, goalPoseVehicleField, isHumanVehicleField, lookAheadDistance,
-                        lookAheadDistanceVehicleField);
-            });
-        });
-
-
-        // Delete vehicle button
-        deleteVehicleButton.setOnAction(e -> {
-            String selectedVehicle = vehiclesList.getSelectionModel().getSelectedItem(); // Get the selected item
-            vehiclesList.getItems().remove(selectedVehicle); // Remove from ListView
-            projectData.removeVehicle(selectedVehicle); // Remove from ProjectData
-            updateVehiclesList(vehiclesList, borderPane, addVehicleButton, deleteVehicleButton, projectData, nameField,
-                    lengthField, widthField, maxVelocityField, maxAccelerationField, safetyDistanceField, colorField,
-                    initialPoseField, goalPoseField, isHumanField, lookAheadDistance, lookAheadDistanceField);
-        });
-
-        return new Scene(borderPane, 1420, 800);
-    }
-
     private Scene displaySimulationScene() {
 
         BorderPane borderPane = new BorderPane();
 
         // Top Pane
         borderPane.setTop(MenuBar.getMenuBar(this));
-        MenuBar.disableNewProject();
-        MenuBar.disableOpenProject();
 
         // Center Pane
         var centerPane = new VBox();
@@ -526,7 +156,8 @@ public class GUI extends Application {
 
         Text reportsFolder = new Text("Folder to Save the Reports: "); //TODO
         GridPane.setConstraints(reportsFolder, 0, 4);
-        Button btnBrowse = getBrowseButton(stage);
+        Button btnBrowse = new Button("Browse...");
+
         GridPane.setConstraints(btnBrowse, 1, 4);
 
         settingsPane.getChildren().addAll(heuristics, heuristicsField, simulationTime,
@@ -543,6 +174,339 @@ public class GUI extends Application {
                 saveSimulationButton, runSimulationButton));
 
         return new Scene(borderPane, 600, 300);
+    }
+
+    private Scene displayVehicleScene() {
+
+        BorderPane borderPane = new BorderPane();
+
+        // Top Pane
+        borderPane.setTop(MenuBar.getMenuBar(this));
+        MenuBar.disableSaveProject();
+        MenuBar.disableNewProject();
+        MenuBar.disableOpenProject();
+
+//        listViewCentering(vehiclesList);
+
+        // Right Pane
+        var rightPane = new StackPane();
+        ImageView imageView = getImageView(this);
+        rightPane.getChildren().add(imageView);
+        rightPane.setAlignment(Pos.CENTER);
+        borderPane.setRight(rightPane);
+//        BorderPane.setMargin(rightPane, new Insets(0, 20, 0, 0));
+
+        // Center Pane
+        var centerPane = new GridPane();
+//        centerPane.setPadding(new Insets(10, 10, 10, 10));
+        centerPane.setAlignment(Pos.CENTER);
+//        centerPane.setHgap(10);
+        centerPane.setVgap(10);
+
+        Text name = new Text("Name of Vehicle: ");
+        GridPane.setConstraints(name, 0, 0);
+        TextField nameField = new TextField();
+        nameField.setPromptText("vehicle");
+        nameField.setAlignment(Pos.CENTER);
+        nameField.focusedProperty().addListener((observable, wasFocused, isNowFocused) -> {
+            if (!isNowFocused) {
+                String selectedVehicleKey = vehiclesList.getSelectionModel().getSelectedItem();
+                Vehicle selectedVehicle = projectData.getVehicle(selectedVehicleKey);
+
+                if (selectedVehicle != null) {
+                    String newName = nameField.getText();
+                    if (!selectedVehicleKey.equals(newName)) {
+                        projectData.getVehicles().remove(selectedVehicleKey);
+                        projectData.getVehicles().put(newName, selectedVehicle);
+                        // TODO Fix name change
+
+//                        updateVehiclesList(vehiclesList, borderPane, addVehicleButton, deleteVehicleButton, projectData, nameField,
+//                                lengthField, widthField, maxVelocityField, maxAccelerationField, safetyDistanceField, colorField,
+//                                initialPoseField, goalPoseField, isHumanField, lookAheadDistance, lookAheadDistanceField);
+                    }
+                }
+            }
+        });
+        GridPane.setConstraints(nameField, 1, 0);
+
+        Text length = new Text("Length (m): ");
+        GridPane.setConstraints(length, 0, 1);
+        TextField lengthField = new TextField();
+        lengthField.setPromptText("0.9");
+        lengthField.setAlignment(Pos.CENTER);
+        lengthField.focusedProperty().addListener((observable, wasFocused, isNowFocused) -> {
+            validateDouble(lengthField);
+            String selectedVehicle = vehiclesList.getSelectionModel().getSelectedItem();
+            projectData.getVehicle(selectedVehicle).setLength(Double.parseDouble(lengthField.getText()));
+        });
+        GridPane.setConstraints(lengthField, 1, 1);
+
+        Text width = new Text("Width (m): ");
+        GridPane.setConstraints(width, 0, 2);
+        TextField widthField = new TextField();
+        widthField.setPromptText("0.6");
+        widthField.setAlignment(Pos.CENTER);
+        widthField.focusedProperty().addListener((observable, wasFocused, isNowFocused) -> {
+            validateDouble(widthField);
+            String selectedVehicle = vehiclesList.getSelectionModel().getSelectedItem();
+            projectData.getVehicle(selectedVehicle).setWidth(Double.parseDouble(widthField.getText()));
+        });
+        GridPane.setConstraints(widthField, 1, 2);
+
+        Text maxVelocity = new Text("Max. Velocity (m/s): ");
+        GridPane.setConstraints(maxVelocity, 0, 3);
+        TextField maxVelocityField = new TextField();
+        maxVelocityField.setPromptText("10.0");
+        maxVelocityField.setAlignment(Pos.CENTER);
+        maxVelocityField.focusedProperty().addListener((observable, wasFocused, isNowFocused) -> {
+            validateDouble(maxVelocityField);
+            String selectedVehicle = vehiclesList.getSelectionModel().getSelectedItem();
+            projectData.getVehicle(selectedVehicle).setMaxVelocity(Double.parseDouble(maxVelocityField.getText()));
+        });
+        GridPane.setConstraints(maxVelocityField, 1, 3);
+
+        Text maxAcceleration = new Text("Max. Acceleration (m/s^2): ");
+        GridPane.setConstraints(maxAcceleration, 0, 4);
+        TextField maxAccelerationField = new TextField();
+        maxAccelerationField.setPromptText("1.0");
+        maxAccelerationField.setAlignment(Pos.CENTER);
+        maxAccelerationField.focusedProperty().addListener((observable, wasFocused, isNowFocused) -> {
+            validateDouble(maxAccelerationField);
+            String selectedVehicle = vehiclesList.getSelectionModel().getSelectedItem();
+            projectData.getVehicle(selectedVehicle).setMaxAcceleration(Double.parseDouble(maxAccelerationField.getText()));
+        });
+        GridPane.setConstraints(maxAccelerationField, 1, 4);
+
+        Text safetyDistance = new Text("Safety Distance (m): ");
+        GridPane.setConstraints(safetyDistance, 0, 5);
+        TextField safetyDistanceField = new TextField();
+        safetyDistanceField.setPromptText("0.5");
+        safetyDistanceField.setAlignment(Pos.CENTER);
+        safetyDistanceField.focusedProperty().addListener((observable, wasFocused, isNowFocused) -> {
+            validateDouble(safetyDistanceField);
+            String selectedVehicle = vehiclesList.getSelectionModel().getSelectedItem();
+            projectData.getVehicle(selectedVehicle).setSafetyDistance(Double.parseDouble(safetyDistanceField.getText()));
+        });
+        GridPane.setConstraints(safetyDistanceField, 1, 5);
+
+        Text color = new Text("Color: ");
+        GridPane.setConstraints(color, 0, 6);
+        ComboBox<String> colorField = new ComboBox<>();
+        colorField.getItems().addAll("Yellow", "Red", "Blue", "Green", "Black", "White", "Cyan", "Orange");
+        colorField.getSelectionModel().selectFirst();
+        colorField.setPrefWidth(200);
+        listCentering(colorField);
+        colorField.focusedProperty().addListener((observable, wasFocused, isNowFocused) -> {
+            String selectedVehicle = vehiclesList.getSelectionModel().getSelectedItem();
+            projectData.getVehicle(selectedVehicle).setColor(String.valueOf(Double.parseDouble(colorField.getValue())));
+        });
+        GridPane.setConstraints(colorField, 1, 6);
+
+        Text initialPose = new Text("Start Location: ");
+        GridPane.setConstraints(initialPose, 0, 7);
+        ComboBox<String> initialPoseField = new ComboBox<>();
+        getPoses(this, initialPoseField);
+        initialPoseField.getSelectionModel().selectFirst();
+        initialPoseField.setPrefWidth(200);
+        listCentering(initialPoseField);
+        initialPoseField.focusedProperty().addListener((observable, wasFocused, isNowFocused) -> {
+            String selectedVehicle = vehiclesList.getSelectionModel().getSelectedItem();
+            projectData.getVehicle(selectedVehicle).setInitialPose(String.valueOf(Double.parseDouble(initialPoseField.getValue())));
+        });
+        GridPane.setConstraints(initialPoseField, 1, 7);
+
+        Text goalPose = new Text("Goals: ");
+        GridPane.setConstraints(goalPose, 0, 8);
+
+        VBox goalPoseField = new VBox();
+        ListView<String> goalPoseList = new ListView<>();
+        goalPoseField.focusedProperty().addListener((observable, wasFocused, isNowFocused) -> {
+            String selectedVehicle = vehiclesList.getSelectionModel().getSelectedItem();
+            projectData.getVehicle(selectedVehicle).setGoalPoses(projectData.getVehicle(selectedVehicle).getGoalPoses());
+        });
+//        goalPoseList.getItems().addAll(goalPoseField.getChildren());
+        HBox buttons = new HBox();
+        Button addGoal = new Button("Add Goal");
+        Button deleteGoal = new Button("Delete Goal");
+        buttons.setAlignment(Pos.CENTER);
+        buttons.setSpacing(10);
+        buttons.getChildren().addAll(addGoal, deleteGoal);
+        goalPoseList.setPrefHeight(100);
+        goalPoseList.setPrefWidth(200);
+        goalPoseField.setAlignment(Pos.CENTER);
+        goalPoseField.setSpacing(10);
+        goalPoseField.getChildren().addAll(goalPoseList, buttons);
+
+
+
+//        goalPoseField.setValue(new ArrayList<>(projectData.getListOfAllPoses().values()).size() > 1 ?
+//                new ArrayList<>(projectData.getListOfAllPoses().keySet()).get(1) : null);
+//        goalPoseField.setPrefWidth(200);
+//        listCentering(goalPoseField);
+//        goalPoseField.focusedProperty().addListener((observable, wasFocused, isNowFocused) -> {
+//            String selectedVehicle = vehiclesList.getSelectionModel().getSelectedItem();
+//            projectData.getVehicle(selectedVehicle).setGoalPoses(new String[]{String.valueOf(Double.parseDouble(goalPoseField.getValue()))});
+//        });
+        GridPane.setConstraints(goalPoseField, 1, 8);
+
+        Text isHuman = new Text("Human Operated: ");
+        GridPane.setConstraints(isHuman, 0, 9);
+        CheckBox isHumanField = new CheckBox();
+        GridPane.setValignment(isHumanField, VPos.CENTER);
+        GridPane.setHalignment(isHumanField, HPos.CENTER);
+        isHumanField.focusedProperty().addListener((observable, wasFocused, isNowFocused) -> {
+            String selectedVehicle = vehiclesList.getSelectionModel().getSelectedItem();
+            projectData.getVehicle(selectedVehicle).setType(isHumanField.isSelected() ? "Human" : "Autonomous");
+        });
+        GridPane.setConstraints(isHumanField, 1, 9);
+
+        Text lookAheadDistance = new Text("Look Ahead Distance (m): ");
+        lookAheadDistance.setVisible(false);
+        GridPane.setConstraints(lookAheadDistance, 0, 10);
+        TextField lookAheadDistanceField = new TextField();
+        lookAheadDistanceField.setPromptText("20.0");
+        lookAheadDistanceField.textProperty().addListener((observable, oldValue, newValue) ->
+                validateDouble(lookAheadDistanceField));
+        lookAheadDistanceField.setAlignment(Pos.CENTER);
+        lookAheadDistanceField.focusedProperty().addListener((observable, wasFocused, isNowFocused) -> {
+            String selectedVehicle = vehiclesList.getSelectionModel().getSelectedItem();
+            projectData.getVehicle(selectedVehicle).setLookAheadDistance(Double.parseDouble(lookAheadDistanceField.getText()));
+        });
+        GridPane.setConstraints(lookAheadDistanceField, 1, 10);
+        lookAheadDistanceField.setVisible(false);
+
+        // isHumanVehicle checkbox
+        isHumanField.setOnAction( v -> {
+            if (isHumanField.isSelected()) {
+                lookAheadDistance.setVisible(true);
+                lookAheadDistanceField.setVisible(true);
+            }
+            else {
+                lookAheadDistance.setVisible(false);
+                lookAheadDistanceField.setVisible(false);
+            }
+        });
+
+        centerPane.getChildren().addAll(name, nameField,
+                length, lengthField,
+                width, widthField,
+                maxVelocity, maxVelocityField,
+                maxAcceleration, maxAccelerationField,
+                initialPose, initialPoseField,
+                safetyDistance, safetyDistanceField,
+                color, colorField,
+                goalPose, goalPoseField,
+                isHuman, isHumanField,
+                lookAheadDistance, lookAheadDistanceField);
+        borderPane.setCenter(centerPane);
+//        BorderPane.setMargin(centerPane, new Insets(20, 20, 20, 20));
+
+        // Bottom Pane
+        borderPane.setBottom(BottomPane.getBottomPane(backVehicleButton, nextVehicleButton));
+
+        // Left Pane
+        Button addVehicleButton = new Button("Add Vehicle");
+        Button deleteVehicleButton = new Button("Delete Vehicle");
+
+        listCentering(vehiclesList);
+        updateVehiclesList(vehiclesList, borderPane, addVehicleButton, deleteVehicleButton, projectData, nameField,
+                lengthField, widthField, maxVelocityField, maxAccelerationField, safetyDistanceField, colorField,
+                initialPoseField, goalPoseField, isHumanField, lookAheadDistance, lookAheadDistanceField);
+
+        // Add vehicle button
+        addVehicleButton.setOnAction(e -> {
+            String nameOfVehicle = "vehicle";
+            double lengthOfVehicle = 0.9;
+            double widthOfVehicle = 0.5;
+            double maxVelocityOfVehicle = 10.0;
+            double maxAccelerationOfVehicle = 1.0;
+            double safetyDistanceOfVehicle = 0.0;
+            String colorOfVehicle = "Yellow";
+            String initialPoseOfVehicle = String.valueOf(projectData.getListOfAllPoses().keySet().iterator().next());
+//            ArrayList<String> goalPoseOfVehicle = projectData.getListOfAllPoses().keySet().stream().skip(1).findFirst().orElse(null);
+
+            Vehicle vehicle = new Vehicle();
+            vehicle.setLength(lengthOfVehicle);
+            vehicle.setWidth(widthOfVehicle);
+            vehicle.setMaxVelocity(maxVelocityOfVehicle);
+            vehicle.setMaxAcceleration(maxAccelerationOfVehicle);
+            vehicle.setSafetyDistance(safetyDistanceOfVehicle);
+            vehicle.setColor(colorOfVehicle);
+            vehicle.setInitialPose(initialPoseOfVehicle);
+//            vehicle.setGoalPoses(goalPoseOfVehicle.split(","));
+            vehicle.setType("Autonomous");
+
+            projectData.addVehicle(nameOfVehicle, vehicle);
+            updateVehiclesList(vehiclesList, borderPane, addVehicleButton, deleteVehicleButton, projectData, nameField,
+                    lengthField, widthField, maxVelocityField, maxAccelerationField, safetyDistanceField, colorField,
+                    initialPoseField, goalPoseField, isHumanField, lookAheadDistance, lookAheadDistanceField);
+        });
+
+        // Delete vehicle button
+        deleteVehicleButton.setOnAction(e -> {
+            String selectedVehicle = vehiclesList.getSelectionModel().getSelectedItem(); // Get the selected item
+            vehiclesList.getItems().remove(selectedVehicle); // Remove from ListView
+            projectData.removeVehicle(selectedVehicle); // Remove from ProjectData
+            updateVehiclesList(vehiclesList, borderPane, addVehicleButton, deleteVehicleButton, projectData, nameField,
+                    lengthField, widthField, maxVelocityField, maxAccelerationField, safetyDistanceField, colorField,
+                    initialPoseField, goalPoseField, isHumanField, lookAheadDistance, lookAheadDistanceField);
+        });
+
+        return new Scene(borderPane, 1420, 800);
+    }
+
+    private Scene displayMapScene() {
+
+        BorderPane borderPane = new BorderPane();
+
+        // Top Pane
+        borderPane.setTop(MenuBar.getMenuBar(this));
+        MenuBar.disableSaveProject();
+        MenuBar.disableNewProject();
+        MenuBar.disableOpenProject();
+
+        VBox centerPane = new VBox();
+
+        if (isNewProject) {
+
+            // Center Pane
+            Text mapMessage = new Text("Please select a map: ");
+            Button browseMapButton = new Button("Browse...");
+            browseMapButton.setOnAction(e -> {
+                File file = fileChooser(this, "Select a map file to open: ", "yaml");
+                if (file != null) {
+                    projectData.setMap(file.getAbsolutePath());
+                    mapData = parseYAML(projectData.getMap());
+                    ImageView imageView = getImageView(this);
+                    centerPane.getChildren().add(imageView);
+                }
+            });
+            centerPane.getChildren().addAll(mapMessage, browseMapButton);
+            // TODO: Add a map preview
+
+//        mapData = yamlParser.parse(projectData.getMap());
+//        ImageView imageView = getImageView(this);
+
+//        centerPane.getChildren().add(imageView);
+
+        }
+        else {
+
+            // Center Pane
+            mapData = parseYAML(projectData.getMap());
+            ImageView imageView = getImageView(this);
+
+            centerPane.getChildren().add(imageView);
+
+        }
+        centerPane.setAlignment(Pos.CENTER);
+        centerPane.setSpacing(10);
+        borderPane.setCenter(centerPane);
+
+        // Bottom Pane
+        borderPane.setBottom(BottomPane.getBottomPane(backMapButton, nextMapButton));
+
+        return new Scene(borderPane, 800, 800);
     }
 
     /**
@@ -585,12 +549,33 @@ public class GUI extends Application {
         BorderPane.setAlignment(centerPane, Pos.CENTER);
 
         newProject.setOnAction(e -> {
-            fileJSONCreate(this);
+            File selectedFile = fileCreator(this, "Name of Project: ", "json");
+            if (selectedFile != null) {
+                this.projectFile = selectedFile.getAbsolutePath();
+                this.pathLabel.setText("Name of Project: " + selectedFile.getName());
+                this.nextProjectButton.setVisible(true);
+
+                // Write to the file
+                try (FileWriter fileWriter = new FileWriter(selectedFile)) {
+                    fileWriter.write("{}");
+                } catch (IOException ex) {
+                    pathLabel.setText("Error: Could not save the file.");
+                }
+            }
+
             isNewProject = true;
             nextProjectButton.setVisible(true);
         });
+
         openProject.setOnAction(e -> {
-            fileJSONOpen(this);
+            File file = fileChooser(this, "Select a project file to open: ", "json");
+            if (file != null) {
+                this.projectFile = file.getAbsolutePath();
+                this.pathLabel.setText("Name of Project: " + file.getName());
+                this.nextProjectButton.setVisible(true);
+                this.projectData = parseJSON(this.projectFile);
+            }
+
             nextProjectButton.setVisible(true);
         });
 
@@ -649,7 +634,7 @@ public class GUI extends Application {
         newVehicle.setLength(vehicle.getLength());
         newVehicle.setWidth(vehicle.getWidth());
         newVehicle.setInitialPose(getPosesByName(this, vehicle.getInitialPose())[0]);
-        newVehicle.setGoalPoses(getPosesByName(this, vehicle.getGoalPoses()));
+        newVehicle.setGoalPoses(getPosesByName(this, vehicle.getGoalPoses().get(0)));
 
         newVehicle.getPlan(newVehicle.getInitialPose(),
                 newVehicle.getGoalPoses(), YAML_FILE, true);

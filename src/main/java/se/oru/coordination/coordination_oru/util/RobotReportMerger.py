@@ -24,7 +24,7 @@ for subdir, _, files in os.walk(base_directory):
 
     with open(output_path, 'w', newline='') as outfile:
         fieldnames = ['Time(s)']
-        for metric in ['V', 'D', 'CP']:
+        for metric in ['V', 'D']:
             for num in robot_numbers:
                 fieldnames.append(f'{metric}_{num}(m/s)' if metric == 'V' else f'{metric}_{num}')
         
@@ -48,7 +48,6 @@ for subdir, _, files in os.walk(base_directory):
                     all_rows[idx].update({
                         f'V_{robot_num}(m/s)': round(float(row['Velocity']), 1),
                         f'D_{robot_num}': round(float(row['DistanceTraveled']), 1),
-                        f'CP_{robot_num}': round(float(row['CriticalPoint']), 1),
                     })
                     robot_positions[robot_num].append((float(row['Pose_X']), float(row['Pose_Y'])))
 

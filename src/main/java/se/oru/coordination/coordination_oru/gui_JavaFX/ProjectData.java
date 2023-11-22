@@ -2,6 +2,7 @@ package se.oru.coordination.coordination_oru.gui_JavaFX;
 
 import org.metacsp.multi.spatioTemporal.paths.Pose;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -51,6 +52,15 @@ public class ProjectData {
      */
     public Map<String, Vehicle> getVehicles() {
         return vehicles;
+    }
+
+    /**
+     * Gets the vehicle.
+     *
+     * @return The specific vehicle object.
+     */
+    public Vehicle getVehicle(String vehicleName) {
+        return getVehicles().get(vehicleName);
     }
 
     /**
@@ -141,7 +151,7 @@ public class ProjectData {
         private double length;
         private double width;
         private String initialPose;
-        private String[] goalPoses;
+        private ArrayList<String> goalPoses;
         private double safetyDistance;
 
         public String getType() {
@@ -208,11 +218,11 @@ public class ProjectData {
             this.initialPose = initialPose;
         }
 
-        public String[] getGoalPoses() {
+        public ArrayList<String> getGoalPoses() {
             return goalPoses;
         }
 
-        public void setGoalPoses(String[] goalPoses) {
+        public void setGoalPoses(ArrayList<String> goalPoses) {
             this.goalPoses = goalPoses;
         }
 
