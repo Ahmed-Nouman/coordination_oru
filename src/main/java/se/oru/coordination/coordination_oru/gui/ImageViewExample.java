@@ -1,4 +1,4 @@
-package se.oru.coordination.coordination_oru.gui_JavaFX;
+package se.oru.coordination.coordination_oru.gui;
 
 import javafx.application.Application;
 import javafx.scene.Scene;

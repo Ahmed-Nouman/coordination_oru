@@ -1,6 +1,7 @@
-package se.oru.coordination.coordination_oru.gui_JavaFX;
+package se.oru.coordination.coordination_oru.gui;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.module.SimpleModule;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.*;
@@ -23,6 +24,8 @@ import java.io.*;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
 
 public class Utils {
 
@@ -97,34 +100,10 @@ public class Utils {
         });
     }
 
-    /**
-     * Gets an array of Pose objects for the given pose names.
-     * If a pose is not found, the program exits.
-     *
-     * @param gui
-     * @param poseNames One or more strings representing the keys to retrieve the Poses.
-     * @return An array of Pose objects corresponding to the given pose names.
-     */
-    protected static Pose[] getPosesByName(GUI gui, String... poseNames) {
-        ArrayList<Pose> poseList = new ArrayList<>();
-
-        for (String name : poseNames) {
-            name = name.trim();
-            Pose pose = gui.projectData.getListOfAllPoses().get(name);
-            if (pose == null) {
-                System.out.println("Pose not found: " + name);
-                System.exit(1); // Exit the program if a pose is not found
-            }
-            poseList.add(pose);
-        }
-
-        return poseList.toArray(new Pose[0]); // Convert the List to an array and return
-    }
-
     protected static void getVehicles(ListView<String> vehicles, ProjectData projectData) {
         vehicles.getItems().clear();
-        for (String vehicle : projectData.getVehicles().keySet()) {
-            vehicles.getItems().add(vehicle);
+        for (ProjectData.Vehicle vehicle : projectData.getVehicles()) {
+            vehicles.getItems().add(vehicle.getName());
         }
     }
 
@@ -153,7 +132,7 @@ public class Utils {
         vehiclesList.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
             if (newValue != null) {
                 // Get the selected vehicle's details
-                ProjectData.Vehicle vehicle = projectData.getVehicles().get(newValue);
+                ProjectData.Vehicle vehicle = projectData.getVehicle(newValue);
 
                 // Update the fields in the centerPane with the details of the selected vehicle
                 nameField.setText(newValue);
@@ -173,8 +152,6 @@ public class Utils {
                 lookAheadDistanceField.setVisible(vehicle.getLookAheadDistance() > 0);
             }
         });
-
-        // 1st item is initially selected
         vehiclesList.getSelectionModel().selectFirst();
     }
 
@@ -195,14 +172,8 @@ public class Utils {
     }
 
     protected static void getPoses(GUI gui, ComboBox<String> Poses) {
-        for (String pose : gui.projectData.getListOfAllPoses().keySet()) {
+        for (String pose : gui.projectData.getPoses().keySet()) {
             Poses.getItems().add(pose);
-        }
-    }
-
-    protected static void getPoses(GUI gui, TextField Poses) {
-        for (String pose : gui.projectData.getListOfAllPoses().keySet()) {
-            Poses.setText(Poses.getText() + pose + "\n");
         }
     }
 
@@ -233,7 +204,6 @@ public class Utils {
                 file = new File(file.getAbsolutePath() + fileExtension);
             }
         }
-
         return file;
     }
 
@@ -246,12 +216,23 @@ public class Utils {
         }
     }
 
-    protected static ProjectData parseJSON(String filenameJSON) {
+    protected static ProjectData parseJSON(String filenameJSON) throws IOException {
         ObjectMapper objectMapper = new ObjectMapper();
-        try {
-            return objectMapper.readValue(Paths.get(filenameJSON).toFile(), ProjectData.class);
-        } catch (IOException e) {
-            throw new RuntimeException("Error parsing JSON file: " + filenameJSON, e);
+
+        // Read the ProjectData from JSON
+        ProjectData projectData = objectMapper.readValue(new File(filenameJSON), ProjectData.class);
+
+        // Convert PoseDTO objects to Pose objects
+        Map<String, Pose> convertedPoses = new HashMap<>();
+        if (projectData.getPoses() != null) {
+            projectData.getPoses().forEach((key, poseDTO) -> {
+                Pose pose = new Pose(poseDTO.getX(), poseDTO.getY(), poseDTO.getAngle());
+                convertedPoses.put(key, pose);
+            });
         }
+
+        projectData.setConvertedPoses(convertedPoses);
+
+        return projectData;
     }
 }

@@ -1,4 +1,4 @@
-package se.oru.coordination.coordination_oru.gui_JavaFX;
+package se.oru.coordination.coordination_oru.gui;
 
 import java.util.List;
 

@@ -1,46 +1,174 @@
 package se.oru.coordination.coordination_oru.gui;
 
+import org.metacsp.multi.spatioTemporal.paths.Pose;
+
+import java.util.List;
 import java.util.Map;
 
+/**
+ * The ProjectData class is used to manage and store the project's data
+ * including the map, vehicles, and poses.
+ *
+ * @author anm
+ */
 public class ProjectData {
     private String map;
-    private Map<String, Vehicle> vehicles;
-    private Map<String, Pose> listOfAllPoses;
+    private List<Vehicle> vehicles;
+    private Map<String, PoseDTO> poses;
 
-    // In ProjectData class:
+    /**
+     * Gets the map.
+     *
+     * @return A string representing the map.
+     */
     public String getMap() {
         return map;
     }
 
+    /**
+     * Sets the map.
+     *
+     * @param map A string representing the map.
+     */
     public void setMap(String map) {
         this.map = map;
     }
 
-    public Map<String, Vehicle> getVehicles() {
+    /**
+     * Gets the vehicles.
+     *
+     * @return A map of vehicle IDs to AutonomousVehicle objects.
+     */
+    public List<Vehicle> getVehicles() {
         return vehicles;
     }
 
-    public void setVehicles(Map<String, Vehicle> vehicles) {
-        this.vehicles = vehicles;
+    /**
+     * Gets the vehicle.
+     *
+     * @return The specific vehicle object.
+     */
+    public Vehicle getVehicle(String vehicleName) {
+        for (Vehicle vehicle : vehicles) {
+            if (vehicle.getName().equals(vehicleName)) {
+                return vehicle;
+            }
+        }
+        return null; // or throw an exception if the vehicle is not found
     }
 
-    public Map<String, Pose> getListOfAllPoses() {
-        return listOfAllPoses;
+    public Vehicle getVehicleById(int id) {
+        for (Vehicle vehicle : vehicles) {
+            if (vehicle.getId() == id) {
+                return vehicle;
+            }
+        }
+        return null;
     }
 
-    public void setListOfAllPoses(Map<String, Pose> listOfAllPoses) {
-        this.listOfAllPoses = listOfAllPoses;
+    /**
+     * Adds a vehicle.
+     *
+     * @param vehicle The AutonomousVehicle object to add.
+     */
+    public void addVehicle(Vehicle vehicle) {
+        this.vehicles.add(vehicle);
     }
 
-    // Inner class representing a Robot
+    /**
+     * Removes a vehicle.
+     *
+     */
+    public void removeVehicle(String vehicleName) {
+        vehicles.removeIf(vehicle -> vehicle.getName().equals(vehicleName));
+    }
+
+    /**
+     * Gets the list of all poses.
+     *
+     * @return A map of pose IDs to Pose objects.
+     */
+    public Map<String, PoseDTO> getPoses() {
+        return poses;
+    }
+
+    /**
+     * Sets the list of all poses.
+     *
+     * @param poses A map of pose IDs to Pose objects.
+     */
+    public void setPoses(Map<String, PoseDTO> poses) {
+        this.poses = poses;
+    }
+
+    /**
+     * Adds a pose.
+     *
+     * @param key  The key to associate with the pose.
+     * @param pose The Pose object to add.
+     */
+    public void addPose(String key, PoseDTO pose) {
+        this.poses.put(key, pose);
+    }
+
+    public void setConvertedPoses(Map<String, Pose> convertedPoses) {
+    }
+
     public static class Vehicle {
+
+        private static int nextId = 1;
+        private final int id;
+        private String name;
+        private String type;
+        private double lookAheadDistance;
+        private String color;
         private double maxVelocity;
         private double maxAcceleration;
-        private String color;
+        private double length;
+        private double width;
         private String initialPose;
-        private String goalPoses;
+        private List<Goal> goals;
+        private double safetyDistance;
 
-        // In Vehicle inner class:
+        public Vehicle(int id) {
+            this.id = id;
+        }
+
+        public int getId() {
+            return id;
+        }
+        public String getName() {
+            return name;
+        }
+
+        public void setName(String name) {
+            this.name = name;
+        }
+
+        public String getType() {
+            return type;
+        }
+
+        public void setType(String type) {
+            this.type = type;
+        }
+
+        public double getLookAheadDistance() {
+            return lookAheadDistance;
+        }
+
+        public void setLookAheadDistance(double lookAheadDistance) {
+            this.lookAheadDistance = lookAheadDistance;
+        }
+
+        public String getColor() {
+            return color;
+        }
+
+        public void setColor(String color) {
+            this.color = color;
+        }
+
         public double getMaxVelocity() {
             return maxVelocity;
         }
@@ -57,12 +185,20 @@ public class ProjectData {
             this.maxAcceleration = maxAcceleration;
         }
 
-        public String getColor() {
-            return color;
+        public double getLength() {
+            return length;
         }
 
-        public void setColor(String color) {
-            this.color = color;
+        public void setLength(double length) {
+            this.length = length;
+        }
+
+        public double getWidth() {
+            return width;
+        }
+
+        public void setWidth(double width) {
+            this.width = width;
         }
 
         public String getInitialPose() {
@@ -73,44 +209,20 @@ public class ProjectData {
             this.initialPose = initialPose;
         }
 
-        public String getGoalPoses() {
-            return goalPoses;
+        public List<Goal> getGoals() {
+            return goals;
         }
 
-        public void setGoalPoses(String goalPoses) {
-            this.goalPoses = goalPoses;
-        }
-    }
-
-    // Inner class representing a Pose
-    public static class Pose {
-        private double x;
-        private double y;
-        private double angle;
-
-        // In Pose inner class:
-        public double getX() {
-            return x;
+        public void setGoals(List<Goal> goals) {
+            this.goals = goals;
         }
 
-        public void setX(double x) {
-            this.x = x;
+        public double getSafetyDistance() {
+            return safetyDistance;
         }
 
-        public double getY() {
-            return y;
-        }
-
-        public void setY(double y) {
-            this.y = y;
-        }
-
-        public double getAngle() {
-            return angle;
-        }
-
-        public void setAngle(double angle) {
-            this.angle = angle;
+        public void setSafetyDistance(double safetyDistance) {
+            this.safetyDistance = safetyDistance;
         }
     }
 }

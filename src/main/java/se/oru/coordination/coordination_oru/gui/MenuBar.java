@@ -1,4 +1,4 @@
-package se.oru.coordination.coordination_oru.gui_JavaFX;
+package se.oru.coordination.coordination_oru.gui;
 
 import javafx.scene.control.*;
 import javafx.scene.input.KeyCode;
@@ -9,8 +9,8 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.time.Year;
 
-import static se.oru.coordination.coordination_oru.gui_JavaFX.Utils.*;
-import static se.oru.coordination.coordination_oru.gui_JavaFX.Utils.parseJSON;
+import static se.oru.coordination.coordination_oru.gui.Utils.*;
+import static se.oru.coordination.coordination_oru.gui.Utils.parseJSON;
 
 public class MenuBar {
 
@@ -61,7 +61,11 @@ public class MenuBar {
                 gui.projectFile = file.getAbsolutePath();
                 gui.pathLabel.setText("Name of Project: " + file.getName());
                 gui.nextProjectButton.setVisible(true);
-                gui.projectData = parseJSON(gui.projectFile);
+                try {
+                    gui.projectData = parseJSON(gui.projectFile);
+                } catch (IOException ex) {
+                    throw new RuntimeException(ex);
+                }
             }
 
             gui.nextProjectButton.setVisible(true);
