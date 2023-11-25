@@ -1,10 +1,8 @@
 package se.oru.coordination.coordination_oru.vehicles;
 
-import org.apache.commons.lang.ArrayUtils;
 import org.metacsp.multi.spatioTemporal.paths.Pose;
 import org.metacsp.multi.spatioTemporal.paths.PoseSteering;
 import se.oru.coordination.coordination_oru.TrajectoryEnvelopeCoordinator;
-import se.oru.coordination.coordination_oru.motionplanning.ompl.ReedsSheppCarPlanner;
 
 import java.awt.*;
 import java.util.Arrays;
@@ -47,19 +45,19 @@ public class LookAheadVehicle extends AbstractVehicle {
      * @param safetyDistance    Minimum safe distance to be maintained from other objects.
      */
     public LookAheadVehicle(int id, String name, double lookAheadDistance, int priorityID, Color color, double maxVelocity, double maxAcceleration,
-                            int trackingPeriod, double length, double width, Pose initialPose, Pose[] goalPoses, double safetyDistance) {
-        super(id, name, priorityID, color, maxVelocity, maxAcceleration, trackingPeriod, length, width, initialPose,
-                goalPoses, safetyDistance);
+                            int trackingPeriod, double length, double width, Pose initialPose, Object goalPoses, double safetyDistance) {
+        super(id, name, priorityID, color, maxVelocity, maxAcceleration, trackingPeriod, length, width, initialPose, goalPoses, safetyDistance
+        );
         this.lookAheadDistance = lookAheadDistance;
     }
 
     public LookAheadVehicle(String name, double lookAheadDistance, int priorityID, Color color, double maxVelocity, double maxAcceleration,
-                            int trackingPeriod, double length, double width, Pose initialPose, Pose[] goalPoses, double safetyDistance) {
-        this(vehicleNumber, name, lookAheadDistance, priorityID, color, maxVelocity, maxAcceleration, trackingPeriod, length, width, initialPose,
-                goalPoses, safetyDistance);
+                            int trackingPeriod, double length, double width, Pose initialPose, Object goalPoses, double safetyDistance) {
+        this(vehicleNumber, name, lookAheadDistance, priorityID, color, maxVelocity, maxAcceleration, trackingPeriod, length, width, initialPose, goalPoses, safetyDistance
+        );
     }
 
-    public LookAheadVehicle(double lookAheadDistance, Pose initialPose, Pose[] goalPoses) {
+    public LookAheadVehicle(double lookAheadDistance, Pose initialPose, Object goalPoses) {
         this(vehicleNumber, null, lookAheadDistance, 1, Color.YELLOW, 5.0, 1.0, 30,
                 0.5, 0.5, initialPose, goalPoses, 0);
     }

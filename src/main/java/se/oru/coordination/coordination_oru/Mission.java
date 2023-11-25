@@ -6,6 +6,8 @@ import se.oru.coordination.coordination_oru.util.Missions;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
+import javafx.util.Pair;
 
 /**
  * The {@link Mission} data structure represents a goal for a robot, to be reached via a given
@@ -18,6 +20,7 @@ public class Mission implements Comparable<Mission> {
 	protected static int NUMMISSIONS = 0;
 	protected int robotID;
 	protected PoseSteering[] path;
+	private List<Pair<Pose, Integer>> stoppingPairs;
 	protected int order = NUMMISSIONS++;
 	protected String fromLocation = null;
 	protected String toLocation = null;
@@ -64,6 +67,20 @@ public class Mission implements Comparable<Mission> {
 	 */
 	public Mission(int robotID, String fromLocation, String toLocation, PoseSteering[] path) {
 		this(robotID, path, fromLocation, toLocation, path[0].getPose(), path[path.length-1].getPose());
+	}
+
+
+	/**
+	 * Constructs a Mission object with the specified parameters.
+	 * It initializes the mission's robot ID, path, and stopping points with durations.
+	 *
+	 * @param robotID The ID of the robot.
+	 * @param path An array of {@link PoseSteering}s representing the path to be driven.
+	 * @param stoppingPointsWithDurations A List of Pairs, where each Pair consists of a Pose and its associated stopping duration.
+	 */
+	public Mission(int robotID, PoseSteering[] path, List<Pair<Pose, Integer>> stoppingPointsWithDurations) {
+		this(robotID, path);
+		this.stoppingPairs = stoppingPointsWithDurations;
 	}
 
 	/**

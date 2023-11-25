@@ -1126,7 +1126,7 @@ public class Missions {
 	/**
 	 * Starts the {@link TrajectoryEnvelopeCoordinator} mission dispatchers with additional parameters for report writing.
 	 * Writes robot reports to a specified directory if required.
-	 * If {@code lookAheadDistance} is -1, it updates to the full distance of {@link LookAheadRobot}.
+	 * If {@code lookAheadDistance} is -1, it updates to the full distance of {@link LookAheadVehicle}.
 	 *
 	 * <p>This method may also write robot reports, if requested. The reports are written to
 	 * {@code resultDirectory}, at an interval defined by {@code intervalInSeconds} and for a
@@ -1420,19 +1420,17 @@ public class Missions {
 			for (int i = 1; i < leaderMission.getPath().length; i++) newPath[counter++] = leaderMission.getPath()[i];
 			followerPath = newPath;
 		}
-		Mission followerMission = new Mission(followerID, followerPath);
-		return followerMission;
+        return new Mission(followerID, followerPath);
 	}
 
-	public static void enqueueMissionsFromMap(AutonomousVehicle vehicle) {
-		Map<Integer, AbstractMap.SimpleEntry<PoseSteering[], Integer>> planSegmentsMap = vehicle.getPlanSegmentsMap();
-
-		for (Map.Entry<Integer, AbstractMap.SimpleEntry<PoseSteering[], Integer>> entry : planSegmentsMap.entrySet()) {
-			var mission = new Mission(vehicle.getID(), entry.getValue().getKey());
-			Missions.enqueueMission(mission);
-		}
-	}
-
+//	public static void enqueueMissionsFromMap(AutonomousVehicle vehicle) {
+//		Map<Integer, AbstractMap.SimpleEntry<PoseSteering[], Integer>> planSegmentsMap = vehicle.getPlanSegmentsMap();
+//
+//		for (Map.Entry<Integer, AbstractMap.SimpleEntry<PoseSteering[], Integer>> entry : planSegmentsMap.entrySet()) {
+//			var mission = new Mission(vehicle.getID(), entry.getValue().getKey());
+//			Missions.enqueueMission(mission);
+//		}
+//	}
 
 	public static Set<String> getAllGraphVertices() {
 		return graph.vertexSet();

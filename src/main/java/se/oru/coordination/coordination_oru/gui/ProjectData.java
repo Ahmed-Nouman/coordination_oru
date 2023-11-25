@@ -57,15 +57,6 @@ public class ProjectData {
         return null; // or throw an exception if the vehicle is not found
     }
 
-    public Vehicle getVehicleById(int id) {
-        for (Vehicle vehicle : vehicles) {
-            if (vehicle.getId() == id) {
-                return vehicle;
-            }
-        }
-        return null;
-    }
-
     /**
      * Adds a vehicle.
      *
@@ -130,8 +121,8 @@ public class ProjectData {
         private List<Goal> goals;
         private double safetyDistance;
 
-        public Vehicle(int id) {
-            this.id = id;
+        public Vehicle() {
+            this.id = nextId;
         }
 
         public int getId() {

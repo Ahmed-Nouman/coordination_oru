@@ -200,19 +200,18 @@ public class GUI extends Application {
         Text name = new Text("Name of Vehicle: ");
         GridPane.setConstraints(name, 0, 0);
         TextField nameField = new TextField();
-        nameField.textProperty().addListener((observable, oldValue, newValue) -> {
-            int selectedVehicleId = projectData.getVehicle(vehiclesList.getSelectionModel().getSelectedItem()).getId();
-            Vehicle selectedVehicle = projectData.getVehicleById(selectedVehicleId);
-            if (selectedVehicle != null) {
-                selectedVehicle.setName(newValue);
-            }
+
+        nameField.focusedProperty().addListener((observable, wasFocused, isNowFocused) -> {
+            System.out.println("Focus changed"); // TODO Fix
         });
+
+
+
         GridPane.setConstraints(nameField, 1, 0);
 
         Text length = new Text("Length (m): ");
         GridPane.setConstraints(length, 0, 1);
         TextField lengthField = new TextField();
-        lengthField.setPromptText("0.9");
         lengthField.focusedProperty().addListener((observable, wasFocused, isNowFocused) -> {
             validateDouble(lengthField);
             String selectedVehicle = vehiclesList.getSelectionModel().getSelectedItem();
@@ -223,7 +222,6 @@ public class GUI extends Application {
         Text width = new Text("Width (m): ");
         GridPane.setConstraints(width, 0, 2);
         TextField widthField = new TextField();
-        widthField.setPromptText("0.6");
         widthField.focusedProperty().addListener((observable, wasFocused, isNowFocused) -> {
             validateDouble(widthField);
             String selectedVehicle = vehiclesList.getSelectionModel().getSelectedItem();
@@ -234,7 +232,6 @@ public class GUI extends Application {
         Text maxVelocity = new Text("Max. Velocity (m/s): ");
         GridPane.setConstraints(maxVelocity, 0, 3);
         TextField maxVelocityField = new TextField();
-        maxVelocityField.setPromptText("10.0");
         maxVelocityField.focusedProperty().addListener((observable, wasFocused, isNowFocused) -> {
             validateDouble(maxVelocityField);
             String selectedVehicle = vehiclesList.getSelectionModel().getSelectedItem();
@@ -245,7 +242,6 @@ public class GUI extends Application {
         Text maxAcceleration = new Text("Max. Acceleration (m/s^2): ");
         GridPane.setConstraints(maxAcceleration, 0, 4);
         TextField maxAccelerationField = new TextField();
-        maxAccelerationField.setPromptText("1.0");
         maxAccelerationField.focusedProperty().addListener((observable, wasFocused, isNowFocused) -> {
             validateDouble(maxAccelerationField);
             String selectedVehicle = vehiclesList.getSelectionModel().getSelectedItem();
@@ -256,7 +252,6 @@ public class GUI extends Application {
         Text safetyDistance = new Text("Safety Distance (m): ");
         GridPane.setConstraints(safetyDistance, 0, 5);
         TextField safetyDistanceField = new TextField();
-        safetyDistanceField.setPromptText("0.5");
         safetyDistanceField.focusedProperty().addListener((observable, wasFocused, isNowFocused) -> {
             validateDouble(safetyDistanceField);
             String selectedVehicle = vehiclesList.getSelectionModel().getSelectedItem();
@@ -335,7 +330,6 @@ public class GUI extends Application {
         lookAheadDistance.setVisible(false);
         GridPane.setConstraints(lookAheadDistance, 0, 10);
         TextField lookAheadDistanceField = new TextField();
-        lookAheadDistanceField.setPromptText("20.0");
         lookAheadDistanceField.textProperty().addListener((observable, oldValue, newValue) ->
                 validateDouble(lookAheadDistanceField));
         lookAheadDistanceField.focusedProperty().addListener((observable, wasFocused, isNowFocused) -> {
@@ -401,7 +395,7 @@ public class GUI extends Application {
                 counter++;
             }
 
-            Vehicle vehicle = new Vehicle(projectData.getVehicles().size() + 1);
+            Vehicle vehicle = new Vehicle();
             vehicle.setName(nameOfVehicle);
             vehicle.setLength(lengthOfVehicle);
             vehicle.setWidth(widthOfVehicle);
