@@ -1,12 +1,16 @@
 package se.oru.coordination.coordination_oru.gui;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.module.SimpleModule;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
-import javafx.scene.control.*;
 import javafx.scene.control.Button;
 import javafx.scene.control.TextField;
+import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.BorderPane;
@@ -18,10 +22,13 @@ import javafx.scene.text.Text;
 import javafx.stage.FileChooser;
 import org.metacsp.multi.spatioTemporal.paths.Pose;
 import org.yaml.snakeyaml.Yaml;
+import se.oru.coordination.coordination_oru.vehicles.AbstractVehicle;
 
 import java.awt.*;
-import java.io.*;
-import java.nio.file.Paths;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -102,7 +109,7 @@ public class Utils {
 
     protected static void getVehicles(ListView<String> vehicles, ProjectData projectData) {
         vehicles.getItems().clear();
-        for (ProjectData.Vehicle vehicle : projectData.getVehicles()) {
+        for (AbstractVehicle vehicle : projectData.getVehicles()) {
             vehicles.getItems().add(vehicle.getName());
         }
     }
@@ -132,7 +139,7 @@ public class Utils {
         vehiclesList.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
             if (newValue != null) {
                 // Get the selected vehicle's details
-                ProjectData.Vehicle vehicle = projectData.getVehicle(newValue);
+                AbstractVehicle vehicle = projectData.getVehicle(newValue);
 
                 // Update the fields in the centerPane with the details of the selected vehicle
                 nameField.setText(newValue);
@@ -141,15 +148,15 @@ public class Utils {
                 maxVelocityField.setText(String.valueOf(vehicle.getMaxVelocity()));
                 maxAccelerationField.setText(String.valueOf(vehicle.getMaxAcceleration()));
                 safetyDistanceField.setText(String.valueOf(vehicle.getSafetyDistance()));
-                colorField.setValue(vehicle.getColor());
-                initialPoseField.setValue(vehicle.getInitialPose());
+//                colorField.setValue(vehicle.getColor());
+//                initialPoseField.setValue(vehicle.getInitialPose());
 //                if (vehicle.getGoalPoses() != null && vehicle.getGoalPoses().length > 0) {
 //                    goalPoseField.setValue(vehicle.getGoalPoses()[0]);
 //                }
-                isHumanField.setSelected(vehicle.getLookAheadDistance() > 0);
-                lookAheadDistance.setVisible(vehicle.getLookAheadDistance() > 0);
-                lookAheadDistanceField.setText(String.valueOf(vehicle.getLookAheadDistance()));
-                lookAheadDistanceField.setVisible(vehicle.getLookAheadDistance() > 0);
+//                isHumanField.setSelected(vehicle.getLookAheadDistance() > 0);
+//                lookAheadDistance.setVisible(vehicle.getLookAheadDistance() > 0);
+//                lookAheadDistanceField.setText(String.valueOf(vehicle.getLookAheadDistance()));
+//                lookAheadDistanceField.setVisible(vehicle.getLookAheadDistance() > 0);
             }
         });
         vehiclesList.getSelectionModel().selectFirst();
@@ -216,23 +223,59 @@ public class Utils {
         }
     }
 
-    protected static ProjectData parseJSON(String filenameJSON) throws IOException {
+    protected static ProjectData parseJSON(String filePath) throws IOException {
         ObjectMapper objectMapper = new ObjectMapper();
+        // Configure ObjectMapper to not fail on unknown properties
+        objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
 
-        // Read the ProjectData from JSON
-        ProjectData projectData = objectMapper.readValue(new File(filenameJSON), ProjectData.class);
+        JsonNode rootNode = objectMapper.readTree(new File(filePath));
 
-        // Convert PoseDTO objects to Pose objects
-        Map<String, Pose> convertedPoses = new HashMap<>();
-        if (projectData.getPoses() != null) {
-            projectData.getPoses().forEach((key, poseDTO) -> {
-                Pose pose = new Pose(poseDTO.getX(), poseDTO.getY(), poseDTO.getAngle());
-                convertedPoses.put(key, pose);
-            });
-        }
+        JsonNode vehiclesNode = rootNode.path("vehicles");
+        JsonNode posesNode = rootNode.path("poses");
 
-        projectData.setConvertedPoses(convertedPoses);
+        Map<String, Pose> posesMap = new HashMap<>();
+        posesNode.fields().forEachRemaining(entry -> {
+            posesMap.put(entry.getKey(), deserializePose(entry.getValue()));
+        });
+
+        ArrayList<AbstractVehicle> vehicles = new ArrayList<>();
+        vehiclesNode.forEach(vehicleNode -> {
+            // Temporarily convert to a tree to manually handle 'initialPose'
+            ObjectNode vehicleObject = (ObjectNode) vehicleNode;
+            String initialPoseName = vehicleObject.get("initialPose").asText();
+            Pose initialPose = posesMap.get(initialPoseName);
+
+            // Remove 'initialPose' field so Jackson doesn't try to deserialize it
+            vehicleObject.remove("initialPose");
+
+            // Now let Jackson deserialize the rest of the vehicle object
+            AbstractVehicle vehicle = null;
+            try {
+                vehicle = objectMapper.treeToValue(vehicleObject, AbstractVehicle.class);
+            } catch (JsonProcessingException e) {
+                throw new RuntimeException(e);
+            }
+
+            // Set the initial pose to the vehicle
+            vehicle.setInitialPose(initialPose);
+
+            vehicles.add(vehicle);
+        });
+
+        ProjectData projectData = new ProjectData();
+        projectData.setMap(rootNode.path("map").asText());
+        projectData.setVehicles(vehicles);
+        projectData.setPoses(posesMap);
 
         return projectData;
     }
+
+    protected static Pose deserializePose(JsonNode poseNode) {
+        double x = poseNode.path("x").asDouble();
+        double y = poseNode.path("y").asDouble();
+        double angle = poseNode.path("angle").asDouble();
+
+        return new Pose(x, y, angle); // Assuming such a constructor exists
+    }
+
 }

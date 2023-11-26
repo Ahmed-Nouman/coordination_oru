@@ -1,15 +1,11 @@
 package se.oru.coordination.coordination_oru.scenarios;
 
-import javafx.util.Pair;
 import org.metacsp.multi.spatioTemporal.paths.Pose;
 import se.oru.coordination.coordination_oru.Mission;
 import se.oru.coordination.coordination_oru.simulation2D.TrajectoryEnvelopeCoordinatorSimulation;
 import se.oru.coordination.coordination_oru.util.BrowserVisualization;
 import se.oru.coordination.coordination_oru.util.Missions;
 import se.oru.coordination.coordination_oru.vehicles.AutonomousVehicle;
-
-import java.util.ArrayList;
-import java.util.List;
 
 public class TwoAutonomousRobots {
     public static void main(String[] args) {
@@ -29,8 +25,8 @@ public class TwoAutonomousRobots {
         // TODO Include time delays
 //        autonomousRobot2.getPlanSegments(autonomousRobot2.getInitialPose(),
 //                autonomousRobot2.getGoalPoses(), waitingTimes, YAML_FILE);
-        autonomousRobot1.getPlan(autonomousRobot1.getInitialPose(), autonomousRobot1.getGoalPoses(), YAML_FILE, true); // FIXME Why?
-        autonomousRobot2.getPlan(autonomousRobot2.getInitialPose(), autonomousRobot2.getGoalPoses(), YAML_FILE, true);
+        autonomousRobot1.getPlan(autonomousRobot1.getInitialPose(), autonomousRobot1.getGoalPoses(), YAML_FILE, false); // FIXME Why?
+        autonomousRobot2.getPlan(autonomousRobot2.getInitialPose(), autonomousRobot2.getGoalPoses(), YAML_FILE, false);
         // Instantiate a trajectory envelope coordinator.
         var tec = new TrajectoryEnvelopeCoordinatorSimulation();
 
@@ -69,9 +65,10 @@ public class TwoAutonomousRobots {
 
         // Now you can call the Mission constructor
         Mission m1 = new Mission(1, autonomousRobot1.getPath());
-        m1.setStoppingPoint(orePass, 50000);   //FIXME check stoppage implementation. Works for larger durations
+        m1.setStoppingPoint(orePass, 20000);   //FIXME check stoppage implementation. Works for larger durations
 //        Mission m1 = new Mission(1, autonomousRobot1.getPath(), stoppingPoints);
         var m2 = new Mission(autonomousRobot2.getID(), autonomousRobot2.getPath());
+        m2.setStoppingPoint(mainTunnelRight, 20000);
         Missions.enqueueMission(m1);
         Missions.enqueueMission(m2);
 //        tec.addMissions(m1);

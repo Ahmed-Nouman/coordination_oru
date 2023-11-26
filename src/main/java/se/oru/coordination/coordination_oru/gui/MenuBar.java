@@ -1,6 +1,9 @@
 package se.oru.coordination.coordination_oru.gui;
 
-import javafx.scene.control.*;
+import javafx.scene.control.Alert;
+import javafx.scene.control.Menu;
+import javafx.scene.control.MenuItem;
+import javafx.scene.control.SeparatorMenuItem;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyCodeCombination;
 
@@ -10,7 +13,6 @@ import java.io.IOException;
 import java.time.Year;
 
 import static se.oru.coordination.coordination_oru.gui.Utils.*;
-import static se.oru.coordination.coordination_oru.gui.Utils.parseJSON;
 
 public class MenuBar {
 

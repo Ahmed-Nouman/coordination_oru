@@ -27,7 +27,7 @@ public class AutonomousVehicle extends AbstractVehicle {
      * Constructs a new AutonomousVehicle with the specified parameters.
      * This constructor provides full control over all vehicle attributes.
      *
-     * @param id              Unique identifier of the vehicle.
+     * @param ID              Unique identifier of the vehicle.
      * @param name            Name of the vehicle.
      * @param priorityID      Priority identifier of the vehicle, used for handling conflicts or scheduling.
      * @param color           Color of the vehicle for visual representation.
@@ -40,9 +40,9 @@ public class AutonomousVehicle extends AbstractVehicle {
      * @param goalPoses       Array of target poses for the vehicle to reach.
      * @param safetyDistance  Minimum distance to maintain from obstacles for safety.
      */
-    public AutonomousVehicle(int id, String name, int priorityID, Color color, double maxVelocity, double maxAcceleration, int trackingPeriod,
+    public AutonomousVehicle(int ID, String name, int priorityID, Color color, double maxVelocity, double maxAcceleration, int trackingPeriod,
                              double length, double width, Pose initialPose, Object goalPoses, double safetyDistance) {
-        super(id, name, priorityID, color, maxVelocity, maxAcceleration, trackingPeriod, length, width, initialPose, goalPoses, safetyDistance
+        super(ID, name, priorityID, color, maxVelocity, maxAcceleration, trackingPeriod, length, width, initialPose, goalPoses, safetyDistance
         );
     }
 

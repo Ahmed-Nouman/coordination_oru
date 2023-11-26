@@ -4,6 +4,9 @@ import javafx.application.Application;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
+import javafx.scene.control.Button;
+import javafx.scene.control.Label;
+import javafx.scene.control.TextField;
 import javafx.scene.control.*;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
@@ -11,6 +14,7 @@ import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
+import org.metacsp.multi.spatioTemporal.paths.Pose;
 import se.oru.coordination.coordination_oru.ConstantAccelerationForwardModel;
 import se.oru.coordination.coordination_oru.Mission;
 import se.oru.coordination.coordination_oru.simulation2D.TrajectoryEnvelopeCoordinatorSimulation;
@@ -21,13 +25,12 @@ import se.oru.coordination.coordination_oru.vehicles.AbstractVehicle;
 import se.oru.coordination.coordination_oru.vehicles.AutonomousVehicle;
 import se.oru.coordination.coordination_oru.vehicles.LookAheadVehicle;
 
-import static se.oru.coordination.coordination_oru.gui.Utils.*;
-
-import se.oru.coordination.coordination_oru.gui.ProjectData.Vehicle;
-
+import java.awt.*;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+
+import static se.oru.coordination.coordination_oru.gui.Utils.*;
 
 public class GUI extends Application {
 
@@ -267,7 +270,7 @@ public class GUI extends Application {
         colorField.setPrefWidth(200);
         colorField.focusedProperty().addListener((observable, wasFocused, isNowFocused) -> {
             String selectedVehicle = vehiclesList.getSelectionModel().getSelectedItem();
-            projectData.getVehicle(selectedVehicle).setColor(String.valueOf(Double.parseDouble(colorField.getValue())));
+            projectData.getVehicle(selectedVehicle).setColor(Color.decode(String.valueOf(Double.parseDouble(colorField.getValue()))));
         });
         GridPane.setConstraints(colorField, 1, 6);
 
@@ -279,7 +282,7 @@ public class GUI extends Application {
         initialPoseField.setPrefWidth(200);
         initialPoseField.focusedProperty().addListener((observable, wasFocused, isNowFocused) -> {
             String selectedVehicle = vehiclesList.getSelectionModel().getSelectedItem();
-            projectData.getVehicle(selectedVehicle).setInitialPose(String.valueOf(Double.parseDouble(initialPoseField.getValue())));
+//            projectData.getVehicle(selectedVehicle).setInitialPose(String.valueOf(Double.parseDouble(initialPoseField.getValue())));
         });
         GridPane.setConstraints(initialPoseField, 1, 7);
 
@@ -290,7 +293,7 @@ public class GUI extends Application {
         ListView<String> goalPoseList = new ListView<>();
         goalPoseField.focusedProperty().addListener((observable, wasFocused, isNowFocused) -> {
             String selectedVehicle = vehiclesList.getSelectionModel().getSelectedItem();
-            projectData.getVehicle(selectedVehicle).setGoals(projectData.getVehicle(selectedVehicle).getGoals());
+//            projectData.getVehicle(selectedVehicle).setGoals(projectData.getVehicle(selectedVehicle).getGoals());
         });
 //        goalPoseList.getItems().addAll(goalPoseField.getChildren());
         HBox buttons = new HBox();
@@ -322,7 +325,7 @@ public class GUI extends Application {
         CheckBox isHumanField = new CheckBox();
         isHumanField.focusedProperty().addListener((observable, wasFocused, isNowFocused) -> {
             String selectedVehicle = vehiclesList.getSelectionModel().getSelectedItem();
-            projectData.getVehicle(selectedVehicle).setType(isHumanField.isSelected() ? "Human" : "Autonomous");
+//            projectData.getVehicle(selectedVehicle).setType(isHumanField.isSelected() ? "Human" : "Autonomous");
         });
         GridPane.setConstraints(isHumanField, 1, 9);
 
@@ -334,7 +337,7 @@ public class GUI extends Application {
                 validateDouble(lookAheadDistanceField));
         lookAheadDistanceField.focusedProperty().addListener((observable, wasFocused, isNowFocused) -> {
             String selectedVehicle = vehiclesList.getSelectionModel().getSelectedItem();
-            projectData.getVehicle(selectedVehicle).setLookAheadDistance(Double.parseDouble(lookAheadDistanceField.getText()));
+//            projectData.getVehicle(selectedVehicle).setLookAheadDistance(Double.parseDouble(lookAheadDistanceField.getText()));
         });
         GridPane.setConstraints(lookAheadDistanceField, 1, 10);
         lookAheadDistanceField.setVisible(false);
@@ -383,8 +386,8 @@ public class GUI extends Application {
             double maxVelocityOfVehicle = 10.0;
             double maxAccelerationOfVehicle = 1.0;
             double safetyDistanceOfVehicle = 0.0;
-            String colorOfVehicle = "Yellow";
-            String initialPoseOfVehicle = projectData.getPoses().keySet().iterator().next();
+            Color colorOfVehicle = Color.YELLOW;
+            Pose initialPoseOfVehicle = projectData.getPose(projectData.getPoses().keySet().iterator().next());
             // ArrayList<String> goalPoseOfVehicle = projectData.getListOfAllPoses().keySet().stream().skip(1).findFirst().orElse(null);
 
             String nameOfVehicle = baseNameOfVehicle;
@@ -395,7 +398,7 @@ public class GUI extends Application {
                 counter++;
             }
 
-            Vehicle vehicle = new Vehicle();
+            var vehicle = new AutonomousVehicle();
             vehicle.setName(nameOfVehicle);
             vehicle.setLength(lengthOfVehicle);
             vehicle.setWidth(widthOfVehicle);
@@ -405,7 +408,6 @@ public class GUI extends Application {
             vehicle.setColor(colorOfVehicle);
             vehicle.setInitialPose(initialPoseOfVehicle);
             // vehicle.setGoalPoses(goalPoseOfVehicle.split(","));
-            vehicle.setType("Autonomous");
 
             projectData.addVehicle(vehicle);
             vehiclesList.getItems().add(vehicle.getName());
@@ -604,7 +606,7 @@ public class GUI extends Application {
         newVehicle.setMaxVelocity(vehicle.getMaxVelocity());
         newVehicle.setMaxAcceleration(vehicle.getMaxAcceleration());
         newVehicle.setSafetyDistance(vehicle.getSafetyDistance());
-        newVehicle.setColor(stringToColor(vehicle.getColor()));
+//        newVehicle.setColor(stringToColor(vehicle.getColor()));
         newVehicle.setLength(vehicle.getLength());
         newVehicle.setWidth(vehicle.getWidth());
 //        newVehicle.setInitialPose(getPosesByName(this, vehicle.getInitialPose())[0]); // FIXME Fix Initial Pose

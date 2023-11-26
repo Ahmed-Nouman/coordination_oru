@@ -1,5 +1,8 @@
 package se.oru.coordination.coordination_oru.vehicles;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonSubTypes;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.vividsolutions.jts.geom.Coordinate;
 import org.apache.commons.lang.ArrayUtils;
 import org.metacsp.multi.spatioTemporal.paths.Pose;
@@ -29,8 +32,14 @@ import java.util.Arrays;
  * @author anm
  */
 
+@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "type")
+@JsonSubTypes({
+        @JsonSubTypes.Type(value = AutonomousVehicle.class, name = "Autonomous"),
+        @JsonSubTypes.Type(value = LookAheadVehicle.class, name = "Human"),
+})
+@JsonIgnoreProperties(ignoreUnknown = true)
 public abstract class AbstractVehicle {
-    public static int vehicleNumber = 1;
+    public static int vehicleNumber = 0;
     private final int ID;
     private String name;
     private final int priorityID;
@@ -66,13 +75,13 @@ public abstract class AbstractVehicle {
         this.footprint = makeFootprint(length, width);
 
         // Adjusted to handle both a single Pose and an array of Poses
-        if (goalPoses instanceof Pose) {
-            this.goalPoses = new Pose[]{(Pose) goalPoses};
-        } else if (goalPoses instanceof Pose[]) {
-            this.goalPoses = (Pose[]) goalPoses;
-        } else {
-            throw new IllegalArgumentException("Invalid type for goal poses");
-        }
+//        if (goalPoses instanceof Pose) {
+//            this.goalPoses = new Pose[]{(Pose) goalPoses};
+//        } else if (goalPoses instanceof Pose[]) {
+//            this.goalPoses = (Pose[]) goalPoses;
+//        } else {
+//            throw  new IllegalArgumentException("Invalid type for goal poses");
+//        }
 
         AbstractVehicle existingVehicle = VehiclesHashMap.getVehicle(ID);
         if (existingVehicle != null) {
@@ -295,8 +304,47 @@ public abstract class AbstractVehicle {
         return footprint;
     } //TODO Each vehicle should be able to have a separate footprint in tec not the default one
 
-    public void setColor(Color color) {
-        this.color = color;
+    public void setColor(Object color) {
+        if (color instanceof String) {
+            String colorString = (String) color;
+            switch (colorString.toLowerCase()) {
+                case "black":
+                    this.color = Color.BLACK;
+                    break;
+                case "white":
+                    this.color = Color.WHITE;
+                    break;
+                case "red":
+                    this.color = Color.RED;
+                    break;
+                case "green":
+                    this.color = Color.GREEN;
+                    break;
+                case "blue":
+                    this.color = Color.BLUE;
+                    break;
+                case "cyan":
+                    this.color = Color.CYAN;
+                    break;
+                case "orange":
+                    this.color = Color.ORANGE;
+                    break;
+                case "yellow":
+                    this.color = Color.YELLOW;
+                    break;
+                default:
+                    try {
+                        this.color = Color.decode(colorString);
+                    } catch (NumberFormatException e) {
+                        throw new IllegalArgumentException("Invalid color format: " + colorString);
+                    }
+                    break;
+            }
+        } else if (color instanceof Color) {
+            this.color = (Color) color;
+        } else {
+            throw new IllegalArgumentException("Invalid type for color");
+        }
     }
 
     public Color getColor() {

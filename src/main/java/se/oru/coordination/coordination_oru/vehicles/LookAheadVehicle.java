@@ -30,7 +30,7 @@ public class LookAheadVehicle extends AbstractVehicle {
     /**
      * Constructs a new LookAheadVehicle with the specified parameters.
      *
-     * @param id                Unique identifier of the vehicle.
+     * @param ID                Unique identifier of the vehicle.
      * @param name              Name of the vehicle.
      * @param lookAheadDistance The maximum distance ahead on the path that the vehicle considers for planning.
      * @param priorityID        Priority identifier of the vehicle.
@@ -44,9 +44,9 @@ public class LookAheadVehicle extends AbstractVehicle {
      * @param goalPoses         Target poses that the vehicle aims to reach.
      * @param safetyDistance    Minimum safe distance to be maintained from other objects.
      */
-    public LookAheadVehicle(int id, String name, double lookAheadDistance, int priorityID, Color color, double maxVelocity, double maxAcceleration,
+    public LookAheadVehicle(int ID, String name, double lookAheadDistance, int priorityID, Color color, double maxVelocity, double maxAcceleration,
                             int trackingPeriod, double length, double width, Pose initialPose, Object goalPoses, double safetyDistance) {
-        super(id, name, priorityID, color, maxVelocity, maxAcceleration, trackingPeriod, length, width, initialPose, goalPoses, safetyDistance
+        super(ID, name, priorityID, color, maxVelocity, maxAcceleration, trackingPeriod, length, width, initialPose, goalPoses, safetyDistance
         );
         this.lookAheadDistance = lookAheadDistance;
     }
@@ -113,7 +113,6 @@ public class LookAheadVehicle extends AbstractVehicle {
         var fullPath = getPath();
 
         if (vehicleReport == null) {
-            // Handle the case when the RobotReport is null, e.g., return an empty path or throw a custom exception
             System.err.println("Error: RobotReport for vehicleID " + vehicleID + " not found.");
             return new PoseSteering[0];
         }

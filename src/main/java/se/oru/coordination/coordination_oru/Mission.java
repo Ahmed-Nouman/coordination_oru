@@ -1,5 +1,6 @@
 package se.oru.coordination.coordination_oru;
 
+import javafx.util.Pair;
 import org.metacsp.multi.spatioTemporal.paths.Pose;
 import org.metacsp.multi.spatioTemporal.paths.PoseSteering;
 import se.oru.coordination.coordination_oru.util.Missions;
@@ -7,7 +8,6 @@ import se.oru.coordination.coordination_oru.util.Missions;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import javafx.util.Pair;
 
 /**
  * The {@link Mission} data structure represents a goal for a robot, to be reached via a given
