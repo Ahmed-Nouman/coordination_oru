@@ -45,30 +45,30 @@ public class LookAheadVehicle extends AbstractVehicle {
      * @param safetyDistance    Minimum safe distance to be maintained from other objects.
      */
     public LookAheadVehicle(int ID, String name, double lookAheadDistance, int priorityID, Color color, double maxVelocity, double maxAcceleration,
-                            int trackingPeriod, double length, double width, Pose initialPose, Object goalPoses, double safetyDistance) {
-        super(ID, name, priorityID, color, maxVelocity, maxAcceleration, trackingPeriod, length, width, initialPose, goalPoses, safetyDistance
-        );
+                            int trackingPeriod, double length, double width, Pose initialPose, Pose[] goalPoses, double safetyDistance, int missionRepetition) {
+        super(ID, name, priorityID, color, maxVelocity, maxAcceleration, trackingPeriod, length, width, initialPose, goalPoses, safetyDistance,
+                missionRepetition);
         this.lookAheadDistance = lookAheadDistance;
     }
 
     public LookAheadVehicle(String name, double lookAheadDistance, int priorityID, Color color, double maxVelocity, double maxAcceleration,
-                            int trackingPeriod, double length, double width, Pose initialPose, Object goalPoses, double safetyDistance) {
-        this(vehicleNumber, name, lookAheadDistance, priorityID, color, maxVelocity, maxAcceleration, trackingPeriod, length, width, initialPose, goalPoses, safetyDistance
-        );
+                            int trackingPeriod, double length, double width, Pose initialPose, Pose[] goalPoses, double safetyDistance, int missionRepetition) {
+        this(vehicleNumber, name, lookAheadDistance, priorityID, color, maxVelocity, maxAcceleration, trackingPeriod, length, width, initialPose, goalPoses, safetyDistance,
+                missionRepetition);
     }
 
-    public LookAheadVehicle(double lookAheadDistance, Pose initialPose, Object goalPoses) {
+    public LookAheadVehicle(double lookAheadDistance, Pose initialPose, Pose[] goalPoses) {
         this(vehicleNumber, null, lookAheadDistance, 1, Color.YELLOW, 5.0, 1.0, 30,
-                0.5, 0.5, initialPose, goalPoses, 0);
+                0.5, 0.5, initialPose, goalPoses, 0, 0);
     }
 
     public LookAheadVehicle(double lookAheadDistance) {
         this(vehicleNumber, null,  lookAheadDistance,  1, Color.YELLOW, 5.0, 1.0, 30,
-                0.5, 0.5, null, null, 0);
+                0.5, 0.5, null, null, 0, 0);
     }
     public LookAheadVehicle() {
         this(vehicleNumber, null,  20,  1, Color.YELLOW, 5.0, 1.0, 30,
-                0.5, 0.5, null, null, 0);
+                0.5, 0.5, null, null, 0, 0);
     }
 
     /**

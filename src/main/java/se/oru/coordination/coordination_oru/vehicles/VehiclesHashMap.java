@@ -103,4 +103,7 @@ public class VehiclesHashMap {
         return vehicleTrackingPeriod;
     }
 
+    public static void removeVehicle(int ID) {
+        list.remove(ID);
+    }
 }

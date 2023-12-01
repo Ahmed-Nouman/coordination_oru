@@ -7,6 +7,7 @@ import com.vividsolutions.jts.geom.Coordinate;
 import org.apache.commons.lang.ArrayUtils;
 import org.metacsp.multi.spatioTemporal.paths.Pose;
 import org.metacsp.multi.spatioTemporal.paths.PoseSteering;
+import se.oru.coordination.coordination_oru.Mission;
 import se.oru.coordination.coordination_oru.motionplanning.ompl.ReedsSheppCarPlanner;
 
 import java.awt.*;
@@ -39,8 +40,8 @@ import java.util.Arrays;
 })
 @JsonIgnoreProperties(ignoreUnknown = true)
 public abstract class AbstractVehicle {
-    public static int vehicleNumber = 0;
-    private final int ID;
+    public static int vehicleNumber = 1;
+    private int ID;
     private String name;
     private final int priorityID;
     private final String type = this.getClass().getSimpleName();
@@ -56,11 +57,12 @@ public abstract class AbstractVehicle {
     private double safetyDistance;
     private PoseSteering[] path;
     private double pathLength;
+    private Mission mission;
+    private int missionRepetition;
     public static ReedsSheppCarPlanner.PLANNING_ALGORITHM planningAlgorithm = ReedsSheppCarPlanner.PLANNING_ALGORITHM.RRTConnect;
 //    private Map<Integer, AbstractMap.SimpleEntry<PoseSteering[], Integer>> planSegmentsMap;
-
     public AbstractVehicle(int ID, String name, int priorityID, Color color, double maxVelocity, double maxAcceleration,
-                           int trackingPeriod, double length, double width, Pose initialPose, Object goalPoses, double safetyDistance) {
+                           int trackingPeriod, double length, double width, Pose initialPose, Pose[] goalPoses, double safetyDistance, int missionRepetition) {
         this.ID = ID;
         this.name = name;
         this.priorityID = priorityID;
@@ -71,7 +73,9 @@ public abstract class AbstractVehicle {
         this.length = length;
         this.width = width;
         this.initialPose = initialPose;
+        this.goalPoses = goalPoses;
         this.safetyDistance = safetyDistance;
+        this.missionRepetition = missionRepetition;
         this.footprint = makeFootprint(length, width);
 
         // Adjusted to handle both a single Pose and an array of Poses
@@ -192,7 +196,7 @@ public abstract class AbstractVehicle {
                 ", name='" + name + '\'' +
                 ", priorityID=" + priorityID +
                 ", type='" + type + '\'' +
-                ", color=" + getColorCode() +
+                ", color=" + getColor("code") +
                 ", maxVelocity=" + maxVelocity +
                 ", maxAcceleration=" + maxAcceleration +
                 ", trackingPeriod=" + trackingPeriod +
@@ -205,6 +209,7 @@ public abstract class AbstractVehicle {
                 ", footprint=" + Arrays.toString(footprint) +
                 '}';
     }
+
 
 //    /**
 //     * Represents a segment plan containing a path plan and waiting time.
@@ -284,7 +289,6 @@ public abstract class AbstractVehicle {
 //        }
 //        planSegmentsMap = planSegments;
 //    }
-
     private static String poseToString(Pose pose) {
         return round(pose.getX()) + "," + round(pose.getY()) + "," + round(pose.getTheta());
     }
@@ -292,10 +296,10 @@ public abstract class AbstractVehicle {
 //    public Map<Integer, AbstractMap.SimpleEntry<PoseSteering[], Integer>> getPlanSegmentsMap() {
 //        return planSegmentsMap;
 //    }
+
     protected static double round(double value) {
         return Math.round(value * 10.0) / 10.0;
     }
-
     public int getID() {
         return ID;
     }
@@ -347,21 +351,42 @@ public abstract class AbstractVehicle {
         }
     }
 
-    public Color getColor() {
-        return color;
-    }
-
-    public String getColorCode() {
-        return "#" + String.format("%06x", 0xFFFFFF & getColor().getRGB());
+    public Object getColor(String input) {
+        if (input.equalsIgnoreCase("name")) {
+            if (color.equals(Color.BLACK)) {
+                return "Black";
+            } else if (color.equals(Color.WHITE)) {
+                return "White";
+            } else if (color.equals(Color.RED)) {
+                return "Red";
+            } else if (color.equals(Color.GREEN)) {
+                return "Green";
+            } else if (color.equals(Color.BLUE)) {
+                return "Blue";
+            } else if (color.equals(Color.CYAN)) {
+                return "Cyan";
+            } else if (color.equals(Color.ORANGE)) {
+                return "Orange";
+            } else if (color.equals(Color.YELLOW)) {
+                return "Yellow";
+            } else {
+                throw new IllegalArgumentException("Invalid type for color");
+            }
+        } else if (input.equals("color")) {
+            return color;
+        } else if (input.equals("code")) {
+            return "#" + String.format("%06x", 0xFFFFFF & color.getRGB());
+        }
+        return null;
     }
 
     public Coordinate[] getFootPrint() {
         return footprint;
     }
+
     public void setFootprint(Coordinate[] footprint) {
         this.footprint = footprint;
     }
-
     public double getPlanLength() {
         return pathLength;
     }
@@ -474,4 +499,62 @@ public abstract class AbstractVehicle {
         this.pathLength = pathLength;
     }
 
+    public LookAheadVehicle convertToLookAheadVehicle(AutonomousVehicle autonomousVehicle) {
+        VehiclesHashMap.removeVehicle(autonomousVehicle.getID());
+        return new LookAheadVehicle(
+                autonomousVehicle.getID(),
+                autonomousVehicle.getName(),
+                20,
+                autonomousVehicle.getPriorityID(),
+                (Color) autonomousVehicle.getColor("color"),
+                autonomousVehicle.getMaxVelocity(),
+                autonomousVehicle.getMaxAcceleration(),
+                autonomousVehicle.getTrackingPeriod(),
+                autonomousVehicle.getLength(),
+                autonomousVehicle.getWidth(),
+                autonomousVehicle.getInitialPose(),
+                autonomousVehicle.getGoalPoses(),
+                autonomousVehicle.getSafetyDistance(),
+                autonomousVehicle.getMissionRepetition()
+        );
+    }
+
+    public AutonomousVehicle convertToAutonomousVehicle(LookAheadVehicle lookAheadVehicle) {
+        VehiclesHashMap.removeVehicle(lookAheadVehicle.getID());
+        return new AutonomousVehicle(
+                lookAheadVehicle.getID(),
+                lookAheadVehicle.getName(),
+                lookAheadVehicle.getPriorityID(),
+                (Color) lookAheadVehicle.getColor("color"),
+                lookAheadVehicle.getMaxVelocity(),
+                lookAheadVehicle.getMaxAcceleration(),
+                lookAheadVehicle.getTrackingPeriod(),
+                lookAheadVehicle.getLength(),
+                lookAheadVehicle.getWidth(),
+                lookAheadVehicle.getInitialPose(),
+                lookAheadVehicle.getGoalPoses(),
+                lookAheadVehicle.getSafetyDistance(),
+                lookAheadVehicle.getMissionRepetition()
+        );
+    }
+
+    public void setID(int ID) {
+        this.ID = ID;
+    }
+
+    public void setMissionRepetition(int missionRepetition) {
+        this.missionRepetition = missionRepetition;
+    }
+
+    public int getMissionRepetition() {
+        return missionRepetition;
+    }
+
+    public Mission getMission() {
+        return mission;
+    }
+
+    public void setMission(Mission mission) {
+        this.mission = mission;
+    }
 }

@@ -56,7 +56,16 @@ public class ProjectData {
                 return vehicle;
             }
         }
-        return null; // or throw an exception if the vehicle is not found
+        return null;
+    }
+
+    public AbstractVehicle getVehicle(int ID) {
+        for (AbstractVehicle vehicle : vehicles) {
+            if (vehicle.getID() == ID) {
+                return vehicle;
+            }
+        }
+        return null;
     }
 
     /**
@@ -72,8 +81,8 @@ public class ProjectData {
      * Removes a vehicle.
      *
      */
-    public void removeVehicle(String vehicleName) {
-        vehicles.removeIf(vehicle -> vehicle.getName().equals(vehicleName));
+    public void removeVehicle(int vehicleID) {
+        vehicles.removeIf(vehicle -> vehicle.getID() == vehicleID);
     }
 
     /**
@@ -100,6 +109,15 @@ public class ProjectData {
 
     public void setVehicles(ArrayList<AbstractVehicle> vehicles) {
         this.vehicles = vehicles;
+    }
+
+    public String getPoseName(Pose pose) {
+        for (Map.Entry<String, Pose> entry : poses.entrySet()) {
+            if (entry.getValue().equals(pose)) {
+                return entry.getKey();
+            }
+        }
+        return null;
     }
 
     //    public static class Vehicle {

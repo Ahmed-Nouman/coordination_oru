@@ -4,7 +4,6 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -23,6 +22,7 @@ import javafx.stage.FileChooser;
 import org.metacsp.multi.spatioTemporal.paths.Pose;
 import org.yaml.snakeyaml.Yaml;
 import se.oru.coordination.coordination_oru.vehicles.AbstractVehicle;
+import se.oru.coordination.coordination_oru.vehicles.LookAheadVehicle;
 
 import java.awt.*;
 import java.io.File;
@@ -36,12 +36,25 @@ import java.util.Map;
 
 public class Utils {
 
-    protected static void validateDouble(TextField textField) {
+    protected static Boolean validateDouble(TextField textField) {
         try {
             Double.parseDouble(textField.getText());
             textField.setStyle("-fx-border-color: green");
+            return true;
         } catch (NumberFormatException e) {
             textField.setStyle("-fx-border-color: red");
+            return false;
+        }
+    }
+
+    protected static Boolean validateInteger(TextField textField) {
+        try {
+            Integer.parseInt(textField.getText());
+            textField.setStyle("-fx-border-color: green");
+            return true;
+        } catch (NumberFormatException e) {
+            textField.setStyle("-fx-border-color: red");
+            return false;
         }
     }
 
@@ -114,52 +127,62 @@ public class Utils {
         }
     }
 
-    protected static void updateVehiclesList(ListView<String> vehiclesList, BorderPane borderPane, Button addVehicleButton,
-                                             Button deleteVehicleButton, ProjectData projectData,
-                                             TextField nameField, TextField lengthField, TextField widthField,
-                                             TextField maxVelocityField, TextField maxAccelerationField,
-                                             TextField safetyDistanceField, ComboBox<String> colorField,
-                                             ComboBox<String> initialPoseField, VBox goalPoseField,
-                                             CheckBox isHumanField, Text lookAheadDistance,
-                                             TextField lookAheadDistanceField) {
+    protected static void updateVehiclesListView(ListView<String> vehiclesListView, BorderPane borderPane, Button addVehicleButton,
+                                                 Button deleteVehicleButton, ProjectData projectData,
+                                                 TextField nameField, TextField lengthField, TextField widthField,
+                                                 TextField maxVelocityField, TextField maxAccelerationField,
+                                                 TextField safetyDistanceField, ComboBox<String> colorField,
+                                                 ComboBox<String> initialPoseField, VBox goalPoseField,
+                                                 CheckBox isHumanField,
+                                                 TextField lookAheadDistanceField,
+                                                 TextField missionRepetitionField) {
         VBox leftPane = new VBox();
-        Text vehiclesText = new Text("Vehicles: ");
+        Text vehiclesText = new Text("List of Vehicles: ");
         vehiclesText.setFont(Font.font("System", FontWeight.BOLD, 12));
-        getVehicles(vehiclesList, projectData);
+        vehiclesListView.setMaxWidth(220);
+        getVehicles(vehiclesListView, projectData);
         leftPane.setAlignment(Pos.CENTER);
         HBox buttons = new HBox(addVehicleButton, deleteVehicleButton);
         buttons.setAlignment(Pos.CENTER);
         buttons.setSpacing(10);
-        leftPane.getChildren().addAll(vehiclesText, vehiclesList, buttons);
+        buttons.setMaxWidth(vehiclesListView.getMaxWidth());
+        leftPane.getChildren().addAll(vehiclesText, vehiclesListView, buttons);
         leftPane.setSpacing(10);
         borderPane.setLeft(leftPane);
         BorderPane.setMargin(leftPane, new Insets(0, 0, 0, 20));
 
         // Listener for list selection changes
-        vehiclesList.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
+        vehiclesListView.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
             if (newValue != null) {
                 // Get the selected vehicle's details
                 AbstractVehicle vehicle = projectData.getVehicle(newValue);
 
                 // Update the fields in the centerPane with the details of the selected vehicle
-                nameField.setText(newValue);
+                nameField.setText(newValue); // TODO
                 lengthField.setText(String.valueOf(vehicle.getLength()));
+                lengthField.setStyle("-fx-border-color: green");
                 widthField.setText(String.valueOf(vehicle.getWidth()));
+                widthField.setStyle("-fx-border-color: green");
                 maxVelocityField.setText(String.valueOf(vehicle.getMaxVelocity()));
+                maxVelocityField.setStyle("-fx-border-color: green");
                 maxAccelerationField.setText(String.valueOf(vehicle.getMaxAcceleration()));
+                maxAccelerationField.setStyle("-fx-border-color: green");
                 safetyDistanceField.setText(String.valueOf(vehicle.getSafetyDistance()));
-//                colorField.setValue(vehicle.getColor());
-//                initialPoseField.setValue(vehicle.getInitialPose());
+                safetyDistanceField.setStyle("-fx-border-color: green");
+                colorField.setValue((String) vehicle.getColor("name"));
+                initialPoseField.setValue(projectData.getPoseName(vehicle.getInitialPose()));
 //                if (vehicle.getGoalPoses() != null && vehicle.getGoalPoses().length > 0) {
 //                    goalPoseField.setValue(vehicle.getGoalPoses()[0]);
 //                }
-//                isHumanField.setSelected(vehicle.getLookAheadDistance() > 0);
-//                lookAheadDistance.setVisible(vehicle.getLookAheadDistance() > 0);
-//                lookAheadDistanceField.setText(String.valueOf(vehicle.getLookAheadDistance()));
-//                lookAheadDistanceField.setVisible(vehicle.getLookAheadDistance() > 0);
+                isHumanField.setSelected(isHumanField.isSelected()); // FIXME
+                if (vehicle instanceof LookAheadVehicle) {
+                    lookAheadDistanceField.setText(String.valueOf(((LookAheadVehicle) vehicle).getLookAheadDistance()));
+                    lookAheadDistanceField.setStyle("-fx-border-color: green");
+                }
+                missionRepetitionField.setText(String.valueOf(vehicle.getMissionRepetition()));
             }
         });
-        vehiclesList.getSelectionModel().selectFirst();
+        vehiclesListView.getSelectionModel().selectFirst();
     }
 
     protected static ImageView getImageView(GUI gui) {
@@ -225,7 +248,6 @@ public class Utils {
 
     protected static ProjectData parseJSON(String filePath) throws IOException {
         ObjectMapper objectMapper = new ObjectMapper();
-        // Configure ObjectMapper to not fail on unknown properties
         objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
 
         JsonNode rootNode = objectMapper.readTree(new File(filePath));
@@ -240,15 +262,27 @@ public class Utils {
 
         ArrayList<AbstractVehicle> vehicles = new ArrayList<>();
         vehiclesNode.forEach(vehicleNode -> {
-            // Temporarily convert to a tree to manually handle 'initialPose'
             ObjectNode vehicleObject = (ObjectNode) vehicleNode;
+
+            // Handle initialPose
             String initialPoseName = vehicleObject.get("initialPose").asText();
             Pose initialPose = posesMap.get(initialPoseName);
-
-            // Remove 'initialPose' field so Jackson doesn't try to deserialize it
             vehicleObject.remove("initialPose");
 
-            // Now let Jackson deserialize the rest of the vehicle object
+            // Handle goalPoses
+            JsonNode goalPosesNode = vehicleObject.get("goalPoses");
+            Pose[] goalPoses = null;
+            if (goalPosesNode != null) {
+                if (goalPosesNode.isArray()) {
+                    goalPoses = objectMapper.convertValue(goalPosesNode, Pose[].class);
+                } else {
+                    Pose singleGoalPose = posesMap.get(goalPosesNode.asText());
+                    goalPoses = new Pose[]{singleGoalPose};
+                }
+                vehicleObject.remove("goalPoses");
+            }
+
+            // Deserialize the vehicle
             AbstractVehicle vehicle = null;
             try {
                 vehicle = objectMapper.treeToValue(vehicleObject, AbstractVehicle.class);
@@ -256,8 +290,10 @@ public class Utils {
                 throw new RuntimeException(e);
             }
 
-            // Set the initial pose to the vehicle
             vehicle.setInitialPose(initialPose);
+            if (goalPoses != null) {
+                vehicle.setGoalPoses(goalPoses);
+            }
 
             vehicles.add(vehicle);
         });

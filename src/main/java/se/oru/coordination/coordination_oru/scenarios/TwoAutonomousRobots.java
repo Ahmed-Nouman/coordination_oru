@@ -64,11 +64,10 @@ public class TwoAutonomousRobots {
 //        stoppingPoints.add(stoppingPoint);
 
         // Now you can call the Mission constructor
-        Mission m1 = new Mission(1, autonomousRobot1.getPath());
+        Mission m1 = new Mission(autonomousRobot1.getID(), autonomousRobot1.getPath());
         m1.setStoppingPoint(orePass, 20000);   //FIXME check stoppage implementation. Works for larger durations
 //        Mission m1 = new Mission(1, autonomousRobot1.getPath(), stoppingPoints);
         var m2 = new Mission(autonomousRobot2.getID(), autonomousRobot2.getPath());
-        m2.setStoppingPoint(mainTunnelRight, 20000);
         Missions.enqueueMission(m1);
         Missions.enqueueMission(m2);
 //        tec.addMissions(m1);

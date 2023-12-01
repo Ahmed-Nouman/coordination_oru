@@ -39,11 +39,12 @@ public class AutonomousVehicle extends AbstractVehicle {
      * @param initialPose     Starting pose of the vehicle in the environment.
      * @param goalPoses       Array of target poses for the vehicle to reach.
      * @param safetyDistance  Minimum distance to maintain from obstacles for safety.
+     * @param missionRepetition  Minimum distance to maintain from obstacles for safety.
      */
     public AutonomousVehicle(int ID, String name, int priorityID, Color color, double maxVelocity, double maxAcceleration, int trackingPeriod,
-                             double length, double width, Pose initialPose, Object goalPoses, double safetyDistance) {
-        super(ID, name, priorityID, color, maxVelocity, maxAcceleration, trackingPeriod, length, width, initialPose, goalPoses, safetyDistance
-        );
+                             double length, double width, Pose initialPose, Pose[] goalPoses, double safetyDistance, int missionRepetition) {
+        super(ID, name, priorityID, color, maxVelocity, maxAcceleration, trackingPeriod, length, width, initialPose, goalPoses, safetyDistance,
+                missionRepetition);
     }
 
     /**
@@ -63,9 +64,9 @@ public class AutonomousVehicle extends AbstractVehicle {
      * @param safetyDistance  Safety distance to maintain from obstacles.
      */
     public AutonomousVehicle(String name, int priorityID, Color color, double maxVelocity, double maxAcceleration, int trackingPeriod, double length,
-                             double width, Pose initialPose, Object goalPoses, double safetyDistance) {
-        this(vehicleNumber, name, priorityID, color, maxVelocity, maxAcceleration, trackingPeriod, length, width, initialPose, goalPoses, safetyDistance
-        );
+                             double width, Pose initialPose, Pose[] goalPoses, double safetyDistance, int missionRepetition) {
+        this(vehicleNumber, name, priorityID, color, maxVelocity, maxAcceleration, trackingPeriod, length, width, initialPose, goalPoses, safetyDistance,
+                missionRepetition);
     }
 
     /**
@@ -75,9 +76,9 @@ public class AutonomousVehicle extends AbstractVehicle {
      * @param initialPose       Starting pose of the vehicle.
      * @param goalPoses         Array of target poses for the vehicle.
      */
-    public AutonomousVehicle(Pose initialPose, Object goalPoses) {
+    public AutonomousVehicle(Pose initialPose, Pose[] goalPoses) {
         this(vehicleNumber, null, 1, Color.YELLOW, 5.0, 1.0, 30, 0.5, 0.5,
-                initialPose, goalPoses, 0);
+                initialPose, goalPoses, 0, 0);
     }
 
     /**
@@ -86,6 +87,6 @@ public class AutonomousVehicle extends AbstractVehicle {
      */
     public AutonomousVehicle() {
         this(vehicleNumber, null, 1, Color.YELLOW, 5.0, 1.0, 30, 0.5, 0.5,
-                null, null, 0);
+                null, null, 0, 0);
     }
 }

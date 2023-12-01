@@ -74,7 +74,7 @@ public class JTSDrawingPanelVisualization implements FleetVisualization {
 		name += extraData;
 
 		if (rr.getPathIndex() != -1) panel.addGeometry(name, TrajectoryEnvelope.getFootprint(te.getFootprint(), x, y, theta), false,
-				true, false, VehiclesHashMap.getVehicle(te.getRobotID()).getColorCode());
+				true, false, (String) VehiclesHashMap.getVehicle(te.getRobotID()).getColor("code"));
 		else panel.addGeometry(name, TrajectoryEnvelope.getFootprint(te.getFootprint(), te.getTrajectory().getPose()[0].getX(),
 				te.getTrajectory().getPose()[0].getY(), te.getTrajectory().getPose()[0].getTheta()), false, true,
 				false, "#FF0000");
@@ -92,7 +92,7 @@ public class JTSDrawingPanelVisualization implements FleetVisualization {
 		}
 
 		if (rr.getPathIndex() != -1) panel.addGeometry(name, TrajectoryEnvelope.getFootprint(fp, x, y, theta), false,
-				true, false, VehiclesHashMap.getVehicle(rr.getRobotID()).getColorCode());
+				true, false, (String) VehiclesHashMap.getVehicle(rr.getRobotID()).getColor("code"));
 		else panel.addGeometry(name, TrajectoryEnvelope.getFootprint(fp, x, y, theta), false,
 				true, false, "#FF0000");
 	}

@@ -30,9 +30,9 @@ public class ProductionCycleMine {
         final Pose orePass = new Pose(54.35, 11.25, -Math.PI / 2);
 
         var drillVehicle = new LookAheadVehicle("drillRig", predictableDistance, 1, Color.CYAN, 5, 2,
-                1000,  0.5, 0.5, drawPoint16, new Pose[] {orePass}, 0);
+                1000,  0.5, 0.5, drawPoint16, new Pose[] {orePass}, 0, 0);
         var chargingVehicle = new LookAheadVehicle("chargingVehicle", 6 * predictableDistance, 1, Color.WHITE,
-                5, 2, 1000,  0.5, 0.5, drawPoint24, new Pose[] {mainTunnelRight}, 0);
+                5, 2, 1000,  0.5, 0.5, drawPoint24, new Pose[] {mainTunnelRight}, 0, 0);
 
         var autonomousVehicle1 = new AutonomousVehicle(drawPoint16, new Pose[] {orePass});
         var autonomousVehicle2 = new AutonomousVehicle(drawPoint23, new Pose[] {orePass});

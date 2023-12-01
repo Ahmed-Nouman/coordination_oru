@@ -241,7 +241,7 @@ public class BrowserVisualization implements FleetVisualization {
 		double scale = Math.sqrt(robotFootprintArea)*0.2;
 		Geometry arrowGeom = createArrow(rr.getPose(), robotFootprintXDim/scale, scale);
 		String jsonString = "{ \"operation\" : \"addGeometry\", \"data\" : " + this.geometryToJSONString(name, geometry,
-				VehiclesHashMap.getVehicle(rr.getRobotID()).getColorCode(), -1, true, extraData) + "}";
+				(String) VehiclesHashMap.getVehicle(rr.getRobotID()).getColor("code"), -1, true, extraData) + "}";
 		String jsonStringArrow = "{ \"operation\" : \"addGeometry\", \"data\" : " + this.geometryToJSONString("_"+
 				name, arrowGeom, "#ffffff", -1, true, null) + "}";
 		enqueueMessage(jsonString);
@@ -274,7 +274,7 @@ public class BrowserVisualization implements FleetVisualization {
 		this.updateRobotFootprintArea(geom);
 		double scale = Math.sqrt(robotFootprintArea)*0.2;
 		Geometry arrowGeom = createArrow(rr.getPose(), robotFootprintXDim/scale, scale);
-		String jsonString = "{ \"operation\" : \"addGeometry\", \"data\" : " + this.geometryToJSONString(name, geom, VehiclesHashMap.getVehicle(rr.getRobotID()).getColorCode(), -1, true, extraData) + "}";
+		String jsonString = "{ \"operation\" : \"addGeometry\", \"data\" : " + this.geometryToJSONString(name, geom, (String) VehiclesHashMap.getVehicle(rr.getRobotID()).getColor("code"), -1, true, extraData) + "}";
 		String jsonStringArrow = "{ \"operation\" : \"addGeometry\", \"data\" : " + this.geometryToJSONString("_"+name, arrowGeom, "#ffffff", -1, true, null) + "}";
 		enqueueMessage(jsonString);
 		enqueueMessage(jsonStringArrow);
@@ -323,7 +323,7 @@ public class BrowserVisualization implements FleetVisualization {
 		// Color the trajectory envelope with the same vehicle color
 		String color = "#efe007";
 		if (!VehiclesHashMap.getList().isEmpty()) {
-			color = VehiclesHashMap.getVehicle(te.getRobotID()).getColorCode();
+			color = (String) VehiclesHashMap.getVehicle(te.getRobotID()).getColor("code");
 		}
 
 		GeometricShapeDomain dom = (GeometricShapeDomain)te.getEnvelopeVariable().getDomain();
