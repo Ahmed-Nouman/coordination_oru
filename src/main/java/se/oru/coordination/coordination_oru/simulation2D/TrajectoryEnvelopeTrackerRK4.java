@@ -30,7 +30,6 @@ public abstract class TrajectoryEnvelopeTrackerRK4 extends AbstractTrajectoryEnv
 	private boolean useInternalCPs = true;
 	protected ArrayList<RobotReport> reportsList = new ArrayList<RobotReport>();
 	protected ArrayList<Long> reportTimeLists = new ArrayList<Long>();
-	
 	private HashMap<Integer,Integer> userCPReplacements = null;
 
 	public void setUseInternalCriticalPoints(boolean value) {
@@ -121,7 +120,7 @@ public abstract class TrajectoryEnvelopeTrackerRK4 extends AbstractTrajectoryEnv
 			this.slowDownProfile = this.getSlowdownProfile();
 			this.positionToSlowDown = this.computePositionToSlowDown();
 			reportsList.clear();
-			reportTimeLists.clear(); //semplify to avoid discontinuities ... to be fixed.
+			reportTimeLists.clear(); //simplify to avoid discontinuities ... to be fixed.
 		}
 	}
 
@@ -271,8 +270,7 @@ public abstract class TrajectoryEnvelopeTrackerRK4 extends AbstractTrajectoryEnv
 		};
 		t.start();
 	}
-	
-	
+
 	private TreeMap<Double,Double> getSlowdownProfile() {
 		TreeMap<Double,Double> ret = new TreeMap<Double, Double>(Collections.reverseOrder());
 		State tempStateBW = new State(0.0, 0.0);

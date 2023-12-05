@@ -19,8 +19,6 @@ public class CriticalSection {
 	private int te2Start = -1;
 	private int te1End = -1;
 	private int te2End = -1;
-	private int te1Break = -1;
-	private int te2Break = -1;
 
 	public CriticalSection(TrajectoryEnvelope te1, TrajectoryEnvelope te2, int te1Start, int te2Start, int te1End, int te2End) {
 		this.te1 = te1;
@@ -94,22 +92,6 @@ public class CriticalSection {
 		return te2End;
 	}
 
-	public int getTe1Break() {
-		return te1Break;
-	}
-	
-	public int getTe2Break() {
-		return te2Break;
-	}
-	
-	public void setTe1Break(int te1Break) {
-		this.te1Break = te1Break;
-	}
-	
-	public void setTe2Break(int te2Break) {
-		this.te2Break = te2Break;
-	}
-		
 	@Override
 	public String toString() {
 		String ret = "";

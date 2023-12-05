@@ -234,7 +234,6 @@ public abstract class TrajectoryEnvelopeCoordinator extends AbstractTrajectoryEn
 		return nonliveCycles;
 	}
 
-
 	protected SimpleDirectedGraph<Integer,Dependency> depsToGraph(HashMap<Integer, Dependency> deps) {
 		SimpleDirectedGraph<Integer,Dependency> g = new SimpleDirectedGraph<Integer,Dependency>(Dependency.class);
 		for (int key : deps.keySet()) {

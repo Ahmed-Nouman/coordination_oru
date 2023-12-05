@@ -17,7 +17,7 @@ public class TwoAutonomousRobots {
         final Pose drawPoint21 = new Pose(52.95, 87.75, -Math.PI / 2);
         final Pose orePass = new Pose(54.35, 11.25, -Math.PI / 2);
 
-        var autonomousRobot1 = new AutonomousVehicle(drawPoint21, new Pose[] {orePass, drawPoint21});
+        var autonomousRobot1 = new AutonomousVehicle(mainTunnelRight, new Pose[] {orePass, mainTunnelRight});
         autonomousRobot1.setMaxVelocity(10);
 //        int[] waitingTimes = {100};
         var autonomousRobot2 = new AutonomousVehicle(mainTunnelLeft, new Pose[] {mainTunnelRight, mainTunnelLeft});
@@ -65,7 +65,7 @@ public class TwoAutonomousRobots {
 
         // Now you can call the Mission constructor
         Mission m1 = new Mission(autonomousRobot1.getID(), autonomousRobot1.getPath());
-        m1.setStoppingPoint(orePass, 20000);   //FIXME check stoppage implementation. Works for larger durations
+//        m1.setStoppingPoint(orePass, 20000);   //FIXME check stoppage implementation. Works for larger durations
 //        Mission m1 = new Mission(1, autonomousRobot1.getPath(), stoppingPoints);
         var m2 = new Mission(autonomousRobot2.getID(), autonomousRobot2.getPath());
         Missions.enqueueMission(m1);

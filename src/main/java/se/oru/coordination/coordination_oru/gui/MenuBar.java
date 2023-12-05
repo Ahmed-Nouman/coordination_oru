@@ -42,7 +42,7 @@ public class MenuBar {
             if (selectedFile != null) {
                 gui.projectFile = selectedFile.getAbsolutePath();
                 gui.pathLabel.setText("Name of Project: " + selectedFile.getName());
-                gui.nextProjectButton.setVisible(true);
+                gui.nextButton.setVisible(true);
 
                 try (FileWriter fileWriter = new FileWriter(selectedFile)) {
                     fileWriter.write("{}");
@@ -52,7 +52,7 @@ public class MenuBar {
             }
 
             gui.isNewProject = true;
-            gui.nextProjectButton.setVisible(true);
+            gui.nextButton.setVisible(true);
         });
 
         openProject = new MenuItem("Open Project...");
@@ -62,7 +62,7 @@ public class MenuBar {
             if (file != null) {
                 gui.projectFile = file.getAbsolutePath();
                 gui.pathLabel.setText("Name of Project: " + file.getName());
-                gui.nextProjectButton.setVisible(true);
+                gui.nextButton.setVisible(true);
                 try {
                     gui.projectData = parseJSON(gui.projectFile);
                 } catch (IOException ex) {
@@ -70,7 +70,7 @@ public class MenuBar {
                 }
             }
 
-            gui.nextProjectButton.setVisible(true);
+            gui.nextButton.setVisible(true);
         });
 
         saveProject = new MenuItem("Save Project");
@@ -93,7 +93,7 @@ public class MenuBar {
 
         about.setOnAction(e -> {
             String content = "A Framework for Multi-Robot Motion Planning, Coordination and Control.\n\n" +
-                    "Copyright: © 2017-" + String.valueOf(Year.now()) + "\n\n" +
+                    "Copyright: © 2017-" + Year.now() + "\n\n" +
                     "Authors: Federico Pecora, Anna Mannucci, Franziska Klügl, Ahmed Nouman, Olga Mironenko\n";
             AlertBox.display("Coordination_ORU", content, Alert.AlertType.INFORMATION);
         });

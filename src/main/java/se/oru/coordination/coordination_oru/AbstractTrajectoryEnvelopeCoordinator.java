@@ -1776,7 +1776,7 @@ public abstract class AbstractTrajectoryEnvelopeCoordinator {
 	 * @param cs The active critical section for which we are trying to restore the order.
 	 * @param rr1 Last report of the first robot.
 	 * @param rr2 Last report of the second robot.
-	 * @return which robot is ahead (1 if Robot 1 is ahead, -1 if Robot 2 is ahead, 0 if nothing can be stated.
+	 * @return which robot is ahead (1 if Robot 1 is ahead, -1 if Robot 2 is ahead, 0 if nothing can be stated.)
 	 * Returning -2 if the critical section is no more active.
 	 */
 	protected int isAhead(CriticalSection cs, RobotReport rr1, RobotReport rr2) {
@@ -1853,7 +1853,6 @@ public abstract class AbstractTrajectoryEnvelopeCoordinator {
 		}
 		System.out.println();
 	}
-
 
 }
 

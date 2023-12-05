@@ -1,9 +1,7 @@
 package se.oru.coordination.coordination_oru.gui;
 
 import org.metacsp.multi.spatioTemporal.paths.Pose;
-import se.oru.coordination.coordination_oru.vehicles.AbstractVehicle;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -15,7 +13,7 @@ import java.util.Map;
  */
 public class ProjectData {
     private String map;
-    private List<AbstractVehicle> vehicles;
+    private List<Vehicle> vehicles;
     private Map<String, Pose> poses;
 
     /**
@@ -41,7 +39,7 @@ public class ProjectData {
      *
      * @return A map of vehicle IDs to AutonomousVehicle objects.
      */
-    public List<AbstractVehicle> getVehicles() {
+    public List<Vehicle> getVehicles() {
         return vehicles;
     }
 
@@ -50,22 +48,22 @@ public class ProjectData {
      *
      * @return The specific vehicle object.
      */
-    public AbstractVehicle getVehicle(String vehicleName) {
-        for (AbstractVehicle vehicle : vehicles) {
-            if (vehicle.getName().equals(vehicleName)) {
+    public Vehicle getVehicle(int vehicleID) {
+        for (Vehicle vehicle : vehicles) {
+            if (vehicle.getID() == vehicleID) {
                 return vehicle;
             }
         }
         return null;
     }
 
-    public AbstractVehicle getVehicle(int ID) {
-        for (AbstractVehicle vehicle : vehicles) {
-            if (vehicle.getID() == ID) {
-                return vehicle;
+    public int getVehicleID(String vehicleName, List<Vehicle> vehicles) {
+        for (Vehicle vehicle : vehicles) {
+            if (vehicleName.equals(vehicle.getName())) {
+                return vehicle.getID();
             }
         }
-        return null;
+        return -1; // Return -1 if the vehicle is not found
     }
 
     /**
@@ -73,7 +71,7 @@ public class ProjectData {
      *
      * @param vehicle The AutonomousVehicle object to add.
      */
-    public void addVehicle(AbstractVehicle vehicle) {
+    public void addVehicle(Vehicle vehicle) {
         this.vehicles.add(vehicle);
     }
 
@@ -107,7 +105,7 @@ public class ProjectData {
         this.poses = poses;
     }
 
-    public void setVehicles(ArrayList<AbstractVehicle> vehicles) {
+    public void setVehicles(List<Vehicle> vehicles) {
         this.vehicles = vehicles;
     }
 
@@ -120,115 +118,155 @@ public class ProjectData {
         return null;
     }
 
-    //    public static class Vehicle {
-//
-//        private static int nextId = 1;
-//        private final int id;
-//        private String name;
-//        private String type;
-//        private double lookAheadDistance;
-//        private String color;
-//        private double maxVelocity;
-//        private double maxAcceleration;
-//        private double length;
-//        private double width;
-//        private String initialPose;
-//        private List<Goal> goals;
-//        private double safetyDistance;
-//
-//        public Vehicle() {
-//            this.id = nextId;
-//        }
-//
-//        public int getId() {
-//            return id;
-//        }
-//        public String getName() {
-//            return name;
-//        }
-//
-//        public void setName(String name) {
-//            this.name = name;
-//        }
-//
-//        public String getType() {
-//            return type;
-//        }
-//
-//        public void setType(String type) {
-//            this.type = type;
-//        }
-//
-//        public double getLookAheadDistance() {
-//            return lookAheadDistance;
-//        }
-//
-//        public void setLookAheadDistance(double lookAheadDistance) {
-//            this.lookAheadDistance = lookAheadDistance;
-//        }
-//
-//        public String getColor() {
-//            return color;
-//        }
-//
-//        public void setColor(String color) {
-//            this.color = color;
-//        }
-//
-//        public double getMaxVelocity() {
-//            return maxVelocity;
-//        }
-//
-//        public void setMaxVelocity(double maxVelocity) {
-//            this.maxVelocity = maxVelocity;
-//        }
-//
-//        public double getMaxAcceleration() {
-//            return maxAcceleration;
-//        }
-//
-//        public void setMaxAcceleration(double maxAcceleration) {
-//            this.maxAcceleration = maxAcceleration;
-//        }
-//
-//        public double getLength() {
-//            return length;
-//        }
-//
-//        public void setLength(double length) {
-//            this.length = length;
-//        }
-//
-//        public double getWidth() {
-//            return width;
-//        }
-//
-//        public void setWidth(double width) {
-//            this.width = width;
-//        }
-//
-//        public String getInitialPose() {
-//            return initialPose;
-//        }
-//
-//        public void setInitialPose(String initialPose) {
-//            this.initialPose = initialPose;
-//        }
-//
-//        public List<Goal> getGoals() {
-//            return goals;
-//        }
-//
-//        public void setGoals(List<Goal> goals) {
-//            this.goals = goals;
-//        }
-//
-//        public double getSafetyDistance() {
-//            return safetyDistance;
-//        }
-//
-//        public void setSafetyDistance(double safetyDistance) {
-//            this.safetyDistance = safetyDistance;
-//        }
-//    }
+    // Inner class to represent a vehicle
+    public static class Vehicle {
+        private static int nextId = 1;
+        private final int ID;
+        private String name;
+        private String type;
+        private double lookAheadDistance;
+        private String color;
+        private double maxVelocity;
+        private double maxAcceleration;
+        private double length;
+        private double width;
+        private String initialPose;
+        private List<MissionStep> mission;
+        private int missionRepetition;
+        private double safetyDistance;
+
+        public Vehicle() {
+            this.ID = nextId++;
+        }
+
+        public int getID() {
+            return ID;
+        }
+
+        public String getName() {
+            return name;
+        }
+
+        public void setName(String name) {
+            this.name = name;
+        }
+
+        public String getType() {
+            return type;
+        }
+
+        public void setType(String type) {
+            this.type = type;
+        }
+
+        public double getLookAheadDistance() {
+            return lookAheadDistance;
+        }
+
+        public void setLookAheadDistance(double lookAheadDistance) {
+            this.lookAheadDistance = lookAheadDistance;
+        }
+
+        public String getColor() {
+            return color;
+        }
+
+        public void setColor(String color) {
+            this.color = color;
+        }
+
+        public double getMaxVelocity() {
+            return maxVelocity;
+        }
+
+        public void setMaxVelocity(double maxVelocity) {
+            this.maxVelocity = maxVelocity;
+        }
+
+        public double getMaxAcceleration() {
+            return maxAcceleration;
+        }
+
+        public void setMaxAcceleration(double maxAcceleration) {
+            this.maxAcceleration = maxAcceleration;
+        }
+
+        public double getLength() {
+            return length;
+        }
+
+        public void setLength(double length) {
+            this.length = length;
+        }
+
+        public double getWidth() {
+            return width;
+        }
+
+        public void setWidth(double width) {
+            this.width = width;
+        }
+
+        public String getInitialPose() {
+            return initialPose;
+        }
+
+        public void setInitialPose(String initialPose) {
+            this.initialPose = initialPose;
+        }
+
+        public List<MissionStep> getMission() {
+            return mission;
+        }
+
+        public void setMission(List<MissionStep> mission) {
+            this.mission = mission;
+        }
+
+        public int getMissionRepetition() {
+            return missionRepetition;
+        }
+
+        public void setMissionRepetition(int missionRepetition) {
+            this.missionRepetition = missionRepetition;
+        }
+
+        public double getSafetyDistance() {
+            return safetyDistance;
+        }
+
+        public void setSafetyDistance(double safetyDistance) {
+            this.safetyDistance = safetyDistance;
+        }
+    }
+
+    // Inner class to represent a mission step
+    public static class MissionStep {
+        private String poseName;
+        private double duration; // in minutes
+
+        public MissionStep() {
+        }
+
+        public String getPoseName() {
+            return poseName;
+        }
+
+        public void setPoseName(String poseName) {
+            this.poseName = poseName;
+        }
+
+        public double getDuration() {
+            return duration;
+        }
+
+        public void setDuration(double duration) {
+            this.duration = duration;
+        }
+
+        @Override
+        public String toString() {
+            return "(" + poseName + ", " + duration + ")";
+        }
+    }
 }
