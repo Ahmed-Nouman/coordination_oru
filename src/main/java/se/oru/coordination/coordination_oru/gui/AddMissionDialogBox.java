@@ -2,19 +2,19 @@ package se.oru.coordination.coordination_oru.gui;
 
 import javafx.scene.control.*;
 import javafx.scene.layout.GridPane;
-import javafx.util.Pair;
 
 import java.util.Optional;
 import java.util.Set;
 
 import static se.oru.coordination.coordination_oru.gui.Utils.validateDouble;
+import static se.oru.coordination.coordination_oru.gui.ProjectData.MissionStep;
 
 public class AddMissionDialogBox {
 
-    public static void display(String title, Set<String> choices, ListView<String> listView) {
+    public static MissionStep display(String title, Set<String> choices, ListView<String> listView) {
 
         // Create the custom dialog
-        Dialog<Pair<String, Double>> dialog = new Dialog<>();
+        Dialog<MissionStep> dialog = new Dialog<>();
         dialog.setTitle(title);
         dialog.setHeaderText("Select a location and stopping duration: ");
 
@@ -54,15 +54,19 @@ public class AddMissionDialogBox {
         // Convert the result to a pair when the OK button is clicked
         dialog.setResultConverter(dialogButton -> {
             if (dialogButton == okButtonType && validateDouble(duration)) {
-                return new Pair<>(location.getValue(), Double.parseDouble(duration.getText()));
+                MissionStep missionStep = new MissionStep();
+                missionStep.setPoseName(location.getValue());
+                missionStep.setDuration(Double.parseDouble(duration.getText()));
+                return missionStep;
             }
             return null;
         });
 
         // Show the dialog and process the result
-        Optional<Pair<String, Double>> result = dialog.showAndWait();
+        Optional<MissionStep> result = dialog.showAndWait();
         result.ifPresent(choiceAndText -> {
-            listView.getItems().add("(" + choiceAndText.getKey() + ", " + choiceAndText.getValue() + ")");
+            listView.getItems().add("(" + choiceAndText.getPoseName() + ", " + choiceAndText.getDuration() + ")");
         });
+        return result.orElse(null);
     }
 }

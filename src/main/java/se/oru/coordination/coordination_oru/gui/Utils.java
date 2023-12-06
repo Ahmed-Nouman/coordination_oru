@@ -116,11 +116,11 @@ public class Utils {
         String imageFile = gui.projectData.getMap();
         String imagePath = String.join("/", Arrays.asList(imageFile.split("/")).subList(0,
                 imageFile.split("/").length - 1)) + "/" + gui.mapData.getImage();
-        javafx.scene.image.Image mapImage = new Image("file:" + imagePath);
+        Image mapImage = new Image("file:" + imagePath);
 
         // Set the preferred dimensions for the image
-        double preferredWidth = 800; // you can set this value to whatever width you want
-        double preferredHeight = 640; // you can set this value to whatever height you want
+        double preferredWidth = 680; // you can set this value to whatever width you want
+        double preferredHeight = 518; // you can set this value to whatever height you want
         ImageView imageView = new ImageView(mapImage);
         imageView.setFitWidth(preferredWidth);
         imageView.setFitHeight(preferredHeight);

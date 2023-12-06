@@ -13,7 +13,7 @@ public class BottomPane {
 
         VBox bottomPane = new VBox();
         bottomPane.setSpacing(8);
-        bottomPane.setPadding(new Insets(10, 10, 10, 10));
+        bottomPane.setPadding(new Insets(0, 10, 10, 10));
         bottomPane.setAlignment(Pos.CENTER);
 
         HBox buttonsPane = new HBox();
