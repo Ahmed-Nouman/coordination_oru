@@ -1,9 +1,11 @@
 package se.oru.coordination.coordination_oru.gui;
 
+import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import javafx.geometry.Pos;
 import javafx.scene.control.TextField;
@@ -31,7 +33,7 @@ public class Utils {
     protected static Boolean validateDouble(TextField textField) {
         try {
             Double.parseDouble(textField.getText());
-            textField.setStyle("-fx-border-color: green");
+            textField.setStyle("-fx-border-color: none");
             return true;
         } catch (NumberFormatException e) {
             textField.setStyle("-fx-border-color: red");
@@ -42,7 +44,7 @@ public class Utils {
     protected static Boolean validateInteger(TextField textField) {
         try {
             Integer.parseInt(textField.getText());
-            textField.setStyle("-fx-border-color: green");
+            textField.setStyle("-fx-border-color: none");
             return true;
         } catch (NumberFormatException e) {
             textField.setStyle("-fx-border-color: red");
@@ -120,7 +122,7 @@ public class Utils {
 
         // Set the preferred dimensions for the image
         double preferredWidth = 680; // you can set this value to whatever width you want
-        double preferredHeight = 518; // you can set this value to whatever height you want
+        double preferredHeight = 504; // you can set this value to whatever height you want
         ImageView imageView = new ImageView(mapImage);
         imageView.setFitWidth(preferredWidth);
         imageView.setFitHeight(preferredHeight);
@@ -231,5 +233,10 @@ public class Utils {
         double angle = poseNode.path("angle").asDouble();
 
         return new Pose(x, y, angle);
+    }
+
+    protected static void writeJSON(ProjectData projectData, String filePath) throws IOException {
+        ObjectMapper objectMapper = new ObjectMapper();
+        objectMapper.writeValue(new File(filePath), projectData);
     }
 }

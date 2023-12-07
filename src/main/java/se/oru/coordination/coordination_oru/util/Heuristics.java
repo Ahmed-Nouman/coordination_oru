@@ -5,8 +5,10 @@ import se.oru.coordination.coordination_oru.RobotAtCriticalSection;
 import se.oru.coordination.coordination_oru.RobotReport;
 import se.oru.coordination.coordination_oru.vehicles.VehiclesHashMap;
 
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.List;
 
 /**
  * This class provides various heuristics for determining the order in which robots move through critical sections.
@@ -121,6 +123,23 @@ public class Heuristics {
                 return 0; // both or neither are look-ahead robots, so they are considered equal
             }
         };
+    }
+
+    /**
+     * Returns the names of all heuristics.
+     *
+     * @return A list of all heuristic names.
+     */
+    public List<String> getAllHeuristicNames() {
+        List<String> heuristicNames = new ArrayList<>();
+        heuristicNames.add("CLOSEST");
+        heuristicNames.add("MOST_DISTANCE_TO_TRAVEL");
+        heuristicNames.add("LOWEST_ID");
+        heuristicNames.add("HIGHEST_ID");
+        heuristicNames.add("HIGHEST_PRECEDENCE");
+        heuristicNames.add("LOOK_AHEAD_FIRST");
+        heuristicNames.add("AUTONOMOUS_FIRST");
+        return heuristicNames;
     }
 
     public String getHeuristicName() {

@@ -1,5 +1,6 @@
 package se.oru.coordination.coordination_oru.gui;
 
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import org.metacsp.multi.spatioTemporal.paths.Pose;
 
 import java.util.List;

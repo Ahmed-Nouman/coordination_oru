@@ -13,6 +13,7 @@ import javafx.scene.layout.*;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
+import javafx.stage.DirectoryChooser;
 import javafx.stage.Stage;
 import se.oru.coordination.coordination_oru.ConstantAccelerationForwardModel;
 import se.oru.coordination.coordination_oru.Mission;
@@ -39,7 +40,6 @@ import static se.oru.coordination.coordination_oru.gui.Utils.*;
 
 public class GUI extends Application {
 
-    private final TextField simulationTimeField = new TextField();
     final Stage stage = new Stage();
     final Separator separator = new Separator();
     final Label pathLabel = new Label("");
@@ -113,27 +113,28 @@ public class GUI extends Application {
             }
         });
 
-        saveButton.setOnAction(e -> System.out.println("Save Project")); //TODO
+        saveButton.setOnAction(e -> saveProject()); //TODO
 
-        runButton.setOnAction(e -> System.out.println("Run Simulation")); //TODO
+        runButton.setOnAction(e -> System.out.println("Run Simulation")); // FIXME: This is not working
 
-        resetButton.setOnAction(e -> System.out.println("Reset Project")); //TODO
-
-//        resetButton.setOnAction(e -> {
-//            stage.setTitle("Coordination_ORU");
-//            stage.setScene(displayProjectScene());
-//            stage.centerOnScreen();
-//        });
+        resetButton.setOnAction(e -> {
+            stage.setTitle("Coordination_ORU");
+            stage.setScene(displayProjectScene());
+            stage.centerOnScreen();
+            projectData = new ProjectData();
+            mapData = new MapData();
+            isNewProject = false;
+            isProjectScene = false;
+            isMapScene = false;
+            isVehicleScene = false;
+            isSimulationScene = false;
+            projectFile = "";
+            pathLabel.setText("");
+            vehicleListView.getItems().clear(); // FIXME: This is not working
+        });
     }
 
     // This method changes the scene based on the Next and Back buttons
-    private void toggleScene(Boolean isProjectScene, Boolean isMapScene, Boolean isVehicleScene, Boolean isSimulationScene) {
-        this.isProjectScene = isProjectScene;
-        this.isMapScene = isMapScene;
-        this.isVehicleScene = isVehicleScene;
-        this.isSimulationScene = isSimulationScene;
-    }
-
     /**
      * Creates and returns a scene with a layout for project management.
      *
@@ -146,8 +147,8 @@ public class GUI extends Application {
         nextButton.setVisible(false);
 
         // Top Pane - Menu Bar
-        borderPane.setTop(MenuBar.getMenuBar(this));
-        MenuBar.disableSaveProject();
+        borderPane.setTop(GUIMenuBar.getMenuBar(this));
+        GUIMenuBar.disableSaveProject();
 
         // Center Pane
         VBox centerPane = new VBox();
@@ -175,55 +176,24 @@ public class GUI extends Application {
         borderPane.setCenter(centerPane);
         BorderPane.setAlignment(centerPane, Pos.CENTER);
 
-        newProjectButton.setOnAction(e -> {
-            File selectedFile = fileCreator(this, "Name of Project: ", "json");
-            if (selectedFile != null) {
-                projectFile = selectedFile.getAbsolutePath();
-                pathLabel.setText("Name of Project: " + selectedFile.getName());
-                isNewProject = true;
-                separator.setVisible(true);
-                nextButton.setVisible(true);
+        newProjectButton.setOnAction(e -> newProject());
 
-                // Write to the file
-                try (FileWriter fileWriter = new FileWriter(selectedFile)) {
-                    fileWriter.write("{}");
-                } catch (IOException ex) {
-                    pathLabel.setText("Error: Could not save the file.");
-                }
-            }
-        });
-
-        openProjectButton.setOnAction(e -> {
-            File file = fileChooser(this, "Select a project file to open: ", "json");
-            if (file != null) {
-                projectFile = file.getAbsolutePath();
-                pathLabel.setText("Name of Project: " + file.getName());
-                isNewProject = false;
-                separator.setVisible(true);
-                nextButton.setVisible(true);
-                try {
-                    projectData = parseJSON(projectFile);
-                } catch (IOException ex) {
-                    throw new RuntimeException(ex);
-                }
-            }
-        });
+        openProjectButton.setOnAction(e -> openProject());
 
         // Bottom Pane - Navigation Buttons
         borderPane.setBottom(BottomPane.getBottomPane(separator, nextButton));
         borderPane.setPrefWidth(400);
         return new Scene(borderPane);
     }
-
     private Scene displayMapScene() {
 
         BorderPane borderPane = new BorderPane();
 
         // Top Pane - Menu Bar
-        borderPane.setTop(MenuBar.getMenuBar(this));
-        MenuBar.disableSaveProject();
-        MenuBar.disableNewProject();
-        MenuBar.disableOpenProject();
+        borderPane.setTop(GUIMenuBar.getMenuBar(this));
+        GUIMenuBar.disableSaveProject();
+        GUIMenuBar.disableNewProject();
+        GUIMenuBar.disableOpenProject();
 
         VBox centerPane = new VBox();
 
@@ -276,44 +246,46 @@ public class GUI extends Application {
         BorderPane borderPane = new BorderPane();
 
         // Top Pane - Menu Bar
-        borderPane.setTop(MenuBar.getMenuBar(this));
-        MenuBar.disableSaveProject();
-        MenuBar.disableNewProject();
-        MenuBar.disableOpenProject();
+        borderPane.setTop(GUIMenuBar.getMenuBar(this));
+        GUIMenuBar.disableSaveProject();
+        GUIMenuBar.disableNewProject();
+        GUIMenuBar.disableOpenProject();
 
         // Right Pane
         var rightPane = new StackPane();
-        BorderPane.setMargin(rightPane, new Insets(20, 20, 20, 0));
+        BorderPane.setMargin(rightPane, new Insets(10, 10, 10, 0));
         rightPane.setPadding(new Insets(10, 10, 10, 10));
         rightPane.setAlignment(Pos.TOP_CENTER);
+        borderPane.setRight(rightPane);
         ImageView imageView = getImageView(this);
         rightPane.getChildren().add(imageView);
-        borderPane.setRight(rightPane);
 
         // Center Pane
         var centerPane = new GridPane();
-        BorderPane.setMargin(centerPane, new Insets(20, 20, 20, 20));
+        BorderPane.setMargin(centerPane, new Insets(10, 10, 10, 10));
         centerPane.setPadding(new Insets(10, 10, 10, 10));
         centerPane.setAlignment(Pos.TOP_CENTER);
         centerPane.setHgap(10);
         centerPane.setVgap(10);
+        borderPane.setCenter(centerPane);
 
         // name text-field
-        Text name = new Text("Name of Vehicle: ");
-        GridPane.setConstraints(name, 0, 0);
-        TextField nameField = new TextField();
-        nameField.setMaxWidth(180);
+        Text nameText = new Text("Name of Vehicle: ");
+        GridPane.setConstraints(nameText, 0, 0);
+        TextField nameTextField = new TextField();
+        nameTextField.setMaxWidth(180);
+        GridPane.setConstraints(nameTextField, 1, 0);
         vehicleListView.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
             if (newValue != null) {
                 Vehicle selectedVehicle = projectData.getVehicle(projectData.getVehicleID(newValue, projectData.getVehicles()));
                 if (selectedVehicle != null) {
-                    nameField.setText(String.valueOf(selectedVehicle.getName()));
+                    nameTextField.setText(String.valueOf(selectedVehicle.getName()));
                 }
             }
         });
-        nameField.focusedProperty().addListener((observable, wasFocused, isNowFocused) -> {
+        nameTextField.focusedProperty().addListener((observable, wasFocused, isNowFocused) -> {
             if (!isNowFocused) {
-                String newVehicleName = nameField.getText();
+                String newVehicleName = nameTextField.getText();
                 String oldVehicleName = vehicleListView.getSelectionModel().getSelectedItem();
                 if (!Objects.equals(newVehicleName, "") && newVehicleName != null) {
                     projectData.getVehicle(projectData.getVehicleID(oldVehicleName, projectData.getVehicles())).setName(newVehicleName);
@@ -323,191 +295,189 @@ public class GUI extends Application {
                 }
             }
         });
-        GridPane.setConstraints(nameField, 1, 0);
 
         // length text-field
-        Text length = new Text("Length (m): ");
-        GridPane.setConstraints(length, 0, 1);
-        TextField lengthField = new TextField();
-        lengthField.setMaxWidth(nameField.getMaxWidth());
+        Text lengthText = new Text("Length (m): ");
+        GridPane.setConstraints(lengthText, 0, 1);
+        TextField lengthTextField = new TextField();
+        lengthTextField.setMaxWidth(nameTextField.getMaxWidth());
+        GridPane.setConstraints(lengthTextField, 1, 1);
         vehicleListView.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
             if (newValue != null) {
                 Vehicle selectedVehicle = projectData.getVehicle(projectData.getVehicleID(newValue, projectData.getVehicles()));
                 if (selectedVehicle != null) {
-                    lengthField.setText(String.valueOf(selectedVehicle.getLength()));
+                    lengthTextField.setText(String.valueOf(selectedVehicle.getLength()));
                 }
             }
         });
-        lengthField.focusedProperty().addListener((observable, wasFocused, isNowFocused) -> {
+        lengthTextField.focusedProperty().addListener((observable, wasFocused, isNowFocused) -> {
             if (!isNowFocused) {
-                Boolean validated = validateDouble(lengthField);
+                Boolean validated = validateDouble(lengthTextField);
                 String selectedVehicleName = vehicleListView.getSelectionModel().getSelectedItem();
                 if (validated && selectedVehicleName != null) {
-                    double newLength = Double.parseDouble(lengthField.getText());
+                    double newLength = Double.parseDouble(lengthTextField.getText());
                     projectData.getVehicle(projectData.getVehicleID(selectedVehicleName, projectData.getVehicles())).setLength(newLength);
                 }
             }
         });
-        GridPane.setConstraints(lengthField, 1, 1);
 
         // width text-field
-        Text width = new Text("Width (m): ");
-        GridPane.setConstraints(width, 0, 2);
-        TextField widthField = new TextField();
-        widthField.setMaxWidth(nameField.getMaxWidth());
+        Text widthText = new Text("Width (m): ");
+        GridPane.setConstraints(widthText, 0, 2);
+        TextField widthTextField = new TextField();
+        widthTextField.setMaxWidth(nameTextField.getMaxWidth());
+        GridPane.setConstraints(widthTextField, 1, 2);
         vehicleListView.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
             if (newValue != null) {
                 Vehicle selectedVehicle = projectData.getVehicle(projectData.getVehicleID(newValue, projectData.getVehicles()));
                 if (selectedVehicle != null) {
-                    widthField.setText(String.valueOf(selectedVehicle.getWidth()));
+                    widthTextField.setText(String.valueOf(selectedVehicle.getWidth()));
                 }
             }
         });
-        widthField.focusedProperty().addListener((observable, wasFocused, isNowFocused) -> {
+        widthTextField.focusedProperty().addListener((observable, wasFocused, isNowFocused) -> {
             if (!isNowFocused) {
-                Boolean validated = validateDouble(widthField);
+                Boolean validated = validateDouble(widthTextField);
                 String selectedVehicleName = vehicleListView.getSelectionModel().getSelectedItem();
                 if (validated && selectedVehicleName != null) {
-                    double newWidth = Double.parseDouble(widthField.getText());
+                    double newWidth = Double.parseDouble(widthTextField.getText());
                     projectData.getVehicle(projectData.getVehicleID(selectedVehicleName, projectData.getVehicles())).setWidth(newWidth);
                 }
             }
         });
-        GridPane.setConstraints(widthField, 1, 2);
 
         // maxVelocity text-field
-        Text maxVelocity = new Text("Max. Velocity (m/s): ");
-        GridPane.setConstraints(maxVelocity, 0, 3);
-        TextField maxVelocityField = new TextField();
-        maxVelocityField.setMaxWidth(nameField.getMaxWidth());
+        Text maxVelocityText = new Text("Max. Velocity (m/s): ");
+        GridPane.setConstraints(maxVelocityText, 0, 3);
+        TextField maxVelocityTextField = new TextField();
+        maxVelocityTextField.setMaxWidth(nameTextField.getMaxWidth());
+        GridPane.setConstraints(maxVelocityTextField, 1, 3);
         vehicleListView.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
             if (newValue != null) {
                 Vehicle selectedVehicle = projectData.getVehicle(projectData.getVehicleID(newValue, projectData.getVehicles()));
                 if (selectedVehicle != null) {
-                    maxVelocityField.setText(String.valueOf(selectedVehicle.getMaxVelocity()));
+                    maxVelocityTextField.setText(String.valueOf(selectedVehicle.getMaxVelocity()));
                 }
             }
         });
-        maxVelocityField.focusedProperty().addListener((observable, wasFocused, isNowFocused) -> {
+        maxVelocityTextField.focusedProperty().addListener((observable, wasFocused, isNowFocused) -> {
             if (!isNowFocused) {
-                Boolean validated = validateDouble(maxVelocityField);
+                Boolean validated = validateDouble(maxVelocityTextField);
                 String selectedVehicleName = vehicleListView.getSelectionModel().getSelectedItem();
                 if (validated && selectedVehicleName != null) {
-                    double newMaxVelocity = Double.parseDouble(maxVelocityField.getText());
+                    double newMaxVelocity = Double.parseDouble(maxVelocityTextField.getText());
                     projectData.getVehicle(projectData.getVehicleID(selectedVehicleName, projectData.getVehicles())).setMaxVelocity(newMaxVelocity);
                 }
             }
         });
-        GridPane.setConstraints(maxVelocityField, 1, 3);
 
         // maxAcceleration text-field
-        Text maxAcceleration = new Text("Max. Acceleration (m/s^2): ");
-        GridPane.setConstraints(maxAcceleration, 0, 4);
-        TextField maxAccelerationField = new TextField();
-        maxAccelerationField.setMaxWidth(nameField.getMaxWidth());
+        Text maxAccelerationText = new Text("Max. Acceleration (m/s^2): ");
+        GridPane.setConstraints(maxAccelerationText, 0, 4);
+        TextField maxAccelerationTextField = new TextField();
+        maxAccelerationTextField.setMaxWidth(nameTextField.getMaxWidth());
+        GridPane.setConstraints(maxAccelerationTextField, 1, 4);
         vehicleListView.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
             if (newValue != null) {
                 Vehicle selectedVehicle = projectData.getVehicle(projectData.getVehicleID(newValue, projectData.getVehicles()));
                 if (selectedVehicle != null) {
-                    maxAccelerationField.setText(String.valueOf(selectedVehicle.getMaxAcceleration()));
+                    maxAccelerationTextField.setText(String.valueOf(selectedVehicle.getMaxAcceleration()));
                 }
             }
         });
-        maxAccelerationField.focusedProperty().addListener((observable, wasFocused, isNowFocused) -> {
+        maxAccelerationTextField.focusedProperty().addListener((observable, wasFocused, isNowFocused) -> {
             if (!isNowFocused) {
-                Boolean validated = validateDouble(maxAccelerationField);
+                Boolean validated = validateDouble(maxAccelerationTextField);
                 String selectedVehicleName = vehicleListView.getSelectionModel().getSelectedItem();
                 if (validated && selectedVehicleName != null) {
-                    double newMaxAcceleration = Double.parseDouble(maxAccelerationField.getText());
+                    double newMaxAcceleration = Double.parseDouble(maxAccelerationTextField.getText());
                     projectData.getVehicle(projectData.getVehicleID(selectedVehicleName, projectData.getVehicles())).setMaxAcceleration(newMaxAcceleration);
                 }
             }
         });
-        GridPane.setConstraints(maxAccelerationField, 1, 4);
 
         // safetyDistance text-field
-        Text safetyDistance = new Text("Safety Distance (m): ");
-        GridPane.setConstraints(safetyDistance, 0, 5);
-        TextField safetyDistanceField = new TextField();
-        safetyDistanceField.setMaxWidth(nameField.getMaxWidth());
+        Text safetyDistanceText = new Text("Safety Distance (m): ");
+        GridPane.setConstraints(safetyDistanceText, 0, 5);
+        TextField safetyDistanceTextField = new TextField();
+        safetyDistanceTextField.setMaxWidth(nameTextField.getMaxWidth());
+        GridPane.setConstraints(safetyDistanceTextField, 1, 5);
         vehicleListView.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
             if (newValue != null) {
                 Vehicle selectedVehicle = projectData.getVehicle(projectData.getVehicleID(newValue, projectData.getVehicles()));
                 if (selectedVehicle != null) {
-                    safetyDistanceField.setText(String.valueOf(selectedVehicle.getSafetyDistance()));
+                    safetyDistanceTextField.setText(String.valueOf(selectedVehicle.getSafetyDistance()));
                 }
             }
         });
-        safetyDistanceField.focusedProperty().addListener((observable, wasFocused, isNowFocused) -> {
+        safetyDistanceTextField.focusedProperty().addListener((observable, wasFocused, isNowFocused) -> {
             if (!isNowFocused) {
-                Boolean validated = validateDouble(safetyDistanceField);
+                Boolean validated = validateDouble(safetyDistanceTextField);
                 String selectedVehicleName = vehicleListView.getSelectionModel().getSelectedItem();
                 if (validated && selectedVehicleName != null) {
-                    double newSafetyDistance = Double.parseDouble(safetyDistanceField.getText());
+                    double newSafetyDistance = Double.parseDouble(safetyDistanceTextField.getText());
                     projectData.getVehicle(projectData.getVehicleID(selectedVehicleName, projectData.getVehicles())).setSafetyDistance(newSafetyDistance);
                 }
             }
         });
-        GridPane.setConstraints(safetyDistanceField, 1, 5);
 
-        // color combo-box
-        Text color = new Text("Color: ");
-        GridPane.setConstraints(color, 0, 6);
-        ComboBox<String> colorField = new ComboBox<>();
-        colorField.getItems().addAll("Yellow", "Red", "Blue", "Green", "Black", "White", "Cyan", "Orange");
-        colorField.setMaxWidth(nameField.getMaxWidth());
+        // color choice-box
+        Text colorText = new Text("Color: ");
+        GridPane.setConstraints(colorText, 0, 6);
+        ChoiceBox<String> colorChoiceBox = new ChoiceBox<>();
+        colorChoiceBox.getItems().addAll("Yellow", "Red", "Blue", "Green", "Black", "White", "Cyan", "Orange");
+        colorChoiceBox.setMaxWidth(nameTextField.getMaxWidth());
+        GridPane.setConstraints(colorChoiceBox, 1, 6);
         vehicleListView.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
             if (newValue != null) {
                 Vehicle selectedVehicle = projectData.getVehicle(projectData.getVehicleID(newValue, projectData.getVehicles()));
                 if (selectedVehicle != null) {
-                    colorField.setValue(String.valueOf(selectedVehicle.getColor()));
+                    colorChoiceBox.setValue(String.valueOf(selectedVehicle.getColor()));
                 }
             }
         });
-        colorField.focusedProperty().addListener((observable, wasFocused, isNowFocused) -> {
-            if (!isNowFocused) {
-                String selectedVehicleName = vehicleListView.getSelectionModel().getSelectedItem();
-                if (selectedVehicleName != null) {
-                    String newColor = colorField.getValue();
-                    projectData.getVehicle(projectData.getVehicleID(selectedVehicleName, projectData.getVehicles())).setColor(newColor);
-                }
+        colorChoiceBox.setOnAction(e -> {
+            String selectedVehicleName = vehicleListView.getSelectionModel().getSelectedItem();
+            if (selectedVehicleName != null) {
+                String newColor = colorChoiceBox.getValue();
+                projectData.getVehicle(projectData.getVehicleID(selectedVehicleName, projectData.getVehicles())).setColor(newColor);
             }
         });
-        GridPane.setConstraints(colorField, 1, 6);
 
-        // initialPose combo-box
-        Text initialPose = new Text("Start Location: ");
-        GridPane.setConstraints(initialPose, 0, 7);
-        ComboBox<String> initialPoseField = new ComboBox<>();
-        initialPoseField.getItems().addAll(projectData.getPoses().keySet());
-        initialPoseField.setMaxWidth(nameField.getMaxWidth());
+        // initialPose choice-box
+        Text initialPoseText = new Text("Start Location: ");
+        GridPane.setConstraints(initialPoseText, 0, 7);
+        ChoiceBox<String> initialPoseChoiceBox = new ChoiceBox<>();
+        initialPoseChoiceBox.getItems().addAll(projectData.getPoses().keySet());
+        initialPoseChoiceBox.setMaxWidth(nameTextField.getMaxWidth());
+        GridPane.setConstraints(initialPoseChoiceBox, 1, 7);
         vehicleListView.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
             if (newValue != null) {
                 Vehicle selectedVehicle = projectData.getVehicle(projectData.getVehicleID(newValue, projectData.getVehicles()));
                 if (selectedVehicle != null) {
-                    initialPoseField.setValue(String.valueOf(selectedVehicle.getInitialPose()));
+                    initialPoseChoiceBox.setValue(String.valueOf(selectedVehicle.getInitialPose()));
                 }
             }
         });
-        initialPoseField.focusedProperty().addListener((observable, wasFocused, isNowFocused) -> {
-            if (!isNowFocused) {
-                String selectedVehicleName = vehicleListView.getSelectionModel().getSelectedItem();
-                if (selectedVehicleName != null) {
-                    String newInitialPose = initialPoseField.getValue();
-                    projectData.getVehicle(projectData.getVehicleID(selectedVehicleName, projectData.getVehicles())).setInitialPose(newInitialPose);
-                }
+        initialPoseChoiceBox.setOnAction(e -> {
+            String selectedVehicleName = vehicleListView.getSelectionModel().getSelectedItem();
+            if (selectedVehicleName != null) {
+                String newInitialPose = initialPoseChoiceBox.getValue();
+                projectData.getVehicle(projectData.getVehicleID(selectedVehicleName, projectData.getVehicles())).setInitialPose(newInitialPose);
             }
         });
-        GridPane.setConstraints(initialPoseField, 1, 7);
 
         // missions vbox
-        Text mission = new Text("Missions: ");
-        GridPane.setConstraints(mission, 0, 8);
-        VBox missionField = new VBox();
-        missionField.setSpacing(2);
-        missionField.setAlignment(Pos.CENTER);
+        Text missionText = new Text("Mission: ");
+        GridPane.setConstraints(missionText, 0, 8);
+        VBox missionVBox = new VBox();
+        missionVBox.setSpacing(2);
+        missionVBox.setAlignment(Pos.CENTER);
+        GridPane.setConstraints(missionVBox, 1, 8);
+
+        // mission list-view
         ListView<String> missionListView = new ListView<>();
-        missionListView.setMaxWidth(nameField.getMaxWidth());
+        missionListView.setMaxWidth(nameTextField.getMaxWidth());
         missionListView.setMaxHeight(110);
 
         vehicleListView.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
@@ -521,6 +491,7 @@ public class GUI extends Application {
             }
         });
 
+        // mission buttons
         HBox missionButtons = new HBox();
         missionButtons.setSpacing(5);
         missionButtons.setAlignment(Pos.CENTER);
@@ -529,9 +500,8 @@ public class GUI extends Application {
         Button upMissionButton = new Button("↑");
         Button downMissionButton = new Button("↓");
         missionButtons.getChildren().addAll(addMissionButton, deleteMissionButton, upMissionButton, downMissionButton);
-        missionField.setMaxWidth(nameField.getMaxWidth());
-        missionField.getChildren().addAll(missionListView, missionButtons);
-        GridPane.setConstraints(missionField, 1, 8);
+        missionVBox.setMaxWidth(nameTextField.getMaxWidth());
+        missionVBox.getChildren().addAll(missionListView, missionButtons);
 
         // Set action for moving missions up
         upMissionButton.setOnAction(e -> {
@@ -586,113 +556,113 @@ public class GUI extends Application {
         });
 
         // missionRepetition text-field
-        Text missionRepetition = new Text("Mission Repetition: ");
-        GridPane.setConstraints(missionRepetition, 0, 9);
-        TextField missionRepetitionField = new TextField();
-        missionRepetitionField.setMaxWidth(nameField.getMaxWidth());
+        Text missionRepetitionText = new Text("Mission Repetition: ");
+        GridPane.setConstraints(missionRepetitionText, 0, 9);
+        TextField missionRepetitionTextField = new TextField();
+        missionRepetitionTextField.setMaxWidth(nameTextField.getMaxWidth());
+        GridPane.setConstraints(missionRepetitionTextField, 1, 9);
         vehicleListView.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
             if (newValue != null) {
                 Vehicle selectedVehicle = projectData.getVehicle(projectData.getVehicleID(newValue, projectData.getVehicles()));
                 if (selectedVehicle != null) {
-                    missionRepetitionField.setText(String.valueOf(selectedVehicle.getMissionRepetition()));
+                    missionRepetitionTextField.setText(String.valueOf(selectedVehicle.getMissionRepetition()));
                 }
             }
         });
-        missionRepetitionField.focusedProperty().addListener((observable, wasFocused, isNowFocused) -> {
+        missionRepetitionTextField.focusedProperty().addListener((observable, wasFocused, isNowFocused) -> {
             if (!isNowFocused) {
-                Boolean validated = validateInteger(missionRepetitionField);
+                Boolean validated = validateInteger(missionRepetitionTextField);
                 String selectedVehicleName = vehicleListView.getSelectionModel().getSelectedItem();
                 if (validated && selectedVehicleName != null) {
-                    int newMissionRepetition = Integer.parseInt(missionRepetitionField.getText());
+                    int newMissionRepetition = Integer.parseInt(missionRepetitionTextField.getText());
                     projectData.getVehicle(projectData.getVehicleID(selectedVehicleName, projectData.getVehicles())).setMissionRepetition(newMissionRepetition);
                 }
             }
         });
-        GridPane.setConstraints(missionRepetitionField, 1, 9);
 
         // lookAheadDistance text-field
-        Text lookAheadDistance = new Text("Look Ahead Distance (m): ");
-        lookAheadDistance.setVisible(false);
-        GridPane.setConstraints(lookAheadDistance, 0, 11);
-        TextField lookAheadDistanceField = new TextField();
-        lookAheadDistanceField.setVisible(false);
-        lookAheadDistanceField.setMaxWidth(nameField.getMaxWidth());
+        Text lookAheadDistanceText = new Text("Look Ahead Distance (m): ");
+        lookAheadDistanceText.setVisible(false);
+        GridPane.setConstraints(lookAheadDistanceText, 0, 11);
+        TextField lookAheadDistanceTextField = new TextField();
+        lookAheadDistanceTextField.setVisible(false);
+        lookAheadDistanceTextField.setMaxWidth(nameTextField.getMaxWidth());
+        GridPane.setConstraints(lookAheadDistanceTextField, 1, 11);
         vehicleListView.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
             if (newValue != null) {
                 Vehicle selectedVehicle = projectData.getVehicle(projectData.getVehicleID(newValue, projectData.getVehicles()));
                 if (selectedVehicle != null) {
-                    lookAheadDistanceField.setText(String.valueOf(selectedVehicle.getLookAheadDistance()));
+                    lookAheadDistanceTextField.setText(String.valueOf(selectedVehicle.getLookAheadDistance()));
                 }
             }
         });
-        lookAheadDistanceField.focusedProperty().addListener((observable, wasFocused, isNowFocused) -> {
+        lookAheadDistanceTextField.focusedProperty().addListener((observable, wasFocused, isNowFocused) -> {
             if (!isNowFocused) {
-                Boolean validated = validateDouble(lookAheadDistanceField);
+                Boolean validated = validateDouble(lookAheadDistanceTextField);
                 String selectedVehicleName = vehicleListView.getSelectionModel().getSelectedItem();
                 if (validated && selectedVehicleName != null) {
-                    double newLookAheadDistance = Double.parseDouble(lookAheadDistanceField.getText());
+                    double newLookAheadDistance = Double.parseDouble(lookAheadDistanceTextField.getText());
                     projectData.getVehicle(projectData.getVehicleID(selectedVehicleName, projectData.getVehicles())).setLookAheadDistance(newLookAheadDistance);
                 }
             }
         });
-        GridPane.setConstraints(lookAheadDistanceField, 1, 11);
 
         // isHumanVehicle checkbox
-        Text isHuman = new Text("Human Operated: ");
-        GridPane.setConstraints(isHuman, 0, 10);
-        CheckBox isHumanField = new CheckBox();
+        Text isHumanText = new Text("Human Operated: ");
+        GridPane.setConstraints(isHumanText, 0, 10);
+        CheckBox isHumanCheckBox = new CheckBox();
+        GridPane.setConstraints(isHumanCheckBox, 1, 10);
         vehicleListView.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
             if (newValue != null) {
                 Vehicle selectedVehicle = projectData.getVehicle(projectData.getVehicleID(newValue, projectData.getVehicles()));
                 if (selectedVehicle != null) {
                     boolean ifHuman = "Human".equals(selectedVehicle.getType());
-                    isHumanField.setSelected(ifHuman);
+                    isHumanCheckBox.setSelected(ifHuman);
 
-                    lookAheadDistance.setVisible(ifHuman);
-                    lookAheadDistanceField.setVisible(ifHuman);
+                    lookAheadDistanceText.setVisible(ifHuman);
+                    lookAheadDistanceTextField.setVisible(ifHuman);
                 }
             }
         });
-        isHumanField.setOnAction(e -> {
+        isHumanCheckBox.setOnAction(e -> {
             String selectedVehicleName = vehicleListView.getSelectionModel().getSelectedItem();
             Vehicle selectedVehicle = selectedVehicleName != null ? projectData.getVehicle(projectData.getVehicleID(selectedVehicleName, projectData.getVehicles())) : null;
 
-            if (isHumanField.isSelected()) {
-                lookAheadDistance.setVisible(true);
-                lookAheadDistanceField.setVisible(true);
+            if (isHumanCheckBox.isSelected()) {
+                lookAheadDistanceText.setVisible(true);
+                lookAheadDistanceTextField.setVisible(true);
                 if (selectedVehicle != null) {
                     selectedVehicle.setType("Human");
                 }
             } else {
-                lookAheadDistance.setVisible(false);
-                lookAheadDistanceField.setVisible(false);
+                lookAheadDistanceText.setVisible(false);
+                lookAheadDistanceTextField.setVisible(false);
                 if (selectedVehicle != null) {
                     selectedVehicle.setType("Autonomous");
                 }
             }
         });
-        GridPane.setConstraints(isHumanField, 1, 10);
 
-        centerPane.getChildren().addAll(name, nameField,
-                length, lengthField,
-                width, widthField,
-                maxVelocity, maxVelocityField,
-                maxAcceleration, maxAccelerationField,
-                safetyDistance, safetyDistanceField,
-                color, colorField,
-                initialPose, initialPoseField,
-                mission, missionField,
-                missionRepetition, missionRepetitionField,
-                isHuman, isHumanField,
-                lookAheadDistance, lookAheadDistanceField);
-        borderPane.setCenter(centerPane);
+        centerPane.getChildren().addAll(nameText, nameTextField,
+                lengthText, lengthTextField,
+                widthText, widthTextField,
+                maxVelocityText, maxVelocityTextField,
+                maxAccelerationText, maxAccelerationTextField,
+                safetyDistanceText, safetyDistanceTextField,
+                colorText, colorChoiceBox,
+                initialPoseText, initialPoseChoiceBox,
+                missionText, missionVBox,
+                missionRepetitionText, missionRepetitionTextField,
+                isHumanText, isHumanCheckBox,
+                lookAheadDistanceText, lookAheadDistanceTextField);
 
         // Left Pane - VehicleList
         VBox leftPane = new VBox();
         leftPane.setSpacing(10);
         leftPane.setAlignment(Pos.TOP_CENTER);
-        BorderPane.setMargin(leftPane, new Insets(20, 0, 20, 20));
+        BorderPane.setMargin(leftPane, new Insets(10, 0, 10, 10));
         leftPane.setPadding(new Insets(10, 10, 10, 10));
+        borderPane.setLeft(leftPane);
 
         Label vehiclesLabel = new Label("List of Vehicles: ");
         vehiclesLabel.setFont(Font.font("System", FontWeight.SEMI_BOLD, 14));
@@ -700,11 +670,11 @@ public class GUI extends Application {
         vehiclesLabel.setAlignment(Pos.CENTER);
 
         vehicleListView.setMaxWidth(vehiclesLabel.getPrefWidth());
-        vehicleListView.setPrefHeight(455);
+        vehicleListView.setPrefHeight(440);
         vehicleListView.getItems().clear();
         projectData.getVehicles().forEach(vehicle -> vehicleListView.getItems().add(vehicle.getName()));
         vehicleListView.getSelectionModel().selectFirst();
-        
+
         Button addVehicleButton = new Button("Add Vehicle");
         Button deleteVehicleButton = new Button("Delete Vehicle");
 
@@ -737,7 +707,7 @@ public class GUI extends Application {
             // Handle duplicate names for vehicles
             String nameOfVehicle = baseNameOfVehicle;
             int counter = 1;
-            while (vehicleExists(nameOfVehicle, projectData)) {
+            while (projectData.getVehicles().stream().anyMatch(vehicle -> vehicle.getName().equals(baseNameOfVehicle))) {
                 // Append a number to the base name
                 nameOfVehicle = baseNameOfVehicle + " (" + counter + ")";
                 counter++;
@@ -776,7 +746,6 @@ public class GUI extends Application {
         buttons.setSpacing(5);
         buttons.setMaxWidth(vehiclesLabel.getPrefWidth());
         leftPane.getChildren().addAll(vehiclesLabel, vehicleListView, buttons);
-        borderPane.setLeft(leftPane);
 
         // Listener for list selection changes
         vehicleListView.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
@@ -785,16 +754,16 @@ public class GUI extends Application {
                 ProjectData.Vehicle vehicle = projectData.getVehicle(projectData.getVehicleID(newValue, projectData.getVehicles()));
 
                 // Update the fields in the centerPane with the details of the selected vehicle
-                nameField.setText(newValue);
-                lengthField.setText(String.valueOf(vehicle.getLength()));
-                widthField.setText(String.valueOf(vehicle.getWidth()));
-                maxVelocityField.setText(String.valueOf(vehicle.getMaxVelocity()));
-                maxAccelerationField.setText(String.valueOf(vehicle.getMaxAcceleration()));
-                safetyDistanceField.setText(String.valueOf(vehicle.getSafetyDistance()));
-                colorField.setValue(vehicle.getColor());
-                initialPoseField.setValue(projectData.getVehicle(projectData.getVehicleID(newValue, projectData.getVehicles())).getInitialPose());
-                lookAheadDistanceField.setText(String.valueOf(vehicle.getLookAheadDistance()));
-                missionRepetitionField.setText(String.valueOf(vehicle.getMissionRepetition()));
+                nameTextField.setText(newValue);
+                lengthTextField.setText(String.valueOf(vehicle.getLength()));
+                widthTextField.setText(String.valueOf(vehicle.getWidth()));
+                maxVelocityTextField.setText(String.valueOf(vehicle.getMaxVelocity()));
+                maxAccelerationTextField.setText(String.valueOf(vehicle.getMaxAcceleration()));
+                safetyDistanceTextField.setText(String.valueOf(vehicle.getSafetyDistance()));
+                colorChoiceBox.setValue(vehicle.getColor());
+                initialPoseChoiceBox.setValue(projectData.getVehicle(projectData.getVehicleID(newValue, projectData.getVehicles())).getInitialPose());
+                lookAheadDistanceTextField.setText(String.valueOf(vehicle.getLookAheadDistance()));
+                missionRepetitionTextField.setText(String.valueOf(vehicle.getMissionRepetition()));
 
                 // Update the mission list view with the mission of the selected vehicle
                 missionListView.getItems().clear();
@@ -802,13 +771,13 @@ public class GUI extends Application {
 
                 // Update the view according to the type of the vehicle
                 if (vehicle.getType().equals("Human")) {
-                    isHumanField.setSelected(true);
-                    lookAheadDistance.setVisible(true);
-                    lookAheadDistanceField.setVisible(true);
+                    isHumanCheckBox.setSelected(true);
+                    lookAheadDistanceText.setVisible(true);
+                    lookAheadDistanceTextField.setVisible(true);
                 } else {
-                    isHumanField.setSelected(false);
-                    lookAheadDistance.setVisible(false);
-                    lookAheadDistanceField.setVisible(false);
+                    isHumanCheckBox.setSelected(false);
+                    lookAheadDistanceText.setVisible(false);
+                    lookAheadDistanceTextField.setVisible(false);
                 }
 
             }
@@ -826,66 +795,196 @@ public class GUI extends Application {
         BorderPane borderPane = new BorderPane();
 
         // Top Pane - Menu Bar
-        borderPane.setTop(MenuBar.getMenuBar(this));
+        borderPane.setTop(GUIMenuBar.getMenuBar(this));
+        GUIMenuBar.disableNewProject();
+        GUIMenuBar.disableOpenProject();
 
         // Center Pane
-        var centerPane = new VBox();
-        centerPane.setSpacing(10);
-
-        var settingsPane = new GridPane();
-        settingsPane.setPadding(new Insets(10, 10, 10, 10));
-        settingsPane.setHgap(10);
-        settingsPane.setVgap(10);
-        settingsPane.setAlignment(Pos.CENTER);
-
-        Text heuristics = new Text("Heuristics: "); // TODO
-        GridPane.setConstraints(heuristics, 0, 0);
-        ChoiceBox<String> heuristicsField = new ChoiceBox<>();
-        heuristicsField.getItems().addAll("Closest First", "Human First", "Autonomous First");
-        heuristicsField.setValue(heuristicsField.getItems().get(0));
-        GridPane.setConstraints(heuristicsField, 1, 0);
-
-        Text noOfRuns = new Text("No. of Runs: "); // TODO
-        GridPane.setConstraints(noOfRuns, 0, 1);
-        TextField noOfRunsField = new TextField();
-        GridPane.setConstraints(noOfRunsField, 1, 1);
-
-        Text simulationTime = new Text("Simulation Time (minutes): "); // TODO
-        GridPane.setConstraints(simulationTime, 0, 2);
-        GridPane.setConstraints(simulationTimeField, 1, 2);
-
-        Text reportsSaving = new Text("Saving Vehicles Reports: "); //TODO
-        GridPane.setConstraints(reportsSaving, 0, 3);
-        CheckBox reportsSavingField = new CheckBox();
-        reportsSavingField.setSelected(true);
-        GridPane.setConstraints(reportsSavingField, 1, 3);
-
-        Text reportsFolder = new Text("Folder to Save the Reports: "); //TODO
-        GridPane.setConstraints(reportsFolder, 0, 4);
-        Button btnBrowse = new Button("Browse...");
-        GridPane.setConstraints(btnBrowse, 1, 4);
-
-        settingsPane.getChildren().addAll(heuristics, heuristicsField, simulationTime,
-                simulationTimeField, noOfRuns, noOfRunsField, reportsSaving, reportsSavingField,
-                reportsFolder, btnBrowse);
-
+        var centerPane = new GridPane();
+        centerPane.setPadding(new Insets(30, 30, 30, 30));
+        BorderPane.setMargin(centerPane, new Insets(30, 30, 30, 30));
+        centerPane.setHgap(10);
+        centerPane.setVgap(10);
         centerPane.setAlignment(Pos.CENTER);
-        centerPane.getChildren().add(settingsPane);
         borderPane.setCenter(centerPane);
-        BorderPane.setMargin(centerPane, new Insets(10, 0, 0, 0));
+
+        // heuristics choice-box
+        Text heuristicsText = new Text("Heuristics: ");
+        GridPane.setConstraints(heuristicsText, 0, 0);
+        ChoiceBox<String> heuristicsChoiceBox = new ChoiceBox<>();
+        heuristicsChoiceBox.setPrefWidth(220);
+        GridPane.setConstraints(heuristicsChoiceBox, 1, 0);
+        Heuristics heuristics = new Heuristics();
+        heuristicsChoiceBox.getItems().addAll(heuristics.getAllHeuristicNames());
+        heuristicsChoiceBox.setValue(heuristicsChoiceBox.getItems().stream().findFirst().orElse(null));
+        heuristicsChoiceBox.setOnAction(e -> {
+            String selectedHeuristic = heuristicsChoiceBox.getValue();
+            if (selectedHeuristic != null) {
+                switch (selectedHeuristic) {
+                    case "MOST_DISTANCE_TO_TRAVEL":
+                        heuristics.mostDistanceToTravel();
+                        break;
+                    case "LOWEST_ID":
+                        heuristics.lowestIDNumber();
+                        break;
+                    case "HIGHEST_ID":
+                        heuristics.highestIDNumber();
+                        break;
+                    case "HIGHEST_PRECEDENCE":
+                        heuristics.highestPrecedence();
+                        break;
+                    case "LOOK_AHEAD_FIRST":
+                        heuristics.lookAheadFirst();
+                        break;
+                    case "AUTONOMOUS_FIRST":
+                        heuristics.autonomousFirst();
+                        break;
+                    default:
+                        heuristics.closest();
+                        break;
+                }
+            }
+        });
+
+        // simulationTime text-field
+        Text simulationTimeText = new Text("Simulation Time (minutes): ");
+        GridPane.setConstraints(simulationTimeText, 0, 1);
+        TextField simulationTimeTextField = new TextField();
+        simulationTimeTextField.setMaxWidth(heuristicsChoiceBox.getPrefWidth());
+        simulationTimeTextField.setText("30.0");
+        GridPane.setConstraints(simulationTimeTextField, 1, 1);
+        simulationTimeTextField.focusedProperty().addListener((observable, wasFocused, isNowFocused) -> {
+            if (!isNowFocused) {
+                Boolean validated = validateDouble(simulationTimeTextField);
+                if (validated) {
+                    double simulationTime = Double.parseDouble(simulationTimeTextField.getText());
+                }
+            }
+        });
+
+        Text noOfRunsText = new Text("No. of Runs: ");
+        GridPane.setConstraints(noOfRunsText, 0, 2);
+        TextField noOfRunsTextField = new TextField();
+        noOfRunsTextField.setMaxWidth(heuristicsChoiceBox.getPrefWidth());
+        noOfRunsTextField.setText("1");
+        GridPane.setConstraints(noOfRunsTextField, 1, 2);
+        noOfRunsTextField.focusedProperty().addListener((observable, wasFocused, isNowFocused) -> {
+            if (!isNowFocused) {
+                Boolean validated = validateInteger(noOfRunsTextField);
+                if (validated) {
+                    int noOfRuns = Integer.parseInt(noOfRunsTextField.getText());
+                }
+            }
+        });
+
+        Text reportsLocationText = new Text("Reports will be saved in:");
+        GridPane.setConstraints(reportsLocationText, 0, 5);
+        reportsLocationText.setVisible(false);
+        Text reportsFolderLocation = new Text();
+        GridPane.setConstraints(reportsFolderLocation, 1, 5);
+        reportsFolderLocation.setVisible(false);
+
+        Text reportsFolderText = new Text("Folder to Save the Reports: ");
+        GridPane.setConstraints(reportsFolderText, 0, 4);
+        reportsFolderText.setVisible(false);
+        Button reportFolderButton = new Button("Browse...");
+        GridPane.setConstraints(reportFolderButton, 1, 4);
+        reportFolderButton.setVisible(false);
+        reportFolderButton.setOnAction(e -> {
+            DirectoryChooser directoryChooser = new DirectoryChooser();
+            File selectedDirectory = directoryChooser.showDialog(stage);
+            if (selectedDirectory != null) {
+                reportsLocationText.setVisible(true);
+                reportsFolderLocation.setVisible(true);
+                String reportsFolder = selectedDirectory.getAbsolutePath();
+                reportsFolderLocation.setText(reportsFolder);
+            }
+        });
+
+        Text saveReportsText = new Text("Saving Vehicles Reports: ");
+        GridPane.setConstraints(saveReportsText, 0, 3);
+        CheckBox saveReportsCheckBox = new CheckBox();
+        saveReportsCheckBox.setSelected(false);
+        GridPane.setConstraints(saveReportsCheckBox, 1, 3);
+        saveReportsCheckBox.setOnAction(e -> {
+            if (saveReportsCheckBox.isSelected()) {
+                reportsFolderText.setVisible(true);
+                reportFolderButton.setVisible(true);
+            } else {
+                reportsFolderText.setVisible(false);
+                reportFolderButton.setVisible(false);
+                reportsLocationText.setVisible(false);
+                reportsFolderLocation.setVisible(false);
+            }
+            boolean writeRobotReports = saveReportsCheckBox.isSelected();
+        });
+
+        centerPane.getChildren().addAll(heuristicsText, heuristicsChoiceBox, simulationTimeText,
+                simulationTimeTextField, noOfRunsText, noOfRunsTextField, saveReportsText, saveReportsCheckBox,
+                reportsFolderText, reportFolderButton, reportsLocationText, reportsFolderLocation);
 
         // Bottom Pane - Navigation Buttons
         borderPane.setBottom(BottomPane.getBottomPane(separator, backButton, resetButton,
                 saveButton, runButton));
 
-        return new Scene(borderPane, 600, 300);
+        return new Scene(borderPane);
     }
 
-    private boolean vehicleExists(String name, ProjectData projectData) {
-        return projectData.getVehicles().stream().anyMatch(vehicle -> vehicle.getName().equals(name));
+    private void toggleScene(Boolean isProjectScene, Boolean isMapScene, Boolean isVehicleScene, Boolean isSimulationScene) {
+        this.isProjectScene = isProjectScene;
+        this.isMapScene = isMapScene;
+        this.isVehicleScene = isVehicleScene;
+        this.isSimulationScene = isSimulationScene;
     }
 
-    private void runSimulation() {
+    protected void newProject() {
+        File selectedFile = fileCreator(this, "Name of Project: ", "json");
+        if (selectedFile != null) {
+            projectFile = selectedFile.getAbsolutePath();
+            pathLabel.setText("Name of Project: " + selectedFile.getName());
+            isNewProject = true;
+            separator.setVisible(true);
+            nextButton.setVisible(true);
+
+            // Write to the file
+            try (FileWriter fileWriter = new FileWriter(selectedFile)) {
+                fileWriter.write("{}");
+            } catch (IOException ex) {
+                pathLabel.setText("Error: Could not save the file.");
+            }
+        }
+    }
+
+    protected void openProject() {
+        File file = fileChooser(this, "Select a project file to open: ", "json");
+        if (file != null) {
+            projectFile = file.getAbsolutePath();
+            pathLabel.setText("Name of Project: " + file.getName());
+            isNewProject = false;
+            separator.setVisible(true);
+            nextButton.setVisible(true);
+            try {
+                projectData = parseJSON(projectFile);
+            } catch (IOException ex) {
+                throw new RuntimeException(ex);
+            }
+        }
+    }
+
+    protected void saveProject() {
+        System.out.println("Save Project"); //TODO
+//        String filePath = "output.json";
+//
+//        try {
+//            writeJSON(projectData, filePath);
+//            System.out.println("Project data saved successfully to " + filePath);
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//            System.out.println("Failed to save project data: " + e.getMessage());
+//        }
+    }
+
+    private void runProject() {
 
         int runTime = 10; // FIXME Auto Load
         String resultsDirectory = System.getProperty("user.dir"); // FIXME Hard Coded
