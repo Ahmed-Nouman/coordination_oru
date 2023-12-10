@@ -4,19 +4,22 @@ import javafx.application.Application;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
-import javafx.scene.control.Button;
-import javafx.scene.control.Label;
-import javafx.scene.control.TextField;
 import javafx.scene.control.*;
 import javafx.scene.image.ImageView;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyCodeCombination;
+import javafx.scene.input.KeyCombination;
 import javafx.scene.layout.*;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.Stage;
+import org.metacsp.multi.spatioTemporal.paths.Pose;
 import se.oru.coordination.coordination_oru.ConstantAccelerationForwardModel;
 import se.oru.coordination.coordination_oru.Mission;
+import se.oru.coordination.coordination_oru.gui.ProjectData.MissionStep;
+import se.oru.coordination.coordination_oru.gui.ProjectData.Vehicle;
 import se.oru.coordination.coordination_oru.motionplanning.OccupancyMap;
 import se.oru.coordination.coordination_oru.simulation2D.TrajectoryEnvelopeCoordinatorSimulation;
 import se.oru.coordination.coordination_oru.util.Heuristics;
@@ -26,8 +29,6 @@ import se.oru.coordination.coordination_oru.util.Missions;
 import se.oru.coordination.coordination_oru.vehicles.AbstractVehicle;
 import se.oru.coordination.coordination_oru.vehicles.AutonomousVehicle;
 import se.oru.coordination.coordination_oru.vehicles.LookAheadVehicle;
-import se.oru.coordination.coordination_oru.gui.ProjectData.Vehicle;
-import se.oru.coordination.coordination_oru.gui.ProjectData.MissionStep;
 
 import java.io.File;
 import java.io.FileWriter;
@@ -35,14 +36,15 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 
 import static se.oru.coordination.coordination_oru.gui.Utils.*;
 
 public class GUI extends Application {
 
-    final Stage stage = new Stage();
-    final Separator separator = new Separator();
-    final Label pathLabel = new Label("");
+    protected Stage primaryStage;
+    private final Separator separator = new Separator();
+    private final Label pathLabel = new Label("");
     protected Boolean isNewProject = false;
     protected Boolean isProjectScene = false;
     protected Boolean isMapScene = false;
@@ -50,6 +52,7 @@ public class GUI extends Application {
     protected Boolean isSimulationScene = false;
     protected String projectFile = "";
     protected ProjectData projectData;
+    protected ProjectData orignalProjectData; // The original loaded projectData before any changes
     protected MapData mapData;
     private final Button backButton = new Button("Back");
     protected final Button nextButton = new Button("Next");
@@ -57,84 +60,79 @@ public class GUI extends Application {
     private final Button resetButton =  new Button("Reset");
     private final Button runButton =  new Button("Run");
     private final ListView<String> vehicleListView = new ListView<>();
+    private Boolean writeVehicleReports = false;
+    private int simulationTime = 5;
+    private int numberOfRuns = 1;
+    private String reportsFolder = "";
+    private final Heuristics heuristics = new Heuristics();
 
     public static void main(String[] args) {
         launch(args);
     }
 
     @Override
-    public void start(Stage stage) {
+    public void start(Stage primaryStage) {
 
+        // Setting up the primaryStage
+        this.primaryStage = primaryStage;
         toggleScene(true, false, false, false);
         Scene projectScene = displayProjectScene();
-        stage.setTitle("Coordination_ORU");
-        stage.setScene(projectScene);
-        stage.show();
+        primaryStage.setTitle("Coordination_ORU");
+        primaryStage.setResizable(false);
+        primaryStage.setOnCloseRequest(e -> quitProgram(primaryStage));
+        primaryStage.setScene(projectScene);
+        primaryStage.show();
 
+        // Setting action for navigation buttons
         nextButton.setOnAction(e -> {
             if (isProjectScene && !isMapScene && !isVehicleScene && !isSimulationScene) {
                 toggleScene(false, true, false, false);
-                stage.setTitle("Coordination_ORU: Setting up the map");
-                stage.setScene(displayMapScene());
-                stage.centerOnScreen();
+                primaryStage.setTitle("Coordination_ORU: Setting up the map");
+                primaryStage.setScene(displayMapScene());
+                primaryStage.centerOnScreen(); // FIXME: Sometimes centerOnScreen() does not work
             }
             else if (!isProjectScene && isMapScene && !isVehicleScene && !isSimulationScene) {
                 toggleScene(false, false, true, false);
-                stage.setTitle("Coordination_ORU: Setting up the vehicles");
-                stage.setScene(displayVehicleScene());
-                stage.centerOnScreen();
+                primaryStage.setTitle("Coordination_ORU: Setting up the vehicles");
+                primaryStage.setScene(displayVehicleScene());
+                primaryStage.centerOnScreen();
             }
             else if (!isProjectScene && !isMapScene && isVehicleScene && !isSimulationScene) {
                 toggleScene(false, false, false, true);
-                stage.setTitle("Coordination_ORU: Setting up the simulation");
-                stage.setScene(displaySimulationScene());
-                stage.centerOnScreen();
+                primaryStage.setTitle("Coordination_ORU: Setting up the simulation");
+                primaryStage.setScene(displaySimulationScene());
+                primaryStage.centerOnScreen();
             }
         });
 
         backButton.setOnAction(e -> {
             if (!isProjectScene && isMapScene && !isVehicleScene && !isSimulationScene) {
                 toggleScene(true, false, false, false);
-                stage.setTitle("Coordination_ORU");
-                stage.setScene(displayProjectScene());
-                stage.centerOnScreen();
+                primaryStage.setTitle("Coordination_ORU");
+                primaryStage.setScene(displayProjectScene());
+                primaryStage.centerOnScreen();
             }
             else if (!isProjectScene && !isMapScene && isVehicleScene && !isSimulationScene) {
                 toggleScene(false, true, false, false);
-                stage.setTitle("Coordination_ORU: Setting up the map");
-                stage.setScene(displayMapScene());
-                stage.centerOnScreen();
+                primaryStage.setTitle("Coordination_ORU: Setting up the map");
+                primaryStage.setScene(displayMapScene());
+                primaryStage.centerOnScreen();
             }
             else if (!isProjectScene && !isMapScene && !isVehicleScene && isSimulationScene) {
                 toggleScene(false, false, true, false);
-                stage.setTitle("Coordination_ORU: Setting up the vehicles");
-                stage.setScene(displayVehicleScene());
-                stage.centerOnScreen();
+                primaryStage.setTitle("Coordination_ORU: Setting up the vehicles");
+                primaryStage.setScene(displayVehicleScene());
+                primaryStage.centerOnScreen();
             }
         });
 
-        saveButton.setOnAction(e -> saveProject()); //TODO
+        saveButton.setOnAction(e -> saveProject());
 
-        runButton.setOnAction(e -> System.out.println("Run Simulation")); // FIXME: This is not working
+        runButton.setOnAction(e -> runProject());
 
-        resetButton.setOnAction(e -> {
-            stage.setTitle("Coordination_ORU");
-            stage.setScene(displayProjectScene());
-            stage.centerOnScreen();
-            projectData = new ProjectData();
-            mapData = new MapData();
-            isNewProject = false;
-            isProjectScene = false;
-            isMapScene = false;
-            isVehicleScene = false;
-            isSimulationScene = false;
-            projectFile = "";
-            pathLabel.setText("");
-            vehicleListView.getItems().clear(); // FIXME: This is not working
-        });
+        resetButton.setOnAction(e -> resetProject(primaryStage));
     }
 
-    // This method changes the scene based on the Next and Back buttons
     /**
      * Creates and returns a scene with a layout for project management.
      *
@@ -149,6 +147,8 @@ public class GUI extends Application {
         // Top Pane - Menu Bar
         borderPane.setTop(GUIMenuBar.getMenuBar(this));
         GUIMenuBar.disableSaveProject();
+        GUIMenuBar.disableCloseProject();
+        GUIMenuBar.disableRunProject();
 
         // Center Pane
         VBox centerPane = new VBox();
@@ -185,15 +185,17 @@ public class GUI extends Application {
         borderPane.setPrefWidth(400);
         return new Scene(borderPane);
     }
+
     private Scene displayMapScene() {
 
         BorderPane borderPane = new BorderPane();
 
         // Top Pane - Menu Bar
         borderPane.setTop(GUIMenuBar.getMenuBar(this));
-        GUIMenuBar.disableSaveProject();
         GUIMenuBar.disableNewProject();
         GUIMenuBar.disableOpenProject();
+        GUIMenuBar.disableSaveProject();
+        GUIMenuBar.disableRunProject();
 
         VBox centerPane = new VBox();
 
@@ -202,7 +204,7 @@ public class GUI extends Application {
             Text mapMessage = new Text("Please select a map: ");
             Button browseMapButton = new Button("Browse...");
             browseMapButton.setOnAction(e -> {
-                File file = fileChooser(this, "Select a map file to open: ", "yaml");
+                File file = chooseFile(this, "Select a map file to open: ", "yaml");
 
                 OccupancyMap om = new OccupancyMap(file.getAbsolutePath());
 
@@ -240,16 +242,16 @@ public class GUI extends Application {
 
         return new Scene(borderPane);
     }
-
     private Scene displayVehicleScene() {
 
         BorderPane borderPane = new BorderPane();
 
         // Top Pane - Menu Bar
         borderPane.setTop(GUIMenuBar.getMenuBar(this));
-        GUIMenuBar.disableSaveProject();
         GUIMenuBar.disableNewProject();
         GUIMenuBar.disableOpenProject();
+        GUIMenuBar.disableSaveProject();
+        GUIMenuBar.disableRunProject();
 
         // Right Pane
         var rightPane = new StackPane();
@@ -789,7 +791,6 @@ public class GUI extends Application {
 
         return new Scene(borderPane);
     }
-
     private Scene displaySimulationScene() {
 
         BorderPane borderPane = new BorderPane();
@@ -814,8 +815,7 @@ public class GUI extends Application {
         ChoiceBox<String> heuristicsChoiceBox = new ChoiceBox<>();
         heuristicsChoiceBox.setPrefWidth(220);
         GridPane.setConstraints(heuristicsChoiceBox, 1, 0);
-        Heuristics heuristics = new Heuristics();
-        heuristicsChoiceBox.getItems().addAll(heuristics.getAllHeuristicNames());
+        heuristicsChoiceBox.getItems().addAll(Heuristics.getAllHeuristicNames());
         heuristicsChoiceBox.setValue(heuristicsChoiceBox.getItems().stream().findFirst().orElse(null));
         heuristicsChoiceBox.setOnAction(e -> {
             String selectedHeuristic = heuristicsChoiceBox.getValue();
@@ -829,9 +829,6 @@ public class GUI extends Application {
                         break;
                     case "HIGHEST_ID":
                         heuristics.highestIDNumber();
-                        break;
-                    case "HIGHEST_PRECEDENCE":
-                        heuristics.highestPrecedence();
                         break;
                     case "LOOK_AHEAD_FIRST":
                         heuristics.lookAheadFirst();
@@ -851,28 +848,28 @@ public class GUI extends Application {
         GridPane.setConstraints(simulationTimeText, 0, 1);
         TextField simulationTimeTextField = new TextField();
         simulationTimeTextField.setMaxWidth(heuristicsChoiceBox.getPrefWidth());
-        simulationTimeTextField.setText("30.0");
+        simulationTimeTextField.setText("30");
         GridPane.setConstraints(simulationTimeTextField, 1, 1);
         simulationTimeTextField.focusedProperty().addListener((observable, wasFocused, isNowFocused) -> {
             if (!isNowFocused) {
-                Boolean validated = validateDouble(simulationTimeTextField);
+                Boolean validated = validateInteger(simulationTimeTextField);
                 if (validated) {
-                    double simulationTime = Double.parseDouble(simulationTimeTextField.getText());
+                    simulationTime = Integer.parseInt(simulationTimeTextField.getText());
                 }
             }
         });
 
-        Text noOfRunsText = new Text("No. of Runs: ");
-        GridPane.setConstraints(noOfRunsText, 0, 2);
-        TextField noOfRunsTextField = new TextField();
-        noOfRunsTextField.setMaxWidth(heuristicsChoiceBox.getPrefWidth());
-        noOfRunsTextField.setText("1");
-        GridPane.setConstraints(noOfRunsTextField, 1, 2);
-        noOfRunsTextField.focusedProperty().addListener((observable, wasFocused, isNowFocused) -> {
+        Text numberOfRunsText = new Text("No. of Runs: ");
+        GridPane.setConstraints(numberOfRunsText, 0, 2);
+        TextField numberOfRunsTextField = new TextField();
+        numberOfRunsTextField.setMaxWidth(heuristicsChoiceBox.getPrefWidth());
+        numberOfRunsTextField.setText("1");
+        GridPane.setConstraints(numberOfRunsTextField, 1, 2);
+        numberOfRunsTextField.focusedProperty().addListener((observable, wasFocused, isNowFocused) -> {
             if (!isNowFocused) {
-                Boolean validated = validateInteger(noOfRunsTextField);
+                Boolean validated = validateInteger(numberOfRunsTextField);
                 if (validated) {
-                    int noOfRuns = Integer.parseInt(noOfRunsTextField.getText());
+                    numberOfRuns = Integer.parseInt(numberOfRunsTextField.getText()); // FIXME: How to implement multiple runs of simulation?
                 }
             }
         });
@@ -892,11 +889,11 @@ public class GUI extends Application {
         reportFolderButton.setVisible(false);
         reportFolderButton.setOnAction(e -> {
             DirectoryChooser directoryChooser = new DirectoryChooser();
-            File selectedDirectory = directoryChooser.showDialog(stage);
+            File selectedDirectory = directoryChooser.showDialog(new Stage());
             if (selectedDirectory != null) {
                 reportsLocationText.setVisible(true);
                 reportsFolderLocation.setVisible(true);
-                String reportsFolder = selectedDirectory.getAbsolutePath();
+                reportsFolder = selectedDirectory.getAbsolutePath();
                 reportsFolderLocation.setText(reportsFolder);
             }
         });
@@ -916,11 +913,11 @@ public class GUI extends Application {
                 reportsLocationText.setVisible(false);
                 reportsFolderLocation.setVisible(false);
             }
-            boolean writeRobotReports = saveReportsCheckBox.isSelected();
+            writeVehicleReports = saveReportsCheckBox.isSelected();
         });
 
         centerPane.getChildren().addAll(heuristicsText, heuristicsChoiceBox, simulationTimeText,
-                simulationTimeTextField, noOfRunsText, noOfRunsTextField, saveReportsText, saveReportsCheckBox,
+                simulationTimeTextField, numberOfRunsText, numberOfRunsTextField, saveReportsText, saveReportsCheckBox,
                 reportsFolderText, reportFolderButton, reportsLocationText, reportsFolderLocation);
 
         // Bottom Pane - Navigation Buttons
@@ -930,6 +927,8 @@ public class GUI extends Application {
         return new Scene(borderPane);
     }
 
+    // FIXME maybe better to ensure only one scene is true at a time
+    // A method to toggle the scenes
     private void toggleScene(Boolean isProjectScene, Boolean isMapScene, Boolean isVehicleScene, Boolean isSimulationScene) {
         this.isProjectScene = isProjectScene;
         this.isMapScene = isMapScene;
@@ -937,8 +936,9 @@ public class GUI extends Application {
         this.isSimulationScene = isSimulationScene;
     }
 
+    // A method to create a new project
     protected void newProject() {
-        File selectedFile = fileCreator(this, "Name of Project: ", "json");
+        File selectedFile = createFile(this, "newProject", "json");
         if (selectedFile != null) {
             projectFile = selectedFile.getAbsolutePath();
             pathLabel.setText("Name of Project: " + selectedFile.getName());
@@ -946,7 +946,7 @@ public class GUI extends Application {
             separator.setVisible(true);
             nextButton.setVisible(true);
 
-            // Write to the file
+            // Write {} to the new project file
             try (FileWriter fileWriter = new FileWriter(selectedFile)) {
                 fileWriter.write("{}");
             } catch (IOException ex) {
@@ -955,8 +955,9 @@ public class GUI extends Application {
         }
     }
 
+    // A method to open an existing project
     protected void openProject() {
-        File file = fileChooser(this, "Select a project file to open: ", "json");
+        File file = chooseFile(this, "Select a project file to open: ", "json");
         if (file != null) {
             projectFile = file.getAbsolutePath();
             pathLabel.setText("Name of Project: " + file.getName());
@@ -965,53 +966,59 @@ public class GUI extends Application {
             nextButton.setVisible(true);
             try {
                 projectData = parseJSON(projectFile);
+                orignalProjectData = deepCopy(projectData);
             } catch (IOException ex) {
                 throw new RuntimeException(ex);
             }
         }
     }
 
+    // A method to save the current project
     protected void saveProject() {
-        System.out.println("Save Project"); //TODO
-//        String filePath = "output.json";
-//
-//        try {
-//            writeJSON(projectData, filePath);
-//            System.out.println("Project data saved successfully to " + filePath);
-//        } catch (IOException e) {
-//            e.printStackTrace();
-//            System.out.println("Failed to save project data: " + e.getMessage());
-//        }
+        try{
+            if (isNewProject) {
+                AlertBox.display("Saving the project", "The project has been saved to: " + projectFile, Alert.AlertType.INFORMATION);
+                writeJSON(projectData, projectFile);
+            } else {
+                if (projectData.equals(orignalProjectData)) {
+                    AlertBox.display("Saving the project", "There are no changes to save in the project: " + projectFile, Alert.AlertType.INFORMATION);
+                } else {
+                    var selectedFile = createFile(this, "project", "json");
+                    if (selectedFile != null) {
+                        projectFile = selectedFile.getAbsolutePath();
+                        AlertBox.display("Saving the project", "The project has been saved to: " + projectFile, Alert.AlertType.INFORMATION);
+                        writeJSON(projectData, projectFile);
+                    }
+                }
+            }
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
-    private void runProject() {
+    // A method to run the current project
+    protected void runProject() {
 
-        int runTime = 10; // FIXME Auto Load
-        String resultsDirectory = System.getProperty("user.dir"); // FIXME Hard Coded
         final String YAML_FILE = projectData.getMap();
         double mapResolution = mapData.getResolution();
         double scaleAdjustment = 1 / mapResolution;
-        double lookAheadDistance = 45 / scaleAdjustment;
-        double timeIntervalInSeconds = 0.25;
-        int updateCycleTime = 100;
-        boolean writeRobotReports = false;
+        double lookAheadDistance = 45 / scaleAdjustment; // FIXME Currently for single vehicle, needs to be changed for multiple vehicles and take value from vehicle objects
+        double reportsTimeIntervalInSeconds = 0.1;     // FIXME Fix Time Interval hard coded, maybe give option in GUI
 
         // Instantiate a trajectory envelope coordinator.
         var tec = new TrajectoryEnvelopeCoordinatorSimulation();
         tec.setupSolver(0, 100000000);
         tec.startInference();
 
-        // Set Heuristics TODO Fix Heuristics
-        var heuristic = new Heuristics();
-        tec.addComparator(heuristic.closest());
-        String heuristicName = heuristic.getHeuristicName();
+        // Set Heuristics
+        tec.addComparator(heuristics.closest()); // FIXME Fix Heuristics Hard Coded
 
         // Set Local Re-ordering and Local Re-Planning to break Deadlocks
         tec.setBreakDeadlocks(true, false, false);
 
         // Set up a simple GUI (null means an empty map, otherwise provide yaml file)
-        var viz = new JTSDrawingPanelVisualization();
-        viz.setMap(YAML_FILE); // TODO Fix Zooming of the Map
+        var viz = new JTSDrawingPanelVisualization(); // FIXME Fix Visualization zooming, arrow direction, show consistent area, check maybe use BrowserVisualization, RVizVisualization
+        viz.setMap(YAML_FILE);
         viz.setSize(1920, 1200);
         tec.setVisualization(viz);
 
@@ -1025,34 +1032,69 @@ public class GUI extends Application {
                 ((LookAheadVehicle) newVehicle).setLookAheadDistance(lookAheadDistance);
             }
 
-        newVehicle.setName(vehicle.getName());
-        newVehicle.setMaxVelocity(vehicle.getMaxVelocity());
-        newVehicle.setMaxAcceleration(vehicle.getMaxAcceleration());
-        newVehicle.setSafetyDistance(vehicle.getSafetyDistance());
-//        newVehicle.setColor(stringToColor(vehicle.getColor()));
-        newVehicle.setLength(vehicle.getLength());
-        newVehicle.setWidth(vehicle.getWidth());
-//        newVehicle.setInitialPose(getPosesByName(this, vehicle.getInitialPose())[0]); // FIXME Fix Initial Pose
-//        newVehicle.setGoalPoses(getPosesByName(this, vehicle.getGoals().get(0)));
-        // FIXME Fix Goal Poses
+            newVehicle.setID(vehicle.getID());
+            newVehicle.setName(vehicle.getName());
+            newVehicle.setLength(vehicle.getLength() / scaleAdjustment);
+            newVehicle.setWidth(vehicle.getWidth() / scaleAdjustment);
+            newVehicle.setMaxVelocity(vehicle.getMaxVelocity() / scaleAdjustment);
+            newVehicle.setMaxAcceleration(vehicle.getMaxAcceleration() / scaleAdjustment);
+            newVehicle.setSafetyDistance(vehicle.getSafetyDistance() / scaleAdjustment);
+            newVehicle.setColor(stringToColor(vehicle.getColor()));
+            newVehicle.setInitialPose(projectData.getPose(vehicle.getInitialPose()));
+            newVehicle.setGoalPoses(vehicle.getMission()
+                    .stream()
+                    .map(MissionStep::getPoseName)
+                    .map(poseName -> projectData.getPose(poseName))
+                    .toArray(Pose[]::new));
+//            newVehicle.setMission(vehicle.getMission()); // FIXME Fix Mission, How to handle multiple missions to GoalPoses, handle stoppages
+            newVehicle.setMissionRepetition(vehicle.getMissionRepetition()); //FIXME Handle Mission Repetitions in missionsDispatcher
 
-        newVehicle.getPlan(newVehicle.getInitialPose(),
-                newVehicle.getGoalPoses(), YAML_FILE, true);
+            newVehicle.getPlan(newVehicle.getInitialPose(),
+                    newVehicle.getGoalPoses(), YAML_FILE, true);
 
-        tec.setForwardModel(newVehicle.getID(), new ConstantAccelerationForwardModel(newVehicle.getMaxAcceleration(),
-                newVehicle.getMaxVelocity(), tec.getTemporalResolution(), tec.getControlPeriod(),
-                tec.getRobotTrackingPeriodInMillis(newVehicle.getID())));
-        tec.setDefaultFootprint(newVehicle.getFootprint());
+            tec.setForwardModel(newVehicle.getID(), new ConstantAccelerationForwardModel(newVehicle.getMaxAcceleration(),
+                    newVehicle.getMaxVelocity(), tec.getTemporalResolution(), tec.getControlPeriod(),
+                    tec.getRobotTrackingPeriodInMillis(newVehicle.getID())));
+            tec.setDefaultFootprint(newVehicle.getFootprint());
 
-        tec.placeRobot(newVehicle.getID(), newVehicle.getInitialPose());
+            tec.placeRobot(newVehicle.getID(), newVehicle.getInitialPose());
 
-        var mission = new Mission(newVehicle.getID(), newVehicle.getPath());
-        Missions.enqueueMission(mission);
-        Missions.setMap(YAML_FILE);
-
-    Missions.startMissionDispatchers(tec, writeRobotReports, timeIntervalInSeconds,
-            runTime, heuristicName, updateCycleTime, resultsDirectory, scaleAdjustment);
+            var mission = new Mission(newVehicle.getID(), newVehicle.getPath());
+            Missions.enqueueMission(mission);
         });
+            Missions.setMap(YAML_FILE);
+            Missions.startMissionDispatchers(tec, writeVehicleReports, reportsTimeIntervalInSeconds,
+                    simulationTime, heuristics.getName(), 100, reportsFolder, scaleAdjustment);
+    }
+
+    // A method to reset the GUI interface
+    protected void resetProject(Stage stage) {
+        stage.setTitle("Coordination_ORU");
+        stage.setScene(displayProjectScene());
+        stage.centerOnScreen();
+        projectData = null;
+        mapData = null;
+        isNewProject = false;
+        isProjectScene = true;
+        isMapScene = false;
+        isVehicleScene = false;
+        isSimulationScene = false;
+        projectFile = "";
+        pathLabel.setText("");
+        vehicleListView.getItems().clear();
+    }
+
+    // A method to quit the project gracefully and save the project if needed
+    protected void quitProgram(Stage stage) {
+        if (projectData == null) {
+            stage.close();
+        } else if (projectData.equals(orignalProjectData)) {
+            stage.close();
+        } else {
+            Optional<ButtonType> answer = AlertBox.display("Saving the project", "Would you like to save the project before exiting?", Alert.AlertType.CONFIRMATION);
+            if (answer.isPresent() && answer.get() == ButtonType.YES && projectData != null) saveProject();
+            stage.close();
+        }
     }
 }
 

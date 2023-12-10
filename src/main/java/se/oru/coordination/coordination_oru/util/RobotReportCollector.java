@@ -93,12 +93,12 @@ public class RobotReportCollector {
                         String rowData = String.format("%s;%d;%.2f;%.2f;%.2f;%d;%.2f;%.2f;%d%n",
                                 currentTimestamp,
                                 report.getRobotID(),
-                                pose.getX() * scaleAdjustment,             // Multiply x_pose
-                                pose.getY() * scaleAdjustment,             // Multiply y_pose
-                                pose.getTheta(),                           // Theta remains unchanged
+                                pose.getX(),
+                                pose.getY(),
+                                pose.getTheta(),
                                 report.getPathIndex(),
-                                report.getVelocity() * scaleAdjustment,    // Multiply velocity
-                                report.getDistanceTraveled() * scaleAdjustment,   // Multiply distance
+                                report.getVelocity() * scaleAdjustment,
+                                report.getDistanceTraveled() * scaleAdjustment,
                                 report.getCriticalPoint());
                         writer.write(rowData);
                     }

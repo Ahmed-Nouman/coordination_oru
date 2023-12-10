@@ -7,7 +7,6 @@ import se.oru.coordination.coordination_oru.vehicles.VehiclesHashMap;
 
 import java.util.ArrayList;
 import java.util.Comparator;
-import java.util.HashMap;
 import java.util.List;
 
 /**
@@ -17,12 +16,18 @@ import java.util.List;
  */
 public class Heuristics {
 
-    /**
-     * Mapping of robot IDs to their precedence values.
-     */
-    public HashMap<Integer, Integer> robotIDToPrecedence = new HashMap<>();
     private String heuristicName;
 
+    public static List<String> getAllHeuristicNames() {
+        List<String> heuristicNames = new ArrayList<>();
+        heuristicNames.add("CLOSEST");
+        heuristicNames.add("MOST_DISTANCE_TO_TRAVEL");
+        heuristicNames.add("LOWEST_ID");
+        heuristicNames.add("HIGHEST_ID");
+        heuristicNames.add("LOOK_AHEAD_FIRST");
+        heuristicNames.add("AUTONOMOUS_FIRST");
+        return heuristicNames;
+    }
 
     /**
      * Returns a comparator for determining the order based on the robot closest to a critical section.
@@ -67,16 +72,6 @@ public class Heuristics {
     public Comparator<RobotAtCriticalSection> highestIDNumber() {
         heuristicName = "HIGHEST_ID";
         return (o1, o2) -> o2.getRobotReport().getRobotID() - o1.getRobotReport().getRobotID();
-    }
-
-    /**
-     * Returns a comparator for determining the order based on the robot with the highest precedence value.
-     *
-     * @return The comparator for highestPrecedence heuristic.
-     */
-    public Comparator<RobotAtCriticalSection> highestPrecedence() {
-        heuristicName = "HIGHEST_PRECEDENCE";
-        return (o1, o2) -> robotIDToPrecedence.get(o2.getRobotReport().getRobotID()) - robotIDToPrecedence.get(o1.getRobotReport().getRobotID());
     }
 
     /**
@@ -125,24 +120,7 @@ public class Heuristics {
         };
     }
 
-    /**
-     * Returns the names of all heuristics.
-     *
-     * @return A list of all heuristic names.
-     */
-    public List<String> getAllHeuristicNames() {
-        List<String> heuristicNames = new ArrayList<>();
-        heuristicNames.add("CLOSEST");
-        heuristicNames.add("MOST_DISTANCE_TO_TRAVEL");
-        heuristicNames.add("LOWEST_ID");
-        heuristicNames.add("HIGHEST_ID");
-        heuristicNames.add("HIGHEST_PRECEDENCE");
-        heuristicNames.add("LOOK_AHEAD_FIRST");
-        heuristicNames.add("AUTONOMOUS_FIRST");
-        return heuristicNames;
-    }
-
-    public String getHeuristicName() {
+    public String getName() {
         return heuristicName;
     }
 

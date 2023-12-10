@@ -2,10 +2,8 @@ package se.oru.coordination.coordination_oru.gui;
 
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializerProvider;
+import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import javafx.geometry.Pos;
 import javafx.scene.control.TextField;
@@ -16,17 +14,12 @@ import javafx.stage.FileChooser;
 import org.metacsp.multi.spatioTemporal.paths.Pose;
 import org.yaml.snakeyaml.Yaml;
 import se.oru.coordination.coordination_oru.gui.ProjectData.MissionStep;
+import se.oru.coordination.coordination_oru.gui.ProjectData.Vehicle;
 
 import java.awt.*;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
+import java.io.*;
 import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class Utils {
 
@@ -53,17 +46,12 @@ public class Utils {
     }
 
     protected static Color stringToColor(String colorStr) {
-        if (colorStr == null) {
-            return Color.BLACK; // Default color or null, depending on your preference
-        }
 
         // Convert the string to uppercase to match the enum constant naming convention
         String colorUpper = colorStr.toUpperCase();
 
         // Match the string to the corresponding color constant
         switch (colorUpper) {
-            case "YELLOW":
-                return Color.YELLOW;
             case "RED":
                 return Color.RED;
             case "BLUE":
@@ -79,7 +67,7 @@ public class Utils {
             case "ORANGE":
                 return Color.ORANGE;
             default:
-                throw new IllegalArgumentException("Unknown color: " + colorStr);
+                return Color.YELLOW;
         }
     }
 
@@ -130,40 +118,31 @@ public class Utils {
         return imageView;
     }
 
-    protected static void getPoses(GUI gui, ComboBox<String> Poses) {
-        for (String pose : gui.projectData.getPoses().keySet()) {
-            Poses.getItems().add(pose);
-        }
-    }
-
-    protected static File fileChooser(GUI gui, String dialogTitle, String extension) {
+    protected static File chooseFile(GUI gui, String dialogTitle, String extension) {
         FileChooser fileChooser = new FileChooser();
         fileChooser.setInitialDirectory(new File(System.getProperty("user.home")));
         fileChooser.setTitle(dialogTitle);
         fileChooser.getExtensionFilters().clear();
         String extensionDescription = extension.toUpperCase() + " Files";
         fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter(extensionDescription, "*." + extension));
-
-        return fileChooser.showOpenDialog(gui.stage);
+        return fileChooser.showOpenDialog(gui.primaryStage);
     }
 
-    protected static File fileCreator(GUI gui, String dialogTitle, String extension) {
+    protected static File createFile(GUI gui, String defaultFileName, String extension) {
         FileChooser fileChooser = new FileChooser();
         fileChooser.setInitialDirectory(new File(System.getProperty("user.home")));
-        fileChooser.setInitialFileName(dialogTitle);
+        fileChooser.setInitialFileName(defaultFileName);
         fileChooser.getExtensionFilters().clear();
         String extensionDescription = extension.toUpperCase() + " Files";
         fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter(extensionDescription, "*." + extension));
-
-        File file = fileChooser.showSaveDialog(gui.stage);
-
-        if (file != null) {
+        File selectedFile = fileChooser.showSaveDialog(gui.primaryStage);
+        if (selectedFile != null) {
             String fileExtension = "." + extension;
-            if (!file.getName().endsWith(fileExtension)) {
-                file = new File(file.getAbsolutePath() + fileExtension);
+            if (!selectedFile.getName().endsWith(fileExtension)) {
+               selectedFile = new File(selectedFile.getAbsolutePath() + fileExtension);
             }
         }
-        return file;
+        return selectedFile;
     }
 
     protected static MapData parseYAML(String filenameYAML) {
@@ -187,7 +166,10 @@ public class Utils {
         // Map for storing pose names and their corresponding Pose objects
         Map<String, Pose> posesMap = new HashMap<>();
         posesNode.fields().forEachRemaining(entry -> {
-            posesMap.put(entry.getKey(), deserializePose(entry.getValue()));
+            Pose pose = new Pose(entry.getValue().path("x").asDouble(),
+                                 entry.getValue().path("y").asDouble(),
+                                 entry.getValue().path("angle").asDouble());
+            posesMap.put(entry.getKey(), pose);
         });
 
         List<ProjectData.Vehicle> vehicles = new ArrayList<>();
@@ -208,9 +190,9 @@ public class Utils {
             vehicleObject.remove("mission");
 
             // Deserialize the vehicle
-            ProjectData.Vehicle vehicle = null;
+            Vehicle vehicle = null;
             try {
-                vehicle = objectMapper.treeToValue(vehicleObject, ProjectData.Vehicle.class);
+                vehicle = objectMapper.treeToValue(vehicleObject, Vehicle.class);
             } catch (JsonProcessingException e) {
                 throw new RuntimeException(e);
             }
@@ -227,16 +209,76 @@ public class Utils {
         return projectData;
     }
 
-    protected static Pose deserializePose(JsonNode poseNode) {
-        double x = poseNode.path("x").asDouble();
-        double y = poseNode.path("y").asDouble();
-        double angle = poseNode.path("angle").asDouble();
+    protected static void writeJSON(ProjectData projectData, String projectFile) throws IOException {
+        ObjectMapper mapper = new ObjectMapper();
+        SimpleModule module = new SimpleModule();
 
-        return new Pose(x, y, angle);
+        JsonSerializer<Object> serializer = new JsonSerializer<>() {
+            @Override
+            public void serialize(Object object, JsonGenerator GSON, SerializerProvider serializers) throws IOException {
+                if (object instanceof Vehicle) {
+                    GSON.writeStartObject();
+                    // Serialize other Vehicle fields
+                    GSON.writeStringField("ID", String.valueOf(((Vehicle) object).getID()));
+                    GSON.writeStringField("name", ((Vehicle) object).getName());
+                    GSON.writeStringField("type", ((Vehicle) object).getType());
+                    GSON.writeStringField("lookAheadDistance", String.valueOf(((Vehicle) object).getLookAheadDistance()));
+                    GSON.writeStringField("color", ((Vehicle) object).getColor());
+                    GSON.writeStringField("maxVelocity", String.valueOf(((Vehicle) object).getMaxVelocity()));
+                    GSON.writeStringField("maxAcceleration", String.valueOf(((Vehicle) object).getMaxAcceleration()));
+                    GSON.writeStringField("length", String.valueOf(((Vehicle) object).getLength()));
+                    GSON.writeStringField("width", String.valueOf(((Vehicle) object).getWidth()));
+                    GSON.writeStringField("initialPose", ((Vehicle) object).getInitialPose());
+                    GSON.writeArrayFieldStart("mission");
+                    for (MissionStep missionStep : ((Vehicle) object).getMission()) {
+                        GSON.writeStartArray();
+                        GSON.writeString(missionStep.getPoseName());
+                        GSON.writeNumber(missionStep.getDuration());
+                        GSON.writeEndArray();
+                    }
+                    GSON.writeEndArray();
+                    GSON.writeStringField("safetyDistance", String.valueOf(((Vehicle) object).getSafetyDistance()));
+                    GSON.writeStringField("missionRepetition", String.valueOf(((Vehicle) object).getMissionRepetition()));
+                    GSON.writeEndObject();
+                } else if (object instanceof Pose) {
+                    // Serialize Pose as an object
+                    GSON.writeStartObject();
+                    GSON.writeNumberField("x", ((Pose) object).getX());
+                    GSON.writeNumberField("y", ((Pose) object).getY());
+                    GSON.writeNumberField("theta", ((Pose) object).getTheta());
+                    GSON.writeEndObject();
+                }
+            }
+        };
+
+        module.addSerializer(Vehicle.class, serializer);
+        module.addSerializer(Pose.class, serializer);
+        mapper.registerModule(module);
+        mapper.enable(SerializationFeature.INDENT_OUTPUT);
+
+        // Write to the json project file
+        try (FileWriter fileWriter = new FileWriter(projectFile)) {
+            fileWriter.write(mapper.writeValueAsString(projectData));
+        } catch (IOException ex) {
+            System.out.println(("Error: Could not save the file."));
+        }
     }
 
-    protected static void writeJSON(ProjectData projectData, String filePath) throws IOException {
-        ObjectMapper objectMapper = new ObjectMapper();
-        objectMapper.writeValue(new File(filePath), projectData);
+    public static <T extends Serializable> T deepCopy(T object) {
+        try {
+            ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+            ObjectOutputStream objectOutputStream = new ObjectOutputStream(byteArrayOutputStream);
+            objectOutputStream.writeObject(object);
+            objectOutputStream.close();
+
+            ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(byteArrayOutputStream.toByteArray());
+            ObjectInputStream objectInputStream = new ObjectInputStream(byteArrayInputStream);
+            T copy = (T) objectInputStream.readObject();
+            objectInputStream.close();
+
+            return copy;
+        } catch (IOException | ClassNotFoundException e) {
+            throw new RuntimeException(e);
+        }
     }
 }

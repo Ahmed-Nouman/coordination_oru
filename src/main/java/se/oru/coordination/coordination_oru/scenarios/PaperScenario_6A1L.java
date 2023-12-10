@@ -15,24 +15,24 @@ public class PaperScenario_6A1L {
     public static void main(String[] args) throws IOException {
 
         String absolutePath = System.getProperty("user.dir");
-        String resultsDirectory = absolutePath + "/src/main/java/se/oru/coordination/coordination_oru/results/lookAheadPaper_2023";
+        String reportsFolder = absolutePath + "/src/main/java/se/oru/coordination/coordination_oru/results/lookAheadPaper_2023";
         final String YAML_FILE = "maps/mine-map-paper-2023.yaml";
         double mapResolution = new MapResolution().getMapResolution(YAML_FILE);
         double scaleAdjustment = 1.0 / mapResolution;
-        double lookAheadDistance = 95 / scaleAdjustment;
+        double lookAheadDistance = 95 / scaleAdjustment; // use separate look ahead distance for all robots
         double timeIntervalInSeconds = 0.1;
         int inferenceCycleTime = 100;
         int terminationInMinutes = 5;
         int numOfCallsForLookAheadRobot = 1;
         boolean visualization = true;
-        boolean writeRobotReports = true;
+        boolean writeVehicleReports = true;
 
         // Everything including velocity, acceleration, lookahead, length and width is scaled by 0.1
-        final double MAX_VELOCITY = 1.0;
-        final double MAX_ACCELERATION = 0.1;
+        final double MAX_VELOCITY = 10.0 / scaleAdjustment;
+        final double MAX_ACCELERATION = 1.0 / scaleAdjustment;
         final int TRACKING_PERIOD = 30;
-        final double X_LENGTH = 0.9;
-        final double Y_LENGTH = 0.6;
+        final double X_LENGTH = 9.0 / scaleAdjustment;
+        final double Y_LENGTH = 6.0 / scaleAdjustment;
 
         final Pose mainTunnelLeft = new Pose(14.25, 22.15, Math.PI);
         final Pose mainTunnelRight = new Pose(113.25, 40.85, Math.PI);
@@ -125,7 +125,7 @@ public class PaperScenario_6A1L {
         // Set Heuristics
         var heuristic = new Heuristics();
         tec.addComparator(heuristic.lookAheadFirst());
-        String heuristicName = heuristic.getHeuristicName();
+        String heuristicName = heuristic.getName();
 
         // Set Local Re-ordering and Local Re-Planning to break Deadlocks
         tec.setBreakDeadlocks(true, false, false);
@@ -158,8 +158,8 @@ public class PaperScenario_6A1L {
         Missions.enqueueMission(m6);
         Missions.setMap(YAML_FILE);
 
-        Missions.startMissionDispatchers(tec, writeRobotReports,
+        Missions.startMissionDispatchers(tec, writeVehicleReports,
                 timeIntervalInSeconds, terminationInMinutes, heuristicName,
-                inferenceCycleTime, resultsDirectory, scaleAdjustment);
+                inferenceCycleTime, reportsFolder, scaleAdjustment);
     }
 }

@@ -11,6 +11,8 @@ public class GUIMenuBar {
     private static MenuItem newProjectMenuItem;
     private static MenuItem openProjectMenuItem;
     private static MenuItem saveProjectMenuItem;
+    private static MenuItem closeProjectMenuItem;
+    private static MenuItem runProjectMenuItem;
 
     /**
      * Creates and returns a MenuBar node with 'File' and 'Help' menus.
@@ -35,59 +37,62 @@ public class GUIMenuBar {
         openProjectMenuItem.setAccelerator(new KeyCodeCombination(KeyCode.O, KeyCodeCombination.CONTROL_DOWN));
         openProjectMenuItem.setOnAction(e -> gui.openProject());
 
-        saveProjectMenuItem = new MenuItem("Save Project");
+        closeProjectMenuItem = new MenuItem("Close Project");
+        closeProjectMenuItem.setAccelerator(new KeyCodeCombination(KeyCode.C, KeyCodeCombination.CONTROL_DOWN));
+        closeProjectMenuItem.setOnAction(e -> gui.resetProject(gui.primaryStage));
+
+        saveProjectMenuItem = new MenuItem("Save Project...");
         saveProjectMenuItem.setAccelerator(new KeyCodeCombination(KeyCode.S, KeyCodeCombination.CONTROL_DOWN));
         saveProjectMenuItem.setOnAction(e -> gui.saveProject());
 
-        MenuItem quit = new MenuItem("QUIT");
-        quit.setAccelerator(new KeyCodeCombination(KeyCode.Q, KeyCodeCombination.CONTROL_DOWN));
-        quit.setOnAction(e -> System.exit(0));
+        MenuItem quitMenuItem = new MenuItem("Quit");
+        quitMenuItem.setAccelerator(new KeyCodeCombination(KeyCode.Q, KeyCodeCombination.CONTROL_DOWN));
+        quitMenuItem.setOnAction(e -> gui.quitProgram(gui.primaryStage));
 
-        fileMenu.getItems().addAll(newProjectMenuItem, openProjectMenuItem, saveProjectMenuItem, separator, quit);
+        fileMenu.getItems().addAll(newProjectMenuItem, openProjectMenuItem, closeProjectMenuItem, saveProjectMenuItem, separator, quitMenuItem);
+
+        // Run menu
+        Menu runMenu = new Menu("Run");
+        runProjectMenuItem = new MenuItem("Run Project...");
+        runProjectMenuItem.setAccelerator(new KeyCodeCombination(KeyCode.R, KeyCodeCombination.CONTROL_DOWN));
+        runProjectMenuItem.setOnAction(e -> gui.runProject());
+        runMenu.getItems().addAll(runProjectMenuItem);
 
         // Help menu
         Menu helpMenu = new Menu("Help");
-
-        // Help menu items
-        MenuItem about = new MenuItem("About");
+        MenuItem about = new MenuItem("About...");
         about.setAccelerator(new KeyCodeCombination(KeyCode.A, KeyCodeCombination.CONTROL_DOWN));
-
         about.setOnAction(e -> {
-            String content = "A Framework for Multi-Robot Motion Planning, Coordination and Control.\n\n" +
+            String content = "A Framework for Multi-Agents Motion Planning, Coordination and Control.\n\n" +
                     "Copyright: © 2017-" + Year.now() + "\n\n" +
                     "Authors: Federico Pecora, Anna Mannucci, Franziska Klügl, Ahmed Nouman, Olga Mironenko\n";
-            AlertBox.display("Coordination_ORU", content, Alert.AlertType.INFORMATION);
+            AlertBox.display("About Coordination_ORU Framework", content, Alert.AlertType.INFORMATION);
         });
-
         helpMenu.getItems().addAll(about);
 
         // Add menus to the menu bar
-        menuBar.getMenus().addAll(fileMenu, helpMenu);
+        menuBar.getMenus().addAll(fileMenu, runMenu, helpMenu);
 
         return menuBar;
-    }
-
-    public static void enableNewProject() {
-        newProjectMenuItem.setDisable(false);
     }
 
     public static void disableNewProject() {
         newProjectMenuItem.setDisable(true);
     }
 
-    public static void enableOpenProject() {
-        openProjectMenuItem.setDisable(false);
-    }
-
     public static void disableOpenProject() {
         openProjectMenuItem.setDisable(true);
     }
 
-    public static void enableSaveProject() {
-        saveProjectMenuItem.setDisable(false);
-    }
-
     public static void disableSaveProject() {
         saveProjectMenuItem.setDisable(true);
+    }
+
+    public static void disableCloseProject() {
+        closeProjectMenuItem.setDisable(true);
+    }
+
+    public static void disableRunProject() {
+        runProjectMenuItem.setDisable(true);
     }
 }

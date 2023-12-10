@@ -6,8 +6,8 @@ import javafx.scene.layout.GridPane;
 import java.util.Optional;
 import java.util.Set;
 
-import static se.oru.coordination.coordination_oru.gui.Utils.validateDouble;
 import static se.oru.coordination.coordination_oru.gui.ProjectData.MissionStep;
+import static se.oru.coordination.coordination_oru.gui.Utils.validateDouble;
 
 public class AddMissionDialogBox {
 

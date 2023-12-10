@@ -17,6 +17,7 @@ import org.metacsp.utility.logging.MetaCSPLogging;
 import se.oru.coordination.coordination_oru.Mission;
 import se.oru.coordination.coordination_oru.TrajectoryEnvelopeCoordinator;
 import se.oru.coordination.coordination_oru.motionplanning.AbstractMotionPlanner;
+import se.oru.coordination.coordination_oru.vehicles.AbstractVehicle;
 import se.oru.coordination.coordination_oru.vehicles.AutonomousVehicle;
 import se.oru.coordination.coordination_oru.vehicles.LookAheadVehicle;
 import se.oru.coordination.coordination_oru.vehicles.VehiclesHashMap;
@@ -1335,7 +1336,7 @@ public class Missions {
 		int autonomousRobotCount = 0;
 		int lookAheadRobotCount = 0;
 
-		for (Object robot : VehiclesHashMap.getList().values()) {
+		for (AbstractVehicle robot : VehiclesHashMap.getList().values()) {
 			if (robot instanceof AutonomousVehicle) {
 				autonomousRobotCount++;
 			} else if (robot instanceof LookAheadVehicle) {

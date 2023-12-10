@@ -104,7 +104,7 @@ public class ProductionScenario {
         // Set Heuristics
         var heuristic = new Heuristics();
         tec.addComparator(heuristic.mostDistanceToTravel());
-        String heuristicName = heuristic.getHeuristicName();
+        String heuristicName = heuristic.getName();
 
         // Set Local Re-ordering and Local Re-Planning to break Deadlocks
         tec.setBreakDeadlocks(true, false, false);

@@ -1,10 +1,11 @@
 package se.oru.coordination.coordination_oru.gui;
 
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import org.metacsp.multi.spatioTemporal.paths.Pose;
 
+import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * The ProjectData class is used to manage and store the project's data
@@ -12,7 +13,7 @@ import java.util.Map;
  *
  * @author anm
  */
-public class ProjectData {
+public class ProjectData implements Serializable {
     private String map;
     private List<Vehicle> vehicles;
     private Map<String, Pose> poses;
@@ -110,17 +111,21 @@ public class ProjectData {
         this.vehicles = vehicles;
     }
 
-    public String getPoseName(Pose pose) {
-        for (Map.Entry<String, Pose> entry : poses.entrySet()) {
-            if (entry.getValue().equals(pose)) {
-                return entry.getKey();
-            }
-        }
-        return null;
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        ProjectData that = (ProjectData) o;
+        return Objects.equals(map, that.map) && Objects.equals(vehicles, that.vehicles) && Objects.equals(poses, that.poses);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(map, vehicles, poses);
     }
 
     // Inner class to represent a vehicle
-    public static class Vehicle {
+    public static class Vehicle implements Serializable{
         private static int nextId = 1;
         private final int ID;
         private String name;
@@ -239,15 +244,25 @@ public class ProjectData {
         public void setSafetyDistance(double safetyDistance) {
             this.safetyDistance = safetyDistance;
         }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+            Vehicle vehicle = (Vehicle) o;
+            return ID == vehicle.ID && Double.compare(lookAheadDistance, vehicle.lookAheadDistance) == 0 && Double.compare(maxVelocity, vehicle.maxVelocity) == 0 && Double.compare(maxAcceleration, vehicle.maxAcceleration) == 0 && Double.compare(length, vehicle.length) == 0 && Double.compare(width, vehicle.width) == 0 && missionRepetition == vehicle.missionRepetition && Double.compare(safetyDistance, vehicle.safetyDistance) == 0 && Objects.equals(name, vehicle.name) && Objects.equals(type, vehicle.type) && Objects.equals(color, vehicle.color) && Objects.equals(initialPose, vehicle.initialPose) && Objects.equals(mission, vehicle.mission);
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(ID, name, type, lookAheadDistance, color, maxVelocity, maxAcceleration, length, width, initialPose, mission, missionRepetition, safetyDistance);
+        }
     }
 
     // Inner class to represent a mission step
-    public static class MissionStep {
+    public static class MissionStep implements Serializable{
         private String poseName;
         private double duration; // in minutes
-
-        public MissionStep() {
-        }
 
         public String getPoseName() {
             return poseName;
@@ -268,6 +283,19 @@ public class ProjectData {
         @Override
         public String toString() {
             return "(" + poseName + ", " + duration + ")";
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+            MissionStep that = (MissionStep) o;
+            return Double.compare(duration, that.duration) == 0 && Objects.equals(poseName, that.poseName);
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(poseName, duration);
         }
     }
 }
