@@ -33,8 +33,8 @@ public abstract class AbstractVehicle {
     private final int ID;
     private final int priorityID;
     private final String type = this.getClass().getSimpleName();
-    private final double maxVelocity;
-    private final double maxAcceleration;
+    private double maxVelocity;
+    private double maxAcceleration;
     private final double xLength;
     private final double yLength;
     private final Coordinate[] footprint;
@@ -59,7 +59,6 @@ public abstract class AbstractVehicle {
     private static final String dateString = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
     private static final String rundirCurrent = rundirsRoot + "/current";
     public static String scenarioId;
-
     /**
      * Constructs an AbstractRobot object with the specified parameters.
      * It initializes the robot's ID, priorityID, color, maxVelocity, maxAcceleration, and footprint.
@@ -328,5 +327,13 @@ public abstract class AbstractVehicle {
 
     public Color getColor() {
         return color;
+    }
+
+    public void setMaxVelocity(double maxVelocity) {
+        this.maxVelocity = maxVelocity;
+    }
+
+    public void setMaxAcceleration(double maxAcceleration) {
+        this.maxAcceleration = maxAcceleration;
     }
 }

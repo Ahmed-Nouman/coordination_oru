@@ -21,7 +21,9 @@ public class TwoAutonomousRobots {
         final Pose[] autonomousRobotGoal2 = {mainTunnelRight};
 
         var autonomousRobot1 = new AutonomousVehicle();
+        autonomousRobot1.setMaxVelocity(5.0);
         var autonomousRobot2 = new AutonomousVehicle();
+        autonomousRobot2.setMaxVelocity(1.0);
         autonomousRobot1.getPlan(drawPoint21, autonomousRobotGoal1, YAML_FILE, true);
         autonomousRobot2.getPlan(mainTunnelLeft, autonomousRobotGoal1, YAML_FILE, true);
 
