@@ -13,8 +13,8 @@ import org.metacsp.multi.spatioTemporal.paths.PoseSteering;
 import se.oru.coordination.coordination_oru.motionplanning.AbstractMotionPlanner;
 import se.oru.coordination.coordination_oru.motionplanning.OccupancyMap;
 import se.oru.coordination.coordination_oru.motionplanning.ompl.ReedsSheppCarPlannerLib.PathPose;
-import se.oru.coordination.coordination_oru.util.GeometrySmoother;
-import se.oru.coordination.coordination_oru.util.GeometrySmoother.SmootherControl;
+import se.oru.coordination.coordination_oru.utils.GeometrySmoother;
+import se.oru.coordination.coordination_oru.utils.GeometrySmoother.SmootherControl;
 
 import java.util.ArrayList;
 

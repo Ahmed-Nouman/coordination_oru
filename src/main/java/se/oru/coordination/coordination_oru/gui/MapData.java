@@ -1,5 +1,6 @@
 package se.oru.coordination.coordination_oru.gui;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class MapData {

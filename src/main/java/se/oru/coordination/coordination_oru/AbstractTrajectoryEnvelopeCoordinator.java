@@ -17,8 +17,8 @@ import org.metacsp.time.Bounds;
 import org.metacsp.utility.UI.Callback;
 import org.metacsp.utility.logging.MetaCSPLogging;
 import se.oru.coordination.coordination_oru.motionplanning.AbstractMotionPlanner;
-import se.oru.coordination.coordination_oru.util.FleetVisualization;
-import se.oru.coordination.coordination_oru.util.StringUtils;
+import se.oru.coordination.coordination_oru.utils.FleetVisualization;
+import se.oru.coordination.coordination_oru.utils.StringUtils;
 
 import javax.swing.*;
 import java.io.File;

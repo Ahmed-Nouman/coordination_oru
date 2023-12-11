@@ -6,9 +6,6 @@ import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.image.ImageView;
-import javafx.scene.input.KeyCode;
-import javafx.scene.input.KeyCodeCombination;
-import javafx.scene.input.KeyCombination;
 import javafx.scene.layout.*;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
@@ -20,12 +17,10 @@ import se.oru.coordination.coordination_oru.ConstantAccelerationForwardModel;
 import se.oru.coordination.coordination_oru.Mission;
 import se.oru.coordination.coordination_oru.gui.ProjectData.MissionStep;
 import se.oru.coordination.coordination_oru.gui.ProjectData.Vehicle;
-import se.oru.coordination.coordination_oru.motionplanning.OccupancyMap;
 import se.oru.coordination.coordination_oru.simulation2D.TrajectoryEnvelopeCoordinatorSimulation;
-import se.oru.coordination.coordination_oru.util.Heuristics;
-import se.oru.coordination.coordination_oru.util.JTSDrawingPanelVisualization;
-import se.oru.coordination.coordination_oru.util.MapInspector;
-import se.oru.coordination.coordination_oru.util.Missions;
+import se.oru.coordination.coordination_oru.utils.Heuristics;
+import se.oru.coordination.coordination_oru.utils.JTSDrawingPanelVisualization;
+import se.oru.coordination.coordination_oru.utils.Missions;
 import se.oru.coordination.coordination_oru.vehicles.AbstractVehicle;
 import se.oru.coordination.coordination_oru.vehicles.AutonomousVehicle;
 import se.oru.coordination.coordination_oru.vehicles.LookAheadVehicle;
@@ -43,8 +38,8 @@ import static se.oru.coordination.coordination_oru.gui.Utils.*;
 public class GUI extends Application {
 
     protected Stage primaryStage;
-    private final Separator separator = new Separator();
-    private final Label pathLabel = new Label("");
+    private final Separator separator = new Separator(); //FIXME: Maybe remove as a field
+    private final Text filePathText = new Text(""); // FIXME: Maybe remove as a field
     protected Boolean isNewProject = false;
     protected Boolean isProjectScene = false;
     protected Boolean isMapScene = false;
@@ -141,6 +136,7 @@ public class GUI extends Application {
     private Scene displayProjectScene() {
 
         BorderPane borderPane = new BorderPane();
+        borderPane.setPrefWidth(400);
         separator.setVisible(false);
         nextButton.setVisible(false);
 
@@ -155,23 +151,23 @@ public class GUI extends Application {
         centerPane.setSpacing(40);
         centerPane.setPadding(new Insets(40, 40, 40, 40));
 
-        Label welcomeMessage = new Label("Welcome to Coordination_ORU!");
-        welcomeMessage.setFont(Font.font("System", FontWeight.SEMI_BOLD, 16));
-        welcomeMessage.setAlignment(Pos.CENTER);
+        Label welcomeMessageLabel = new Label("Welcome to Coordination_ORU!");
+        welcomeMessageLabel.setFont(Font.font("System", FontWeight.SEMI_BOLD, 16));
+        welcomeMessageLabel.setAlignment(Pos.CENTER);
 
         // Center - Button Pane
-        HBox buttonPane = new HBox();
-        buttonPane.setSpacing(40);
+        HBox projectButtonaPane = new HBox();
+        projectButtonaPane.setSpacing(40);
         Button newProjectButton = new Button("New Project");
         Button openProjectButton = new Button("Open Project");
-        buttonPane.getChildren().addAll(newProjectButton, openProjectButton);
-        buttonPane.setAlignment(Pos.CENTER);
+        projectButtonaPane.getChildren().addAll(newProjectButton, openProjectButton);
+        projectButtonaPane.setAlignment(Pos.CENTER);
 
-        centerPane.getChildren().addAll(welcomeMessage, buttonPane, pathLabel);
+        centerPane.getChildren().addAll(welcomeMessageLabel, projectButtonaPane, filePathText);
         centerPane.setAlignment(Pos.CENTER);
 
         // Set VBox children to grow equally
-        VBox.setVgrow(buttonPane, Priority.ALWAYS);
+        VBox.setVgrow(projectButtonaPane, Priority.ALWAYS);
 
         borderPane.setCenter(centerPane);
         BorderPane.setAlignment(centerPane, Pos.CENTER);
@@ -182,13 +178,13 @@ public class GUI extends Application {
 
         // Bottom Pane - Navigation Buttons
         borderPane.setBottom(BottomPane.getBottomPane(separator, nextButton));
-        borderPane.setPrefWidth(400);
         return new Scene(borderPane);
     }
 
     private Scene displayMapScene() {
 
         BorderPane borderPane = new BorderPane();
+        borderPane.setPrefWidth(400);
 
         // Top Pane - Menu Bar
         borderPane.setTop(GUIMenuBar.getMenuBar(this));
@@ -197,45 +193,45 @@ public class GUI extends Application {
         GUIMenuBar.disableSaveProject();
         GUIMenuBar.disableRunProject();
 
-        VBox centerPane = new VBox();
-
         // Center Pane
+        var centerPane = new VBox();
+        centerPane.setAlignment(Pos.CENTER);
+        borderPane.setCenter(centerPane);
+        centerPane.setSpacing(30);
+        centerPane.setPadding(new Insets(10, 10, 10, 10));
+        BorderPane.setMargin(centerPane, new Insets(20, 0, 20, 0));
+
         if (isNewProject) {
-            Text mapMessage = new Text("Please select a map: ");
-            Button browseMapButton = new Button("Browse...");
-            browseMapButton.setOnAction(e -> {
+            nextButton.setDisable(true);
+            Text mapMessageText = new Text("Select a map to load: ");
+            Button mapBrowseButton = new Button("Browse...");
+            Text mapSelectedText = new Text("");
+            mapSelectedText.setVisible(false);
+            centerPane.getChildren().addAll(mapMessageText, mapBrowseButton, mapSelectedText);
+
+            // Set action for browsing a map
+            mapBrowseButton.setOnAction(e -> {
                 File file = chooseFile(this, "Select a map file to open: ", "yaml");
-
-                OccupancyMap om = new OccupancyMap(file.getAbsolutePath());
-
-                // Create an instance of MapInspector and pass the OccupancyMap to it
-                MapInspector mapInspector = new MapInspector(om);
-
-//                if (file != null) {
-//                    projectData.setMap(file.getAbsolutePath());
-//                    mapData = parseYAML(projectData.getMap());
-//                    ImageView imageView = getImageView(this);
-//                    centerPane.getChildren().add(imageView);
-//                }
+                if (file != null) {
+                    mapSelectedText.setText("Map selected: " + file.getAbsolutePath());
+                    mapSelectedText.setVisible(true);
+                    projectData.setMap(file.getAbsolutePath());
+                    mapData = parseYAML(projectData.getMap());
+                    String title = "Selecting the key locations on the loaded map";
+                    String content = "The map has been loaded successfully!\n\n" +
+                            "A new window with the loaded map will now open, and you must select at least two locations on the loaded map.\n\n" +
+                            "You can select a point by hovering the mouse over the location and pressing the 'c' key.\n\n" +
+                            "You can close the window once you have selected all the key location needed.\n";
+                    AlertBox.display(title, content, Alert.AlertType.INFORMATION);
+                    new MapInteract(projectData.getMap(), projectData, nextButton);
+                }
             });
-            centerPane.getChildren().addAll(mapMessage, browseMapButton);
-            // TODO: Add a map preview
 
-//        mapData = yamlParser.parse(projectData.getMap());
-//        ImageView imageView = getImageView(this);
-
-//        centerPane.getChildren().add(imageView);
-
-        }
-        else {
+        } else {
             mapData = parseYAML(projectData.getMap());
             ImageView imageView = getImageView(this);
             centerPane.getChildren().add(imageView);
         }
-//        centerPane.setAlignment(Pos.CENTER);
-//        centerPane.setSpacing(10);
-//        centerPane.setPadding(new Insets(10, 10, 10, 10)); TODO
-        borderPane.setCenter(centerPane);
 
         // Bottom Pane - Navigation Buttons
         borderPane.setBottom(BottomPane.getBottomPane(separator, backButton, nextButton));
@@ -753,7 +749,7 @@ public class GUI extends Application {
         vehicleListView.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
             if (newValue != null) {
                 // Get the selected vehicle's details
-                ProjectData.Vehicle vehicle = projectData.getVehicle(projectData.getVehicleID(newValue, projectData.getVehicles()));
+                Vehicle vehicle = projectData.getVehicle(projectData.getVehicleID(newValue, projectData.getVehicles()));
 
                 // Update the fields in the centerPane with the details of the selected vehicle
                 nameTextField.setText(newValue);
@@ -941,7 +937,9 @@ public class GUI extends Application {
         File selectedFile = createFile(this, "newProject", "json");
         if (selectedFile != null) {
             projectFile = selectedFile.getAbsolutePath();
-            pathLabel.setText("Name of Project: " + selectedFile.getName());
+            filePathText.setText("Name of Project: " + selectedFile.getName());
+            projectData = new ProjectData();
+            mapData = new MapData();
             isNewProject = true;
             separator.setVisible(true);
             nextButton.setVisible(true);
@@ -950,7 +948,7 @@ public class GUI extends Application {
             try (FileWriter fileWriter = new FileWriter(selectedFile)) {
                 fileWriter.write("{}");
             } catch (IOException ex) {
-                pathLabel.setText("Error: Could not save the file.");
+                filePathText.setText("Error: Could not save the file.");
             }
         }
     }
@@ -960,7 +958,7 @@ public class GUI extends Application {
         File file = chooseFile(this, "Select a project file to open: ", "json");
         if (file != null) {
             projectFile = file.getAbsolutePath();
-            pathLabel.setText("Name of Project: " + file.getName());
+            filePathText.setText("Name of Project: " + file.getName());
             isNewProject = false;
             separator.setVisible(true);
             nextButton.setVisible(true);
@@ -1019,7 +1017,7 @@ public class GUI extends Application {
         // Set up a simple GUI (null means an empty map, otherwise provide yaml file)
         var viz = new JTSDrawingPanelVisualization(); // FIXME Fix Visualization zooming, arrow direction, show consistent area, check maybe use BrowserVisualization, RVizVisualization
         viz.setMap(YAML_FILE);
-        viz.setSize(1920, 1200);
+//        viz.setSize(1920, 1200);
         tec.setVisualization(viz);
 
         projectData.getVehicles().forEach((vehicle) -> {
@@ -1072,15 +1070,14 @@ public class GUI extends Application {
         stage.setTitle("Coordination_ORU");
         stage.setScene(displayProjectScene());
         stage.centerOnScreen();
-        projectData = null;
-        mapData = null;
+        projectData = new ProjectData();
+        mapData = new MapData();
         isNewProject = false;
         isProjectScene = true;
         isMapScene = false;
         isVehicleScene = false;
         isSimulationScene = false;
         projectFile = "";
-        pathLabel.setText("");
         vehicleListView.getItems().clear();
     }
 

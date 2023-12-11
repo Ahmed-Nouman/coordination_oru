@@ -39,7 +39,7 @@ extern "C" bool plan_multiple_circles(uint8_t* occupancyMap, int mapWidth, int m
   int numInterpolationPoints = 0;
   ob::StateSpacePtr space(new ob::ReedsSheppStateSpace(turningRadius));
 
-  std::cout << "Using " << mapWidth << "x" << mapHeight << " occupancy map for validity checking (values < 0 are not free)" << std::endl;
+  std::cout << "Using " << mapWidth << " x " << mapHeight << " occupancy map for validity checking (values < 0 are not free)" << std::endl;
   
   ob::ScopedState<> start(space), goal(space);
   ob::RealVectorBounds bounds(2);
@@ -49,7 +49,7 @@ extern "C" bool plan_multiple_circles(uint8_t* occupancyMap, int mapWidth, int m
   bounds.high[1] = mapOriginY+mapHeight*mapResolution;
 	  
   space->as<ob::SE2StateSpace>()->setBounds(bounds);
-  std::cout << "Bounds are [(" << bounds.low[0] << "," << bounds.low[1] << "),(" << bounds.high[0] << "," << bounds.high[1] << ")]" << std::endl;
+  std::cout << "Bounds are [(" << bounds.low[0] << ", " << bounds.low[1] << "), (" << bounds.high[0] << ", " << bounds.high[1] << ")]" << std::endl;
 
   // define a simple setup class
   og::SimpleSetup ss(space);
@@ -63,11 +63,11 @@ extern "C" bool plan_multiple_circles(uint8_t* occupancyMap, int mapWidth, int m
   statePtrS->as<ompl::base::SE2StateSpace::StateType>()->setX(startX);
   statePtrS->as<ompl::base::SE2StateSpace::StateType>()->setY(startY);
   statePtrS->as<ompl::base::SE2StateSpace::StateType>()->setYaw(startTheta);
-  std::cout << "Checking start pose (" << startX << "," << startY << "," << startTheta << ")" << std::endl;
+  std::cout << "Checking start pose (" << startX << ", " << startY << ", " << startTheta << ")" << std::endl;
   bool isStartValid = si->getStateValidityChecker()->isValid(statePtrS);
   space->freeState(statePtrS);
   if (!isStartValid) {
-    std::cout << "Invalid start pose (" << startX << "," << startY << "," << startTheta << ") since pixel(s) around (" << (startX-mapOriginX)/mapResolution << "," << (mapHeight-(startY-mapOriginY)/mapResolution) << ") are occupied" << std::endl;
+    std::cout << "Invalid start pose (" << startX << ", " << startY << ", " << startTheta << ") since pixel(s) around (" << (startX-mapOriginX)/mapResolution << ", " << (mapHeight-(startY-mapOriginY)/mapResolution) << ") are occupied" << std::endl;
     return false;
   }
   
@@ -77,11 +77,11 @@ extern "C" bool plan_multiple_circles(uint8_t* occupancyMap, int mapWidth, int m
   statePtrG->as<ompl::base::SE2StateSpace::StateType>()->setX(goalX);
   statePtrG->as<ompl::base::SE2StateSpace::StateType>()->setY(goalY);
   statePtrG->as<ompl::base::SE2StateSpace::StateType>()->setYaw(goalTheta);
-  std::cout << "Checking goal pose (" << goalX << "," << goalY << "," << goalTheta << ")" << std::endl;
+  std::cout << "Checking goal pose (" << goalX << ", " << goalY << ", " << goalTheta << ")" << std::endl;
   bool isGoalValid = si->getStateValidityChecker()->isValid(statePtrG);
   space->freeState(statePtrG);
   if (!isGoalValid) {
-    std::cout << "Invalid goal pose (" << goalX << "," << goalY << "," << goalTheta << ") since pixel(s) around (" << (goalX-mapOriginX)/mapResolution << "," << (mapHeight-(goalY-mapOriginY)/mapResolution) << ") are occupied" << std::endl;
+    std::cout << "Invalid goal pose (" << goalX << ", " << goalY << ", " << goalTheta << ") since pixel(s) around (" << (goalX-mapOriginX)/mapResolution << ", " << (mapHeight-(goalY-mapOriginY)/mapResolution) << ") are occupied" << std::endl;
     return false;
   }
     

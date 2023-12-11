@@ -4,7 +4,7 @@ import org.metacsp.multi.spatioTemporal.paths.Pose;
 import se.oru.coordination.coordination_oru.ConstantAccelerationForwardModel;
 import se.oru.coordination.coordination_oru.Mission;
 import se.oru.coordination.coordination_oru.simulation2D.TrajectoryEnvelopeCoordinatorSimulation;
-import se.oru.coordination.coordination_oru.util.*;
+import se.oru.coordination.coordination_oru.utils.*;
 import se.oru.coordination.coordination_oru.vehicles.AutonomousVehicle;
 import se.oru.coordination.coordination_oru.vehicles.LookAheadVehicle;
 
@@ -27,7 +27,7 @@ public class PaperScenario_6A1L {
         boolean visualization = true;
         boolean writeVehicleReports = true;
 
-        // Everything including velocity, acceleration, lookahead, length and width is scaled by 0.1
+        // Everything including velocity, acceleration, lookahead, length and width should be scaled
         final double MAX_VELOCITY = 10.0 / scaleAdjustment;
         final double MAX_ACCELERATION = 1.0 / scaleAdjustment;
         final int TRACKING_PERIOD = 30;

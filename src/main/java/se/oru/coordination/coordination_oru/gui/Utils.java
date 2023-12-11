@@ -168,7 +168,7 @@ public class Utils {
         posesNode.fields().forEachRemaining(entry -> {
             Pose pose = new Pose(entry.getValue().path("x").asDouble(),
                                  entry.getValue().path("y").asDouble(),
-                                 entry.getValue().path("angle").asDouble());
+                                 entry.getValue().path("theta").asDouble());
             posesMap.put(entry.getKey(), pose);
         });
 

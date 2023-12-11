@@ -63,11 +63,11 @@ extern "C" bool plan_multiple_circles(uint8_t* occupancyMap, int mapWidth, int m
   statePtrS->as<ompl::base::SE2StateSpace::StateType>()->setX(startX);
   statePtrS->as<ompl::base::SE2StateSpace::StateType>()->setY(startY);
   statePtrS->as<ompl::base::SE2StateSpace::StateType>()->setYaw(startTheta);
-  std::cout << "Checking start pose (" << startX << "," << startY << "," << startTheta << ")" << std::endl;
+  std::cout << "Checking start pose (" << startX << ", " << startY << ", " << startTheta << ")" << std::endl;
   bool isStartValid = si->getStateValidityChecker()->isValid(statePtrS);
   space->freeState(statePtrS);
   if (!isStartValid) {
-    std::cout << "Invalid start pose (" << startX << "," << startY << "," << startTheta << ") since pixel(s) around (" << (startX-mapOriginX)/mapResolution << "," << (mapHeight-(startY-mapOriginY)/mapResolution) << ") are occupied" << std::endl;
+    std::cout << "Invalid start pose (" << startX << ", " << startY << ", " << startTheta << ") since pixel(s) around (" << (startX-mapOriginX)/mapResolution << ", " << (mapHeight-(startY-mapOriginY)/mapResolution) << ") are occupied" << std::endl;
     return false;
   }
   
@@ -77,11 +77,11 @@ extern "C" bool plan_multiple_circles(uint8_t* occupancyMap, int mapWidth, int m
   statePtrG->as<ompl::base::SE2StateSpace::StateType>()->setX(goalX);
   statePtrG->as<ompl::base::SE2StateSpace::StateType>()->setY(goalY);
   statePtrG->as<ompl::base::SE2StateSpace::StateType>()->setYaw(goalTheta);
-  std::cout << "Checking goal pose (" << goalX << "," << goalY << "," << goalTheta << ")" << std::endl;
+  std::cout << "Checking goal pose (" << goalX << ", " << goalY << ", " << goalTheta << ")" << std::endl;
   bool isGoalValid = si->getStateValidityChecker()->isValid(statePtrG);
   space->freeState(statePtrG);
   if (!isGoalValid) {
-    std::cout << "Invalid goal pose (" << goalX << "," << goalY << "," << goalTheta << ") since pixel(s) around (" << (goalX-mapOriginX)/mapResolution << "," << (mapHeight-(goalY-mapOriginY)/mapResolution) << ") are occupied" << std::endl;
+    std::cout << "Invalid goal pose (" << goalX << ", " << goalY << ", " << goalTheta << ") since pixel(s) around (" << (goalX-mapOriginX)/mapResolution << ", " << (mapHeight-(goalY-mapOriginY)/mapResolution) << ") are occupied" << std::endl;
     return false;
   }
     

@@ -3,9 +3,7 @@ package se.oru.coordination.coordination_oru.gui;
 import org.metacsp.multi.spatioTemporal.paths.Pose;
 
 import java.io.Serializable;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 
 /**
  * The ProjectData class is used to manage and store the project's data
@@ -15,8 +13,8 @@ import java.util.Objects;
  */
 public class ProjectData implements Serializable {
     private String map;
-    private List<Vehicle> vehicles;
-    private Map<String, Pose> poses;
+    private List<Vehicle> vehicles = new ArrayList<>();
+    private Map<String, Pose> poses = new HashMap<>();
 
     /**
      * Gets the map.
@@ -122,6 +120,10 @@ public class ProjectData implements Serializable {
     @Override
     public int hashCode() {
         return Objects.hash(map, vehicles, poses);
+    }
+
+    public void addPose(String poseName, Pose pose) {
+        poses.put(poseName, pose);
     }
 
     // Inner class to represent a vehicle

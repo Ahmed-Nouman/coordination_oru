@@ -63,10 +63,11 @@ public class GUIMenuBar {
         MenuItem about = new MenuItem("About...");
         about.setAccelerator(new KeyCodeCombination(KeyCode.A, KeyCodeCombination.CONTROL_DOWN));
         about.setOnAction(e -> {
+            String title = "About Coordination_ORU Framework";
             String content = "A Framework for Multi-Agents Motion Planning, Coordination and Control.\n\n" +
                     "Copyright: © 2017-" + Year.now() + "\n\n" +
                     "Authors: Federico Pecora, Anna Mannucci, Franziska Klügl, Ahmed Nouman, Olga Mironenko\n";
-            AlertBox.display("About Coordination_ORU Framework", content, Alert.AlertType.INFORMATION);
+            AlertBox.display(title, content, Alert.AlertType.INFORMATION);
         });
         helpMenu.getItems().addAll(about);
 

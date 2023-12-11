@@ -1,14 +1,12 @@
 package se.oru.coordination.coordination_oru.vehicles;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.JsonSubTypes;
-import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.vividsolutions.jts.geom.Coordinate;
 import org.apache.commons.lang.ArrayUtils;
 import org.metacsp.multi.spatioTemporal.paths.Pose;
 import org.metacsp.multi.spatioTemporal.paths.PoseSteering;
 import se.oru.coordination.coordination_oru.Mission;
 import se.oru.coordination.coordination_oru.motionplanning.ompl.ReedsSheppCarPlanner;
+import se.oru.coordination.coordination_oru.utils.Round;
 
 import java.awt.*;
 import java.util.Arrays;
@@ -33,12 +31,6 @@ import java.util.Arrays;
  * @author anm
  */
 
-@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "type")
-@JsonSubTypes({
-        @JsonSubTypes.Type(value = AutonomousVehicle.class, name = "Autonomous"),
-        @JsonSubTypes.Type(value = LookAheadVehicle.class, name = "Human"),
-})
-@JsonIgnoreProperties(ignoreUnknown = true)
 public abstract class AbstractVehicle {
     public static int vehicleNumber = 1;
     private int ID;
@@ -215,9 +207,6 @@ public abstract class AbstractVehicle {
 //        return planSegmentsMap;
 //    }
 
-    protected static double round(double value) {
-        return Math.round(value * 10.0) / 10.0;
-    }
     public int getID() {
         return ID;
     }
@@ -314,7 +303,7 @@ public abstract class AbstractVehicle {
             double deltaS = path[i].getPose().distanceTo(path[i + 1].getPose());
             pathLength += deltaS;
         }
-        pathLength = round(pathLength * 10.0) / 10.0;
+        pathLength = Round.round(pathLength, 2);
         VehiclesHashMap.getVehicle(this.getID()).pathLength = pathLength;
     }
 

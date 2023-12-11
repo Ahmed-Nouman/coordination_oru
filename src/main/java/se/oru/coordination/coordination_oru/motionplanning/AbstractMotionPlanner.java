@@ -7,7 +7,7 @@ import com.vividsolutions.jts.geom.util.AffineTransformation;
 import org.metacsp.multi.spatioTemporal.paths.Pose;
 import org.metacsp.multi.spatioTemporal.paths.PoseSteering;
 import org.metacsp.utility.logging.MetaCSPLogging;
-import se.oru.coordination.coordination_oru.util.Missions;
+import se.oru.coordination.coordination_oru.utils.Missions;
 
 import java.io.File;
 import java.util.ArrayList;

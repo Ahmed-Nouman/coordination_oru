@@ -1,7 +1,7 @@
 package se.oru.coordination.coordination_oru;
 
 import org.metacsp.multi.spatioTemporal.paths.TrajectoryEnvelope;
-import se.oru.coordination.coordination_oru.util.FleetVisualization;
+import se.oru.coordination.coordination_oru.utils.FleetVisualization;
 
 /**
  * Implement this class to provide a callback to pass on to an {@link AbstractTrajectoryEnvelopeTracker} which

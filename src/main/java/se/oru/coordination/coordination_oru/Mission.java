@@ -3,7 +3,7 @@ package se.oru.coordination.coordination_oru;
 import javafx.util.Pair;
 import org.metacsp.multi.spatioTemporal.paths.Pose;
 import org.metacsp.multi.spatioTemporal.paths.PoseSteering;
-import se.oru.coordination.coordination_oru.util.Missions;
+import se.oru.coordination.coordination_oru.utils.Missions;
 
 import java.util.ArrayList;
 import java.util.HashMap;
