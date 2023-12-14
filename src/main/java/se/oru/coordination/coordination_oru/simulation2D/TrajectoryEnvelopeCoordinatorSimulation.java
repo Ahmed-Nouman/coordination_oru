@@ -374,9 +374,9 @@ public class TrajectoryEnvelopeCoordinatorSimulation extends TrajectoryEnvelopeC
 								AbstractTrajectoryEnvelopeTracker tracker1, tracker2;
 								try {
 									synchronized (trackers)	{
-										tracker1 = trackers.get(cs.getTe1().getRobotID());
+										tracker1 = trackers.get(cs.getTrajectoryEnvelope1().getRobotID());
 										robotReport1 = tracker1.getRobotReport();
-										tracker2 = trackers.get(cs.getTe2().getRobotID());
+										tracker2 = trackers.get(cs.getTrajectoryEnvelope2().getRobotID());
 										robotReport2 = tracker2.getRobotReport();
 									}
 								}
@@ -385,15 +385,15 @@ public class TrajectoryEnvelopeCoordinatorSimulation extends TrajectoryEnvelopeC
 								}
 								
 								if ( robotReport1 != null && robotReport2 != null &&
-								(robotReport1.getPathIndex() <= cs.getTe1End()) && (robotReport1.getPathIndex() >= cs.getTe1Start()) && //robot1 is inside
-								(robotReport2.getPathIndex() <= cs.getTe2End()) && (robotReport2.getPathIndex() >= cs.getTe2Start())  	//robot2 is inside
+								(robotReport1.getPathIndex() <= cs.getTrajectoryEnvelopeEnd1()) && (robotReport1.getPathIndex() >= cs.getTrajectoryEnvelopeStart1()) && //robot1 is inside
+								(robotReport2.getPathIndex() <= cs.getTrajectoryEnvelopeEnd2()) && (robotReport2.getPathIndex() >= cs.getTrajectoryEnvelopeStart2())  	//robot2 is inside
 								) {
 									//place robot  in pose and get geometry
-									PoseSteering[] path1 = cs.getTe1().getTrajectory().getPoseSteering();
-									Geometry placement1 = cs.getTe1().makeFootprint(path1[robotReport1.getPathIndex()]);
+									PoseSteering[] path1 = cs.getTrajectoryEnvelope1().getTrajectory().getPoseSteering();
+									Geometry placement1 = cs.getTrajectoryEnvelope1().makeFootprint(path1[robotReport1.getPathIndex()]);
 									
-									PoseSteering[] path2 = cs.getTe2().getTrajectory().getPoseSteering();
-									Geometry placement2 = cs.getTe2().makeFootprint(path2[robotReport2.getPathIndex()]);
+									PoseSteering[] path2 = cs.getTrajectoryEnvelope2().getTrajectory().getPoseSteering();
+									Geometry placement2 = cs.getTrajectoryEnvelope2().makeFootprint(path2[robotReport2.getPathIndex()]);
 									
 									//check intersection
 									if (placement1.intersects(placement2)) {

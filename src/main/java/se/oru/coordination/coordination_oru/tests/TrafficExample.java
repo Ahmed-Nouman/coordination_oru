@@ -71,7 +71,7 @@ public class TrafficExample {
 				CriticalSection cs = o1.getCriticalSection();
 				RobotReport robotReport1 = o1.getRobotReport();
 				RobotReport robotReport2 = o2.getRobotReport();
-				return ((cs.getTe1Start()-robotReport1.getPathIndex())-(cs.getTe2Start()-robotReport2.getPathIndex()));
+				return ((cs.getTrajectoryEnvelopeStart1()-robotReport1.getPathIndex())-(cs.getTrajectoryEnvelopeStart2()-robotReport2.getPathIndex()));
 			}
 		});
 

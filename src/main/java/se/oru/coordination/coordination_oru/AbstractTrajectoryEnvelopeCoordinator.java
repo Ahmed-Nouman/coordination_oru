@@ -760,21 +760,21 @@ public abstract class AbstractTrajectoryEnvelopeCoordinator {
 		int yieldingRobotEnd = -1;
 		TrajectoryEnvelope leadingRobotTE = null;
 		TrajectoryEnvelope yieldingRobotTE = null;
-		if (cs.getTe1().getRobotID() == yieldingRobotID) {
-			leadingRobotStart = cs.getTe2Start();
-			yieldingRobotStart = cs.getTe1Start();
-			leadingRobotEnd = cs.getTe2End();
-			yieldingRobotEnd = cs.getTe1End();
-			leadingRobotTE = cs.getTe2();
-			yieldingRobotTE = cs.getTe1();
+		if (cs.getTrajectoryEnvelope1().getRobotID() == yieldingRobotID) {
+			leadingRobotStart = cs.getTrajectoryEnvelopeStart2();
+			yieldingRobotStart = cs.getTrajectoryEnvelopeStart1();
+			leadingRobotEnd = cs.getTrajectoryEnvelopeEnd2();
+			yieldingRobotEnd = cs.getTrajectoryEnvelopeEnd1();
+			leadingRobotTE = cs.getTrajectoryEnvelope2();
+			yieldingRobotTE = cs.getTrajectoryEnvelope1();
 		}
 		else {
-			leadingRobotStart = cs.getTe1Start();
-			yieldingRobotStart = cs.getTe2Start();
-			leadingRobotEnd = cs.getTe1End();
-			yieldingRobotEnd = cs.getTe2End();
-			leadingRobotTE = cs.getTe1();
-			yieldingRobotTE = cs.getTe2();
+			leadingRobotStart = cs.getTrajectoryEnvelopeStart1();
+			yieldingRobotStart = cs.getTrajectoryEnvelopeStart2();
+			leadingRobotEnd = cs.getTrajectoryEnvelopeEnd1();
+			yieldingRobotEnd = cs.getTrajectoryEnvelopeEnd2();
+			leadingRobotTE = cs.getTrajectoryEnvelope1();
+			yieldingRobotTE = cs.getTrajectoryEnvelope2();
 		}
 
 		if (leadingRobotCurrentPathIndex < leadingRobotStart) {
@@ -1256,10 +1256,10 @@ public abstract class AbstractTrajectoryEnvelopeCoordinator {
 				te1Ends.clear();
 				te2Ends.clear();
 				for (CriticalSection cs : cssOneIntersectionPiece) {
-					te1Starts.add(cs.getTe1Start());
-					te2Starts.add(cs.getTe2Start());
-					te1Ends.add(cs.getTe1End());
-					te2Ends.add(cs.getTe2End());
+					te1Starts.add(cs.getTrajectoryEnvelopeStart1());
+					te2Starts.add(cs.getTrajectoryEnvelopeStart2());
+					te1Ends.add(cs.getTrajectoryEnvelopeEnd1());
+					te2Ends.add(cs.getTrajectoryEnvelopeEnd2());
 				}
 
 
@@ -1284,7 +1284,7 @@ public abstract class AbstractTrajectoryEnvelopeCoordinator {
 					metaCSPLogger.info("   Original : " + cssOneIntersectionPiece);
 					CriticalSection oldCSFirst = cssOneIntersectionPiece.get(0);
 					CriticalSection oldCSLast = cssOneIntersectionPiece.get(cssOneIntersectionPiece.size()-1);
-					CriticalSection newCS = new CriticalSection(te1, te2, oldCSFirst.getTe1Start(), oldCSFirst.getTe2Start(), oldCSLast.getTe1End(), oldCSLast.getTe2End());
+					CriticalSection newCS = new CriticalSection(te1, te2, oldCSFirst.getTrajectoryEnvelopeStart1(), oldCSFirst.getTrajectoryEnvelopeStart2(), oldCSLast.getTrajectoryEnvelopeEnd1(), oldCSLast.getTrajectoryEnvelopeEnd2());
 					cssOneIntersectionPiece.clear();
 					cssOneIntersectionPiece.add(newCS);
 					metaCSPLogger.info("   Refined  : " + cssOneIntersectionPiece);
@@ -1326,16 +1326,16 @@ public abstract class AbstractTrajectoryEnvelopeCoordinator {
 			ArrayList<CriticalSection> toRemove = new ArrayList<CriticalSection>();
 			//Clear the critical sections for which we have stored a dependency ...
 			for (CriticalSection cs : CSToDepsOrder.keySet()) {
-				if (cs.getTe1().getRobotID() == robotID || cs.getTe2().getRobotID() == robotID) toRemove.add(cs);
+				if (cs.getTrajectoryEnvelope1().getRobotID() == robotID || cs.getTrajectoryEnvelope2().getRobotID() == robotID) toRemove.add(cs);
 			}
 			//... and all the critical sections which are currently alive.
 			for (CriticalSection cs : allCriticalSections) {
-				if ((cs.getTe1().getRobotID() == robotID || cs.getTe2().getRobotID() == robotID) && !toRemove.contains(cs)) {
+				if ((cs.getTrajectoryEnvelope1().getRobotID() == robotID || cs.getTrajectoryEnvelope2().getRobotID() == robotID) && !toRemove.contains(cs)) {
 					metaCSPLogger.severe("<<<<<<<< WARNING: Cleaning up a critical section which was not associated to a dependency: " + cs + ".");
 					toRemove.add(cs);
 					//increment the counter
-					if (cs.getTe1().getRobotID() == robotID && (cs.getTe1Start() <= lastWaitingPoint || lastWaitingPoint == -1) || 
-							cs.getTe2().getRobotID() == robotID && (cs.getTe2Start() <= lastWaitingPoint || lastWaitingPoint == -1))
+					if (cs.getTrajectoryEnvelope1().getRobotID() == robotID && (cs.getTrajectoryEnvelopeStart1() <= lastWaitingPoint || lastWaitingPoint == -1) ||
+							cs.getTrajectoryEnvelope2().getRobotID() == robotID && (cs.getTrajectoryEnvelopeStart2() <= lastWaitingPoint || lastWaitingPoint == -1))
 						this.criticalSectionCounter.incrementAndGet();
 				}
 			}
@@ -1783,20 +1783,20 @@ public abstract class AbstractTrajectoryEnvelopeCoordinator {
 		//FIXME
 		//1) add code for the checking the network delay.
 		//2) check the correctness of the function with asymmetric intersections.
-		if (!allCriticalSections.contains(cs) || rr1.getPathIndex() > cs.getTe1End() || rr2.getPathIndex() > cs.getTe2End()) {
+		if (!allCriticalSections.contains(cs) || rr1.getPathIndex() > cs.getTrajectoryEnvelopeEnd1() || rr2.getPathIndex() > cs.getTrajectoryEnvelopeEnd2()) {
 			metaCSPLogger.info("isAhead: the critical sections is no more active.");
 			return -2;
 		}
-		if (rr1.getPathIndex() >= cs.getTe1Start() && rr2.getPathIndex() >= cs.getTe2Start()) {
+		if (rr1.getPathIndex() >= cs.getTrajectoryEnvelopeStart1() && rr2.getPathIndex() >= cs.getTrajectoryEnvelopeStart2()) {
 			//Robot 1 is ahead --> return true
-			PoseSteering[] pathRobot1 = cs.getTe1().getTrajectory().getPoseSteering();
-			PoseSteering[] pathRobot2 = cs.getTe2().getTrajectory().getPoseSteering();
+			PoseSteering[] pathRobot1 = cs.getTrajectoryEnvelope1().getTrajectory().getPoseSteering();
+			PoseSteering[] pathRobot2 = cs.getTrajectoryEnvelope2().getTrajectory().getPoseSteering();
 			double dist1 = 0.0;
 			double dist2 = 0.0;
-			for (int i = cs.getTe1Start(); i < rr1.getPathIndex()-1; i++) {
+			for (int i = cs.getTrajectoryEnvelopeStart1(); i < rr1.getPathIndex()-1; i++) {
 				dist1 += pathRobot1[i].getPose().getPosition().distance(pathRobot1[i+1].getPose().getPosition());
 			}
-			for (int i = cs.getTe2Start(); i < rr2.getPathIndex()-1; i++) {
+			for (int i = cs.getTrajectoryEnvelopeStart2(); i < rr2.getPathIndex()-1; i++) {
 				dist2 += pathRobot2[i].getPose().getPosition().distance(pathRobot2[i+1].getPose().getPosition());
 			}
 			//metaCSPLogger.finest("Dist R" + rr1.getRobotID() + " = " + dist1 + "; Dist R" + rr2.getRobotID() + " = " + dist2);

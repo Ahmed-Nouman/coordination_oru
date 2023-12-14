@@ -13,44 +13,46 @@ import org.metacsp.multi.spatioTemporal.paths.TrajectoryEnvelope;
  */
 public class CriticalSection {
 	
-	private final TrajectoryEnvelope te1;
-	private final TrajectoryEnvelope te2;
-	private int te1Start = -1;
-	private int te2Start = -1;
-	private int te1End = -1;
-	private int te2End = -1;
+	private final TrajectoryEnvelope trajectoryEnvelope1;
+	private final TrajectoryEnvelope trajectoryEnvelope2;
+	private final int trajectoryEnvelopeStart1;
+	private final int trajectoryEnvelopeStart2;
+	private final int trajectoryEnvelopeEnd1;
+	private final int trajectoryEnvelopeEnd2;
 
-	public CriticalSection(TrajectoryEnvelope te1, TrajectoryEnvelope te2, int te1Start, int te2Start, int te1End, int te2End) {
-		this.te1 = te1;
-		this.te2 = te2;
-		this.te1Start = te1Start;
-		this.te2Start = te2Start;
-		this.te1End = te1End;
-		this.te2End = te2End;
+	public CriticalSection(TrajectoryEnvelope trajectoryEnvelope1, TrajectoryEnvelope trajectoryEnvelope2, int trajectoryEnvelopeStart1, int trajectoryEnvelopeStart2, int trajectoryEnvelopeEnd1, int trajectoryEnvelopeEnd2) {
+		this.trajectoryEnvelope1 = trajectoryEnvelope1;
+		this.trajectoryEnvelope2 = trajectoryEnvelope2;
+		this.trajectoryEnvelopeStart1 = trajectoryEnvelopeStart1;
+		this.trajectoryEnvelopeStart2 = trajectoryEnvelopeStart2;
+		this.trajectoryEnvelopeEnd1 = trajectoryEnvelopeEnd1;
+		this.trajectoryEnvelopeEnd2 = trajectoryEnvelopeEnd2;
 	}
 	
 	@Override
-	public boolean equals(Object obj) {
-		if (this == obj)
+	public boolean equals(Object object) {
+		if (this == object)
 			return true;
-		if (obj == null)
+		if (object == null)
 			return false;
-		if (getClass() != obj.getClass())
+		if (getClass() != object.getClass())
 			return false;
-		CriticalSection other = (CriticalSection) obj;
-		if (te1 == null || te2 == null) {
-			if (other.te1 != null && other.te2 != null)
+		CriticalSection otherCriticalSection = (CriticalSection) object;
+		if (trajectoryEnvelope1 == null || trajectoryEnvelope2 == null) {
+			if (otherCriticalSection.trajectoryEnvelope1 != null && otherCriticalSection.trajectoryEnvelope2 != null)
 				return false;
-			else if (te1 == null) 
-				return te2.equals((other.te1 == null) ? other.te2 : other.te1);
+			else if (trajectoryEnvelope1 == null)
+				return trajectoryEnvelope2.equals((otherCriticalSection.trajectoryEnvelope1 == null) ? otherCriticalSection.trajectoryEnvelope2 : otherCriticalSection.trajectoryEnvelope1);
 		} else {
-			if (!(te1.equals(other.te1) && te2.equals(other.te2) || te1.equals(other.te2) && te2.equals(other.te1)))
+			boolean isIdenticalTrajectoryEnvelopes = trajectoryEnvelope1.equals(otherCriticalSection.trajectoryEnvelope1) && trajectoryEnvelope2.equals(otherCriticalSection.trajectoryEnvelope2);
+			boolean isFlippedTrajectoryEnvelopes = trajectoryEnvelope1.equals(otherCriticalSection.trajectoryEnvelope2) && trajectoryEnvelope2.equals(otherCriticalSection.trajectoryEnvelope1);
+			if (!(isIdenticalTrajectoryEnvelopes || isFlippedTrajectoryEnvelopes))
 				return false;
-			if (te1.equals(other.te1) && te2.equals(other.te2)) {
-                return te1End == other.te1End && te2End == other.te2End && te1Start == other.te1Start && te2Start == other.te2Start;
+			else if (isIdenticalTrajectoryEnvelopes) {
+                return trajectoryEnvelopeEnd1 == otherCriticalSection.trajectoryEnvelopeEnd1 && trajectoryEnvelopeEnd2 == otherCriticalSection.trajectoryEnvelopeEnd2 && trajectoryEnvelopeStart1 == otherCriticalSection.trajectoryEnvelopeStart1 && trajectoryEnvelopeStart2 == otherCriticalSection.trajectoryEnvelopeStart2;
 			}
-			else if (te1.equals(other.te2) && te2.equals(other.te1)) {
-                return te1End == other.te2End && te2End == other.te1End && te1Start == other.te2Start && te2Start == other.te1Start;
+			else {
+                return trajectoryEnvelopeEnd1 == otherCriticalSection.trajectoryEnvelopeEnd2 && trajectoryEnvelopeEnd2 == otherCriticalSection.trajectoryEnvelopeEnd1 && trajectoryEnvelopeStart1 == otherCriticalSection.trajectoryEnvelopeStart2 && trajectoryEnvelopeStart2 == otherCriticalSection.trajectoryEnvelopeStart1;
 			}
 		}
 		return true;
@@ -60,44 +62,43 @@ public class CriticalSection {
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
-		result = prime * result + ((te1 == null) ? 0 : te1.hashCode()) + ((te2 == null) ? 0 : te2.hashCode());
-		result = prime * result + te1End + te2End;
-		result = prime * result + Math.abs(te1End - te2End);
-		result = prime * result + te1Start + te2Start;
-		result = prime * result + Math.abs(te1Start - te2Start);
+		result = prime * result + ((trajectoryEnvelope1 == null) ? 0 : trajectoryEnvelope1.hashCode()) + ((trajectoryEnvelope2 == null) ? 0 : trajectoryEnvelope2.hashCode());
+		result = prime * result + trajectoryEnvelopeEnd1 + trajectoryEnvelopeEnd2;
+		result = prime * result + Math.abs(trajectoryEnvelopeEnd1 - trajectoryEnvelopeEnd2);
+		result = prime * result + trajectoryEnvelopeStart1 + trajectoryEnvelopeStart2;
+		result = prime * result + Math.abs(trajectoryEnvelopeStart1 - trajectoryEnvelopeStart2);
 		return result;
 	}
 
-	public TrajectoryEnvelope getTe1() {
-		return te1;
+	public TrajectoryEnvelope getTrajectoryEnvelope1() {
+		return trajectoryEnvelope1;
 	}
 
-	public TrajectoryEnvelope getTe2() {
-		return te2;
+	public TrajectoryEnvelope getTrajectoryEnvelope2() {
+		return trajectoryEnvelope2;
 	}
 
-	public int getTe1Start() {
-		return te1Start;
+	public int getTrajectoryEnvelopeStart1() {
+		return trajectoryEnvelopeStart1;
 	}
 
-	public int getTe2Start() {
-		return te2Start;
+	public int getTrajectoryEnvelopeStart2() {
+		return trajectoryEnvelopeStart2;
 	}
 
-	public int getTe1End() {
-		return te1End;
+	public int getTrajectoryEnvelopeEnd1() {
+		return trajectoryEnvelopeEnd1;
 	}
 
-	public int getTe2End() {
-		return te2End;
+	public int getTrajectoryEnvelopeEnd2() {
+		return trajectoryEnvelopeEnd2;
 	}
 
 	@Override
 	public String toString() {
-		String ret = "";
-		String robot1 = (te1 == null ? "null" : "Robot"+te1.getRobotID());
-		String robot2 = (te2 == null ? "null" : "Robot"+te2.getRobotID());
-		ret += "CriticalSection (" + robot1 + " [" + te1Start + ";" + te1End + "], " + robot2 + " [" + te2Start + ";" + te2End + "])";
-		return ret;
+		String robot1 = (trajectoryEnvelope1 == null ? "null" : "Robot"+ trajectoryEnvelope1.getRobotID());
+		String robot2 = (trajectoryEnvelope2 == null ? "null" : "Robot"+ trajectoryEnvelope2.getRobotID());
+		return "CriticalSection (" + robot1 + " [" + trajectoryEnvelopeStart1 + ";" + trajectoryEnvelopeEnd1 + "], "
+				+ robot2 + " [" + trajectoryEnvelopeStart2 + ";" + trajectoryEnvelopeEnd2 + "])";
 	}
 }

@@ -40,7 +40,7 @@ public class Heuristics {
             CriticalSection criticalSection = o1.getCriticalSection();
             RobotReport robotReport1 = o1.getRobotReport();
             RobotReport robotReport2 = o2.getRobotReport();
-            return ((criticalSection.getTe1Start() - robotReport1.getPathIndex()) - (criticalSection.getTe2Start() - robotReport2.getPathIndex()));
+            return ((criticalSection.getTrajectoryEnvelopeStart1() - robotReport1.getPathIndex()) - (criticalSection.getTrajectoryEnvelopeStart2() - robotReport2.getPathIndex()));
         };
     }
 
