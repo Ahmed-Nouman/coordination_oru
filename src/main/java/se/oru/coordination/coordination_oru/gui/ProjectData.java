@@ -17,11 +17,22 @@ public class ProjectData implements Serializable {
     private Map<String, Pose> poses = new HashMap<>();
 
     /**
-     * Gets the map.
+     * Gets the map image file location.
      *
-     * @return A string representing the map.
+     * @return A string representing the location of the map image file.
      */
-    public String getMap() {
+    public String getMapImageFile(MapData mapData) {
+        String mapFileName = mapData.getImage();
+        String mapFileExtension = mapFileName.substring(mapFileName.lastIndexOf(".") + 1);
+        return map.replace(".yaml", "." + mapFileExtension);
+    }
+
+    /**
+     * Gets the map YAML file location.
+     *
+     * @return A string representing the location of the map YAML file.
+     */
+    public String getMapYAML() {
         return map;
     }
 
@@ -30,7 +41,7 @@ public class ProjectData implements Serializable {
      *
      * @param map A string representing the map.
      */
-    public void setMap(String map) {
+    public void setMapYAML(String map) {
         this.map = map;
     }
 

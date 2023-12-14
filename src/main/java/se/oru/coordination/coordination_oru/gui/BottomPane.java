@@ -9,7 +9,7 @@ import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
 
 public class BottomPane {
-    protected static Pane getBottomPane(Separator separator, Button... buttons) {
+    protected static Pane getBottomPane(Button... buttons) {
 
         VBox bottomPane = new VBox();
         bottomPane.setSpacing(8);
@@ -21,7 +21,7 @@ public class BottomPane {
         buttonsPane.setSpacing(50);
         buttonsPane.setAlignment(Pos.BOTTOM_RIGHT);
 
-        bottomPane.getChildren().addAll(separator, buttonsPane);
+        bottomPane.getChildren().addAll(new Separator(), buttonsPane);
         return bottomPane;
     }
 }

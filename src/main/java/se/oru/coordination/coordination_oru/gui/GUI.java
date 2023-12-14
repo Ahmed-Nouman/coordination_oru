@@ -38,7 +38,6 @@ import static se.oru.coordination.coordination_oru.gui.Utils.*;
 public class GUI extends Application {
 
     protected Stage primaryStage;
-    private final Separator separator = new Separator(); //FIXME: Maybe remove as a field
     private final Text filePathText = new Text(""); // FIXME: Maybe remove as a field
     protected Boolean isNewProject = false;
     protected Boolean isProjectScene = false;
@@ -73,7 +72,6 @@ public class GUI extends Application {
         toggleScene(true, false, false, false);
         Scene projectScene = displayProjectScene();
         primaryStage.setTitle("Coordination_ORU");
-        primaryStage.setResizable(false);
         primaryStage.setOnCloseRequest(e -> quitProgram(primaryStage));
         primaryStage.setScene(projectScene);
         primaryStage.show();
@@ -137,6 +135,7 @@ public class GUI extends Application {
 
         BorderPane borderPane = new BorderPane();
         borderPane.setPrefWidth(400);
+        Separator separator = new Separator();
         separator.setVisible(false);
         nextButton.setVisible(false);
 
@@ -156,18 +155,18 @@ public class GUI extends Application {
         welcomeMessageLabel.setAlignment(Pos.CENTER);
 
         // Center - Button Pane
-        HBox projectButtonaPane = new HBox();
-        projectButtonaPane.setSpacing(40);
+        HBox projectButtonPane = new HBox();
+        projectButtonPane.setSpacing(40);
         Button newProjectButton = new Button("New Project");
         Button openProjectButton = new Button("Open Project");
-        projectButtonaPane.getChildren().addAll(newProjectButton, openProjectButton);
-        projectButtonaPane.setAlignment(Pos.CENTER);
+        projectButtonPane.getChildren().addAll(newProjectButton, openProjectButton);
+        projectButtonPane.setAlignment(Pos.CENTER);
 
-        centerPane.getChildren().addAll(welcomeMessageLabel, projectButtonaPane, filePathText);
+        centerPane.getChildren().addAll(welcomeMessageLabel, projectButtonPane, filePathText);
         centerPane.setAlignment(Pos.CENTER);
 
         // Set VBox children to grow equally
-        VBox.setVgrow(projectButtonaPane, Priority.ALWAYS);
+        VBox.setVgrow(projectButtonPane, Priority.ALWAYS);
 
         borderPane.setCenter(centerPane);
         BorderPane.setAlignment(centerPane, Pos.CENTER);
@@ -177,7 +176,7 @@ public class GUI extends Application {
         openProjectButton.setOnAction(e -> openProject());
 
         // Bottom Pane - Navigation Buttons
-        borderPane.setBottom(BottomPane.getBottomPane(separator, nextButton));
+        borderPane.setBottom(BottomPane.getBottomPane(nextButton));
         return new Scene(borderPane);
     }
 
@@ -215,26 +214,26 @@ public class GUI extends Application {
                 if (file != null) {
                     mapSelectedText.setText("Map selected: " + file.getAbsolutePath());
                     mapSelectedText.setVisible(true);
-                    projectData.setMap(file.getAbsolutePath());
-                    mapData = parseYAML(projectData.getMap());
+                    projectData.setMapYAML(file.getAbsolutePath());
+                    mapData = parseYAML(projectData.getMapYAML());
                     String title = "Selecting the key locations on the loaded map";
                     String content = "The map has been loaded successfully!\n\n" +
                             "A new window with the loaded map will now open, and you must select at least two locations on the loaded map.\n\n" +
-                            "You can select a point by hovering the mouse over the location and pressing the 'c' key.\n\n" +
-                            "You can close the window once you have selected all the key location needed.\n";
+                            "You can select a location by clicking on the loaded map.\n\n" +
+                            "You can close the window once you have selected all the key location needed.\n"; // FIXME closing the window removes everything, need a button to save
                     AlertBox.display(title, content, Alert.AlertType.INFORMATION);
-                    new MapInteract(projectData.getMap(), projectData, nextButton);
+                    new MapInteract(projectData, nextButton);
                 }
             });
 
         } else {
-            mapData = parseYAML(projectData.getMap());
+            mapData = parseYAML(projectData.getMapYAML());
             ImageView imageView = getImageView(this);
             centerPane.getChildren().add(imageView);
         }
 
         // Bottom Pane - Navigation Buttons
-        borderPane.setBottom(BottomPane.getBottomPane(separator, backButton, nextButton));
+        borderPane.setBottom(BottomPane.getBottomPane(backButton, nextButton));
 
         return new Scene(borderPane);
     }
@@ -783,7 +782,7 @@ public class GUI extends Application {
         vehicleListView.getSelectionModel().selectFirst();
 
         // Bottom Pane - Navigation Buttons
-        borderPane.setBottom(BottomPane.getBottomPane(separator, backButton, nextButton));
+        borderPane.setBottom(BottomPane.getBottomPane(backButton, nextButton));
 
         return new Scene(borderPane);
     }
@@ -917,7 +916,7 @@ public class GUI extends Application {
                 reportsFolderText, reportFolderButton, reportsLocationText, reportsFolderLocation);
 
         // Bottom Pane - Navigation Buttons
-        borderPane.setBottom(BottomPane.getBottomPane(separator, backButton, resetButton,
+        borderPane.setBottom(BottomPane.getBottomPane(backButton, resetButton,
                 saveButton, runButton));
 
         return new Scene(borderPane);
@@ -941,7 +940,6 @@ public class GUI extends Application {
             projectData = new ProjectData();
             mapData = new MapData();
             isNewProject = true;
-            separator.setVisible(true);
             nextButton.setVisible(true);
 
             // Write {} to the new project file
@@ -960,7 +958,6 @@ public class GUI extends Application {
             projectFile = file.getAbsolutePath();
             filePathText.setText("Name of Project: " + file.getName());
             isNewProject = false;
-            separator.setVisible(true);
             nextButton.setVisible(true);
             try {
                 projectData = parseJSON(projectFile);
@@ -997,7 +994,7 @@ public class GUI extends Application {
     // A method to run the current project
     protected void runProject() {
 
-        final String YAML_FILE = projectData.getMap();
+        final String YAML_FILE = projectData.getMapYAML();
         double mapResolution = mapData.getResolution();
         double scaleAdjustment = 1 / mapResolution;
         double lookAheadDistance = 45 / scaleAdjustment; // FIXME Currently for single vehicle, needs to be changed for multiple vehicles and take value from vehicle objects

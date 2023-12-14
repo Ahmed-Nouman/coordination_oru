@@ -7,8 +7,8 @@ import se.oru.coordination.coordination_oru.*;
 import se.oru.coordination.coordination_oru.demo.DemoDescription;
 import se.oru.coordination.coordination_oru.motionplanning.ompl.ReedsSheppCarPlanner;
 import se.oru.coordination.coordination_oru.simulation2D.TrajectoryEnvelopeCoordinatorSimulation;
-import se.oru.coordination.coordination_oru.utils.BrowserVisualization;
 import se.oru.coordination.coordination_oru.utils.Missions;
+import se.oru.coordination.coordination_oru.utils.RVizVisualization;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -121,11 +121,11 @@ public class RandomPathsInMap {
 		
 		//JTSDrawingPanelVisualization viz = new JTSDrawingPanelVisualization();
 		//viz.setMap(yamlFile);
-		//RVizVisualization viz = new RVizVisualization();
+		RVizVisualization viz = new RVizVisualization();
 		//viz.setMap(yamlFile);
-		BrowserVisualization viz = new BrowserVisualization();
+//		BrowserVisualization viz = new BrowserVisualization();
 		viz.setMap(yamlFile);
-		viz.setInitialTransform(20.0, 9.0, 2.0);
+//		viz.setInitialTransform(20.0, 9.0, 2.0);
 		tec.setVisualization(viz);
 		
 		Missions.loadRoadMap("missions/icaps_locations_and_paths_4.txt");

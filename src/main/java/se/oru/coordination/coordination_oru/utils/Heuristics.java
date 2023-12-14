@@ -35,12 +35,12 @@ public class Heuristics {
      * @return The comparator for the closest heuristic.
      */
     public Comparator<RobotAtCriticalSection> closest() {
-        heuristicName = "CLOSEST";
+        heuristicName = "CLOSEST_FIRST";
         return (o1, o2) -> {
-            CriticalSection cs = o1.getCriticalSection();
+            CriticalSection criticalSection = o1.getCriticalSection();
             RobotReport robotReport1 = o1.getRobotReport();
             RobotReport robotReport2 = o2.getRobotReport();
-            return ((cs.getTe1Start() - robotReport1.getPathIndex()) - (cs.getTe2Start() - robotReport2.getPathIndex()));
+            return ((criticalSection.getTe1Start() - robotReport1.getPathIndex()) - (criticalSection.getTe2Start() - robotReport2.getPathIndex()));
         };
     }
 
@@ -82,7 +82,7 @@ public class Heuristics {
      * @return The comparator for lookAheadRobot heuristic.
      */
     public Comparator<RobotAtCriticalSection> lookAheadFirst() {
-        heuristicName = "LOOK_AHEAD_FIRST";
+        heuristicName = "HUMAN_FIRST";
         return (o1, o2) -> {
             boolean isO1LookAhead = VehiclesHashMap.getVehicle(o1.getRobotReport().getRobotID()).getClass().getSimpleName().equals("LookAheadVehicle");
             boolean isO2LookAhead = VehiclesHashMap.getVehicle(o2.getRobotReport().getRobotID()).getClass().getSimpleName().equals("LookAheadVehicle");

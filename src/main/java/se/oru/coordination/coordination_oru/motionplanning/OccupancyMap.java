@@ -6,6 +6,7 @@ import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.util.AffineTransformation;
 import org.metacsp.multi.spatioTemporal.paths.Pose;
 import org.metacsp.utility.logging.MetaCSPLogging;
+import se.oru.coordination.coordination_oru.utils.Round;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
@@ -30,12 +31,13 @@ public class OccupancyMap {
 	public static boolean deleteDir(File dir) {
 	    if (dir.isDirectory()) {
 	        String[] children = dir.list();
-	        for (int i=0; i<children.length; i++) {
-	            boolean success = deleteDir(new File(dir, children[i]));
-	            if (!success) {
-	                return false;
-	            }
-	        }
+            assert children != null;
+            for (String child : children) {
+                boolean success = deleteDir(new File(dir, child));
+                if (!success) {
+                    return false;
+                }
+            }
 	    }
 	    return dir.delete();
 	}
@@ -47,12 +49,12 @@ public class OccupancyMap {
 	
 	private int mapWidth, mapHeight;
 	private BitSet occupancyMapLinearBits = null;
-	private double threshold = 0.3;
-	private double mapResolution = 0.1;
-	private Coordinate mapOrigin = new Coordinate(0.,0.);
-	private BufferedImage bimg = null;
-	private BufferedImage bimg_original = null;
-	private ArrayList<Geometry> obstacles = new ArrayList<Geometry>();
+	private double threshold;
+	private double mapResolution ;
+	private Coordinate mapOrigin = new Coordinate(0.0,0.0);
+	private BufferedImage bufferedImage = null;
+	private BufferedImage bufferedImageOriginal = null;
+	private ArrayList<Geometry> obstacles = new ArrayList<>();
 
 	/**
 	 * Create a new empty occupancy map (no obstacles, all in C_free).
@@ -66,14 +68,14 @@ public class OccupancyMap {
 		this.mapWidth = (int)(width/resolution);
 		this.mapHeight= (int)(height/resolution);
 		this.mapOrigin = new Coordinate(mapOriginX, mapOriginY);
-		bimg = new BufferedImage(this.mapWidth, this.mapHeight, BufferedImage.TYPE_INT_RGB);
-		Graphics2D g2 = bimg.createGraphics();
+		bufferedImage = new BufferedImage(this.mapWidth, this.mapHeight, BufferedImage.TYPE_INT_RGB);
+		Graphics2D g2 = bufferedImage.createGraphics();
 		g2.setPaint(Color.white);
 		g2.fillRect(0, 0, this.mapWidth, this.mapHeight);
 		g2.dispose();
 		//--
 		this.createOccupancyMap();
-		this.bimg_original = deepCopy(this.bimg);
+		this.bufferedImageOriginal = deepCopy(this.bufferedImage);
 	}
 	
 	/**
@@ -99,12 +101,12 @@ public class OccupancyMap {
 		this.threshold = om.threshold;
 		this.mapResolution = om.mapResolution;
 		if (copyObstacles) {
-			this.obstacles = new ArrayList<Geometry>(om.obstacles);
-			this.bimg = deepCopy(om.bimg);
+			this.obstacles = new ArrayList<>(om.obstacles);
+			this.bufferedImage = deepCopy(om.bufferedImage);
 		}
-		else this.bimg = deepCopy(om.bimg_original);
+		else this.bufferedImage = deepCopy(om.bufferedImageOriginal);
 		this.createOccupancyMap();
-		this.bimg_original = deepCopy(om.bimg_original);
+		this.bufferedImageOriginal = deepCopy(om.bufferedImageOriginal);
 	}
 	
 	/**
@@ -120,7 +122,7 @@ public class OccupancyMap {
 		this.readMap(yamlFile);
 		//--
 		this.createOccupancyMap();
-		this.bimg_original = deepCopy(this.bimg);
+		this.bufferedImageOriginal = deepCopy(this.bufferedImage);
 	}
 	
 	/**
@@ -128,7 +130,7 @@ public class OccupancyMap {
 	 * @return A {@link BufferedImage} representing this occupancy map.
 	 */
 	public BufferedImage getMapImage() {
-		return this.bimg;
+		return this.bufferedImage;
 	}
 	
 	private static BufferedImage deepCopy(BufferedImage bi) {
@@ -143,7 +145,7 @@ public class OccupancyMap {
 	 * via the {@link #addObstacles(Geometry...)} or {@link #addObstacles(Geometry, Pose...)} methods.
 	 */
 	public void clearObstacles() {
-		this.bimg = deepCopy(this.bimg_original);
+		this.bufferedImage = deepCopy(this.bufferedImageOriginal);
 		this.obstacles.clear();
 	}
 	
@@ -161,14 +163,14 @@ public class OccupancyMap {
 	 * @param obstacles One or more geometries of obstacles to add to this occupancy map.
 	 */
 	public void addObstacles(Geometry ... obstacles) {
-		Graphics2D g2 = bimg.createGraphics();
+		Graphics2D g2 = bufferedImage.createGraphics();
 		ShapeWriter writer = new ShapeWriter();
 		g2.setPaint(Color.black);
 		for (Geometry g : obstacles) {
 			AffineTransformation at = new AffineTransformation();
 			at.translate(-mapOrigin.x, -mapOrigin.y);
 			at.scale(1.0/mapResolution, -1.0/mapResolution);
-			at.translate(0, bimg.getHeight());
+			at.translate(0, bufferedImage.getHeight());
 			Geometry scaledGeom = at.transform(g);
 			Shape shape = writer.toShape(scaledGeom);
 			//System.out.println("Shape: " + shape.getBounds2D());
@@ -188,9 +190,9 @@ public class OccupancyMap {
 	 * @param collidingPose One of the poses of path which is colliding with some obstacles.
 	 */
 	public void saveDebugObstacleImage(Pose startPose, Pose goalPose, Geometry robotFoot, Pose collidingPose) {
-		BufferedImage copyForDebug = new BufferedImage(bimg.getWidth(), bimg.getHeight(), BufferedImage.TYPE_INT_RGB);
+		BufferedImage copyForDebug = new BufferedImage(bufferedImage.getWidth(), bufferedImage.getHeight(), BufferedImage.TYPE_INT_RGB);
 		Graphics2D g2 = copyForDebug.createGraphics();
-		g2.drawImage(bimg, 0, 0, bimg.getWidth(), bimg.getHeight(), 0, 0, bimg.getWidth(), bimg.getHeight(), null);
+		g2.drawImage(bufferedImage, 0, 0, bufferedImage.getWidth(), bufferedImage.getHeight(), 0, 0, bufferedImage.getWidth(), bufferedImage.getHeight(), null);
 		
 		ShapeWriter writer = new ShapeWriter();
 		float[] dash1 = {2.0f};
@@ -307,7 +309,7 @@ public class OccupancyMap {
 	 * @return A {@link BufferedImage} representing this occupancy map.
 	 */
 	public BufferedImage asBufferedImage() {
-		return this.bimg;
+		return this.bufferedImage;
 	}
 
 	/**
@@ -315,23 +317,23 @@ public class OccupancyMap {
 	 * @return A two-color {@link BufferedImage} representing this occupancy map, where all black pixels are occupied.
 	 */
 	public BufferedImage asThresholdedBufferedImage() {
-		BufferedImage oimg = new BufferedImage(bimg.getWidth(), bimg.getHeight(), BufferedImage.TYPE_INT_RGB);
+		BufferedImage originalImage = new BufferedImage(bufferedImage.getWidth(), bufferedImage.getHeight(), BufferedImage.TYPE_INT_RGB);
 		for (int y = 0; y < this.mapHeight; y++) {
 			for (int x = 0; x < this.mapWidth; x++) {
-				if (this.isOccupied(x, y)) oimg.setRGB(x, y, new Color(0,0,0).getRGB());
-				else oimg.setRGB(x, y, new Color(255,255,255).getRGB());
+				if (this.isOccupied(x, y)) originalImage.setRGB(x, y, new Color(0,0,0).getRGB());
+				else originalImage.setRGB(x, y, new Color(255,255,255).getRGB());
 			}
 		}
-		return oimg;
+		return originalImage;
 	}
 
 	/**
 	 * Get the coordinates in pixel space corresponding to a given {@link Coordinate} in the workspace.
-	 * @param coord A {@link Coordinate} within the workspace.
+	 * @param coordinate A {@link Coordinate} within the workspace.
 	 * @return The coordinates in pixel space corresponding to the given {@link Coordinate} in the workspace.
 	 */
-	public int[] toPixels(Coordinate coord) {
-		return new int[] { (int)((coord.x-this.mapOrigin.x)/this.mapResolution), this.mapHeight-((int)((coord.y-this.mapOrigin.y)/this.mapResolution)) };
+	public int[] convertToPixels(Coordinate coordinate) {
+		return new int[] {(int)((coordinate.x - this.mapOrigin.x) / this.mapResolution), this.mapHeight-((int)((coordinate.y - this.mapOrigin.y)/ this.mapResolution))};
 	}
 
 	/**
@@ -340,8 +342,8 @@ public class OccupancyMap {
 	 * @param y The y coordinate of the pixel in the occupancy map.
 	 * @return The {@link Coordinate}s in workspace corresponding to given coordinates in pixel space.
 	 */
-	public Coordinate toWorldCoordiantes(int x, int y) {
-		return new Coordinate(this.mapOrigin.x+(x+0.5)*this.mapResolution, this.mapOrigin.y+(this.mapHeight-y+0.5)*this.mapResolution);
+	public Coordinate convertToWorldCoordinates(int x, int y) {
+		return new Coordinate(Round.round(mapOrigin.x + (x + 0.5) * mapResolution, 2), Round.round(mapOrigin.y + (mapHeight - y + 0.5) * mapResolution, 2));
 	}
 
 	/**
@@ -383,8 +385,8 @@ public class OccupancyMap {
 	 * @return The value of the occupancy map in the given pixel.
 	 */
 	public double getOccupancyValue(int pixelX, int pixelY) {
-		if (this.bimg == null) throw new Error("No occupancy map!");
-		return new Color(bimg.getRGB(pixelX,pixelY)).getRed()/255.0;
+		if (this.bufferedImage == null) throw new Error("No occupancy map!");
+		return new Color(bufferedImage.getRGB(pixelX,pixelY)).getRed()/255.0;
 	}
 	
 	/**
@@ -400,23 +402,23 @@ public class OccupancyMap {
 
 	/**
 	 * Return whether a given {@link Coordinate} in the workspace is occupied.
-	 * @param coord The coordinate to check in the workspace.
+	 * @param coordinate The coordinate to check in the workspace.
 	 * @return <code>true</code> iff the given {@link Coordinate} in the workspace is occupied.
 	 */
-	public boolean isOccupied(Coordinate coord) {
-		int[] pixel = toPixels(coord);
+	public boolean isOccupied(Coordinate coordinate) {
+		int[] pixel = convertToPixels(coordinate);
 		return this.isOccupied(pixel[0], pixel[1]);
 	}
 
 	private void createOccupancyMap() {
 		this.occupancyMapLinearBits = new BitSet();
-		for(int y=0; y < bimg.getHeight(); y++){
-			for(int x=0; x < bimg.getWidth(); x++){
-				Color c = new Color(bimg.getRGB(x,y));
+		for(int y = 0; y < bufferedImage.getHeight(); y++){
+			for(int x = 0; x < bufferedImage.getWidth(); x++){
+				Color c = new Color(bufferedImage.getRGB(x,y));
 				this.occupancyMapLinearBits.set(y*mapWidth+x, c.getRed() / 255.0 < this.threshold);
 			}
 		}
-		this.occupancyMapLinearBits.set(bimg.getHeight()*bimg.getWidth(), true);
+		this.occupancyMapLinearBits.set(bufferedImage.getHeight()* bufferedImage.getWidth(), true);
 	}
 
 	private void readMap(String mapYAMLFile) {
@@ -428,14 +430,22 @@ public class OccupancyMap {
 				if (!st.trim().startsWith("#") && !st.trim().isEmpty()) {
 					String key = st.substring(0, st.indexOf(":")).trim();
 					String value = st.substring(st.indexOf(":")+1).trim();
-					if (key.equals("image")) this.loadImage(file.getParentFile()+File.separator+value);
-					else if (key.equals("resolution")) this.mapResolution = Double.parseDouble(value);
-					else if (key.equals("occupied_thresh")) this.threshold = Double.parseDouble(value);
-					else if (key.equals("origin")) {
-						String x = value.substring(1, value.indexOf(",")).trim();
-						String y = value.substring(value.indexOf(",")+1, value.indexOf(",", value.indexOf(",")+1)).trim();
-						this.mapOrigin = new Coordinate(Double.parseDouble(x),Double.parseDouble(y));
-					}
+                    switch (key) {
+                        case "image":
+                            this.loadImage(file.getParentFile() + File.separator + value);
+                            break;
+                        case "resolution":
+                            this.mapResolution = Double.parseDouble(value);
+                            break;
+                        case "occupied_thresh":
+                            this.threshold = Double.parseDouble(value);
+                            break;
+                        case "origin":
+                            String x = value.substring(1, value.indexOf(",")).trim();
+                            String y = value.substring(value.indexOf(",") + 1, value.indexOf(",", value.indexOf(",") + 1)).trim();
+                            this.mapOrigin = new Coordinate(Double.parseDouble(x), Double.parseDouble(y));
+                            break;
+                    }
 				}
 			}
 			br.close();
@@ -445,22 +455,19 @@ public class OccupancyMap {
 
 	private void loadImage(String imageFilename) {
 		try {
-			this.bimg = ImageIO.read(new File(imageFilename));
+			this.bufferedImage = ImageIO.read(new File(imageFilename));
 
-			for(int y=0; y < this.bimg.getHeight(); y++){
-				for(int x=0; x < this.bimg.getWidth(); x++){
-					Color color = new Color(this.bimg.getRGB(x,y));
-					int graylevel = (color.getRed() + color.getGreen() + color.getBlue()) / 3;
-					int r = graylevel;
-					int g = graylevel;
-					int b = graylevel;
-					int rgb = 0xff000000 | (r << 16) | (g << 8) | b;
-					this.bimg.setRGB(x, y, rgb);
+			for(int y = 0; y < this.bufferedImage.getHeight(); y++){
+				for(int x = 0; x < this.bufferedImage.getWidth(); x++){
+					Color color = new Color(this.bufferedImage.getRGB(x,y));
+					int greyLevel = (color.getRed() + color.getGreen() + color.getBlue()) / 3;
+                    int rgb = 0xff000000 | (greyLevel << 16) | (greyLevel << 8) | greyLevel;
+					this.bufferedImage.setRGB(x, y, rgb);
 				}
 			}
 
-			this.mapWidth = this.bimg.getWidth();
-			this.mapHeight = this.bimg.getHeight();
+			this.mapWidth = this.bufferedImage.getWidth();
+			this.mapHeight = this.bufferedImage.getHeight();
 
 		}
 		catch (IOException e) { e.printStackTrace(); }

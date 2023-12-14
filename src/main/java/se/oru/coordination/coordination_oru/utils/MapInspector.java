@@ -80,7 +80,7 @@ public class MapInspector extends JPanel implements MouseListener, MouseMotionLi
 		if(arg0.getKeyChar() == 'c') {
 			try {
 				Color color = new Color(om.asBufferedImage().getRGB(p.x,p.y));
-				Coordinate position = om.toWorldCoordiantes(p.x, p.y);
+				Coordinate position = om.convertToWorldCoordinates(p.x, p.y);
 				System.out.println("--");
 				System.out.println("Pixel (x,y) = (" + p.x + "," + p.y + ")");
 				System.out.println("Position (x,y) = (" + position.x + "," + position.y + ")");
