@@ -12,6 +12,7 @@ import se.oru.coordination.coordination_oru.simulation2D.TrajectoryEnvelopeCoord
 import se.oru.coordination.coordination_oru.vehicles.VehiclesHashMap;
 
 import javax.swing.*;
+import java.awt.*;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.text.SimpleDateFormat;
@@ -36,8 +37,16 @@ public class JTSDrawingPanelVisualization implements FleetVisualization {
 	}
 	
 	public void setSize(int width, int height) {
-		JFrame topFrame = (JFrame) SwingUtilities.getWindowAncestor(this.getPanel());
-		topFrame.setSize(width,height);
+		JFrame jFrame = (JFrame) SwingUtilities.getWindowAncestor(this.getPanel());
+		jFrame.setSize(width, height);
+	}
+
+	// Set the size of screen accordingly to the display size of the running machine
+	public void setSize() {
+		JFrame jFrame = (JFrame) SwingUtilities.getWindowAncestor(this.getPanel());
+		Toolkit toolkit = Toolkit.getDefaultToolkit();
+		Dimension screenSize = toolkit.getScreenSize();
+		jFrame.setSize(screenSize.width, screenSize.height);
 	}
 
 	private static String getExtraData(TrajectoryEnvelope te, RobotReport rr, String[] extraStatusInfo, String representation) {
@@ -188,7 +197,6 @@ public class JTSDrawingPanelVisualization implements FleetVisualization {
 		//		this.panel.centerView();
 		this.panel.reinitVisualization();
 	}
-	
 
 	@Override
 	public void updateVisualization() {

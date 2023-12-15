@@ -1,11 +1,16 @@
 package se.oru.coordination.coordination_oru.scenarios;
 
+import javafx.geometry.Rectangle2D;
+import javafx.stage.Screen;
 import org.metacsp.multi.spatioTemporal.paths.Pose;
 import se.oru.coordination.coordination_oru.Mission;
 import se.oru.coordination.coordination_oru.simulation2D.TrajectoryEnvelopeCoordinatorSimulation;
 import se.oru.coordination.coordination_oru.utils.BrowserVisualization;
+import se.oru.coordination.coordination_oru.utils.JTSDrawingPanelVisualization;
 import se.oru.coordination.coordination_oru.utils.Missions;
 import se.oru.coordination.coordination_oru.vehicles.AutonomousVehicle;
+
+import java.awt.*;
 
 public class TwoAutonomousRobots {
     public static void main(String[] args) {
@@ -48,12 +53,15 @@ public class TwoAutonomousRobots {
 //        tec.setBreakDeadlocks(true, false, false);
 
         // Set up a simple GUI (null means an empty map, otherwise provide yaml file)
-        var viz = new BrowserVisualization();
+//        var viz = new BrowserVisualization();
+        var viz = new JTSDrawingPanelVisualization();
         viz.setMap(YAML_FILE);
-        viz.setFontScale(1.5);
-        viz.setInitialTransform(9, 45, -3.5);
+        Toolkit toolkit = Toolkit.getDefaultToolkit();
+        Dimension screenSize = toolkit.getScreenSize();
+        viz.setSize(screenSize.width, screenSize.height);
+//        viz.setFontScale(1.5);
+//        viz.setInitialTransform(9, 45, -3.5);
         tec.setVisualization(viz);
-
 
         Missions.setMap(YAML_FILE);
         // Create a Pair for the stopping point and its duration

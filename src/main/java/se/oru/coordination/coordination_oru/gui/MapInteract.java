@@ -1,16 +1,20 @@
 package se.oru.coordination.coordination_oru.gui;
 
 import com.vividsolutions.jts.geom.Coordinate;
+import javafx.geometry.Insets;
+import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
+import javafx.scene.control.ButtonType;
 import javafx.scene.image.Image;
 import javafx.scene.image.PixelWriter;
 import javafx.scene.image.WritableImage;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.StackPane;
+import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 import org.metacsp.multi.spatioTemporal.paths.Pose;
@@ -21,6 +25,7 @@ import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 public class MapInteract extends StackPane {
 
@@ -28,22 +33,56 @@ public class MapInteract extends StackPane {
     private final OccupancyMap occupancyMap;
     private final ProjectData projectData;
     private final Button button;
+    private final Button saveButton;
     private final Canvas canvas;
 
     public MapInteract(ProjectData projectData, Button button) {
         this.projectData = projectData;
         this.button = button;
-        this.occupancyMap = new OccupancyMap(projectData.getMapYAML());
+        this.occupancyMap = new OccupancyMap(projectData.getMap());
 
+        // Canvas to show the map
         this.canvas = new Canvas(occupancyMap.getPixelWidth(), occupancyMap.getPixelHeight());
-        this.getChildren().add(canvas);
+
+        // Save and close button
+        saveButton = new Button("Save and Close");
+        saveButton.setDisable(true);
+        VBox layout = new VBox(saveButton);
+        layout.setPadding(new Insets(20));
+        layout.setAlignment(Pos.TOP_LEFT);
+
+        // No need to save data as it is being handled in the AddLocationDialogBox, so just close the window
+        saveButton.setOnAction(e -> {
+            Stage stage = (Stage) saveButton.getScene().getWindow();
+            stage.close();
+        });
+
+        this.getChildren().addAll(canvas, layout);
+
+        // Allow the user interaction with the map outside the bound of the save button
+        this.addEventFilter(MouseEvent.MOUSE_RELEASED, event -> {
+            if (!saveButton.getBoundsInParent().contains(event.getX(), event.getY())) {
+                handleMouseReleased(event);
+            }
+        });
 
         setupEventHandlers();
 
         Stage stage = new Stage();
-        stage.setTitle("Select the key location in the map: " + projectData.getMapYAML());
+        stage.setTitle("Select the key location in the map: " + projectData.getMap());
         stage.setScene(new Scene(this));
         stage.show();
+
+        // Add a handler for the close request
+        String title = "Closing the Map";
+        String message = "Are you sure you want to close the map? All the saved locations will be lost.";
+        stage.setOnCloseRequest(event -> {
+            Optional<ButtonType> result = AlertBox.display(title, message, Alert.AlertType.CONFIRMATION);
+            if (result.isPresent() && result.get() == ButtonType.NO) {
+                event.consume();
+            }
+            projectData.getPoses().clear();
+        });
 
         drawMap();
     }
@@ -101,6 +140,13 @@ public class MapInteract extends StackPane {
         position.y = Round.round(position.y, 2);
         boolean occupancy = !occupancyMap.isOccupied(point.x, point.y);
 
+        System.out.println("--");
+        System.out.println("Pixel (x,y) = (" + point.x + "," + point.y + ")");
+        System.out.println("Position (x,y) = (" + position.x + "," + position.y + ")");
+        System.out.println("Occupancy map bit: " + occupancyMap.asByteArray()[(point.y)*occupancyMap.getPixelWidth()/8+(point.x)/8]);
+        System.out.println("Occupancy value: " + occupancyMap.getOccupancyValue(point.x, point.y));
+        System.out.println("State: " + (occupancyMap.isOccupied(point.x,point.y) ? "occupied" : "free") + " (threshold is " + occupancyMap.getThreshold() + ")");
+
         if (occupancy) {
             List<String> pose = AddLocationDialogBox.display(position.x, position.y); // Pose is a list of strings of name, orientation, x, y
             if (pose != null) {
@@ -134,6 +180,7 @@ public class MapInteract extends StackPane {
                 projectData.addPose(pose.get(0), new Pose(Double.parseDouble(pose.get(2)), Double.parseDouble(pose.get(3)), theta));
                 markers.add(point); // Marker is still plotted at the point of clicking. This is intentional.
                 drawMap();
+                if (projectData.getPoses().size() >= 2) saveButton.setDisable(false); // We can allow the user to save and close if there are at least two poses
                 if (projectData.getPoses().size() >= 2) button.setDisable(false); // We can stop fetching points if there are at least two poses
             }
         } else {

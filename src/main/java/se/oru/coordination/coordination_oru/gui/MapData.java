@@ -8,9 +8,6 @@ public class MapData {
     private List<Double> origin;
     private int negate;
     private double occupied_thresh;
-//    public String getImageYAML() {
-//        return image.replaceAll("map\\..*", "map.yaml");
-//    } // FIXME Adhoc solution
 
     public String getImage() {
         return image;

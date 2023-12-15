@@ -93,7 +93,7 @@ public class PaperScenario_3A1L {
 
         // Set Heuristics
         var heuristic = new Heuristics();
-        tec.addComparator(heuristic.closest());
+        tec.addComparator(heuristic.closestFirst());
         String heuristicName = heuristic.getName();
 
         // Set Local Re-ordering and Local Re-Planning to break Deadlocks

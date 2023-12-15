@@ -1,6 +1,7 @@
 package se.oru.coordination.coordination_oru.gui;
 
 import javafx.application.Application;
+import javafx.application.HostServices;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
@@ -18,6 +19,7 @@ import se.oru.coordination.coordination_oru.Mission;
 import se.oru.coordination.coordination_oru.gui.ProjectData.MissionStep;
 import se.oru.coordination.coordination_oru.gui.ProjectData.Vehicle;
 import se.oru.coordination.coordination_oru.simulation2D.TrajectoryEnvelopeCoordinatorSimulation;
+import se.oru.coordination.coordination_oru.utils.BrowserVisualization;
 import se.oru.coordination.coordination_oru.utils.Heuristics;
 import se.oru.coordination.coordination_oru.utils.JTSDrawingPanelVisualization;
 import se.oru.coordination.coordination_oru.utils.Missions;
@@ -25,6 +27,7 @@ import se.oru.coordination.coordination_oru.vehicles.AbstractVehicle;
 import se.oru.coordination.coordination_oru.vehicles.AutonomousVehicle;
 import se.oru.coordination.coordination_oru.vehicles.LookAheadVehicle;
 
+import javax.swing.*;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -32,6 +35,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+
+import java.awt.Desktop;
+import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
 
 import static se.oru.coordination.coordination_oru.gui.Utils.*;
 
@@ -214,20 +222,19 @@ public class GUI extends Application {
                 if (file != null) {
                     mapSelectedText.setText("Map selected: " + file.getAbsolutePath());
                     mapSelectedText.setVisible(true);
-                    projectData.setMapYAML(file.getAbsolutePath());
-                    mapData = parseYAML(projectData.getMapYAML());
+                    projectData.setMap(file.getAbsolutePath());
+                    mapData = parseYAML(projectData.getMap());
                     String title = "Selecting the key locations on the loaded map";
                     String content = "The map has been loaded successfully!\n\n" +
                             "A new window with the loaded map will now open, and you must select at least two locations on the loaded map.\n\n" +
-                            "You can select a location by clicking on the loaded map.\n\n" +
-                            "You can close the window once you have selected all the key location needed.\n"; // FIXME closing the window removes everything, need a button to save
+                            "You can select a location by clicking on the loaded map.\n";
                     AlertBox.display(title, content, Alert.AlertType.INFORMATION);
                     new MapInteract(projectData, nextButton);
                 }
             });
 
         } else {
-            mapData = parseYAML(projectData.getMapYAML());
+            mapData = parseYAML(projectData.getMap());
             ImageView imageView = getImageView(this);
             centerPane.getChildren().add(imageView);
         }
@@ -680,8 +687,8 @@ public class GUI extends Application {
 
             // Setting default values for a vehicle
             String baseNameOfVehicle = "vehicle";
-            double lengthOfVehicle = 9;
-            double widthOfVehicle = 5;
+            double lengthOfVehicle = 8;
+            double widthOfVehicle = 4;
             double maxVelocityOfVehicle = 10.0;
             double maxAccelerationOfVehicle = 1.0;
             double safetyDistanceOfVehicle = 0.0;
@@ -816,23 +823,26 @@ public class GUI extends Application {
             String selectedHeuristic = heuristicsChoiceBox.getValue();
             if (selectedHeuristic != null) {
                 switch (selectedHeuristic) {
+                    case "MOST_DISTANCE_TRAVELLED":
+                        heuristics.mostDistanceTravelled();
+                        break;
                     case "MOST_DISTANCE_TO_TRAVEL":
                         heuristics.mostDistanceToTravel();
                         break;
-                    case "LOWEST_ID":
-                        heuristics.lowestIDNumber();
+                    case "RANDOM":
+                        heuristics.random();
                         break;
-                    case "HIGHEST_ID":
-                        heuristics.highestIDNumber();
+                    case "HIGHEST_PRIORITY_FIRST":
+                        heuristics.highestPriorityFirst();
                         break;
-                    case "LOOK_AHEAD_FIRST":
-                        heuristics.lookAheadFirst();
+                    case "HUMAN_FIRST":
+                        heuristics.humanFirst();
                         break;
                     case "AUTONOMOUS_FIRST":
                         heuristics.autonomousFirst();
                         break;
                     default:
-                        heuristics.closest();
+                        heuristics.closestFirst();
                         break;
                 }
             }
@@ -994,7 +1004,7 @@ public class GUI extends Application {
     // A method to run the current project
     protected void runProject() {
 
-        final String YAML_FILE = projectData.getMapYAML();
+        final String YAML_FILE = projectData.getMap();
         double mapResolution = mapData.getResolution();
         double scaleAdjustment = 1 / mapResolution;
         double lookAheadDistance = 45 / scaleAdjustment; // FIXME Currently for single vehicle, needs to be changed for multiple vehicles and take value from vehicle objects
@@ -1006,7 +1016,7 @@ public class GUI extends Application {
         tec.startInference();
 
         // Set Heuristics
-        tec.addComparator(heuristics.closest()); // FIXME Fix Heuristics Hard Coded
+        tec.addComparator(heuristics.closestFirst()); // FIXME Fix Heuristics Hard Coded
 
         // Set Local Re-ordering and Local Re-Planning to break Deadlocks
         tec.setBreakDeadlocks(true, false, false);
@@ -1014,7 +1024,7 @@ public class GUI extends Application {
         // Set up a simple GUI (null means an empty map, otherwise provide yaml file)
         var viz = new JTSDrawingPanelVisualization(); // FIXME Fix Visualization zooming, arrow direction, show consistent area, check maybe use BrowserVisualization, RVizVisualization
         viz.setMap(YAML_FILE);
-//        viz.setSize(1920, 1200);
+        viz.setSize();
         tec.setVisualization(viz);
 
         projectData.getVehicles().forEach((vehicle) -> {

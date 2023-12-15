@@ -66,7 +66,7 @@ public class ProductionCyclePathsAutonomousMine {
         tec.setForwardModel(autonomousVehicle2.getID(), new ConstantAccelerationForwardModel(autonomousVehicle2.getMaxAcceleration(), autonomousVehicle2.getMaxVelocity(), tec.getTemporalResolution(),
                 tec.getControlPeriod(), tec.getRobotTrackingPeriodInMillis(autonomousVehicle2.getID())));
 
-        tec.addComparator(new Heuristics().closest());
+        tec.addComparator(new Heuristics().closestFirst());
         tec.setUseInternalCriticalPoints(false);
         tec.setYieldIfParking(true);
         tec.setBreakDeadlocks(true, false, false);

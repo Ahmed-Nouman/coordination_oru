@@ -32,7 +32,7 @@ public class ProjectData implements Serializable {
      *
      * @return A string representing the location of the map YAML file.
      */
-    public String getMapYAML() {
+    public String getMap() {
         return map;
     }
 
@@ -41,7 +41,7 @@ public class ProjectData implements Serializable {
      *
      * @param map A string representing the map.
      */
-    public void setMapYAML(String map) {
+    public void setMap(String map) {
         this.map = map;
     }
 

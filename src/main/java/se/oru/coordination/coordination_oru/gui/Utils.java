@@ -103,7 +103,7 @@ public class Utils {
     }
 
     protected static ImageView getImageView(GUI gui) {
-        String imageFile = gui.projectData.getMapYAML();
+        String imageFile = gui.projectData.getMap();
         String imagePath = String.join("/", Arrays.asList(imageFile.split("/")).subList(0,
                 imageFile.split("/").length - 1)) + "/" + gui.mapData.getImage();
         Image mapImage = new Image("file:" + imagePath);
@@ -202,7 +202,7 @@ public class Utils {
         });
 
         ProjectData projectData = new ProjectData();
-        projectData.setMapYAML(rootNode.path("map").asText());
+        projectData.setMap(rootNode.path("map").asText());
         projectData.setVehicles(vehicles);
         projectData.setPoses(posesMap);
 

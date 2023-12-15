@@ -69,7 +69,7 @@ public class EightAutonomousVehicles {
         tec.placeRobot(autonomousVehicle7.getID(), autonomousVehicle7.getInitialPose());
         tec.placeRobot(autonomousVehicle8.getID(), autonomousVehicle8.getInitialPose());
 
-        tec.addComparator(new Heuristics().closest());
+        tec.addComparator(new Heuristics().closestFirst());
         tec.setUseInternalCriticalPoints(false);
         tec.setYieldIfParking(true);
         tec.setBreakDeadlocks(true, false, false);

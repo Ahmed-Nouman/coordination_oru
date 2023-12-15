@@ -124,7 +124,7 @@ public class PaperScenario_6A1L {
 
         // Set Heuristics
         var heuristic = new Heuristics();
-        tec.addComparator(heuristic.lookAheadFirst());
+        tec.addComparator(heuristic.humanFirst());
         String heuristicName = heuristic.getName();
 
         // Set Local Re-ordering and Local Re-Planning to break Deadlocks

@@ -35,7 +35,7 @@ public abstract class AbstractVehicle {
     public static int vehicleNumber = 1;
     private int ID;
     private String name;
-    private final int priorityID;
+    private final int priority;
     private final String type = this.getClass().getSimpleName();
     private double maxVelocity;
     private double maxAcceleration;
@@ -53,11 +53,11 @@ public abstract class AbstractVehicle {
     private int missionRepetition;
     public static ReedsSheppCarPlanner.PLANNING_ALGORITHM planningAlgorithm = ReedsSheppCarPlanner.PLANNING_ALGORITHM.RRTConnect;
 //    private Map<Integer, AbstractMap.SimpleEntry<PoseSteering[], Integer>> planSegmentsMap;
-    public AbstractVehicle(int ID, String name, int priorityID, Color color, double maxVelocity, double maxAcceleration,
+    public AbstractVehicle(int ID, String name, int priority, Color color, double maxVelocity, double maxAcceleration,
                            int trackingPeriod, double length, double width, Pose initialPose, Pose[] goalPoses, double safetyDistance, int missionRepetition) {
         this.ID = ID;
         this.name = name;
-        this.priorityID = priorityID;
+        this.priority = priority;
         this.color = color;
         this.maxVelocity = maxVelocity;
         this.maxAcceleration = maxAcceleration;
@@ -95,6 +95,10 @@ public abstract class AbstractVehicle {
                 new Coordinate(length, -width),        //front right
                 new Coordinate(-length, -width)        //front left
         };
+    }
+
+    public static double calculateFootprintArea(double length, double width) {
+        return length * width;                  // FIXME Currently allows four sided vehicles only
     }
 
     /**
@@ -186,7 +190,7 @@ public abstract class AbstractVehicle {
         return "AbstractVehicle{" +
                 "ID=" + ID +
                 ", name='" + name + '\'' +
-                ", priorityID=" + priorityID +
+                ", priorityID=" + priority +
                 ", type='" + type + '\'' +
                 ", color=" + getColor("code") +
                 ", maxVelocity=" + maxVelocity +
@@ -394,8 +398,8 @@ public abstract class AbstractVehicle {
         return name;
     }
 
-    public int getPriorityID() {
-        return priorityID;
+    public int getPriority() {
+        return priority;
     }
 
     public double getPathLength() {
@@ -412,7 +416,7 @@ public abstract class AbstractVehicle {
                 autonomousVehicle.getID(),
                 autonomousVehicle.getName(),
                 20,
-                autonomousVehicle.getPriorityID(),
+                autonomousVehicle.getPriority(),
                 (Color) autonomousVehicle.getColor("color"),
                 autonomousVehicle.getMaxVelocity(),
                 autonomousVehicle.getMaxAcceleration(),
@@ -431,7 +435,7 @@ public abstract class AbstractVehicle {
         return new AutonomousVehicle(
                 lookAheadVehicle.getID(),
                 lookAheadVehicle.getName(),
-                lookAheadVehicle.getPriorityID(),
+                lookAheadVehicle.getPriority(),
                 (Color) lookAheadVehicle.getColor("color"),
                 lookAheadVehicle.getMaxVelocity(),
                 lookAheadVehicle.getMaxAcceleration(),
