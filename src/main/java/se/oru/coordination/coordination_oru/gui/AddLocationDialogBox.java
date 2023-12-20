@@ -32,14 +32,14 @@ public class AddLocationDialogBox {
         GridPane.setConstraints(nameTextField, 1, 0);
         nameTextField.setPromptText("Location name");
 
-        var orientationText = new Text("Orientation:");
+        var orientationText = new Text("Orientation (rad):");
         GridPane.setConstraints(orientationText, 0, 1);
         ChoiceBox<String> orientationChoiceBox = new ChoiceBox<>();
         orientationChoiceBox.getItems().addAll("UP", "UP_RIGHT", "RIGHT", "DOWN_RIGHT", "DOWN", "DOWN_LEFT", "LEFT", "UP_LEFT");
         orientationChoiceBox.setValue(orientationChoiceBox.getItems().stream().findFirst().orElse(null));
         GridPane.setConstraints(orientationChoiceBox, 1, 1);
 
-        var xPositionText = new Text("X Position:");
+        var xPositionText = new Text("X Position (m):");
         GridPane.setConstraints(xPositionText, 0, 2);
         var xPositionTextField = new TextField();
         xPositionTextField.setPrefWidth(nameTextField.getPrefWidth());
@@ -47,7 +47,7 @@ public class AddLocationDialogBox {
         xPositionTextField.setText(String.valueOf(x));
         xPositionTextField.setPromptText("Location name");
 
-        var yPositionText = new Text("Y Position:");
+        var yPositionText = new Text("Y Position (m):");
         GridPane.setConstraints(yPositionText, 0, 3);
         var yPositionTextField = new TextField();
         yPositionTextField.setPrefWidth(nameTextField.getPrefWidth());

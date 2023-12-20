@@ -1,7 +1,7 @@
 package se.oru.coordination.coordination_oru.gui;
 
 import javafx.application.Application;
-import javafx.application.HostServices;
+import javafx.beans.binding.BooleanBinding;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
@@ -19,7 +19,6 @@ import se.oru.coordination.coordination_oru.Mission;
 import se.oru.coordination.coordination_oru.gui.ProjectData.MissionStep;
 import se.oru.coordination.coordination_oru.gui.ProjectData.Vehicle;
 import se.oru.coordination.coordination_oru.simulation2D.TrajectoryEnvelopeCoordinatorSimulation;
-import se.oru.coordination.coordination_oru.utils.BrowserVisualization;
 import se.oru.coordination.coordination_oru.utils.Heuristics;
 import se.oru.coordination.coordination_oru.utils.JTSDrawingPanelVisualization;
 import se.oru.coordination.coordination_oru.utils.Missions;
@@ -27,7 +26,6 @@ import se.oru.coordination.coordination_oru.vehicles.AbstractVehicle;
 import se.oru.coordination.coordination_oru.vehicles.AutonomousVehicle;
 import se.oru.coordination.coordination_oru.vehicles.LookAheadVehicle;
 
-import javax.swing.*;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -35,11 +33,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
-
-import java.awt.Desktop;
-import java.io.IOException;
-import java.net.URI;
-import java.net.URISyntaxException;
 
 import static se.oru.coordination.coordination_oru.gui.Utils.*;
 
@@ -67,7 +60,9 @@ public class GUI extends Application {
     private int numberOfRuns = 1;
     private String reportsFolder = "";
     private final Heuristics heuristics = new Heuristics();
-
+    private int vehicleCounter = 1;  // FIXME: This is a hack to handle duplicate names for vehicles
+    private final int verticalGap = 10;
+    private final int horizontalGap = 10;
     public static void main(String[] args) {
         launch(args);
     }
@@ -141,14 +136,15 @@ public class GUI extends Application {
      */
     private Scene displayProjectScene() {
 
-        BorderPane borderPane = new BorderPane();
-        borderPane.setPrefWidth(400);
+        BorderPane root = new BorderPane();
+        root.setPrefWidth(400);
+        root.setPrefHeight(300);
         Separator separator = new Separator();
         separator.setVisible(false);
         nextButton.setVisible(false);
 
         // Top Pane - Menu Bar
-        borderPane.setTop(GUIMenuBar.getMenuBar(this));
+        root.setTop(GUIMenuBar.getMenuBar(this));
         GUIMenuBar.disableSaveProject();
         GUIMenuBar.disableCloseProject();
         GUIMenuBar.disableRunProject();
@@ -156,7 +152,7 @@ public class GUI extends Application {
         // Center Pane
         VBox centerPane = new VBox();
         centerPane.setSpacing(40);
-        centerPane.setPadding(new Insets(40, 40, 40, 40));
+        centerPane.setPadding(new Insets(40));
 
         Label welcomeMessageLabel = new Label("Welcome to Coordination_ORU!");
         welcomeMessageLabel.setFont(Font.font("System", FontWeight.SEMI_BOLD, 16));
@@ -176,7 +172,7 @@ public class GUI extends Application {
         // Set VBox children to grow equally
         VBox.setVgrow(projectButtonPane, Priority.ALWAYS);
 
-        borderPane.setCenter(centerPane);
+        root.setCenter(centerPane);
         BorderPane.setAlignment(centerPane, Pos.CENTER);
 
         newProjectButton.setOnAction(e -> newProject());
@@ -184,72 +180,117 @@ public class GUI extends Application {
         openProjectButton.setOnAction(e -> openProject());
 
         // Bottom Pane - Navigation Buttons
-        borderPane.setBottom(BottomPane.getBottomPane(nextButton));
-        return new Scene(borderPane);
+        root.setBottom(BottomPane.getBottomPane(nextButton));
+        return new Scene(root);
     }
 
     private Scene displayMapScene() {
 
-        BorderPane borderPane = new BorderPane();
-        borderPane.setPrefWidth(400);
+        BorderPane root = new BorderPane();
+        root.setPrefWidth(1200);
+        root.setPrefHeight(800);
 
         // Top Pane - Menu Bar
-        borderPane.setTop(GUIMenuBar.getMenuBar(this));
+        root.setTop(GUIMenuBar.getMenuBar(this));
         GUIMenuBar.disableNewProject();
         GUIMenuBar.disableOpenProject();
         GUIMenuBar.disableSaveProject();
         GUIMenuBar.disableRunProject();
 
-        // Center Pane
-        var centerPane = new VBox();
-        centerPane.setAlignment(Pos.CENTER);
-        borderPane.setCenter(centerPane);
-        centerPane.setSpacing(30);
-        centerPane.setPadding(new Insets(10, 10, 10, 10));
-        BorderPane.setMargin(centerPane, new Insets(20, 0, 20, 0));
+        // Right Pane - Map Locations
+        var rightPane = new VBox();
+        rightPane.setSpacing(verticalGap);
+        rightPane.setAlignment(Pos.CENTER);
+//        BorderPane.setMargin(rightPane, new Insets(10, 10, 10, 0));
+        rightPane.setPadding(new Insets(10, 20, 10, 20));
 
+        HBox locationButtons = new HBox();
+        locationButtons.setSpacing(horizontalGap);
+        locationButtons.setAlignment(Pos.CENTER);
+        Button addLocationButton = new Button("Add Location");
+        addLocationButton.setDisable(true);
+        Button deleteLocationButton = new Button("Delete Location");
+        deleteLocationButton.setDisable(true);
+        locationButtons.getChildren().addAll(addLocationButton, deleteLocationButton);
+
+        Label locationsLabel = new Label("List of Locations: ");
+        locationsLabel.setAlignment(Pos.CENTER);
+        ListView<String> locationsListView = new ListView<>();
+        locationsListView.setPrefWidth(230);
+        locationsListView.setPrefHeight(820);
+        projectData.getPoses().forEach((key, value) -> locationsListView.getItems().add(key));
+        locationsListView.getSelectionModel().selectFirst();
+        rightPane.getChildren().addAll(locationsLabel, locationsListView, locationButtons);
+
+        addLocationButton.setOnAction(e -> {
+            Pose pose = new Pose(0, 0, 0);
+            List<String> addedPoseAsList = AddLocationDialogBox.display(pose.getX(), pose.getY());
+            if (addedPoseAsList != null) {
+                String addedPoseName = addedPoseAsList.get(0);
+                double addedPoseX = Double.parseDouble(addedPoseAsList.get(2));
+                double addedPoseY = Double.parseDouble(addedPoseAsList.get(3));
+                double addedPoseTheta = getOrientation(addedPoseAsList.get(1));
+                Pose addedPose = new Pose(addedPoseX, addedPoseY, addedPoseTheta);
+                projectData.getPoses().put(addedPoseName, addedPose);
+                locationsListView.getItems().add(addedPoseName);
+                locationsListView.getSelectionModel().select(addedPoseName); //FIXME: Adding and Deleting do not change markers in MapInteract
+            }
+            checkSizePoses();
+        });
+
+        deleteLocationButton.setOnAction(e -> {
+            projectData.getPoses().remove(locationsListView.getSelectionModel().getSelectedItem());
+            locationsListView.getItems().remove(locationsListView.getSelectionModel().getSelectedItem());
+            checkSizePoses();
+        });
+
+        root.setRight(rightPane);
+
+        // Center Pane
         if (isNewProject) {
+            var centerPane = new VBox();
+            centerPane.setAlignment(Pos.CENTER);
+            root.setCenter(centerPane);
+            centerPane.setSpacing(30);
+            centerPane.setPadding(new Insets(30, 10, 30, 10));
+//        BorderPane.setMargin(centerPane, new Insets(20, 0, 20, 0));
             nextButton.setDisable(true);
             Text mapMessageText = new Text("Select a map to load: ");
             Button mapBrowseButton = new Button("Browse...");
-            Text mapSelectedText = new Text("");
-            mapSelectedText.setVisible(false);
-            centerPane.getChildren().addAll(mapMessageText, mapBrowseButton, mapSelectedText);
+            centerPane.getChildren().addAll(mapMessageText, mapBrowseButton);
 
             // Set action for browsing a map
             mapBrowseButton.setOnAction(e -> {
                 File file = chooseFile(this, "Select a map file to open: ", "yaml");
                 if (file != null) {
-                    mapSelectedText.setText("Map selected: " + file.getAbsolutePath());
-                    mapSelectedText.setVisible(true);
                     projectData.setMap(file.getAbsolutePath());
                     mapData = parseYAML(projectData.getMap());
-                    String title = "Selecting the key locations on the loaded map";
-                    String content = "The map has been loaded successfully!\n\n" +
-                            "A new window with the loaded map will now open, and you must select at least two locations on the loaded map.\n\n" +
-                            "You can select a location by clicking on the loaded map.\n";
-                    AlertBox.display(title, content, Alert.AlertType.INFORMATION);
-                    new MapInteract(projectData, nextButton);
+                    MapInteract mapInteract = new MapInteract(projectData, mapData, locationsListView, nextButton);
+                    root.setCenter(mapInteract.createMapInteractionNode());
+                    addLocationButton.setDisable(false);
+                    deleteLocationButton.setDisable(false);
                 }
             });
 
         } else {
-            mapData = parseYAML(projectData.getMap());
-            ImageView imageView = getImageView(this);
-            centerPane.getChildren().add(imageView);
+            addLocationButton.setDisable(false);
+            deleteLocationButton.setDisable(false);
+            MapInteract mapInteract = new MapInteract(projectData, mapData, locationsListView, nextButton);
+            root.setCenter(mapInteract.createMapInteractionNode());
         }
 
-        // Bottom Pane - Navigation Buttons
-        borderPane.setBottom(BottomPane.getBottomPane(backButton, nextButton));
 
-        return new Scene(borderPane);
+        // Bottom Pane - Navigation Buttons
+        root.setBottom(BottomPane.getBottomPane(backButton, nextButton));
+
+        return new Scene(root);
     }
     private Scene displayVehicleScene() {
 
-        BorderPane borderPane = new BorderPane();
+        BorderPane root = new BorderPane();
 
         // Top Pane - Menu Bar
-        borderPane.setTop(GUIMenuBar.getMenuBar(this));
+        root.setTop(GUIMenuBar.getMenuBar(this));
         GUIMenuBar.disableNewProject();
         GUIMenuBar.disableOpenProject();
         GUIMenuBar.disableSaveProject();
@@ -258,20 +299,20 @@ public class GUI extends Application {
         // Right Pane
         var rightPane = new StackPane();
         BorderPane.setMargin(rightPane, new Insets(10, 10, 10, 0));
-        rightPane.setPadding(new Insets(10, 10, 10, 10));
+        rightPane.setPadding(new Insets(10));
         rightPane.setAlignment(Pos.TOP_CENTER);
-        borderPane.setRight(rightPane);
-        ImageView imageView = getImageView(this);
+        root.setRight(rightPane);
+        ImageView imageView = showImage(this);
         rightPane.getChildren().add(imageView);
 
         // Center Pane
         var centerPane = new GridPane();
-        BorderPane.setMargin(centerPane, new Insets(10, 10, 10, 10));
-        centerPane.setPadding(new Insets(10, 10, 10, 10));
+        BorderPane.setMargin(centerPane, new Insets(10));
+        centerPane.setPadding(new Insets(10));
         centerPane.setAlignment(Pos.TOP_CENTER);
-        centerPane.setHgap(10);
-        centerPane.setVgap(10);
-        borderPane.setCenter(centerPane);
+        centerPane.setHgap(horizontalGap);
+        centerPane.setVgap(verticalGap);
+        root.setCenter(centerPane);
 
         // name text-field
         Text nameText = new Text("Name of Vehicle: ");
@@ -300,12 +341,37 @@ public class GUI extends Application {
             }
         });
 
+        // priority text-field
+        Text priorityText = new Text("Priority: ");
+        GridPane.setConstraints(priorityText, 0, 1);
+        TextField priorityTextField = new TextField();
+        priorityTextField.setMaxWidth(nameTextField.getMaxWidth());
+        GridPane.setConstraints(priorityTextField, 1, 1);
+        vehicleListView.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
+            if (newValue != null) {
+                Vehicle selectedVehicle = projectData.getVehicle(projectData.getVehicleID(newValue, projectData.getVehicles()));
+                if (selectedVehicle != null) {
+                    priorityTextField.setText(String.valueOf(selectedVehicle.getPriority()));
+                }
+            }
+        });
+        priorityTextField.focusedProperty().addListener((observable, wasFocused, isNowFocused) -> {
+            if (!isNowFocused) {
+                Boolean validated = validateInteger(priorityTextField);
+                String selectedVehicleName = vehicleListView.getSelectionModel().getSelectedItem();
+                if (validated && selectedVehicleName != null) {
+                    int newPriority = Integer.parseInt(priorityTextField.getText());
+                    projectData.getVehicle(projectData.getVehicleID(selectedVehicleName, projectData.getVehicles())).setPriority(newPriority);
+                }
+            }
+        });
+
         // length text-field
         Text lengthText = new Text("Length (m): ");
-        GridPane.setConstraints(lengthText, 0, 1);
+        GridPane.setConstraints(lengthText, 0, 2);
         TextField lengthTextField = new TextField();
         lengthTextField.setMaxWidth(nameTextField.getMaxWidth());
-        GridPane.setConstraints(lengthTextField, 1, 1);
+        GridPane.setConstraints(lengthTextField, 1, 2);
         vehicleListView.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
             if (newValue != null) {
                 Vehicle selectedVehicle = projectData.getVehicle(projectData.getVehicleID(newValue, projectData.getVehicles()));
@@ -327,10 +393,10 @@ public class GUI extends Application {
 
         // width text-field
         Text widthText = new Text("Width (m): ");
-        GridPane.setConstraints(widthText, 0, 2);
+        GridPane.setConstraints(widthText, 0, 3);
         TextField widthTextField = new TextField();
         widthTextField.setMaxWidth(nameTextField.getMaxWidth());
-        GridPane.setConstraints(widthTextField, 1, 2);
+        GridPane.setConstraints(widthTextField, 1, 3);
         vehicleListView.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
             if (newValue != null) {
                 Vehicle selectedVehicle = projectData.getVehicle(projectData.getVehicleID(newValue, projectData.getVehicles()));
@@ -352,10 +418,10 @@ public class GUI extends Application {
 
         // maxVelocity text-field
         Text maxVelocityText = new Text("Max. Velocity (m/s): ");
-        GridPane.setConstraints(maxVelocityText, 0, 3);
+        GridPane.setConstraints(maxVelocityText, 0, 4);
         TextField maxVelocityTextField = new TextField();
         maxVelocityTextField.setMaxWidth(nameTextField.getMaxWidth());
-        GridPane.setConstraints(maxVelocityTextField, 1, 3);
+        GridPane.setConstraints(maxVelocityTextField, 1, 4);
         vehicleListView.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
             if (newValue != null) {
                 Vehicle selectedVehicle = projectData.getVehicle(projectData.getVehicleID(newValue, projectData.getVehicles()));
@@ -377,10 +443,10 @@ public class GUI extends Application {
 
         // maxAcceleration text-field
         Text maxAccelerationText = new Text("Max. Acceleration (m/s^2): ");
-        GridPane.setConstraints(maxAccelerationText, 0, 4);
+        GridPane.setConstraints(maxAccelerationText, 0, 5);
         TextField maxAccelerationTextField = new TextField();
         maxAccelerationTextField.setMaxWidth(nameTextField.getMaxWidth());
-        GridPane.setConstraints(maxAccelerationTextField, 1, 4);
+        GridPane.setConstraints(maxAccelerationTextField, 1, 5);
         vehicleListView.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
             if (newValue != null) {
                 Vehicle selectedVehicle = projectData.getVehicle(projectData.getVehicleID(newValue, projectData.getVehicles()));
@@ -402,10 +468,10 @@ public class GUI extends Application {
 
         // safetyDistance text-field
         Text safetyDistanceText = new Text("Safety Distance (m): ");
-        GridPane.setConstraints(safetyDistanceText, 0, 5);
+        GridPane.setConstraints(safetyDistanceText, 0, 6);
         TextField safetyDistanceTextField = new TextField();
         safetyDistanceTextField.setMaxWidth(nameTextField.getMaxWidth());
-        GridPane.setConstraints(safetyDistanceTextField, 1, 5);
+        GridPane.setConstraints(safetyDistanceTextField, 1, 6);
         vehicleListView.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
             if (newValue != null) {
                 Vehicle selectedVehicle = projectData.getVehicle(projectData.getVehicleID(newValue, projectData.getVehicles()));
@@ -427,11 +493,11 @@ public class GUI extends Application {
 
         // color choice-box
         Text colorText = new Text("Color: ");
-        GridPane.setConstraints(colorText, 0, 6);
+        GridPane.setConstraints(colorText, 0, 7);
         ChoiceBox<String> colorChoiceBox = new ChoiceBox<>();
         colorChoiceBox.getItems().addAll("Yellow", "Red", "Blue", "Green", "Black", "White", "Cyan", "Orange");
         colorChoiceBox.setMaxWidth(nameTextField.getMaxWidth());
-        GridPane.setConstraints(colorChoiceBox, 1, 6);
+        GridPane.setConstraints(colorChoiceBox, 1, 7);
         vehicleListView.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
             if (newValue != null) {
                 Vehicle selectedVehicle = projectData.getVehicle(projectData.getVehicleID(newValue, projectData.getVehicles()));
@@ -450,11 +516,11 @@ public class GUI extends Application {
 
         // initialPose choice-box
         Text initialPoseText = new Text("Start Location: ");
-        GridPane.setConstraints(initialPoseText, 0, 7);
+        GridPane.setConstraints(initialPoseText, 0, 8);
         ChoiceBox<String> initialPoseChoiceBox = new ChoiceBox<>();
         initialPoseChoiceBox.getItems().addAll(projectData.getPoses().keySet());
         initialPoseChoiceBox.setMaxWidth(nameTextField.getMaxWidth());
-        GridPane.setConstraints(initialPoseChoiceBox, 1, 7);
+        GridPane.setConstraints(initialPoseChoiceBox, 1, 8);
         vehicleListView.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
             if (newValue != null) {
                 Vehicle selectedVehicle = projectData.getVehicle(projectData.getVehicleID(newValue, projectData.getVehicles()));
@@ -473,11 +539,11 @@ public class GUI extends Application {
 
         // missions vbox
         Text missionText = new Text("Mission: ");
-        GridPane.setConstraints(missionText, 0, 8);
+        GridPane.setConstraints(missionText, 0, 9);
         VBox missionVBox = new VBox();
         missionVBox.setSpacing(2);
         missionVBox.setAlignment(Pos.CENTER);
-        GridPane.setConstraints(missionVBox, 1, 8);
+        GridPane.setConstraints(missionVBox, 1, 9);
 
         // mission list-view
         ListView<String> missionListView = new ListView<>();
@@ -561,10 +627,10 @@ public class GUI extends Application {
 
         // missionRepetition text-field
         Text missionRepetitionText = new Text("Mission Repetition: ");
-        GridPane.setConstraints(missionRepetitionText, 0, 9);
+        GridPane.setConstraints(missionRepetitionText, 0, 10);
         TextField missionRepetitionTextField = new TextField();
         missionRepetitionTextField.setMaxWidth(nameTextField.getMaxWidth());
-        GridPane.setConstraints(missionRepetitionTextField, 1, 9);
+        GridPane.setConstraints(missionRepetitionTextField, 1, 10);
         vehicleListView.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
             if (newValue != null) {
                 Vehicle selectedVehicle = projectData.getVehicle(projectData.getVehicleID(newValue, projectData.getVehicles()));
@@ -587,11 +653,11 @@ public class GUI extends Application {
         // lookAheadDistance text-field
         Text lookAheadDistanceText = new Text("Look Ahead Distance (m): ");
         lookAheadDistanceText.setVisible(false);
-        GridPane.setConstraints(lookAheadDistanceText, 0, 11);
+        GridPane.setConstraints(lookAheadDistanceText, 0, 12);
         TextField lookAheadDistanceTextField = new TextField();
         lookAheadDistanceTextField.setVisible(false);
         lookAheadDistanceTextField.setMaxWidth(nameTextField.getMaxWidth());
-        GridPane.setConstraints(lookAheadDistanceTextField, 1, 11);
+        GridPane.setConstraints(lookAheadDistanceTextField, 1, 12);
         vehicleListView.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
             if (newValue != null) {
                 Vehicle selectedVehicle = projectData.getVehicle(projectData.getVehicleID(newValue, projectData.getVehicles()));
@@ -613,9 +679,9 @@ public class GUI extends Application {
 
         // isHumanVehicle checkbox
         Text isHumanText = new Text("Human Operated: ");
-        GridPane.setConstraints(isHumanText, 0, 10);
+        GridPane.setConstraints(isHumanText, 0, 11);
         CheckBox isHumanCheckBox = new CheckBox();
-        GridPane.setConstraints(isHumanCheckBox, 1, 10);
+        GridPane.setConstraints(isHumanCheckBox, 1, 11);
         vehicleListView.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
             if (newValue != null) {
                 Vehicle selectedVehicle = projectData.getVehicle(projectData.getVehicleID(newValue, projectData.getVehicles()));
@@ -648,6 +714,7 @@ public class GUI extends Application {
         });
 
         centerPane.getChildren().addAll(nameText, nameTextField,
+                priorityText, priorityTextField,
                 lengthText, lengthTextField,
                 widthText, widthTextField,
                 maxVelocityText, maxVelocityTextField,
@@ -662,11 +729,11 @@ public class GUI extends Application {
 
         // Left Pane - VehicleList
         VBox leftPane = new VBox();
-        leftPane.setSpacing(10);
+        leftPane.setSpacing(verticalGap);
         leftPane.setAlignment(Pos.TOP_CENTER);
         BorderPane.setMargin(leftPane, new Insets(10, 0, 10, 10));
-        leftPane.setPadding(new Insets(10, 10, 10, 10));
-        borderPane.setLeft(leftPane);
+        leftPane.setPadding(new Insets(10));
+        root.setLeft(leftPane);
 
         Label vehiclesLabel = new Label("List of Vehicles: ");
         vehiclesLabel.setFont(Font.font("System", FontWeight.SEMI_BOLD, 14));
@@ -674,7 +741,7 @@ public class GUI extends Application {
         vehiclesLabel.setAlignment(Pos.CENTER);
 
         vehicleListView.setMaxWidth(vehiclesLabel.getPrefWidth());
-        vehicleListView.setPrefHeight(440);
+        vehicleListView.setPrefHeight(475);
         vehicleListView.getItems().clear();
         projectData.getVehicles().forEach(vehicle -> vehicleListView.getItems().add(vehicle.getName()));
         vehicleListView.getSelectionModel().selectFirst();
@@ -687,8 +754,9 @@ public class GUI extends Application {
 
             // Setting default values for a vehicle
             String baseNameOfVehicle = "vehicle";
-            double lengthOfVehicle = 8;
-            double widthOfVehicle = 4;
+            int priorityOfVehicle = 1;
+            double lengthOfVehicle = 8.0;
+            double widthOfVehicle = 4.0;
             double maxVelocityOfVehicle = 10.0;
             double maxAccelerationOfVehicle = 1.0;
             double safetyDistanceOfVehicle = 0.0;
@@ -710,16 +778,15 @@ public class GUI extends Application {
 
             // Handle duplicate names for vehicles
             String nameOfVehicle = baseNameOfVehicle;
-            int counter = 1;
-            while (projectData.getVehicles().stream().anyMatch(vehicle -> vehicle.getName().equals(baseNameOfVehicle))) {
+            if (projectData.getVehicles().stream().anyMatch(vehicle -> vehicle.getName().equals(baseNameOfVehicle))) {
                 // Append a number to the base name
-                nameOfVehicle = baseNameOfVehicle + " (" + counter + ")";
-                counter++;
+                nameOfVehicle = baseNameOfVehicle + " (" + vehicleCounter++ + ")";
             }
 
             // Create a new vehicle with default values
             var vehicle = new Vehicle();
             vehicle.setName(nameOfVehicle);
+            vehicle.setPriority(priorityOfVehicle);
             vehicle.setLength(lengthOfVehicle);
             vehicle.setWidth(widthOfVehicle);
             vehicle.setMaxVelocity(maxVelocityOfVehicle);
@@ -789,16 +856,16 @@ public class GUI extends Application {
         vehicleListView.getSelectionModel().selectFirst();
 
         // Bottom Pane - Navigation Buttons
-        borderPane.setBottom(BottomPane.getBottomPane(backButton, nextButton));
+        root.setBottom(BottomPane.getBottomPane(backButton, nextButton));
 
-        return new Scene(borderPane);
+        return new Scene(root);
     }
     private Scene displaySimulationScene() {
 
-        BorderPane borderPane = new BorderPane();
+        BorderPane root = new BorderPane();
 
         // Top Pane - Menu Bar
-        borderPane.setTop(GUIMenuBar.getMenuBar(this));
+        root.setTop(GUIMenuBar.getMenuBar(this));
         GUIMenuBar.disableNewProject();
         GUIMenuBar.disableOpenProject();
 
@@ -809,7 +876,7 @@ public class GUI extends Application {
         centerPane.setHgap(10);
         centerPane.setVgap(10);
         centerPane.setAlignment(Pos.CENTER);
-        borderPane.setCenter(centerPane);
+        root.setCenter(centerPane);
 
         // heuristics choice-box
         Text heuristicsText = new Text("Heuristics: ");
@@ -926,10 +993,10 @@ public class GUI extends Application {
                 reportsFolderText, reportFolderButton, reportsLocationText, reportsFolderLocation);
 
         // Bottom Pane - Navigation Buttons
-        borderPane.setBottom(BottomPane.getBottomPane(backButton, resetButton,
+        root.setBottom(BottomPane.getBottomPane(backButton, resetButton,
                 saveButton, runButton));
 
-        return new Scene(borderPane);
+        return new Scene(root);
     }
 
     // FIXME maybe better to ensure only one scene is true at a time
@@ -972,6 +1039,7 @@ public class GUI extends Application {
             try {
                 projectData = parseJSON(projectFile);
                 orignalProjectData = deepCopy(projectData);
+                mapData = parseYAML(projectData.getMap());
             } catch (IOException ex) {
                 throw new RuntimeException(ex);
             }
@@ -1099,6 +1167,10 @@ public class GUI extends Application {
             if (answer.isPresent() && answer.get() == ButtonType.YES && projectData != null) saveProject();
             stage.close();
         }
+    }
+
+    private void checkSizePoses() {
+        nextButton.setDisable(projectData.getPoses().size() < 2);
     }
 }
 

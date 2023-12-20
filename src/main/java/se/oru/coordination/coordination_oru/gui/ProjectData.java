@@ -21,10 +21,13 @@ public class ProjectData implements Serializable {
      *
      * @return A string representing the location of the map image file.
      */
-    public String getMapImageFile(MapData mapData) {
-        String mapFileName = mapData.getImage();
-        String mapFileExtension = mapFileName.substring(mapFileName.lastIndexOf(".") + 1);
-        return map.replace(".yaml", "." + mapFileExtension);
+    public String getMapImage(MapData mapData) {
+        String mapFilePath = this.map;
+        if (mapFilePath == null || mapFilePath.isEmpty()) {
+            return null;
+        }
+        return String.join("/", Arrays.asList(mapFilePath.split("/")).subList(0,
+                mapFilePath.split("/").length - 1)) + "/" + mapData.getImage();
     }
 
     /**
@@ -142,6 +145,7 @@ public class ProjectData implements Serializable {
         private static int nextId = 1;
         private final int ID;
         private String name;
+        private int priority;
         private String type;
         private double lookAheadDistance;
         private String color;
@@ -153,7 +157,6 @@ public class ProjectData implements Serializable {
         private List<MissionStep> mission;
         private int missionRepetition;
         private double safetyDistance;
-
         public Vehicle() {
             this.ID = nextId++;
         }
@@ -168,6 +171,14 @@ public class ProjectData implements Serializable {
 
         public void setName(String name) {
             this.name = name;
+        }
+
+        public int getPriority() {
+            return priority;
+        }
+
+        public void setPriority(int priority) {
+            this.priority = priority;
         }
 
         public String getType() {
@@ -259,16 +270,16 @@ public class ProjectData implements Serializable {
         }
 
         @Override
-        public boolean equals(Object o) {
-            if (this == o) return true;
-            if (o == null || getClass() != o.getClass()) return false;
-            Vehicle vehicle = (Vehicle) o;
-            return ID == vehicle.ID && Double.compare(lookAheadDistance, vehicle.lookAheadDistance) == 0 && Double.compare(maxVelocity, vehicle.maxVelocity) == 0 && Double.compare(maxAcceleration, vehicle.maxAcceleration) == 0 && Double.compare(length, vehicle.length) == 0 && Double.compare(width, vehicle.width) == 0 && missionRepetition == vehicle.missionRepetition && Double.compare(safetyDistance, vehicle.safetyDistance) == 0 && Objects.equals(name, vehicle.name) && Objects.equals(type, vehicle.type) && Objects.equals(color, vehicle.color) && Objects.equals(initialPose, vehicle.initialPose) && Objects.equals(mission, vehicle.mission);
+        public boolean equals(Object object) {
+            if (this == object) return true;
+            if (object == null || getClass() != object.getClass()) return false;
+            Vehicle vehicle = (Vehicle) object;
+            return ID == vehicle.ID && priority == vehicle.priority && Double.compare(lookAheadDistance, vehicle.lookAheadDistance) == 0 && Double.compare(maxVelocity, vehicle.maxVelocity) == 0 && Double.compare(maxAcceleration, vehicle.maxAcceleration) == 0 && Double.compare(length, vehicle.length) == 0 && Double.compare(width, vehicle.width) == 0 && missionRepetition == vehicle.missionRepetition && Double.compare(safetyDistance, vehicle.safetyDistance) == 0 && Objects.equals(name, vehicle.name) && Objects.equals(type, vehicle.type) && Objects.equals(color, vehicle.color) && Objects.equals(initialPose, vehicle.initialPose) && Objects.equals(mission, vehicle.mission);
         }
 
         @Override
         public int hashCode() {
-            return Objects.hash(ID, name, type, lookAheadDistance, color, maxVelocity, maxAcceleration, length, width, initialPose, mission, missionRepetition, safetyDistance);
+            return Objects.hash(ID, name, priority, type, lookAheadDistance, color, maxVelocity, maxAcceleration, length, width, initialPose, mission, missionRepetition, safetyDistance);
         }
     }
 

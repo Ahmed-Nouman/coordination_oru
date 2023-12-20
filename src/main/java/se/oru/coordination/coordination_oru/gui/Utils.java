@@ -5,9 +5,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import javafx.geometry.Pos;
 import javafx.scene.control.TextField;
-import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.stage.FileChooser;
@@ -18,8 +16,10 @@ import se.oru.coordination.coordination_oru.gui.ProjectData.Vehicle;
 
 import java.awt.*;
 import java.io.*;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
-import java.util.*;
+import java.util.Map;
 
 public class Utils {
 
@@ -71,51 +71,47 @@ public class Utils {
         }
     }
 
-    protected static void listCentering(ListView<String> listView) {
-        listView.setCellFactory(lv -> new ListCell<String>() {
-            @Override
-            protected void updateItem(String item, boolean empty) {
-                super.updateItem(item, empty);
-                if (empty || item == null) {
-                    setText(null);
-                } else {
-                    setText(item);
-                    setAlignment(Pos.CENTER);
-                }
-            }
-        });
-    }
-
-    protected static void listCentering(ComboBox<String> comboBox) {
-        comboBox.setButtonCell(new ListCell<>() {
-            @Override
-            protected void updateItem(String item, boolean empty) {
-                super.updateItem(item, empty);
-                if (empty || item == null) {
-                    setText(null);
-                } else {
-                    setText(item);
-                    setAlignment(Pos.CENTER);
-                    setContentDisplay(ContentDisplay.CENTER);
-                }
-            }
-        });
-    }
-
-    protected static ImageView getImageView(GUI gui) {
-        String imageFile = gui.projectData.getMap();
-        String imagePath = String.join("/", Arrays.asList(imageFile.split("/")).subList(0,
-                imageFile.split("/").length - 1)) + "/" + gui.mapData.getImage();
+    protected static ImageView showImage(GUI gui) {
+        String imagePath = gui.projectData.getMapImage(gui.mapData);
         Image mapImage = new Image("file:" + imagePath);
 
         // Set the preferred dimensions for the image
-        double preferredWidth = 680; // you can set this value to whatever width you want
-        double preferredHeight = 504; // you can set this value to whatever height you want
         ImageView imageView = new ImageView(mapImage);
-        imageView.setFitWidth(preferredWidth);
-        imageView.setFitHeight(preferredHeight);
-        imageView.setPreserveRatio(true); // This will keep the image's aspect ratio
+        imageView.setFitWidth(680);
+        imageView.setFitHeight(538);
+        imageView.setPreserveRatio(true);
         return imageView;
+    }
+
+    protected static double getOrientation(String orientation) {
+        double theta;
+        switch (orientation) {
+            case "DOWN":
+                theta = 3 * Math.PI / 2;
+                break;
+            case "DOWN_RIGHT":
+                theta = 7 * Math.PI / 4;
+                break;
+            case "DOWN_LEFT":
+                theta = 5 * Math.PI / 4;
+                break;
+            case "LEFT":
+                theta = Math.PI;
+                break;
+            case "UP_LEFT":
+                theta = 3 * Math.PI / 4;
+                break;
+            case "UP":
+                theta = Math.PI / 2;
+                break;
+            case "UP_RIGHT":
+                theta = Math.PI / 4;
+                break;
+            default:
+                theta = 0;
+                break;
+        }
+        return theta;
     }
 
     protected static File chooseFile(GUI gui, String dialogTitle, String extension) {
