@@ -19,12 +19,14 @@ import se.oru.coordination.coordination_oru.Mission;
 import se.oru.coordination.coordination_oru.gui.ProjectData.MissionStep;
 import se.oru.coordination.coordination_oru.gui.ProjectData.Vehicle;
 import se.oru.coordination.coordination_oru.simulation2D.TrajectoryEnvelopeCoordinatorSimulation;
+import se.oru.coordination.coordination_oru.utils.BrowserVisualization;
 import se.oru.coordination.coordination_oru.utils.Heuristics;
 import se.oru.coordination.coordination_oru.utils.JTSDrawingPanelVisualization;
 import se.oru.coordination.coordination_oru.utils.Missions;
 import se.oru.coordination.coordination_oru.vehicles.AbstractVehicle;
 import se.oru.coordination.coordination_oru.vehicles.AutonomousVehicle;
 import se.oru.coordination.coordination_oru.vehicles.LookAheadVehicle;
+import se.oru.coordination.coordination_oru.vehicles.VehiclesHashMap;
 
 import java.io.File;
 import java.io.FileWriter;
@@ -124,7 +126,10 @@ public class GUI extends Application {
 
         saveButton.setOnAction(e -> saveProject());
 
-        runButton.setOnAction(e -> runProject());
+        runButton.setOnAction(e -> {
+            Thread thread = new Thread(this::runProject);
+            thread.start();
+        });
 
         resetButton.setOnAction(e -> resetProject(primaryStage));
     }
@@ -1090,9 +1095,11 @@ public class GUI extends Application {
         tec.setBreakDeadlocks(true, false, false);
 
         // Set up a simple GUI (null means an empty map, otherwise provide yaml file)
-        var viz = new JTSDrawingPanelVisualization(); // FIXME Fix Visualization zooming, arrow direction, show consistent area, check maybe use BrowserVisualization, RVizVisualization
+        var viz = new BrowserVisualization();
         viz.setMap(YAML_FILE);
-        viz.setSize();
+        viz.setFontScale(3.5); // FIXME Fix Font Scale hard coded.
+        viz.AccessInitialTransform();
+//        viz.setInitialTransform(scaleAdjustment - 1, 0, 0);
         tec.setVisualization(viz);
 
         projectData.getVehicles().forEach((vehicle) -> {

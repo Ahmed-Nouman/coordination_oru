@@ -114,28 +114,46 @@ public class BrowserVisualization implements FleetVisualization {
 		//Dimension screen = java.awt.Toolkit.getDefaultToolkit().getScreenSize();
 		//System.out.println("Screen width: "+screen.getWidth()); 
 		//System.out.println("Screen height: "+screen.getHeight()); 
-		int pixelPerInch = java.awt.Toolkit.getDefaultToolkit().getScreenResolution(); 
+		int pixelPerInch = Toolkit.getDefaultToolkit().getScreenResolution();
 		//System.out.println("DPI: " + pixelPerInch); 
 		return pixelPerInch; 
 	}
 	
 	private static double getScreenHeight() {
-		Dimension screen = java.awt.Toolkit.getDefaultToolkit().getScreenSize();
+		Dimension screen = Toolkit.getDefaultToolkit().getScreenSize();
 		return screen.getHeight(); 
 	}
-	
+
+	private static double getScreenWidth() {
+		Dimension screen = Toolkit.getDefaultToolkit().getScreenSize();
+		return screen.getWidth();
+	}
+
+	public void AccessInitialTransform() { // FIXME: This is a hack to access the initial transform
+		double imageHeight = BrowserVisualizationSocket.map.getHeight();
+		double imageWidth = BrowserVisualizationSocket.map.getWidth();
+		double screenHeight = getScreenHeight();
+		double screenWidth = getScreenWidth();
+
+		if (imageHeight > screenHeight || imageWidth > screenWidth) {
+			this.setInitialTransform((0.75 / BrowserVisualizationSocket.resolution) - 1 , 0, 0);
+		} else {
+			this.setInitialTransform((1 / BrowserVisualizationSocket.resolution) - 1 , 0, 0);
+		}
+	}
+
 	public void guessInitialTransform(double robotDimension, Pose ... robotPoses) {
 		BrowserVisualizationSocket.initialScale = getScreenDPI()/robotDimension;
 		double avgX = 0;
 		double avgY = 0;
-		for (int i = 0; i < robotPoses.length; i++) {
-			avgX += robotPoses[i].getX();
-			avgY += robotPoses[i].getY();
-		}
+        for (Pose robotPose : robotPoses) {
+            avgX += robotPose.getX();
+            avgY += robotPose.getY();
+        }
 		avgX /= robotPoses.length;
 		avgY /= robotPoses.length;
-		avgY -= 0.45*(getScreenHeight()/getScreenDPI());
-		BrowserVisualizationSocket.initialTranslation = new Coordinate(avgX,avgY);		
+		avgY -= 0.45 * (getScreenHeight()/getScreenDPI());
+		BrowserVisualizationSocket.initialTranslation = new Coordinate(avgX, avgY);
 	}
 
 	private static void setupVizServer(String serverHostNameOrIP) {
@@ -238,7 +256,7 @@ public class BrowserVisualization implements FleetVisualization {
 
 		Geometry geometry = TrajectoryEnvelope.getFootprint(te.getFootprint(), x, y, theta);
 		this.updateRobotFootprintArea(geometry);
-		double scale = Math.sqrt(robotFootprintArea)*0.2;
+		double scale = Math.sqrt(robotFootprintArea) * 0.2;
 		Geometry arrowGeom = createArrow(rr.getPose(), robotFootprintXDim/scale, scale);
 		String jsonString = "{ \"operation\" : \"addGeometry\", \"data\" : " + this.geometryToJSONString(name, geometry,
 				(String) VehiclesHashMap.getVehicle(rr.getRobotID()).getColor("code"), -1, true, extraData) + "}";

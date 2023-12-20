@@ -55,7 +55,10 @@ public class GUIMenuBar {
         Menu runMenu = new Menu("Run");
         runProjectMenuItem = new MenuItem("Run Project...");
         runProjectMenuItem.setAccelerator(new KeyCodeCombination(KeyCode.R, KeyCodeCombination.CONTROL_DOWN));
-        runProjectMenuItem.setOnAction(e -> gui.runProject());
+        runProjectMenuItem.setOnAction(e -> {
+            Thread thread = new Thread(gui::runProject);
+            thread.start();
+        });
         runMenu.getItems().addAll(runProjectMenuItem);
 
         // Help menu
