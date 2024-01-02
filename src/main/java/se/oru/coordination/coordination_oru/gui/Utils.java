@@ -71,18 +71,6 @@ public class Utils {
         }
     }
 
-    protected static ImageView showImage(GUI gui) {
-        String imagePath = gui.projectData.getMapImage(gui.mapData);
-        Image mapImage = new Image("file:" + imagePath);
-
-        // Set the preferred dimensions for the image
-        ImageView imageView = new ImageView(mapImage);
-        imageView.setFitWidth(680);
-        imageView.setFitHeight(538);
-        imageView.setPreserveRatio(true);
-        return imageView;
-    }
-
     protected static double getOrientation(String orientation) {
         double theta;
         switch (orientation) {

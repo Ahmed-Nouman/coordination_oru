@@ -92,8 +92,8 @@ public class PaperScenario_3A1L {
         tec.placeRobot(lookAheadVehicle.getID(), entrance);
 
         // Set Heuristics
-        var heuristic = new Heuristics();
-        tec.addComparator(heuristic.closestFirst());
+        var heuristic = new Heuristics(Heuristics.HeuristicType.CLOSEST_FIRST);
+        tec.addComparator(heuristic.getComparator());
         String heuristicName = heuristic.getName();
 
         // Set Local Re-ordering and Local Re-Planning to break Deadlocks

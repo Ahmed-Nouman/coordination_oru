@@ -16,11 +16,6 @@ public class ProjectData implements Serializable {
     private List<Vehicle> vehicles = new ArrayList<>();
     private Map<String, Pose> poses = new HashMap<>();
 
-    /**
-     * Gets the map image file location.
-     *
-     * @return A string representing the location of the map image file.
-     */
     public String getMapImage(MapData mapData) {
         String mapFilePath = this.map;
         if (mapFilePath == null || mapFilePath.isEmpty()) {
@@ -80,28 +75,18 @@ public class ProjectData implements Serializable {
         return -1; // Return -1 if the vehicle is not found
     }
 
-    /**
-     * Adds a vehicle.
-     *
-     * @param vehicle The AutonomousVehicle object to add.
-     */
     public void addVehicle(Vehicle vehicle) {
         this.vehicles.add(vehicle);
     }
 
-    /**
-     * Removes a vehicle.
-     *
-     */
     public void removeVehicle(int vehicleID) {
         vehicles.removeIf(vehicle -> vehicle.getID() == vehicleID);
     }
 
-    /**
-     * Gets the list of all poses.
-     *
-     * @return A map of pose IDs to Pose objects.
-     */
+    public ArrayList<String> getPosesName() {
+        return new ArrayList<>(poses.keySet());
+    }
+
     public Map<String, Pose> getPoses() {
         return poses;
     }
@@ -138,6 +123,11 @@ public class ProjectData implements Serializable {
 
     public void addPose(String poseName, Pose pose) {
         poses.put(poseName, pose);
+    }
+
+    protected Boolean IsMinNumberOfPoses() {
+        int minNumberOfPoses = 2;
+        return this.getPoses().size() >= minNumberOfPoses;
     }
 
     // Inner class to represent a vehicle

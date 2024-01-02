@@ -20,6 +20,39 @@ import static se.oru.coordination.coordination_oru.vehicles.AbstractVehicle.calc
 public class Heuristics {
 
     private String heuristicName;
+    private final HeuristicType heuristicType;
+
+    public Heuristics() {
+        this.heuristicType = HeuristicType.CLOSEST_FIRST;
+    }
+
+    public Heuristics(HeuristicType heuristicType) {
+        this.heuristicType = heuristicType;
+    }
+
+    // Method to get the comparator based on the heuristic type
+    public Comparator<RobotAtCriticalSection> getComparator() {
+        switch (heuristicType) {
+            case CLOSEST_FIRST:
+                return closestFirst();
+            case MOST_DISTANCE_TRAVELLED:
+                return mostDistanceTravelled();
+            case MOST_DISTANCE_TO_TRAVEL:
+                return mostDistanceToTravel();
+            case RANDOM:
+                return random();
+            case HIGHEST_PRIORITY_FIRST:
+                return highestPriorityFirst();
+            case HUMAN_FIRST:
+                return humanFirst();
+            case AUTONOMOUS_FIRST:
+                return autonomousFirst();
+            case BIGGER_FOOTPRINT_FIRST:
+                return largerFootprintFirst();
+            default:
+                throw new IllegalArgumentException("Invalid heuristic type");
+        }
+    }
 
     public static List<String> getAllHeuristicNames() {
         List<String> heuristicNames = new ArrayList<>();
@@ -174,9 +207,20 @@ public class Heuristics {
         };
     }
 
-
     public String getName() {
         return heuristicName;
+    }
+
+    // Define an enum for heuristic types
+    public enum HeuristicType {
+        CLOSEST_FIRST,
+        MOST_DISTANCE_TRAVELLED,
+        MOST_DISTANCE_TO_TRAVEL,
+        RANDOM,
+        HIGHEST_PRIORITY_FIRST,
+        HUMAN_FIRST,
+        AUTONOMOUS_FIRST,
+        BIGGER_FOOTPRINT_FIRST
     }
 
 }

@@ -1,6 +1,7 @@
 package se.oru.coordination.coordination_oru.scenarios;
 
 import org.metacsp.multi.spatioTemporal.paths.Pose;
+
 import se.oru.coordination.coordination_oru.Mission;
 import se.oru.coordination.coordination_oru.simulation2D.TrajectoryEnvelopeCoordinatorSimulation;
 import se.oru.coordination.coordination_oru.utils.BrowserVisualization;
@@ -37,7 +38,7 @@ public class OneAutonomousOneLookAheadVehicles {
         tec.setDefaultFootprint(autonomousVehicle.getFootprint());
         tec.placeRobot(autonomousVehicle.getID(), autonomousVehicle.getInitialPose());
         tec.placeRobot(lookAheadVehicle.getID(), lookAheadVehicle.getInitialPose());
-        tec.addComparator(new Heuristics().closestFirst());
+        tec.addComparator(new Heuristics(Heuristics.HeuristicType.CLOSEST_FIRST).getComparator());
         tec.setUseInternalCriticalPoints(false);
         tec.setYieldIfParking(true);
         tec.setBreakDeadlocks(true, false, false);
@@ -57,6 +58,5 @@ public class OneAutonomousOneLookAheadVehicles {
         Missions.enqueueMission(m2);
         Missions.setMap(YAML_FILE);
         Missions.startMissionDispatchers(tec, 1, 2);
-
     }
 }

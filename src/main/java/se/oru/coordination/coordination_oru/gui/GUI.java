@@ -1,12 +1,13 @@
 package se.oru.coordination.coordination_oru.gui;
 
 import javafx.application.Application;
-import javafx.beans.binding.BooleanBinding;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
-import javafx.scene.image.ImageView;
+import javafx.scene.control.Button;
+import javafx.scene.control.Label;
+import javafx.scene.control.TextField;
 import javafx.scene.layout.*;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
@@ -21,12 +22,10 @@ import se.oru.coordination.coordination_oru.gui.ProjectData.Vehicle;
 import se.oru.coordination.coordination_oru.simulation2D.TrajectoryEnvelopeCoordinatorSimulation;
 import se.oru.coordination.coordination_oru.utils.BrowserVisualization;
 import se.oru.coordination.coordination_oru.utils.Heuristics;
-import se.oru.coordination.coordination_oru.utils.JTSDrawingPanelVisualization;
 import se.oru.coordination.coordination_oru.utils.Missions;
 import se.oru.coordination.coordination_oru.vehicles.AbstractVehicle;
 import se.oru.coordination.coordination_oru.vehicles.AutonomousVehicle;
 import se.oru.coordination.coordination_oru.vehicles.LookAheadVehicle;
-import se.oru.coordination.coordination_oru.vehicles.VehiclesHashMap;
 
 import java.io.File;
 import java.io.FileWriter;
@@ -35,6 +34,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.concurrent.*;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import static se.oru.coordination.coordination_oru.gui.Utils.*;
 
@@ -61,7 +62,7 @@ public class GUI extends Application {
     private int simulationTime = 5;
     private int numberOfRuns = 1;
     private String reportsFolder = "";
-    private final Heuristics heuristics = new Heuristics();
+    private Heuristics heuristics = new Heuristics(Heuristics.HeuristicType.CLOSEST_FIRST);
     private int vehicleCounter = 1;  // FIXME: This is a hack to handle duplicate names for vehicles
     private final int verticalGap = 10;
     private final int horizontalGap = 10;
@@ -126,9 +127,28 @@ public class GUI extends Application {
 
         saveButton.setOnAction(e -> saveProject());
 
+//        runButton.setOnAction(e -> {
+//            Thread thread = new Thread(this::runProject);
+//            thread.start();
+//        });
         runButton.setOnAction(e -> {
-            Thread thread = new Thread(this::runProject);
-            thread.start();
+            // Create a ScheduledExecutorService with a single thread
+            ScheduledExecutorService executorService = Executors.newScheduledThreadPool(1);
+
+            // Schedule the task to run n times with an interval of one minute
+            AtomicInteger runCount = new AtomicInteger(0);
+            ScheduledFuture<?> future = executorService.scheduleAtFixedRate(() -> {
+                if (runCount.incrementAndGet() <= numberOfRuns) {
+                    runProject(); // Run your task
+                } else {
+                    executorService.shutdown(); // Shutdown the executor after n executions
+                }
+            }, 0, simulationTime, TimeUnit.MINUTES);
+
+            // Optional: If you want to cancel the execution after 1 minute
+            executorService.schedule(() -> {
+                future.cancel(true); // This will interrupt the running task
+            }, simulationTime, TimeUnit.MINUTES);
         });
 
         resetButton.setOnAction(e -> resetProject(primaryStage));
@@ -228,8 +248,8 @@ public class GUI extends Application {
         rightPane.getChildren().addAll(locationsLabel, locationsListView, locationButtons);
 
         addLocationButton.setOnAction(e -> {
-            Pose pose = new Pose(0, 0, 0);
-            List<String> addedPoseAsList = AddLocationDialogBox.display(pose.getX(), pose.getY());
+            var pose = new Pose(0, 0, 0);
+            var addedPoseAsList = AddLocationDialogBox.display(pose.getX(), pose.getY());
             if (addedPoseAsList != null) {
                 String addedPoseName = addedPoseAsList.get(0);
                 double addedPoseX = Double.parseDouble(addedPoseAsList.get(2));
@@ -238,7 +258,7 @@ public class GUI extends Application {
                 Pose addedPose = new Pose(addedPoseX, addedPoseY, addedPoseTheta);
                 projectData.getPoses().put(addedPoseName, addedPose);
                 locationsListView.getItems().add(addedPoseName);
-                locationsListView.getSelectionModel().select(addedPoseName); //FIXME: Adding and Deleting do not change markers in MapInteract
+                locationsListView.getSelectionModel().select(addedPoseName);
             }
             checkSizePoses();
         });
@@ -270,8 +290,8 @@ public class GUI extends Application {
                 if (file != null) {
                     projectData.setMap(file.getAbsolutePath());
                     mapData = parseYAML(projectData.getMap());
-                    MapInteract mapInteract = new MapInteract(projectData, mapData, locationsListView, nextButton);
-                    root.setCenter(mapInteract.createMapInteractionNode());
+                    var interactiveMapDisplay = new InteractiveMapDisplayWithMarkers(projectData, mapData, locationsListView, nextButton);
+                    root.setCenter(interactiveMapDisplay.createMapInteractionNode());
                     addLocationButton.setDisable(false);
                     deleteLocationButton.setDisable(false);
                 }
@@ -280,10 +300,9 @@ public class GUI extends Application {
         } else {
             addLocationButton.setDisable(false);
             deleteLocationButton.setDisable(false);
-            MapInteract mapInteract = new MapInteract(projectData, mapData, locationsListView, nextButton);
-            root.setCenter(mapInteract.createMapInteractionNode());
+            var interactiveMapDisplay = new InteractiveMapDisplayWithMarkers(projectData, mapData, locationsListView, nextButton);
+            root.setCenter(interactiveMapDisplay.createMapInteractionNode());
         }
-
 
         // Bottom Pane - Navigation Buttons
         root.setBottom(BottomPane.getBottomPane(backButton, nextButton));
@@ -303,12 +322,15 @@ public class GUI extends Application {
 
         // Right Pane
         var rightPane = new StackPane();
+        int mapWidth = 680;
+        int mapHeight = 538;
+        var mapDisplay = new MapDisplayWithMarkers("file:" + projectData.getMapImage(mapData), projectData.getPoses(),
+                mapData.getResolution(), mapWidth, mapHeight);
         BorderPane.setMargin(rightPane, new Insets(10, 10, 10, 0));
         rightPane.setPadding(new Insets(10));
         rightPane.setAlignment(Pos.TOP_CENTER);
         root.setRight(rightPane);
-        ImageView imageView = showImage(this);
-        rightPane.getChildren().add(imageView);
+        rightPane.getChildren().add(mapDisplay);
 
         // Center Pane
         var centerPane = new GridPane();
@@ -320,7 +342,7 @@ public class GUI extends Application {
         root.setCenter(centerPane);
 
         // name text-field
-        Text nameText = new Text("Name of Vehicle: ");
+        var nameText = new Text("Name of Vehicle: ");
         GridPane.setConstraints(nameText, 0, 0);
         TextField nameTextField = new TextField();
         nameTextField.setMaxWidth(180);
@@ -896,25 +918,25 @@ public class GUI extends Application {
             if (selectedHeuristic != null) {
                 switch (selectedHeuristic) {
                     case "MOST_DISTANCE_TRAVELLED":
-                        heuristics.mostDistanceTravelled();
+                        heuristics = new Heuristics(Heuristics.HeuristicType.MOST_DISTANCE_TRAVELLED);
                         break;
                     case "MOST_DISTANCE_TO_TRAVEL":
-                        heuristics.mostDistanceToTravel();
+                        heuristics = new Heuristics(Heuristics.HeuristicType.MOST_DISTANCE_TO_TRAVEL);
                         break;
                     case "RANDOM":
-                        heuristics.random();
+                        heuristics = new Heuristics(Heuristics.HeuristicType.RANDOM);
                         break;
                     case "HIGHEST_PRIORITY_FIRST":
-                        heuristics.highestPriorityFirst();
+                        heuristics = new Heuristics(Heuristics.HeuristicType.HIGHEST_PRIORITY_FIRST);
                         break;
                     case "HUMAN_FIRST":
-                        heuristics.humanFirst();
+                        heuristics = new Heuristics(Heuristics.HeuristicType.HUMAN_FIRST);
                         break;
                     case "AUTONOMOUS_FIRST":
-                        heuristics.autonomousFirst();
+                        heuristics = new Heuristics(Heuristics.HeuristicType.AUTONOMOUS_FIRST);
                         break;
                     default:
-                        heuristics.closestFirst();
+                        heuristics = new Heuristics(Heuristics.HeuristicType.CLOSEST_FIRST);
                         break;
                 }
             }
@@ -946,7 +968,7 @@ public class GUI extends Application {
             if (!isNowFocused) {
                 Boolean validated = validateInteger(numberOfRunsTextField);
                 if (validated) {
-                    numberOfRuns = Integer.parseInt(numberOfRunsTextField.getText()); // FIXME: How to implement multiple runs of simulation?
+                    numberOfRuns = Integer.parseInt(numberOfRunsTextField.getText());
                 }
             }
         });
@@ -1080,8 +1102,8 @@ public class GUI extends Application {
         final String YAML_FILE = projectData.getMap();
         double mapResolution = mapData.getResolution();
         double scaleAdjustment = 1 / mapResolution;
-        double lookAheadDistance = 45 / scaleAdjustment; // FIXME Currently for single vehicle, needs to be changed for multiple vehicles and take value from vehicle objects
-        double reportsTimeIntervalInSeconds = 0.1;     // FIXME Fix Time Interval hard coded, maybe give option in GUI
+        double lookAheadDistance = 45 / scaleAdjustment;
+        double reportsTimeIntervalInSeconds = 0.1;
 
         // Instantiate a trajectory envelope coordinator.
         var tec = new TrajectoryEnvelopeCoordinatorSimulation();
@@ -1089,7 +1111,7 @@ public class GUI extends Application {
         tec.startInference();
 
         // Set Heuristics
-        tec.addComparator(heuristics.closestFirst()); // FIXME Fix Heuristics Hard Coded
+        tec.addComparator(heuristics.getComparator());
 
         // Set Local Re-ordering and Local Re-Planning to break Deadlocks
         tec.setBreakDeadlocks(true, false, false);
@@ -1097,9 +1119,8 @@ public class GUI extends Application {
         // Set up a simple GUI (null means an empty map, otherwise provide yaml file)
         var viz = new BrowserVisualization();
         viz.setMap(YAML_FILE);
-        viz.setFontScale(3.5); // FIXME Fix Font Scale hard coded.
+        viz.setFontScale(3.5);
         viz.AccessInitialTransform();
-//        viz.setInitialTransform(scaleAdjustment - 1, 0, 0);
         tec.setVisualization(viz);
 
         projectData.getVehicles().forEach((vehicle) -> {

@@ -22,10 +22,12 @@ plugins {
   id 'java'
   id 'application'
   id 'org.openjfx.javafxplugin' version '0.0.8'
+  id 'com.github.johnrengelman.shadow' version '6.1.0'
 }
 
 apply plugin: 'java'
 apply plugin: 'eclipse'
+apply plugin: 'idea'
 
 // The Maven publish plugin is only required if your package is used as a library.
 apply plugin: 'maven'
@@ -37,6 +39,7 @@ apply plugin: 'application'
 mainClassName = 'se.oru.coordination.coordination_oru.gui_JavaFX.GUI'
 
 repositories {
+  mavenCentral()
   mavenLocal()
   jcenter()
   maven { url 'https://jitpack.io' }
@@ -55,6 +58,18 @@ javafx{
     modules = ['javafx.controls', 'javafx.fxml', 'javafx.media', 'javafx.graphics']
     version = '17'
 }
+
+shadowJar {
+  archiveBaseName.set('MyJavaFXApp')
+  archiveVersion.set('1.0')
+  archiveClassifier.set('')
+  manifest {
+    attributes 'Main-Class': 'se.oru.coordination.coordination_oru.gui_JavaFX.GUI'
+  }
+  // Make sure we include JavaFX runtime components
+  mergeServiceFiles()
+}
+
 
 dependencies {
 

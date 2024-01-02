@@ -102,8 +102,8 @@ public class ProductionScenario {
         tec.placeRobot(drillRig.getID(), drillRig.getInitialPose());
 
         // Set Heuristics
-        var heuristic = new Heuristics();
-        tec.addComparator(heuristic.mostDistanceToTravel());
+        var heuristic = new Heuristics(Heuristics.HeuristicType.MOST_DISTANCE_TO_TRAVEL);
+        tec.addComparator(heuristic.getComparator());
         String heuristicName = heuristic.getName();
 
         // Set Local Re-ordering and Local Re-Planning to break Deadlocks

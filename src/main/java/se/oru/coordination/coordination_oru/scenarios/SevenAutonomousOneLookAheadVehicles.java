@@ -72,7 +72,7 @@ public class SevenAutonomousOneLookAheadVehicles {
         tec.placeRobot(autonomousVehicle6.getID(), autonomousVehicle6.getInitialPose());
         tec.placeRobot(autonomousVehicle7.getID(), autonomousVehicle7.getInitialPose());
         tec.placeRobot(lookAheadVehicle.getID(), lookAheadVehicle.getInitialPose());
-        tec.addComparator(new Heuristics().closestFirst());
+        tec.addComparator(new Heuristics(Heuristics.HeuristicType.CLOSEST_FIRST).getComparator());
         tec.setUseInternalCriticalPoints(false);
         tec.setYieldIfParking(true);
         tec.setBreakDeadlocks(true, false, false);
