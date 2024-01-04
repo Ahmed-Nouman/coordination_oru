@@ -18,6 +18,7 @@ notes/
 
 # build files
 build/
+out/
 .gradle/
 .project
 .classpath
