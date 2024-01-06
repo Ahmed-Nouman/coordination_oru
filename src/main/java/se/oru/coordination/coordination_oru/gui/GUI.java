@@ -41,6 +41,7 @@ import static se.oru.coordination.coordination_oru.gui.Utils.*;
 
 public class GUI extends Application {
 
+    protected final DataStatus dataStatus = new DataStatus();
     protected Stage primaryStage;
     private final Text filePathText = new Text(""); // FIXME: Maybe remove as a field
     protected Boolean isNewProject = false;
@@ -48,22 +49,12 @@ public class GUI extends Application {
     protected Boolean isMapScene = false;
     protected Boolean isVehicleScene = false;
     protected Boolean isSimulationScene = false;
-    protected String projectFile = "";
-    protected ProjectData projectData;
-    protected ProjectData orignalProjectData; // The original loaded projectData before any changes
-    protected MapData mapData;
     private final Button backButton = new Button("Back");
     protected final Button nextButton = new Button("Next");
     private final Button saveButton = new Button("Save");
     private final Button resetButton =  new Button("Reset");
     private final Button runButton =  new Button("Run");
     private final ListView<String> vehicleListView = new ListView<>();
-    private Boolean writeVehicleReports = false;
-    private int simulationTime = 5;
-    private int numberOfRuns = 1;
-    private String reportsFolder = "";
-    private Heuristics heuristics = new Heuristics(Heuristics.HeuristicType.CLOSEST_FIRST);
-    private int vehicleCounter = 1;  // FIXME: This is a hack to handle duplicate names for vehicles
     private final int verticalGap = 10;
     private final int horizontalGap = 10;
     public static void main(String[] args) {
@@ -138,17 +129,17 @@ public class GUI extends Application {
             // Schedule the task to run n times with an interval of one minute
             AtomicInteger runCount = new AtomicInteger(0);
             ScheduledFuture<?> future = executorService.scheduleAtFixedRate(() -> {
-                if (runCount.incrementAndGet() <= numberOfRuns) {
+                if (runCount.incrementAndGet() <= dataStatus.getNumberOfRuns()) {
                     runProject(); // Run your task
                 } else {
                     executorService.shutdown(); // Shutdown the executor after n executions
                 }
-            }, 0, simulationTime, TimeUnit.MINUTES);
+            }, 0, dataStatus.getSimulationTime(), TimeUnit.MINUTES);
 
             // Optional: If you want to cancel the execution after 1 minute
             executorService.schedule(() -> {
                 future.cancel(true); // This will interrupt the running task
-            }, simulationTime, TimeUnit.MINUTES);
+            }, dataStatus.getSimulationTime(), TimeUnit.MINUTES);
         });
 
         resetButton.setOnAction(e -> resetProject(primaryStage));
@@ -243,7 +234,7 @@ public class GUI extends Application {
         ListView<String> locationsListView = new ListView<>();
         locationsListView.setPrefWidth(230);
         locationsListView.setPrefHeight(820);
-        projectData.getPoses().forEach((key, value) -> locationsListView.getItems().add(key));
+        dataStatus.getProjectData().getPoses().forEach((key, value) -> locationsListView.getItems().add(key));
         locationsListView.getSelectionModel().selectFirst();
         rightPane.getChildren().addAll(locationsLabel, locationsListView, locationButtons);
 
@@ -256,7 +247,7 @@ public class GUI extends Application {
                 double addedPoseY = Double.parseDouble(addedPoseAsList.get(3));
                 double addedPoseTheta = getOrientation(addedPoseAsList.get(1));
                 Pose addedPose = new Pose(addedPoseX, addedPoseY, addedPoseTheta);
-                projectData.getPoses().put(addedPoseName, addedPose);
+                dataStatus.getProjectData().getPoses().put(addedPoseName, addedPose);
                 locationsListView.getItems().add(addedPoseName);
                 locationsListView.getSelectionModel().select(addedPoseName);
             }
@@ -264,7 +255,7 @@ public class GUI extends Application {
         });
 
         deleteLocationButton.setOnAction(e -> {
-            projectData.getPoses().remove(locationsListView.getSelectionModel().getSelectedItem());
+            dataStatus.getProjectData().getPoses().remove(locationsListView.getSelectionModel().getSelectedItem());
             locationsListView.getItems().remove(locationsListView.getSelectionModel().getSelectedItem());
             checkSizePoses();
         });
@@ -288,9 +279,9 @@ public class GUI extends Application {
             mapBrowseButton.setOnAction(e -> {
                 File file = chooseFile(this, "Select a map file to open: ", "yaml");
                 if (file != null) {
-                    projectData.setMap(file.getAbsolutePath());
-                    mapData = parseYAML(projectData.getMap());
-                    var interactiveMapDisplay = new InteractiveMapDisplayWithMarkers(projectData, mapData, locationsListView, nextButton);
+                    dataStatus.getProjectData().setMap(file.getAbsolutePath());
+                    dataStatus.setMapData(parseYAML(dataStatus.getProjectData().getMap()));
+                    var interactiveMapDisplay = new InteractiveMapDisplayWithMarkers(dataStatus.getProjectData(), dataStatus.getMapData(), locationsListView, nextButton);
                     root.setCenter(interactiveMapDisplay.createMapInteractionNode());
                     addLocationButton.setDisable(false);
                     deleteLocationButton.setDisable(false);
@@ -300,7 +291,7 @@ public class GUI extends Application {
         } else {
             addLocationButton.setDisable(false);
             deleteLocationButton.setDisable(false);
-            var interactiveMapDisplay = new InteractiveMapDisplayWithMarkers(projectData, mapData, locationsListView, nextButton);
+            var interactiveMapDisplay = new InteractiveMapDisplayWithMarkers(dataStatus.getProjectData(), dataStatus.getMapData(), locationsListView, nextButton);
             root.setCenter(interactiveMapDisplay.createMapInteractionNode());
         }
 
@@ -324,8 +315,8 @@ public class GUI extends Application {
         var rightPane = new StackPane();
         int mapWidth = 680;
         int mapHeight = 538;
-        var mapDisplay = new MapDisplayWithMarkers("file:" + projectData.getMapImage(mapData), projectData.getPoses(),
-                mapData.getResolution(), mapWidth, mapHeight);
+        var mapDisplay = new MapDisplayWithMarkers("file:" + dataStatus.getProjectData().getMapImage(dataStatus.getMapData()), dataStatus.getProjectData().getPoses(),
+                dataStatus.getMapData().getResolution(), mapWidth, mapHeight);
         BorderPane.setMargin(rightPane, new Insets(10, 10, 10, 0));
         rightPane.setPadding(new Insets(10));
         rightPane.setAlignment(Pos.TOP_CENTER);
@@ -349,7 +340,7 @@ public class GUI extends Application {
         GridPane.setConstraints(nameTextField, 1, 0);
         vehicleListView.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
             if (newValue != null) {
-                Vehicle selectedVehicle = projectData.getVehicle(projectData.getVehicleID(newValue, projectData.getVehicles()));
+                Vehicle selectedVehicle = dataStatus.getProjectData().getVehicle(dataStatus.getProjectData().getVehicleID(newValue, dataStatus.getProjectData().getVehicles()));
                 if (selectedVehicle != null) {
                     nameTextField.setText(String.valueOf(selectedVehicle.getName()));
                 }
@@ -360,9 +351,9 @@ public class GUI extends Application {
                 String newVehicleName = nameTextField.getText();
                 String oldVehicleName = vehicleListView.getSelectionModel().getSelectedItem();
                 if (!Objects.equals(newVehicleName, "") && newVehicleName != null) {
-                    projectData.getVehicle(projectData.getVehicleID(oldVehicleName, projectData.getVehicles())).setName(newVehicleName);
+                    dataStatus.getProjectData().getVehicle(dataStatus.getProjectData().getVehicleID(oldVehicleName, dataStatus.getProjectData().getVehicles())).setName(newVehicleName);
                     vehicleListView.getItems().clear();
-                    projectData.getVehicles().forEach(vehicle -> vehicleListView.getItems().add(vehicle.getName()));
+                    dataStatus.getProjectData().getVehicles().forEach(vehicle -> vehicleListView.getItems().add(vehicle.getName()));
                     vehicleListView.getSelectionModel().selectFirst();
                 }
             }
@@ -376,7 +367,7 @@ public class GUI extends Application {
         GridPane.setConstraints(priorityTextField, 1, 1);
         vehicleListView.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
             if (newValue != null) {
-                Vehicle selectedVehicle = projectData.getVehicle(projectData.getVehicleID(newValue, projectData.getVehicles()));
+                Vehicle selectedVehicle = dataStatus.getProjectData().getVehicle(dataStatus.getProjectData().getVehicleID(newValue, dataStatus.getProjectData().getVehicles()));
                 if (selectedVehicle != null) {
                     priorityTextField.setText(String.valueOf(selectedVehicle.getPriority()));
                 }
@@ -388,7 +379,7 @@ public class GUI extends Application {
                 String selectedVehicleName = vehicleListView.getSelectionModel().getSelectedItem();
                 if (validated && selectedVehicleName != null) {
                     int newPriority = Integer.parseInt(priorityTextField.getText());
-                    projectData.getVehicle(projectData.getVehicleID(selectedVehicleName, projectData.getVehicles())).setPriority(newPriority);
+                    dataStatus.getProjectData().getVehicle(dataStatus.getProjectData().getVehicleID(selectedVehicleName, dataStatus.getProjectData().getVehicles())).setPriority(newPriority);
                 }
             }
         });
@@ -401,7 +392,7 @@ public class GUI extends Application {
         GridPane.setConstraints(lengthTextField, 1, 2);
         vehicleListView.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
             if (newValue != null) {
-                Vehicle selectedVehicle = projectData.getVehicle(projectData.getVehicleID(newValue, projectData.getVehicles()));
+                Vehicle selectedVehicle = dataStatus.getProjectData().getVehicle(dataStatus.getProjectData().getVehicleID(newValue, dataStatus.getProjectData().getVehicles()));
                 if (selectedVehicle != null) {
                     lengthTextField.setText(String.valueOf(selectedVehicle.getLength()));
                 }
@@ -413,7 +404,7 @@ public class GUI extends Application {
                 String selectedVehicleName = vehicleListView.getSelectionModel().getSelectedItem();
                 if (validated && selectedVehicleName != null) {
                     double newLength = Double.parseDouble(lengthTextField.getText());
-                    projectData.getVehicle(projectData.getVehicleID(selectedVehicleName, projectData.getVehicles())).setLength(newLength);
+                    dataStatus.getProjectData().getVehicle(dataStatus.getProjectData().getVehicleID(selectedVehicleName, dataStatus.getProjectData().getVehicles())).setLength(newLength);
                 }
             }
         });
@@ -426,7 +417,7 @@ public class GUI extends Application {
         GridPane.setConstraints(widthTextField, 1, 3);
         vehicleListView.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
             if (newValue != null) {
-                Vehicle selectedVehicle = projectData.getVehicle(projectData.getVehicleID(newValue, projectData.getVehicles()));
+                Vehicle selectedVehicle = dataStatus.getProjectData().getVehicle(dataStatus.getProjectData().getVehicleID(newValue, dataStatus.getProjectData().getVehicles()));
                 if (selectedVehicle != null) {
                     widthTextField.setText(String.valueOf(selectedVehicle.getWidth()));
                 }
@@ -438,7 +429,7 @@ public class GUI extends Application {
                 String selectedVehicleName = vehicleListView.getSelectionModel().getSelectedItem();
                 if (validated && selectedVehicleName != null) {
                     double newWidth = Double.parseDouble(widthTextField.getText());
-                    projectData.getVehicle(projectData.getVehicleID(selectedVehicleName, projectData.getVehicles())).setWidth(newWidth);
+                    dataStatus.getProjectData().getVehicle(dataStatus.getProjectData().getVehicleID(selectedVehicleName, dataStatus.getProjectData().getVehicles())).setWidth(newWidth);
                 }
             }
         });
@@ -451,7 +442,7 @@ public class GUI extends Application {
         GridPane.setConstraints(maxVelocityTextField, 1, 4);
         vehicleListView.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
             if (newValue != null) {
-                Vehicle selectedVehicle = projectData.getVehicle(projectData.getVehicleID(newValue, projectData.getVehicles()));
+                Vehicle selectedVehicle = dataStatus.getProjectData().getVehicle(dataStatus.getProjectData().getVehicleID(newValue, dataStatus.getProjectData().getVehicles()));
                 if (selectedVehicle != null) {
                     maxVelocityTextField.setText(String.valueOf(selectedVehicle.getMaxVelocity()));
                 }
@@ -463,7 +454,7 @@ public class GUI extends Application {
                 String selectedVehicleName = vehicleListView.getSelectionModel().getSelectedItem();
                 if (validated && selectedVehicleName != null) {
                     double newMaxVelocity = Double.parseDouble(maxVelocityTextField.getText());
-                    projectData.getVehicle(projectData.getVehicleID(selectedVehicleName, projectData.getVehicles())).setMaxVelocity(newMaxVelocity);
+                    dataStatus.getProjectData().getVehicle(dataStatus.getProjectData().getVehicleID(selectedVehicleName, dataStatus.getProjectData().getVehicles())).setMaxVelocity(newMaxVelocity);
                 }
             }
         });
@@ -476,7 +467,7 @@ public class GUI extends Application {
         GridPane.setConstraints(maxAccelerationTextField, 1, 5);
         vehicleListView.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
             if (newValue != null) {
-                Vehicle selectedVehicle = projectData.getVehicle(projectData.getVehicleID(newValue, projectData.getVehicles()));
+                Vehicle selectedVehicle = dataStatus.getProjectData().getVehicle(dataStatus.getProjectData().getVehicleID(newValue, dataStatus.getProjectData().getVehicles()));
                 if (selectedVehicle != null) {
                     maxAccelerationTextField.setText(String.valueOf(selectedVehicle.getMaxAcceleration()));
                 }
@@ -488,7 +479,7 @@ public class GUI extends Application {
                 String selectedVehicleName = vehicleListView.getSelectionModel().getSelectedItem();
                 if (validated && selectedVehicleName != null) {
                     double newMaxAcceleration = Double.parseDouble(maxAccelerationTextField.getText());
-                    projectData.getVehicle(projectData.getVehicleID(selectedVehicleName, projectData.getVehicles())).setMaxAcceleration(newMaxAcceleration);
+                    dataStatus.getProjectData().getVehicle(dataStatus.getProjectData().getVehicleID(selectedVehicleName, dataStatus.getProjectData().getVehicles())).setMaxAcceleration(newMaxAcceleration);
                 }
             }
         });
@@ -501,7 +492,7 @@ public class GUI extends Application {
         GridPane.setConstraints(safetyDistanceTextField, 1, 6);
         vehicleListView.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
             if (newValue != null) {
-                Vehicle selectedVehicle = projectData.getVehicle(projectData.getVehicleID(newValue, projectData.getVehicles()));
+                Vehicle selectedVehicle = dataStatus.getProjectData().getVehicle(dataStatus.getProjectData().getVehicleID(newValue, dataStatus.getProjectData().getVehicles()));
                 if (selectedVehicle != null) {
                     safetyDistanceTextField.setText(String.valueOf(selectedVehicle.getSafetyDistance()));
                 }
@@ -513,7 +504,7 @@ public class GUI extends Application {
                 String selectedVehicleName = vehicleListView.getSelectionModel().getSelectedItem();
                 if (validated && selectedVehicleName != null) {
                     double newSafetyDistance = Double.parseDouble(safetyDistanceTextField.getText());
-                    projectData.getVehicle(projectData.getVehicleID(selectedVehicleName, projectData.getVehicles())).setSafetyDistance(newSafetyDistance);
+                    dataStatus.getProjectData().getVehicle(dataStatus.getProjectData().getVehicleID(selectedVehicleName, dataStatus.getProjectData().getVehicles())).setSafetyDistance(newSafetyDistance);
                 }
             }
         });
@@ -527,7 +518,7 @@ public class GUI extends Application {
         GridPane.setConstraints(colorChoiceBox, 1, 7);
         vehicleListView.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
             if (newValue != null) {
-                Vehicle selectedVehicle = projectData.getVehicle(projectData.getVehicleID(newValue, projectData.getVehicles()));
+                Vehicle selectedVehicle = dataStatus.getProjectData().getVehicle(dataStatus.getProjectData().getVehicleID(newValue, dataStatus.getProjectData().getVehicles()));
                 if (selectedVehicle != null) {
                     colorChoiceBox.setValue(String.valueOf(selectedVehicle.getColor()));
                 }
@@ -537,7 +528,7 @@ public class GUI extends Application {
             String selectedVehicleName = vehicleListView.getSelectionModel().getSelectedItem();
             if (selectedVehicleName != null) {
                 String newColor = colorChoiceBox.getValue();
-                projectData.getVehicle(projectData.getVehicleID(selectedVehicleName, projectData.getVehicles())).setColor(newColor);
+                dataStatus.getProjectData().getVehicle(dataStatus.getProjectData().getVehicleID(selectedVehicleName, dataStatus.getProjectData().getVehicles())).setColor(newColor);
             }
         });
 
@@ -545,12 +536,12 @@ public class GUI extends Application {
         Text initialPoseText = new Text("Start Location: ");
         GridPane.setConstraints(initialPoseText, 0, 8);
         ChoiceBox<String> initialPoseChoiceBox = new ChoiceBox<>();
-        initialPoseChoiceBox.getItems().addAll(projectData.getPoses().keySet());
+        initialPoseChoiceBox.getItems().addAll(dataStatus.getProjectData().getPoses().keySet());
         initialPoseChoiceBox.setMaxWidth(nameTextField.getMaxWidth());
         GridPane.setConstraints(initialPoseChoiceBox, 1, 8);
         vehicleListView.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
             if (newValue != null) {
-                Vehicle selectedVehicle = projectData.getVehicle(projectData.getVehicleID(newValue, projectData.getVehicles()));
+                Vehicle selectedVehicle = dataStatus.getProjectData().getVehicle(dataStatus.getProjectData().getVehicleID(newValue, dataStatus.getProjectData().getVehicles()));
                 if (selectedVehicle != null) {
                     initialPoseChoiceBox.setValue(String.valueOf(selectedVehicle.getInitialPose()));
                 }
@@ -560,7 +551,7 @@ public class GUI extends Application {
             String selectedVehicleName = vehicleListView.getSelectionModel().getSelectedItem();
             if (selectedVehicleName != null) {
                 String newInitialPose = initialPoseChoiceBox.getValue();
-                projectData.getVehicle(projectData.getVehicleID(selectedVehicleName, projectData.getVehicles())).setInitialPose(newInitialPose);
+                dataStatus.getProjectData().getVehicle(dataStatus.getProjectData().getVehicleID(selectedVehicleName, dataStatus.getProjectData().getVehicles())).setInitialPose(newInitialPose);
             }
         });
 
@@ -579,7 +570,7 @@ public class GUI extends Application {
 
         vehicleListView.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
             if (newValue != null) {
-                Vehicle selectedVehicle = projectData.getVehicle(projectData.getVehicleID(newValue, projectData.getVehicles()));
+                Vehicle selectedVehicle = dataStatus.getProjectData().getVehicle(dataStatus.getProjectData().getVehicleID(newValue, dataStatus.getProjectData().getVehicles()));
                 if (selectedVehicle != null) {
                     missionListView.getItems().clear();
                     List<MissionStep> missionSteps = selectedVehicle.getMission();
@@ -603,7 +594,7 @@ public class GUI extends Application {
         // Set action for moving missions up
         upMissionButton.setOnAction(e -> {
             int selectedIndex = missionListView.getSelectionModel().getSelectedIndex();
-            Vehicle selectedVehicle = projectData.getVehicle(projectData.getVehicleID(vehicleListView.getSelectionModel().getSelectedItem(), projectData.getVehicles()));
+            Vehicle selectedVehicle = dataStatus.getProjectData().getVehicle(dataStatus.getProjectData().getVehicleID(vehicleListView.getSelectionModel().getSelectedItem(), dataStatus.getProjectData().getVehicles()));
             if (selectedIndex > 0) {
                 String itemToMove = missionListView.getItems().remove(selectedIndex);
                 missionListView.getItems().add(selectedIndex - 1, itemToMove);
@@ -619,7 +610,7 @@ public class GUI extends Application {
         // Set action for moving missions down
         downMissionButton.setOnAction(e -> {
             int selectedIndex = missionListView.getSelectionModel().getSelectedIndex();
-            Vehicle selectedVehicle = projectData.getVehicle(projectData.getVehicleID(vehicleListView.getSelectionModel().getSelectedItem(), projectData.getVehicles()));
+            Vehicle selectedVehicle = dataStatus.getProjectData().getVehicle(dataStatus.getProjectData().getVehicleID(vehicleListView.getSelectionModel().getSelectedItem(), dataStatus.getProjectData().getVehicles()));
             if (selectedIndex < missionListView.getItems().size() - 1) {
                 String itemToMove = missionListView.getItems().remove(selectedIndex);
                 missionListView.getItems().add(selectedIndex + 1, itemToMove);
@@ -634,8 +625,8 @@ public class GUI extends Application {
 
         // Set action for adding a mission
         addMissionButton.setOnAction(e -> {
-            MissionStep addedMission = AddMissionDialogBox.display("Adding a Mission", projectData.getPoses().keySet(), missionListView);
-            Vehicle selectedVehicle = projectData.getVehicle(projectData.getVehicleID(vehicleListView.getSelectionModel().getSelectedItem(), projectData.getVehicles()));
+            MissionStep addedMission = AddMissionDialogBox.display("Adding a Mission", dataStatus.getProjectData().getPoses().keySet(), missionListView);
+            Vehicle selectedVehicle = dataStatus.getProjectData().getVehicle(dataStatus.getProjectData().getVehicleID(vehicleListView.getSelectionModel().getSelectedItem(), dataStatus.getProjectData().getVehicles()));
             if (selectedVehicle != null && addedMission != null) {
                 List<MissionStep> missionSteps = selectedVehicle.getMission();
                 missionSteps.add(addedMission);
@@ -644,7 +635,7 @@ public class GUI extends Application {
 
         // Set action for removing a mission
         deleteMissionButton.setOnAction(e -> {
-            Vehicle selectedVehicle = projectData.getVehicle(projectData.getVehicleID(vehicleListView.getSelectionModel().getSelectedItem(), projectData.getVehicles()));
+            Vehicle selectedVehicle = dataStatus.getProjectData().getVehicle(dataStatus.getProjectData().getVehicleID(vehicleListView.getSelectionModel().getSelectedItem(), dataStatus.getProjectData().getVehicles()));
             if (selectedVehicle != null) {
                 int selectedMissionIndex = missionListView.getSelectionModel().getSelectedIndex();
                 missionListView.getItems().remove(selectedMissionIndex);
@@ -660,7 +651,7 @@ public class GUI extends Application {
         GridPane.setConstraints(missionRepetitionTextField, 1, 10);
         vehicleListView.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
             if (newValue != null) {
-                Vehicle selectedVehicle = projectData.getVehicle(projectData.getVehicleID(newValue, projectData.getVehicles()));
+                Vehicle selectedVehicle = dataStatus.getProjectData().getVehicle(dataStatus.getProjectData().getVehicleID(newValue, dataStatus.getProjectData().getVehicles()));
                 if (selectedVehicle != null) {
                     missionRepetitionTextField.setText(String.valueOf(selectedVehicle.getMissionRepetition()));
                 }
@@ -672,7 +663,7 @@ public class GUI extends Application {
                 String selectedVehicleName = vehicleListView.getSelectionModel().getSelectedItem();
                 if (validated && selectedVehicleName != null) {
                     int newMissionRepetition = Integer.parseInt(missionRepetitionTextField.getText());
-                    projectData.getVehicle(projectData.getVehicleID(selectedVehicleName, projectData.getVehicles())).setMissionRepetition(newMissionRepetition);
+                    dataStatus.getProjectData().getVehicle(dataStatus.getProjectData().getVehicleID(selectedVehicleName, dataStatus.getProjectData().getVehicles())).setMissionRepetition(newMissionRepetition);
                 }
             }
         });
@@ -687,7 +678,7 @@ public class GUI extends Application {
         GridPane.setConstraints(lookAheadDistanceTextField, 1, 12);
         vehicleListView.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
             if (newValue != null) {
-                Vehicle selectedVehicle = projectData.getVehicle(projectData.getVehicleID(newValue, projectData.getVehicles()));
+                Vehicle selectedVehicle = dataStatus.getProjectData().getVehicle(dataStatus.getProjectData().getVehicleID(newValue, dataStatus.getProjectData().getVehicles()));
                 if (selectedVehicle != null) {
                     lookAheadDistanceTextField.setText(String.valueOf(selectedVehicle.getLookAheadDistance()));
                 }
@@ -699,7 +690,7 @@ public class GUI extends Application {
                 String selectedVehicleName = vehicleListView.getSelectionModel().getSelectedItem();
                 if (validated && selectedVehicleName != null) {
                     double newLookAheadDistance = Double.parseDouble(lookAheadDistanceTextField.getText());
-                    projectData.getVehicle(projectData.getVehicleID(selectedVehicleName, projectData.getVehicles())).setLookAheadDistance(newLookAheadDistance);
+                    dataStatus.getProjectData().getVehicle(dataStatus.getProjectData().getVehicleID(selectedVehicleName, dataStatus.getProjectData().getVehicles())).setLookAheadDistance(newLookAheadDistance);
                 }
             }
         });
@@ -711,7 +702,7 @@ public class GUI extends Application {
         GridPane.setConstraints(isHumanCheckBox, 1, 11);
         vehicleListView.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
             if (newValue != null) {
-                Vehicle selectedVehicle = projectData.getVehicle(projectData.getVehicleID(newValue, projectData.getVehicles()));
+                Vehicle selectedVehicle = dataStatus.getProjectData().getVehicle(dataStatus.getProjectData().getVehicleID(newValue, dataStatus.getProjectData().getVehicles()));
                 if (selectedVehicle != null) {
                     boolean ifHuman = "Human".equals(selectedVehicle.getType());
                     isHumanCheckBox.setSelected(ifHuman);
@@ -723,7 +714,7 @@ public class GUI extends Application {
         });
         isHumanCheckBox.setOnAction(e -> {
             String selectedVehicleName = vehicleListView.getSelectionModel().getSelectedItem();
-            Vehicle selectedVehicle = selectedVehicleName != null ? projectData.getVehicle(projectData.getVehicleID(selectedVehicleName, projectData.getVehicles())) : null;
+            Vehicle selectedVehicle = selectedVehicleName != null ? dataStatus.getProjectData().getVehicle(dataStatus.getProjectData().getVehicleID(selectedVehicleName, dataStatus.getProjectData().getVehicles())) : null;
 
             if (isHumanCheckBox.isSelected()) {
                 lookAheadDistanceText.setVisible(true);
@@ -770,7 +761,7 @@ public class GUI extends Application {
         vehicleListView.setMaxWidth(vehiclesLabel.getPrefWidth());
         vehicleListView.setPrefHeight(475);
         vehicleListView.getItems().clear();
-        projectData.getVehicles().forEach(vehicle -> vehicleListView.getItems().add(vehicle.getName()));
+        dataStatus.getProjectData().getVehicles().forEach(vehicle -> vehicleListView.getItems().add(vehicle.getName()));
         vehicleListView.getSelectionModel().selectFirst();
 
         Button addVehicleButton = new Button("Add Vehicle");
@@ -788,7 +779,7 @@ public class GUI extends Application {
             double maxAccelerationOfVehicle = 1.0;
             double safetyDistanceOfVehicle = 0.0;
             String colorOfVehicle = "Yellow";
-            String initialPoseOfVehicle = projectData.getPoses().keySet().stream().findFirst().orElse(null);
+            String initialPoseOfVehicle = dataStatus.getProjectData().getPoses().keySet().stream().findFirst().orElse(null);
             int missionRepetitionOfVehicle = 1;
             String typeOfVehicle = "Autonomous";
             double lookAheadDistanceOfVehicle = 0.0;
@@ -796,7 +787,7 @@ public class GUI extends Application {
             // Adding a default mission
             List<MissionStep> missionOfVehicle = new ArrayList<>();
             MissionStep missionStep = new MissionStep();
-            missionStep.setPoseName(projectData.getPoses().keySet().stream().
+            missionStep.setPoseName(dataStatus.getProjectData().getPoses().keySet().stream().
                     filter(item -> !item.equals(initialPoseOfVehicle)).
                     findAny().
                     orElse(null));
@@ -805,9 +796,9 @@ public class GUI extends Application {
 
             // Handle duplicate names for vehicles
             String nameOfVehicle = baseNameOfVehicle;
-            if (projectData.getVehicles().stream().anyMatch(vehicle -> vehicle.getName().equals(baseNameOfVehicle))) {
-                // Append a number to the base name
-                nameOfVehicle = baseNameOfVehicle + " (" + vehicleCounter++ + ")";
+            if (dataStatus.getProjectData().getVehicles().stream().anyMatch(vehicle -> vehicle.getName().equals(baseNameOfVehicle))) {
+                dataStatus.setVehicleCounter(dataStatus.getVehicleCounter() + 1);
+                nameOfVehicle = baseNameOfVehicle + " (" + dataStatus.getVehicleCounter() + ")";
             }
 
             // Create a new vehicle with default values
@@ -826,7 +817,7 @@ public class GUI extends Application {
             vehicle.setType(typeOfVehicle);
             vehicle.setLookAheadDistance(lookAheadDistanceOfVehicle);
 
-            projectData.addVehicle(vehicle);
+            dataStatus.getProjectData().addVehicle(vehicle);
             vehicleListView.getItems().add(vehicle.getName());
             vehicleListView.getSelectionModel().selectLast();
         });
@@ -834,7 +825,7 @@ public class GUI extends Application {
         // Set action for removing a vehicle
         deleteVehicleButton.setOnAction(e -> {
             String selectedVehicleName = vehicleListView.getSelectionModel().getSelectedItem(); // Get the selected item
-            projectData.removeVehicle(projectData.getVehicle(projectData.getVehicleID(selectedVehicleName, projectData.getVehicles())).getID()); // Remove from ProjectData
+            dataStatus.getProjectData().removeVehicle(dataStatus.getProjectData().getVehicle(dataStatus.getProjectData().getVehicleID(selectedVehicleName, dataStatus.getProjectData().getVehicles())).getID()); // Remove from ProjectData
             vehicleListView.getItems().remove(selectedVehicleName); // Remove from ListView
             vehicleListView.getSelectionModel().selectFirst();
         });
@@ -849,7 +840,7 @@ public class GUI extends Application {
         vehicleListView.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
             if (newValue != null) {
                 // Get the selected vehicle's details
-                Vehicle vehicle = projectData.getVehicle(projectData.getVehicleID(newValue, projectData.getVehicles()));
+                Vehicle vehicle = dataStatus.getProjectData().getVehicle(dataStatus.getProjectData().getVehicleID(newValue, dataStatus.getProjectData().getVehicles()));
 
                 // Update the fields in the centerPane with the details of the selected vehicle
                 nameTextField.setText(newValue);
@@ -859,7 +850,7 @@ public class GUI extends Application {
                 maxAccelerationTextField.setText(String.valueOf(vehicle.getMaxAcceleration()));
                 safetyDistanceTextField.setText(String.valueOf(vehicle.getSafetyDistance()));
                 colorChoiceBox.setValue(vehicle.getColor());
-                initialPoseChoiceBox.setValue(projectData.getVehicle(projectData.getVehicleID(newValue, projectData.getVehicles())).getInitialPose());
+                initialPoseChoiceBox.setValue(dataStatus.getProjectData().getVehicle(dataStatus.getProjectData().getVehicleID(newValue, dataStatus.getProjectData().getVehicles())).getInitialPose());
                 lookAheadDistanceTextField.setText(String.valueOf(vehicle.getLookAheadDistance()));
                 missionRepetitionTextField.setText(String.valueOf(vehicle.getMissionRepetition()));
 
@@ -918,25 +909,25 @@ public class GUI extends Application {
             if (selectedHeuristic != null) {
                 switch (selectedHeuristic) {
                     case "MOST_DISTANCE_TRAVELLED":
-                        heuristics = new Heuristics(Heuristics.HeuristicType.MOST_DISTANCE_TRAVELLED);
+                        dataStatus.setHeuristics(new Heuristics(Heuristics.HeuristicType.MOST_DISTANCE_TRAVELLED));
                         break;
                     case "MOST_DISTANCE_TO_TRAVEL":
-                        heuristics = new Heuristics(Heuristics.HeuristicType.MOST_DISTANCE_TO_TRAVEL);
+                        dataStatus.setHeuristics(new Heuristics(Heuristics.HeuristicType.MOST_DISTANCE_TO_TRAVEL));
                         break;
                     case "RANDOM":
-                        heuristics = new Heuristics(Heuristics.HeuristicType.RANDOM);
+                        dataStatus.setHeuristics(new Heuristics(Heuristics.HeuristicType.RANDOM));
                         break;
                     case "HIGHEST_PRIORITY_FIRST":
-                        heuristics = new Heuristics(Heuristics.HeuristicType.HIGHEST_PRIORITY_FIRST);
+                        dataStatus.setHeuristics(new Heuristics(Heuristics.HeuristicType.HIGHEST_PRIORITY_FIRST));
                         break;
                     case "HUMAN_FIRST":
-                        heuristics = new Heuristics(Heuristics.HeuristicType.HUMAN_FIRST);
+                        dataStatus.setHeuristics(new Heuristics(Heuristics.HeuristicType.HUMAN_FIRST));
                         break;
                     case "AUTONOMOUS_FIRST":
-                        heuristics = new Heuristics(Heuristics.HeuristicType.AUTONOMOUS_FIRST);
+                        dataStatus.setHeuristics(new Heuristics(Heuristics.HeuristicType.AUTONOMOUS_FIRST));
                         break;
                     default:
-                        heuristics = new Heuristics(Heuristics.HeuristicType.CLOSEST_FIRST);
+                        dataStatus.setHeuristics(new Heuristics(Heuristics.HeuristicType.CLOSEST_FIRST));
                         break;
                 }
             }
@@ -953,7 +944,7 @@ public class GUI extends Application {
             if (!isNowFocused) {
                 Boolean validated = validateInteger(simulationTimeTextField);
                 if (validated) {
-                    simulationTime = Integer.parseInt(simulationTimeTextField.getText());
+                    dataStatus.setSimulationTime(Integer.parseInt(simulationTimeTextField.getText()));
                 }
             }
         });
@@ -968,7 +959,7 @@ public class GUI extends Application {
             if (!isNowFocused) {
                 Boolean validated = validateInteger(numberOfRunsTextField);
                 if (validated) {
-                    numberOfRuns = Integer.parseInt(numberOfRunsTextField.getText());
+                    dataStatus.setNumberOfRuns(Integer.parseInt(numberOfRunsTextField.getText()));
                 }
             }
         });
@@ -992,8 +983,8 @@ public class GUI extends Application {
             if (selectedDirectory != null) {
                 reportsLocationText.setVisible(true);
                 reportsFolderLocation.setVisible(true);
-                reportsFolder = selectedDirectory.getAbsolutePath();
-                reportsFolderLocation.setText(reportsFolder);
+                dataStatus.setReportsFolder(selectedDirectory.getAbsolutePath());
+                reportsFolderLocation.setText(dataStatus.getReportsFolder());
             }
         });
 
@@ -1012,7 +1003,7 @@ public class GUI extends Application {
                 reportsLocationText.setVisible(false);
                 reportsFolderLocation.setVisible(false);
             }
-            writeVehicleReports = saveReportsCheckBox.isSelected();
+            dataStatus.setWriteVehicleReports(saveReportsCheckBox.isSelected());
         });
 
         centerPane.getChildren().addAll(heuristicsText, heuristicsChoiceBox, simulationTimeText,
@@ -1039,10 +1030,10 @@ public class GUI extends Application {
     protected void newProject() {
         File selectedFile = createFile(this, "newProject", "json");
         if (selectedFile != null) {
-            projectFile = selectedFile.getAbsolutePath();
+            dataStatus.setProjectFile(selectedFile.getAbsolutePath());
             filePathText.setText("Name of Project: " + selectedFile.getName());
-            projectData = new ProjectData();
-            mapData = new MapData();
+            dataStatus.setProjectData(new ProjectData());
+            dataStatus.setMapData(new MapData());
             isNewProject = true;
             nextButton.setVisible(true);
 
@@ -1059,14 +1050,14 @@ public class GUI extends Application {
     protected void openProject() {
         File file = chooseFile(this, "Select a project file to open: ", "json");
         if (file != null) {
-            projectFile = file.getAbsolutePath();
+            dataStatus.setProjectFile(file.getAbsolutePath());
             filePathText.setText("Name of Project: " + file.getName());
             isNewProject = false;
             nextButton.setVisible(true);
             try {
-                projectData = parseJSON(projectFile);
-                orignalProjectData = deepCopy(projectData);
-                mapData = parseYAML(projectData.getMap());
+                dataStatus.setProjectData(parseJSON(dataStatus.getProjectFile()));
+                dataStatus.setOriginalProjectData(deepCopy(dataStatus.getProjectData()));
+                dataStatus.setMapData(parseYAML(dataStatus.getProjectData().getMap()));
             } catch (IOException ex) {
                 throw new RuntimeException(ex);
             }
@@ -1077,17 +1068,17 @@ public class GUI extends Application {
     protected void saveProject() {
         try{
             if (isNewProject) {
-                AlertBox.display("Saving the project", "The project has been saved to: " + projectFile, Alert.AlertType.INFORMATION);
-                writeJSON(projectData, projectFile);
+                AlertBox.display("Saving the project", "The project has been saved to: " + dataStatus.getProjectFile(), Alert.AlertType.INFORMATION);
+                writeJSON(dataStatus.getProjectData(), dataStatus.getProjectFile());
             } else {
-                if (projectData.equals(orignalProjectData)) {
-                    AlertBox.display("Saving the project", "There are no changes to save in the project: " + projectFile, Alert.AlertType.INFORMATION);
+                if (dataStatus.getProjectData().equals(dataStatus.getOriginalProjectData())) {
+                    AlertBox.display("Saving the project", "There are no changes to save in the project: " + dataStatus.getProjectFile(), Alert.AlertType.INFORMATION);
                 } else {
                     var selectedFile = createFile(this, "project", "json");
                     if (selectedFile != null) {
-                        projectFile = selectedFile.getAbsolutePath();
-                        AlertBox.display("Saving the project", "The project has been saved to: " + projectFile, Alert.AlertType.INFORMATION);
-                        writeJSON(projectData, projectFile);
+                        dataStatus.setProjectFile(selectedFile.getAbsolutePath());
+                        AlertBox.display("Saving the project", "The project has been saved to: " + dataStatus.getProjectFile(), Alert.AlertType.INFORMATION);
+                        writeJSON(dataStatus.getProjectData(), dataStatus.getProjectFile());
                     }
                 }
             }
@@ -1099,8 +1090,8 @@ public class GUI extends Application {
     // A method to run the current project
     protected void runProject() {
 
-        final String YAML_FILE = projectData.getMap();
-        double mapResolution = mapData.getResolution();
+        final String YAML_FILE = dataStatus.getProjectData().getMap();
+        double mapResolution = dataStatus.getMapData().getResolution();
         double scaleAdjustment = 1 / mapResolution;
         double lookAheadDistance = 45 / scaleAdjustment;
         double reportsTimeIntervalInSeconds = 0.1;
@@ -1111,7 +1102,7 @@ public class GUI extends Application {
         tec.startInference();
 
         // Set Heuristics
-        tec.addComparator(heuristics.getComparator());
+        tec.addComparator(dataStatus.getHeuristics().getComparator());
 
         // Set Local Re-ordering and Local Re-Planning to break Deadlocks
         tec.setBreakDeadlocks(true, false, false);
@@ -1123,7 +1114,7 @@ public class GUI extends Application {
         viz.AccessInitialTransform();
         tec.setVisualization(viz);
 
-        projectData.getVehicles().forEach((vehicle) -> {
+        dataStatus.getProjectData().getVehicles().forEach((vehicle) -> {
 
             AbstractVehicle newVehicle;
             if (vehicle.getType().equals("Autonomous")) {
@@ -1141,11 +1132,11 @@ public class GUI extends Application {
             newVehicle.setMaxAcceleration(vehicle.getMaxAcceleration() / scaleAdjustment);
             newVehicle.setSafetyDistance(vehicle.getSafetyDistance() / scaleAdjustment);
             newVehicle.setColor(stringToColor(vehicle.getColor()));
-            newVehicle.setInitialPose(projectData.getPose(vehicle.getInitialPose()));
+            newVehicle.setInitialPose(dataStatus.getProjectData().getPose(vehicle.getInitialPose()));
             newVehicle.setGoalPoses(vehicle.getMission()
                     .stream()
                     .map(MissionStep::getPoseName)
-                    .map(poseName -> projectData.getPose(poseName))
+                    .map(poseName -> dataStatus.getProjectData().getPose(poseName))
                     .toArray(Pose[]::new));
 //            newVehicle.setMission(vehicle.getMission()); // FIXME Fix Mission, How to handle multiple missions to GoalPoses, handle stoppages
             newVehicle.setMissionRepetition(vehicle.getMissionRepetition()); //FIXME Handle Mission Repetitions in missionsDispatcher
@@ -1164,8 +1155,8 @@ public class GUI extends Application {
             Missions.enqueueMission(mission);
         });
             Missions.setMap(YAML_FILE);
-            Missions.startMissionDispatchers(tec, writeVehicleReports, reportsTimeIntervalInSeconds,
-                    simulationTime, heuristics.getName(), 100, reportsFolder, scaleAdjustment);
+            Missions.startMissionDispatchers(tec, dataStatus.getWriteVehicleReports(), reportsTimeIntervalInSeconds,
+                    dataStatus.getSimulationTime(), dataStatus.getHeuristics().getName(), 100, dataStatus.getReportsFolder(), scaleAdjustment);
     }
 
     // A method to reset the GUI interface
@@ -1173,32 +1164,32 @@ public class GUI extends Application {
         stage.setTitle("Coordination_ORU");
         stage.setScene(displayProjectScene());
         stage.centerOnScreen();
-        projectData = new ProjectData();
-        mapData = new MapData();
+        dataStatus.setProjectData(new ProjectData());
+        dataStatus.setMapData(new MapData());
         isNewProject = false;
         isProjectScene = true;
         isMapScene = false;
         isVehicleScene = false;
         isSimulationScene = false;
-        projectFile = "";
+        dataStatus.setProjectFile("");
         vehicleListView.getItems().clear();
     }
 
     // A method to quit the project gracefully and save the project if needed
     protected void quitProgram(Stage stage) {
-        if (projectData == null) {
+        if (dataStatus.getProjectData() == null) {
             stage.close();
-        } else if (projectData.equals(orignalProjectData)) {
+        } else if (dataStatus.getProjectData().equals(dataStatus.getOriginalProjectData())) {
             stage.close();
         } else {
             Optional<ButtonType> answer = AlertBox.display("Saving the project", "Would you like to save the project before exiting?", Alert.AlertType.CONFIRMATION);
-            if (answer.isPresent() && answer.get() == ButtonType.YES && projectData != null) saveProject();
+            if (answer.isPresent() && answer.get() == ButtonType.YES && dataStatus.getProjectData() != null) saveProject();
             stage.close();
         }
     }
 
     private void checkSizePoses() {
-        nextButton.setDisable(projectData.getPoses().size() < 2);
+        nextButton.setDisable(dataStatus.getProjectData().getPoses().size() < 2);
     }
 }
 
