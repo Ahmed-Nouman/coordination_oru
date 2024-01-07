@@ -31,23 +31,23 @@ public class GUIMenuBar {
         // File menu items
         newProjectMenuItem = new MenuItem("New Project...");
         newProjectMenuItem.setAccelerator(new KeyCodeCombination(KeyCode.N, KeyCodeCombination.CONTROL_DOWN));
-        newProjectMenuItem.setOnAction(e -> gui.newProject());
+        newProjectMenuItem.setOnAction(e -> gui.getHomeScene().newProject(gui));
 
         openProjectMenuItem = new MenuItem("Open Project...");
         openProjectMenuItem.setAccelerator(new KeyCodeCombination(KeyCode.O, KeyCodeCombination.CONTROL_DOWN));
-        openProjectMenuItem.setOnAction(e -> gui.openProject());
+        openProjectMenuItem.setOnAction(e -> gui.getHomeScene().openProject(gui));
 
         closeProjectMenuItem = new MenuItem("Close Project");
         closeProjectMenuItem.setAccelerator(new KeyCodeCombination(KeyCode.C, KeyCodeCombination.CONTROL_DOWN));
-        closeProjectMenuItem.setOnAction(e -> gui.resetProject(gui.primaryStage));
+        closeProjectMenuItem.setOnAction(e -> gui.getSimulationScene().resetProject(gui.getPrimaryStage(), gui));
 
         saveProjectMenuItem = new MenuItem("Save Project...");
         saveProjectMenuItem.setAccelerator(new KeyCodeCombination(KeyCode.S, KeyCodeCombination.CONTROL_DOWN));
-        saveProjectMenuItem.setOnAction(e -> gui.saveProject());
+        saveProjectMenuItem.setOnAction(e -> gui.getSimulationScene().saveProject(gui));
 
         MenuItem quitMenuItem = new MenuItem("Quit");
         quitMenuItem.setAccelerator(new KeyCodeCombination(KeyCode.Q, KeyCodeCombination.CONTROL_DOWN));
-        quitMenuItem.setOnAction(e -> gui.quitProgram(gui.primaryStage));
+        quitMenuItem.setOnAction(e -> gui.closeProgram(gui.getPrimaryStage()));
 
         fileMenu.getItems().addAll(newProjectMenuItem, openProjectMenuItem, closeProjectMenuItem, saveProjectMenuItem, separator, quitMenuItem);
 
@@ -56,8 +56,8 @@ public class GUIMenuBar {
         runProjectMenuItem = new MenuItem("Run Project...");
         runProjectMenuItem.setAccelerator(new KeyCodeCombination(KeyCode.R, KeyCodeCombination.CONTROL_DOWN));
         runProjectMenuItem.setOnAction(e -> {
-            Thread thread = new Thread(gui::runProject);
-            thread.start();
+//            var thread = new Thread(gui.getSimulationScene().runProject(gui.getDataStatus()));
+//            thread.start();
         });
         runMenu.getItems().addAll(runProjectMenuItem);
 

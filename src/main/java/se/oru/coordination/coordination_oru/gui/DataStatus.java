@@ -13,6 +13,7 @@ public class DataStatus {
     private String reportsFolder = "";
     private Heuristics heuristics = new Heuristics(Heuristics.HeuristicType.CLOSEST_FIRST);
     private int vehicleCounter = 0;
+    private Boolean isNewProject = false;
 
     public String getProjectFile() {
         return projectFile;
@@ -92,5 +93,13 @@ public class DataStatus {
 
     public void setVehicleCounter(int vehicleCounter) {
         this.vehicleCounter = vehicleCounter;
+    }
+
+    public Boolean isNewProject() {
+        return isNewProject;
+    }
+
+    public void setNewProject(Boolean newProject) {
+        isNewProject = newProject;
     }
 }

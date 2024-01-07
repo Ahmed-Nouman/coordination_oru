@@ -6,8 +6,6 @@ import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import javafx.scene.control.TextField;
-import javafx.scene.image.Image;
-import javafx.scene.image.ImageView;
 import javafx.stage.FileChooser;
 import org.metacsp.multi.spatioTemporal.paths.Pose;
 import org.yaml.snakeyaml.Yaml;
@@ -109,7 +107,7 @@ public class Utils {
         fileChooser.getExtensionFilters().clear();
         String extensionDescription = extension.toUpperCase() + " Files";
         fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter(extensionDescription, "*." + extension));
-        return fileChooser.showOpenDialog(gui.primaryStage);
+        return fileChooser.showOpenDialog(gui.getPrimaryStage());
     }
 
     protected static File createFile(GUI gui, String defaultFileName, String extension) {
@@ -119,7 +117,7 @@ public class Utils {
         fileChooser.getExtensionFilters().clear();
         String extensionDescription = extension.toUpperCase() + " Files";
         fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter(extensionDescription, "*." + extension));
-        File selectedFile = fileChooser.showSaveDialog(gui.primaryStage);
+        File selectedFile = fileChooser.showSaveDialog(gui.getPrimaryStage());
         if (selectedFile != null) {
             String fileExtension = "." + extension;
             if (!selectedFile.getName().endsWith(fileExtension)) {
