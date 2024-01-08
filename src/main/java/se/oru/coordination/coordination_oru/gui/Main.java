@@ -33,7 +33,6 @@ public class Main extends Application {
         primaryStage.setOnCloseRequest(e -> closeProgram(primaryStage));
         primaryStage.setScene(getHomeScene().get());
         primaryStage.show();
-//        getNavigationButton().setCurrentScene(NavigationButton.SceneState.PROJECT);
     }
 
     protected void closeProgram(Stage stage) {

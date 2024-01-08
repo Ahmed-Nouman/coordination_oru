@@ -24,26 +24,10 @@ public class VehicleScene {
 
     public Scene get() {
 
-        var root = new BorderPane();
-
-        // Top Pane - Menu Bar
-        root.setTop(GUIMenuBar.getMenuBar(main));
-        GUIMenuBar.disableNewProject();
-        GUIMenuBar.disableOpenProject();
-        GUIMenuBar.disableSaveProject();
-        GUIMenuBar.disableRunProject();
-
-        // Right Pane
-        var rightPane = new StackPane();
-        int mapWidth = 680;
-        int mapHeight = 538;
-        var mapDisplay = new MapDisplayWithMarkers("file:" + main.getDataStatus().getProjectData().getMapImage(main.getDataStatus().getMapData()), main.getDataStatus().getProjectData().getPoses(),
-                main.getDataStatus().getMapData().getResolution(), mapWidth, mapHeight);
-        BorderPane.setMargin(rightPane, new Insets(10, 10, 10, 0));
-        rightPane.setPadding(new Insets(PADDING));
-        rightPane.setAlignment(Pos.TOP_CENTER);
-        root.setRight(rightPane);
-        rightPane.getChildren().add(mapDisplay);
+        var pane = new BorderPane();
+        getMenuBar(pane);
+        getRightPane(pane);
+        getNavigationBar(pane);
 
         // Center Pane
         var centerPane = new GridPane();
@@ -52,7 +36,7 @@ public class VehicleScene {
         centerPane.setAlignment(Pos.TOP_CENTER);
         centerPane.setHgap(10);
         centerPane.setVgap(10);
-        root.setCenter(centerPane);
+        pane.setCenter(centerPane);
 
         // name text-field
         var name = new Text("Name of Vehicle: ");
@@ -448,12 +432,12 @@ public class VehicleScene {
                 lookAheadDistanceText, lookAheadDistanceTextField);
 
         // Left Pane - VehicleList
-        VBox leftPane = new VBox();
+        var leftPane = new VBox();
         leftPane.setSpacing(10);
         leftPane.setAlignment(Pos.TOP_CENTER);
         BorderPane.setMargin(leftPane, new Insets(10, 0, 10, 10));
         leftPane.setPadding(new Insets(10));
-        root.setLeft(leftPane);
+        pane.setLeft(leftPane);
 
         Label vehiclesLabel = new Label("List of Vehicles: ");
         vehiclesLabel.setFont(Font.font("System", FontWeight.SEMI_BOLD, 14));
@@ -575,9 +559,29 @@ public class VehicleScene {
         });
         vehicleListView.getSelectionModel().selectFirst();
 
-        root.setBottom(NavigationBar.update(main.getNavigationButton().getBackButton(), main.getNavigationButton().getNextButton()));
 
-        return new Scene(root);
+        return new Scene(pane);
+    }
+
+    private void getNavigationBar(BorderPane pane) {
+        pane.setBottom(NavigationBar.update(main, SceneState.VEHICLE));
+    }
+
+    private void getRightPane(BorderPane pane) {
+        var rightPane = new StackPane();
+        int mapWidth = 680;
+        int mapHeight = 538;
+        var mapDisplay = new MapDisplayWithMarkers("file:" + main.getDataStatus().getProjectData().getMapImage(main.getDataStatus().getMapData()), main.getDataStatus().getProjectData().getPoses(),
+                main.getDataStatus().getMapData().getResolution(), mapWidth, mapHeight);
+        BorderPane.setMargin(rightPane, new Insets(10, 10, 10, 0));
+        rightPane.setPadding(new Insets(PADDING));
+        rightPane.setAlignment(Pos.TOP_CENTER);
+        pane.setRight(rightPane);
+        rightPane.getChildren().add(mapDisplay);
+    }
+
+    private void getMenuBar(BorderPane pane) {
+        pane.setTop(MenuBar.update(main, SceneState.VEHICLE));
     }
 
     public ListView<String> getVehicleListView() {

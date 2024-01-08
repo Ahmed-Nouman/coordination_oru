@@ -24,18 +24,12 @@ public class MapScene {
 
     public Scene get() {
 
-        var root = new BorderPane();
-        root.setPrefWidth(WIDTH);
-        root.setPrefHeight(HEIGHT);
+        var pane = new BorderPane();
+        pane.setPrefWidth(WIDTH);
+        pane.setPrefHeight(HEIGHT);
 
-        //Navigation Bar
-        root.setBottom(NavigationBar.update(main.getNavigationButton().getBackButton(), main.getNavigationButton().getNextButton()));
-        //Menu Bar
-        root.setTop(GUIMenuBar.getMenuBar(main));
-        GUIMenuBar.disableNewProject();
-        GUIMenuBar.disableOpenProject();
-        GUIMenuBar.disableSaveProject();
-        GUIMenuBar.disableRunProject();
+        getMenuBar(pane);
+        getNavigationBar(pane);
 
         // Right Pane - Map Locations
         var rightPane = new VBox();
@@ -64,13 +58,13 @@ public class MapScene {
 
         mapController.addLocationClicked(addLocationButton, locationsListView);
         mapController.deleteLocationClicked(deleteLocationButton, locationsListView);
-        root.setRight(rightPane);
+        pane.setRight(rightPane);
 
         // Center Pane
         if (main.getDataStatus().isNewProject()) {
             var centerPane = new VBox();
             centerPane.setAlignment(Pos.CENTER);
-            root.setCenter(centerPane);
+            pane.setCenter(centerPane);
             centerPane.setSpacing(30);
             centerPane.setPadding(new Insets(30, 10, 30, 10));
 //        BorderPane.setMargin(centerPane, new Insets(20, 0, 20, 0));
@@ -79,15 +73,23 @@ public class MapScene {
             centerPane.getChildren().addAll(mapMessageText, mapBrowseButton);
 
             main.getNavigationButton().getNextButton().setDisable(true);
-            mapController.browseClicked(mapBrowseButton, locationsListView, root, addLocationButton, deleteLocationButton);
+            mapController.browseClicked(mapBrowseButton, locationsListView, pane, addLocationButton, deleteLocationButton);
 
         } else {
             addLocationButton.setDisable(false);
             deleteLocationButton.setDisable(false);
             var interactiveMapDisplay = new InteractiveMapDisplayWithMarkers(main.getDataStatus().getProjectData(), main.getDataStatus().getMapData(), locationsListView, main.getNavigationButton().getNextButton());
-            root.setCenter(interactiveMapDisplay.createMapInteractionNode());
+            pane.setCenter(interactiveMapDisplay.createMapInteractionNode());
         }
-        return new Scene(root);
+        return new Scene(pane);
+    }
+
+    private void getMenuBar(BorderPane pane) {
+        pane.setTop(MenuBar.update(main, SceneState.MAP));
+    }
+
+    private void getNavigationBar(BorderPane root) {
+        root.setBottom(NavigationBar.update(main, SceneState.MAP));
     }
 
     public Main getMain() {

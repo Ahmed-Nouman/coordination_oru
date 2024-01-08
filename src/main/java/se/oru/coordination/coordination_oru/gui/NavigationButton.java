@@ -25,11 +25,7 @@ import static se.oru.coordination.coordination_oru.gui.Utils.writeJSON;
 
 public class NavigationButton {
 
-    public enum SceneState {
-        PROJECT, MAP, VEHICLE, SIMULATION
-    }
-
-    private SceneState currentScene = SceneState.PROJECT;
+    private SceneState currentSceneState = SceneState.HOME;
     private final Button backButton = new Button("Back");
     private final Button nextButton = new Button("Next");
     private final Button saveButton = new Button("Save");
@@ -44,10 +40,10 @@ public class NavigationButton {
         main.getNavigationButton().runClicked(main);
     }
 
-    public void updateScene(SceneState newScene, Stage primaryStage, Main main) {
-        setCurrentScene(newScene);
-        switch (newScene) {
-            case PROJECT:
+    public void updateScene(SceneState newSceneState, Stage primaryStage, Main main) {
+        setCurrentScene(newSceneState);
+        switch (newSceneState) {
+            case HOME:
                 primaryStage.setTitle("Coordination_ORU");
                 primaryStage.setScene(main.getHomeScene().get());
                 primaryStage.centerOnScreen();
@@ -78,7 +74,7 @@ public class NavigationButton {
         getBackButton().setOnAction(e -> {
             switch (getCurrentScene()) {
                 case MAP:
-                    updateScene(SceneState.PROJECT, primaryStage, main);
+                    updateScene(SceneState.HOME, primaryStage, main);
                     break;
                 case VEHICLE:
                     updateScene(SceneState.MAP, primaryStage, main);
@@ -95,7 +91,7 @@ public class NavigationButton {
     public void nextClicked(Stage primaryStage, Main main) {
         getNextButton().setOnAction(e -> {
             switch (getCurrentScene()) {
-                case PROJECT:
+                case HOME:
                     updateScene(SceneState.MAP, primaryStage, main);
                     break;
                 case MAP:
@@ -103,11 +99,29 @@ public class NavigationButton {
                     break;
                 case VEHICLE:
                     updateScene(SceneState.SIMULATION, primaryStage, main);
+//                    var thread = new Thread(() -> verifySavePlans(main));
+//                    thread.start();
                     break;
                 default:
                     break;
             }
         });
+    }
+
+    private void verifySavePlans(Main main) {
+        System.out.println("Saving plans...");
+        for (var vehicle : main.getDataStatus().getProjectData().getVehicles()) {
+            var autonomousVehicle = new AutonomousVehicle();
+            autonomousVehicle.setName(vehicle.getName());
+            autonomousVehicle.setInitialPose(main.getDataStatus().getProjectData().getPose(vehicle.getInitialPose()));
+            autonomousVehicle.setGoalPoses(vehicle.getMission()
+                .stream()
+                .map(ProjectData.MissionStep::getPoseName)
+                .map(poseName -> main.getDataStatus().getProjectData().getPose(poseName))
+                .toArray(Pose[]::new));
+            autonomousVehicle.getPlan(autonomousVehicle.getInitialPose(),
+                autonomousVehicle.getGoalPoses(), main.getDataStatus().getProjectData().getMap(), true);
+        }
     }
 
     public void saveClicked(Main main) {
@@ -212,7 +226,7 @@ public class NavigationButton {
                     .map(ProjectData.MissionStep::getPoseName)
                     .map(poseName -> dataStatus.getProjectData().getPose(poseName))
                     .toArray(Pose[]::new));
-//            newVehicle.setMission(vehicle.getMission()); // FIXME Fix Mission, How to handle multiple missions to GoalPoses, handle stoppages
+//            newVehicle.setMission(vehicle.getMission()); //FIXME Fix Mission, How to handle multiple missions to GoalPoses, handle stoppages
             newVehicle.setMissionRepetition(vehicle.getMissionRepetition()); //FIXME Handle Mission Repetitions in missionsDispatcher
 
             newVehicle.getPlan(newVehicle.getInitialPose(),
@@ -234,11 +248,11 @@ public class NavigationButton {
     }
 
     public SceneState getCurrentScene() {
-        return currentScene;
+        return currentSceneState;
     }
 
-    public void setCurrentScene(SceneState scene) {
-        this.currentScene = scene;
+    public void setCurrentScene(SceneState sceneState) {
+        this.currentSceneState = sceneState;
     }
 
     public Button getBackButton() {

@@ -7,20 +7,7 @@ import javafx.scene.control.*;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.text.Text;
-import org.metacsp.multi.spatioTemporal.paths.Pose;
-import se.oru.coordination.coordination_oru.ConstantAccelerationForwardModel;
-import se.oru.coordination.coordination_oru.Mission;
-import se.oru.coordination.coordination_oru.simulation2D.TrajectoryEnvelopeCoordinatorSimulation;
-import se.oru.coordination.coordination_oru.utils.BrowserVisualization;
 import se.oru.coordination.coordination_oru.utils.Heuristics;
-import se.oru.coordination.coordination_oru.utils.Missions;
-import se.oru.coordination.coordination_oru.vehicles.AbstractVehicle;
-import se.oru.coordination.coordination_oru.vehicles.AutonomousVehicle;
-import se.oru.coordination.coordination_oru.vehicles.LookAheadVehicle;
-
-import java.io.IOException;
-
-import static se.oru.coordination.coordination_oru.gui.Utils.*;
 
 public class SimulationScene {
     public static final int PADDING = 30;
@@ -33,16 +20,22 @@ public class SimulationScene {
     }
 
     public Scene get() {
+        var pane = new BorderPane();
+        getMenuBar(pane);
+        getNavigationBar(pane);
+        getCenterPane(pane);
+        return new Scene(pane);
+    }
 
-        var root = new BorderPane();
+    private void getMenuBar(BorderPane pane) {
+        pane.setTop(MenuBar.update(main, SceneState.SIMULATION));
+    }
 
-        // Bottom Pane - Navigation Buttons
-        root.setBottom(NavigationBar.update(main.getNavigationButton().getResetButton(), main.getNavigationButton().getBackButton(), main.getNavigationButton().getSaveButton(), main.getNavigationButton().getRunButton()));
-        // Top Pane - Menu Bar
-        root.setTop(GUIMenuBar.getMenuBar(main));
-        GUIMenuBar.disableNewProject();
-        GUIMenuBar.disableOpenProject();
+    private void getNavigationBar(BorderPane pane) {
+        pane.setBottom(NavigationBar.update(main, SceneState.SIMULATION));
+    }
 
+    private void getCenterPane(BorderPane pane) {
         // Center Pane
         var centerPane = new GridPane();
         centerPane.setPadding(new Insets(PADDING));
@@ -50,12 +43,12 @@ public class SimulationScene {
         centerPane.setHgap(SPACING);
         centerPane.setVgap(SPACING);
         centerPane.setAlignment(Pos.CENTER);
-        root.setCenter(centerPane);
+        pane.setCenter(centerPane);
 
         // heuristics choice-box
         var heuristicsText = new Text("Heuristics: ");
         GridPane.setConstraints(heuristicsText, 0, 0);
-        ChoiceBox<String> heuristicsChoiceBox = new ChoiceBox<String>();
+        ChoiceBox<String> heuristicsChoiceBox = new ChoiceBox<>();
         heuristicsChoiceBox.setPrefWidth(220);
         GridPane.setConstraints(heuristicsChoiceBox, 1, 0);
         heuristicsChoiceBox.getItems().addAll(Heuristics.getAllHeuristicNames());
@@ -104,8 +97,6 @@ public class SimulationScene {
         centerPane.getChildren().addAll(heuristicsText, heuristicsChoiceBox, simulationTime,
                 simulationTimeField, numberOfRun, numberOfRunField, saveReports, saveReportField,
                 reportsFolderText, reportFolderButton, reportsLocationText, reportsFolderLocation);
-
-        return new Scene(root);
     }
 
     public Main getMain() {

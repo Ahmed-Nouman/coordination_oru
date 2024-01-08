@@ -101,32 +101,6 @@ public abstract class AbstractVehicle {
         return length * width;                  // FIXME Currently allows four sided vehicles only
     }
 
-    /**
-     * Generates a path for the vehicle using the default planning algorithm and parameters.
-     *
-     * @param initial     The initial pose of the vehicle.
-     * @param goalPoses   An array of goal poses.
-     * @param map         The map used for planning.
-     * @param inversePath A flag indicating whether the inverse path should also be computed.
-     */
-    public void getPlan(Pose initial, Pose[] goalPoses, String map, Boolean inversePath) {
-        getPlan(initial, goalPoses, map, inversePath, ReedsSheppCarPlanner.PLANNING_ALGORITHM.RRTConnect, 0.01,
-                60, 0.01, 0.1);
-    }
-
-    /**
-     * Generates a path for the vehicle using the specified planning algorithm and parameters.
-     *
-     * @param initialPose               The initialPose pose of the vehicle.
-     * @param goalPoses                 An array of goal poses.
-     * @param map                       The map used for planning.
-     * @param inversePath               A flag indicating whether the inverse path should also be computed.
-     * @param planningAlgorithm         The planning algorithm to be used.
-     * @param radius                    The radius used for planning.
-     * @param planningTime              The maximum planning time in seconds.
-     * @param turningRadius             The turning radius of the vehicle.
-     * @param distanceBetweenPathPoints The distance between path points in the generated path.
-     */
     public void getPlan(Pose initialPose, Pose[] goalPoses, String map, Boolean inversePath, ReedsSheppCarPlanner.PLANNING_ALGORITHM planningAlgorithm,
                         double radius, double planningTime, double turningRadius, double distanceBetweenPathPoints) {
 
@@ -135,17 +109,11 @@ public abstract class AbstractVehicle {
         generatePath(rsp, initialPose, goalPoses, inversePath);
     }
 
-    /**
-     * Configures a ReedsSheppCarPlanner instance with the specified parameters.
-     *
-     * @param planningAlgorithm         The planning algorithm to be used.
-     * @param map                       The map used for planning.
-     * @param radius                    The radius used for planning.
-     * @param planningTime              The maximum planning time in seconds.
-     * @param turningRadius             The turning radius of the vehicle.
-     * @param distanceBetweenPathPoints The distance between path points in the generated path.
-     * @return A configured ReedsSheppCarPlanner instance.
-     */
+    public void getPlan(Pose initial, Pose[] goalPoses, String map, Boolean inversePath) {
+        getPlan(initial, goalPoses, map, inversePath, ReedsSheppCarPlanner.PLANNING_ALGORITHM.RRTConnect, 0.01,
+                60, 0.01, 0.1);
+    }
+
     private ReedsSheppCarPlanner configureReedsSheppCarPlanner(ReedsSheppCarPlanner.PLANNING_ALGORITHM planningAlgorithm, String map, double radius,
                                                                double planningTime, double turningRadius, double distanceBetweenPathPoints) {
         var rsp = new ReedsSheppCarPlanner(planningAlgorithm);
@@ -158,16 +126,6 @@ public abstract class AbstractVehicle {
         return rsp;
     }
 
-    /**
-     * Generates a path for the vehicle using the provided ReedsSheppCarPlanner instance.
-     * If no path is found, the program prints an error message and exits.
-     *
-     * @param rsp         The ReedsSheppCarPlanner instance used for planning.
-     * @param initialPose The initialPose pose of the vehicle.
-     * @param goalPoses   Varargs parameter that can take one or more goal poses.
-     * @param inversePath A flag indicating whether the inverse path should also be computed.
-     *                    This parameter is optional and defaults to false.
-     */
     private void generatePath(ReedsSheppCarPlanner rsp, Pose initialPose, Pose[] goalPoses, boolean inversePath) {
         rsp.setStart(initialPose);
         rsp.setGoals(goalPoses);
@@ -176,12 +134,10 @@ public abstract class AbstractVehicle {
 
         if (path == null) {
             System.err.println("No path found.");
-            System.exit(1); // Exit the program
+            System.exit(1);
         }
 
-        if (inversePath) {
-            ArrayUtils.addAll(path, rsp.getPathInv());
-        }
+        if (inversePath) ArrayUtils.addAll(path, rsp.getPathInv());
         this.setPath(path);
     }
 
