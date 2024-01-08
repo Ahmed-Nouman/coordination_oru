@@ -38,12 +38,9 @@ public class InteractiveMapDisplayWithMarkers {
         var scrollPane = createScrollablePane("file:" + projectData.getMapImage(mapData));
         UpdateMapImage.drawMapMarkers(this);
         scrollPane.setContent(canvas);
-
         setupCanvasEventHandlers();
 
-        listView.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> { // FIXME: listview does not belong here
-            UpdateMapImage.drawMapMarkersWithSelection(this, newValue);
-        });
+        getPoseList();
         return scrollPane;
     }
 
@@ -73,19 +70,23 @@ public class InteractiveMapDisplayWithMarkers {
                 Pose pose = parsePose(annotatedPose);
                 projectData.addPose(poseName, pose);
                 UpdateMapImage.drawMapMarkersWithSelection(this, poseName);
-                listView.getItems().add(poseName); // FIXME: These three lines belong somewhere else
-                listView.getSelectionModel().select(poseName);
-                nextButton.setDisable(!projectData.IsMinNumberOfPoses());
+                addPose(poseName);
             }
         } else {
             AlertBox.display("Adding Location Error", "You cannot add a location on an occupied cell.", Alert.AlertType.ERROR);
         }
     }
 
+    private void addPose(String poseName) {
+        listView.getItems().add(poseName); // FIXME: These three lines belong somewhere else
+        listView.getSelectionModel().select(poseName);
+        nextButton.setDisable(!(projectData.noOfPoses() >= 2));
+    }
+
     private static Pose parsePose(List<String> annotatedPose) {
-        String orientation = annotatedPose.get(1);
-        double x = Double.parseDouble(annotatedPose.get(2));
-        double y = Double.parseDouble(annotatedPose.get(3));
+        var orientation = annotatedPose.get(1);
+        var x = Double.parseDouble(annotatedPose.get(2));
+        var y = Double.parseDouble(annotatedPose.get(3));
         double theta;
         switch (orientation) {
             case "DOWN":
@@ -114,5 +115,11 @@ public class InteractiveMapDisplayWithMarkers {
                 break;
         }
         return new Pose(x, y, theta);
+    }
+
+    public void getPoseList() {
+        listView.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> { // FIXME: listview does not belong here
+            UpdateMapImage.drawMapMarkersWithSelection(this, newValue);
+        });
     }
 }

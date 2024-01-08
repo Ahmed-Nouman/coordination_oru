@@ -3,7 +3,10 @@ package se.oru.coordination.coordination_oru.gui;
 import javafx.scene.control.*;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyCodeCombination;
+import javafx.stage.Stage;
 
+import java.io.FileWriter;
+import java.io.IOException;
 import java.time.Year;
 
 public class GUIMenuBar {
@@ -18,9 +21,11 @@ public class GUIMenuBar {
      * Creates and returns a MenuBar node with 'File' and 'Help' menus.
      *
      * @return A MenuBar node containing the constructed menus and their items.
-     * @param gui
+     * @param main
      */
-    protected static MenuBar getMenuBar(GUI gui) {
+
+    //FIXME: Handle Menu logic in this class
+    protected static MenuBar getMenuBar(Main main) {
 
         MenuBar menuBar = new javafx.scene.control.MenuBar();
         MenuItem separator = new SeparatorMenuItem();
@@ -31,23 +36,58 @@ public class GUIMenuBar {
         // File menu items
         newProjectMenuItem = new MenuItem("New Project...");
         newProjectMenuItem.setAccelerator(new KeyCodeCombination(KeyCode.N, KeyCodeCombination.CONTROL_DOWN));
-        newProjectMenuItem.setOnAction(e -> gui.getHomeScene().newProject(gui));
+        newProjectMenuItem.setOnAction(e -> {
+            var selectedFile = Utils.createFile(main, "newProject", "json");
+            if (selectedFile != null) {
+                main.getDataStatus().setProjectFile(selectedFile.getAbsolutePath());
+                main.getHomeScene().homeController.getFilePathField(main.getHomeScene()).setText("Name of Project: " + selectedFile.getName());
+                main.getDataStatus().setProjectData(new ProjectData());
+                main.getDataStatus().setMapData(new MapData());
+                main.getDataStatus().setNewProject(true);
+                main.getNavigationButton().getNextButton().setVisible(true);
+
+                // Write {} to the new project file
+                try (FileWriter fileWriter = new FileWriter(selectedFile)) {
+                    fileWriter.write("{}");
+                } catch (IOException ex) {
+                    main.getHomeScene().homeController.getFilePathField(main.getHomeScene()).setText("Error: Could not save the file.");
+                }
+            }
+        });
 
         openProjectMenuItem = new MenuItem("Open Project...");
         openProjectMenuItem.setAccelerator(new KeyCodeCombination(KeyCode.O, KeyCodeCombination.CONTROL_DOWN));
-        openProjectMenuItem.setOnAction(e -> gui.getHomeScene().openProject(gui));
+        openProjectMenuItem.setOnAction(e -> {
+            var file = Utils.chooseFile(main, "Select a project file to open: ", "json");
+            if (file != null) {
+                main.getDataStatus().setProjectFile(file.getAbsolutePath());
+                main.getHomeScene().homeController.getFilePathField(main.getHomeScene()).setText("Name of Project: " + file.getName());
+                main.getDataStatus().setNewProject(false);
+                main.getNavigationButton().getNextButton().setVisible(true);
+                try {
+                    main.getDataStatus().setProjectData(Utils.parseJSON(main.getDataStatus().getProjectFile()));
+                    main.getDataStatus().setOriginalProjectData(Utils.deepCopy(main.getDataStatus().getProjectData()));
+                    main.getDataStatus().setMapData(Utils.parseYAML(main.getDataStatus().getProjectData().getMap()));
+                } catch (IOException ex) {
+                    throw new RuntimeException(ex);
+                }
+            }
+        });
 
         closeProjectMenuItem = new MenuItem("Close Project");
         closeProjectMenuItem.setAccelerator(new KeyCodeCombination(KeyCode.C, KeyCodeCombination.CONTROL_DOWN));
-        closeProjectMenuItem.setOnAction(e -> gui.getSimulationScene().resetProject(gui.getPrimaryStage(), gui));
+        closeProjectMenuItem.setOnAction(e -> {
+            Stage stage = main.getPrimaryStage();
+            main.initializeStage(stage);
+        });
 
         saveProjectMenuItem = new MenuItem("Save Project...");
         saveProjectMenuItem.setAccelerator(new KeyCodeCombination(KeyCode.S, KeyCodeCombination.CONTROL_DOWN));
-        saveProjectMenuItem.setOnAction(e -> gui.getSimulationScene().saveProject(gui));
+//        saveProjectMenuItem.setOnAction(e -> main.getSimulationScene().saveProject(main));
 
         MenuItem quitMenuItem = new MenuItem("Quit");
         quitMenuItem.setAccelerator(new KeyCodeCombination(KeyCode.Q, KeyCodeCombination.CONTROL_DOWN));
-        quitMenuItem.setOnAction(e -> gui.closeProgram(gui.getPrimaryStage()));
+        quitMenuItem.setOnAction(e -> main.closeProgram(main.getPrimaryStage()));
 
         fileMenu.getItems().addAll(newProjectMenuItem, openProjectMenuItem, closeProjectMenuItem, saveProjectMenuItem, separator, quitMenuItem);
 

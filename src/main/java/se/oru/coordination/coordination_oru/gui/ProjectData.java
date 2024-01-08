@@ -125,9 +125,8 @@ public class ProjectData implements Serializable {
         poses.put(poseName, pose);
     }
 
-    protected Boolean IsMinNumberOfPoses() {
-        int minNumberOfPoses = 2;
-        return this.getPoses().size() >= minNumberOfPoses;
+    public int noOfPoses() {
+        return this.getPoses().size();
     }
 
     // Inner class to represent a vehicle

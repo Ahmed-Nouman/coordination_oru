@@ -6,10 +6,10 @@ import javafx.stage.Stage;
 
 import java.util.Optional;
 
-public class GUI extends Application {
+public class Main extends Application {
 
     private Stage primaryStage;
-    private final NavigationBar navigationBar = new NavigationBar();
+    private final NavigationButton navigationButton = new NavigationButton();
     private final DataStatus dataStatus = new DataStatus();
     private final HomeScene homeScene = new HomeScene(this);
     private final MapScene mapScene = new MapScene(this);
@@ -24,7 +24,7 @@ public class GUI extends Application {
     public void start(Stage primaryStage) {
 
         initializeStage(primaryStage);
-        navigationBar.getNavigationController(primaryStage, this);
+        navigationButton.getNavigationController(primaryStage, this);
     }
 
     public void initializeStage(Stage primaryStage) {
@@ -33,7 +33,7 @@ public class GUI extends Application {
         primaryStage.setOnCloseRequest(e -> closeProgram(primaryStage));
         primaryStage.setScene(getHomeScene().get());
         primaryStage.show();
-        getNavigationBar().setCurrentScene(NavigationBar.SceneState.PROJECT);
+//        getNavigationButton().setCurrentScene(NavigationButton.SceneState.PROJECT);
     }
 
     protected void closeProgram(Stage stage) {
@@ -43,7 +43,7 @@ public class GUI extends Application {
             stage.close();
         } else {
             Optional<ButtonType> answer = AlertBox.display("Saving the project", "Would you like to save the project before exiting?", Alert.AlertType.CONFIRMATION);
-            if (answer.isPresent() && answer.get() == ButtonType.YES && getDataStatus().getProjectData() != null) getSimulationScene().saveProject(this);
+            if (answer.isPresent() && answer.get() == ButtonType.YES && getDataStatus().getProjectData() != null) getNavigationButton().saveProject(this);
             stage.close();
         }
     }
@@ -56,8 +56,8 @@ public class GUI extends Application {
         this.primaryStage = primaryStage;
     }
 
-    public NavigationBar getNavigationBar() {
-        return navigationBar;
+    public NavigationButton getNavigationButton() {
+        return navigationButton;
     }
 
     public DataStatus getDataStatus() {

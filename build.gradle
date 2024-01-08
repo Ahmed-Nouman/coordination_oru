@@ -24,7 +24,6 @@ plugins {
   id 'org.openjfx.javafxplugin' version '0.0.8'
   id 'com.github.johnrengelman.shadow' version '6.1.0'
   id 'eclipse'
-  id 'idea'
   id 'maven'
 }
 
@@ -44,7 +43,7 @@ configurations.all {
 }
 
 javafx{
-    modules = ['javafx.controls', 'javafx.fxml', 'javafx.media', 'javafx.graphics']
+    modules = ['javafx.controls']
     version = '17'
 }
 
@@ -55,7 +54,7 @@ jar {
 }
 
 shadowJar {
-  archiveBaseName.set('MyApp-')
+  archiveBaseName.set('MyApp')
   archiveVersion.set('0.0.1')
   archiveClassifier.set('')
 }
@@ -95,14 +94,7 @@ dependencies {
   
   implementation fileTree(dir: 'lib', include: '**/*.jar')
   implementation 'com.googlecode.json-simple:json-simple:1.1.1'
-  implementation 'org.openjfx:javafx:21'
-  implementation 'org.openjfx:javafx-base:17'
   implementation 'org.openjfx:javafx-graphics:17'
-  implementation 'org.openjfx:javafx-controls:17'
-  implementation 'org.openjfx:javafx-fxml:17'
-  implementation 'org.openjfx:javafx-swing:17'
-  implementation 'org.openjfx:javafx-media:17'
-  implementation 'org.openjfx:javafx-web:17'
   implementation 'com.fasterxml.jackson.core:jackson-databind:2.14.0-rc1'
   implementation 'org.yaml:snakeyaml:2.0'
 

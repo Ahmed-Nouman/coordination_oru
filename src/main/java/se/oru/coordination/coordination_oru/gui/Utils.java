@@ -100,24 +100,24 @@ public class Utils {
         return theta;
     }
 
-    protected static File chooseFile(GUI gui, String dialogTitle, String extension) {
-        FileChooser fileChooser = new FileChooser();
+    protected static File chooseFile(Main main, String dialogTitle, String extension) {
+        var fileChooser = new FileChooser();
         fileChooser.setInitialDirectory(new File(System.getProperty("user.home")));
         fileChooser.setTitle(dialogTitle);
         fileChooser.getExtensionFilters().clear();
-        String extensionDescription = extension.toUpperCase() + " Files";
+        var extensionDescription = extension.toUpperCase() + " Files";
         fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter(extensionDescription, "*." + extension));
-        return fileChooser.showOpenDialog(gui.getPrimaryStage());
+        return fileChooser.showOpenDialog(main.getPrimaryStage());
     }
 
-    protected static File createFile(GUI gui, String defaultFileName, String extension) {
-        FileChooser fileChooser = new FileChooser();
+    protected static File createFile(Main main, String defaultFileName, String extension) {
+        var fileChooser = new FileChooser();
         fileChooser.setInitialDirectory(new File(System.getProperty("user.home")));
         fileChooser.setInitialFileName(defaultFileName);
         fileChooser.getExtensionFilters().clear();
-        String extensionDescription = extension.toUpperCase() + " Files";
+        var extensionDescription = extension.toUpperCase() + " Files";
         fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter(extensionDescription, "*." + extension));
-        File selectedFile = fileChooser.showSaveDialog(gui.getPrimaryStage());
+        File selectedFile = fileChooser.showSaveDialog(main.getPrimaryStage());
         if (selectedFile != null) {
             String fileExtension = "." + extension;
             if (!selectedFile.getName().endsWith(fileExtension)) {
@@ -128,7 +128,7 @@ public class Utils {
     }
 
     protected static MapData parseYAML(String filenameYAML) {
-        Yaml yaml = new Yaml();
+        var yaml = new Yaml();
         try (InputStream in = new FileInputStream(filenameYAML)) {
             return yaml.loadAs(in, MapData.class);
         } catch (IOException e) {
@@ -137,13 +137,13 @@ public class Utils {
     }
 
     protected static ProjectData parseJSON(String filePath) throws IOException {
-        ObjectMapper objectMapper = new ObjectMapper();
+        var objectMapper = new ObjectMapper();
         objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
 
-        JsonNode rootNode = objectMapper.readTree(new File(filePath));
+        var rootNode = objectMapper.readTree(new File(filePath));
 
-        JsonNode vehiclesNode = rootNode.path("vehicles");
-        JsonNode posesNode = rootNode.path("poses");
+        var vehiclesNode = rootNode.path("vehicles");
+        var posesNode = rootNode.path("poses");
 
         // Map for storing pose names and their corresponding Pose objects
         Map<String, Pose> posesMap = new HashMap<>();
@@ -155,7 +155,7 @@ public class Utils {
         });
 
         List<ProjectData.Vehicle> vehicles = new ArrayList<>();
-        vehiclesNode.forEach(vehicleNode -> {
+        for (JsonNode vehicleNode : vehiclesNode) {
             ObjectNode vehicleObject = (ObjectNode) vehicleNode;
 
             // Handle mission
@@ -181,9 +181,9 @@ public class Utils {
             vehicle.setMission(mission);
 
             vehicles.add(vehicle);
-        });
+        }
 
-        ProjectData projectData = new ProjectData();
+        var projectData = new ProjectData();
         projectData.setMap(rootNode.path("map").asText());
         projectData.setVehicles(vehicles);
         projectData.setPoses(posesMap);
@@ -192,8 +192,8 @@ public class Utils {
     }
 
     protected static void writeJSON(ProjectData projectData, String projectFile) throws IOException {
-        ObjectMapper mapper = new ObjectMapper();
-        SimpleModule module = new SimpleModule();
+        var mapper = new ObjectMapper();
+        var module = new SimpleModule();
 
         JsonSerializer<Object> serializer = new JsonSerializer<>() {
             @Override
@@ -248,13 +248,13 @@ public class Utils {
 
     public static <T extends Serializable> T deepCopy(T object) {
         try {
-            ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-            ObjectOutputStream objectOutputStream = new ObjectOutputStream(byteArrayOutputStream);
+            var byteArrayOutputStream = new ByteArrayOutputStream();
+            var objectOutputStream = new ObjectOutputStream(byteArrayOutputStream);
             objectOutputStream.writeObject(object);
             objectOutputStream.close();
 
-            ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(byteArrayOutputStream.toByteArray());
-            ObjectInputStream objectInputStream = new ObjectInputStream(byteArrayInputStream);
+            var byteArrayInputStream = new ByteArrayInputStream(byteArrayOutputStream.toByteArray());
+            var objectInputStream = new ObjectInputStream(byteArrayInputStream);
             T copy = (T) objectInputStream.readObject();
             objectInputStream.close();
 
