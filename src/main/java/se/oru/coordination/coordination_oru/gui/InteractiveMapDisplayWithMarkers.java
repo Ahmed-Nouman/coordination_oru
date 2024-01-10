@@ -1,6 +1,5 @@
 package se.oru.coordination.coordination_oru.gui;
 
-import com.vividsolutions.jts.geom.Coordinate;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
@@ -17,6 +16,7 @@ import java.util.List;
 
 public class InteractiveMapDisplayWithMarkers {
 
+    public static final int DECIMAL_PLACES = 2;
     private final ListView<String> listView;
     protected final Button nextButton;
     protected final ProjectData projectData;
@@ -25,11 +25,11 @@ public class InteractiveMapDisplayWithMarkers {
     protected final Canvas canvas;
     protected Image image;
 
-    public InteractiveMapDisplayWithMarkers(ProjectData projectData, MapData mapData, ListView<String> listView, Button nextButton) {
-        this.projectData = projectData;
-        this.mapData = mapData;
-        this.listView = listView;
-        this.nextButton = nextButton;
+    public InteractiveMapDisplayWithMarkers(SceneMap scene) {
+        this.projectData = scene.getMain().getDataStatus().getProjectData();
+        this.mapData = scene.getMain().getDataStatus().getMapData();
+        this.listView = scene.getLocations();
+        this.nextButton = scene.getMain().getNavigationButton().getNextButton();
         this.occupancyMap = new OccupancyMap(projectData.getMap());
         this.canvas = new Canvas(occupancyMap.getPixelWidth(), occupancyMap.getPixelHeight());
     }
@@ -56,18 +56,17 @@ public class InteractiveMapDisplayWithMarkers {
     }
 
     private void handleMouseReleased(MouseEvent event, OccupancyMap occupancyMap) {
-        Point point = new Point((int) event.getX(), (int) event.getY());
-        Coordinate position = occupancyMap.convertToWorldCoordinates(point.x, point.y);
-        int decimalPlaces = 2;
-        position.x = Round.round(position.x, decimalPlaces);
-        position.y = Round.round(position.y, decimalPlaces);
+        var point = new Point((int) event.getX(), (int) event.getY());
+        var position = occupancyMap.convertToWorldCoordinates(point.x, point.y);
+        position.x = Round.round(position.x, DECIMAL_PLACES);
+        position.y = Round.round(position.y, DECIMAL_PLACES);
         boolean occupancy = !occupancyMap.isOccupied(point.x, point.y);
 
-        if (occupancy) { // FIXME: Simplify this if statement
-            List<String> annotatedPose = AddLocationDialogBox.display(position.x, position.y);
+        if (occupancy) { //FIXME: Simplify this if statement
+            var annotatedPose = AddLocationDialogBox.display(position.x, position.y);
             if (annotatedPose != null) {
-                String poseName = annotatedPose.get(0);
-                Pose pose = parsePose(annotatedPose);
+                var poseName = annotatedPose.get(0);
+                var pose = parsePose(annotatedPose);
                 projectData.addPose(poseName, pose);
                 UpdateMapImage.drawMapMarkersWithSelection(this, poseName);
                 addPose(poseName);
@@ -78,15 +77,20 @@ public class InteractiveMapDisplayWithMarkers {
     }
 
     private void addPose(String poseName) {
-        listView.getItems().add(poseName); // FIXME: These three lines belong somewhere else
+        listView.getItems().add(poseName); //FIXME: These three lines belong somewhere else
         listView.getSelectionModel().select(poseName);
-        nextButton.setDisable(!(projectData.noOfPoses() >= 2));
+//        nextButton.setDisable(!(projectData.noOfPoses() >= 2));
     }
 
     private static Pose parsePose(List<String> annotatedPose) {
-        var orientation = annotatedPose.get(1);
         var x = Double.parseDouble(annotatedPose.get(2));
         var y = Double.parseDouble(annotatedPose.get(3));
+        var theta = parseOrientation(annotatedPose);
+        return new Pose(x, y, theta);
+    }
+
+    private static double parseOrientation(List<String> annotatedPose) {
+        var orientation = annotatedPose.get(1);
         double theta;
         switch (orientation) {
             case "DOWN":
@@ -114,7 +118,7 @@ public class InteractiveMapDisplayWithMarkers {
                 theta = 0;
                 break;
         }
-        return new Pose(x, y, theta);
+        return theta;
     }
 
     public void getPoseList() {

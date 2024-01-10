@@ -3,10 +3,7 @@ package se.oru.coordination.coordination_oru.gui;
 import javafx.scene.control.*;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyCodeCombination;
-import javafx.stage.Stage;
 
-import java.io.FileWriter;
-import java.io.IOException;
 import java.time.Year;
 
 public class MenuBar {
@@ -18,19 +15,15 @@ public class MenuBar {
     private static MenuItem runProject;
 
     protected static javafx.scene.control.MenuBar update(Main main, SceneState sceneState) {
-
         var menuBar = new javafx.scene.control.MenuBar();
-        var separator = new SeparatorMenuItem();
-
-        getMenu(main, sceneState, separator, menuBar);
-
+        menu(main, menuBar, sceneState);
         return menuBar;
     }
 
-    private static void getMenu(Main main, SceneState sceneState, SeparatorMenuItem separator, javafx.scene.control.MenuBar menuBar) {
-        var file = getFileMenu(main, separator);
-        var run = getRunMenu(main);
-        var help = getHelpMenu();
+    private static void menu(Main main, javafx.scene.control.MenuBar menuBar, SceneState sceneState) {
+        var file = fileMenu(main);
+        var run = runMenu(main);
+        var help = helpMenu();
 
         menuBar.getMenus().addAll(file, run, help);
 
@@ -56,19 +49,20 @@ public class MenuBar {
         }
     }
 
-    private static Menu getFileMenu(Main main, SeparatorMenuItem separator) {
+    private static Menu fileMenu(Main main) {
         var fileMenu = new Menu("File");
         newProject(main);
         openProject(main);
         closeProject(main);
         saveProject(main);
+        var separator = new SeparatorMenuItem();
         var quit = quit(main);
 
         fileMenu.getItems().addAll(newProject, openProject, closeProject, saveProject, separator, quit);
         return fileMenu;
     }
 
-    private static Menu getRunMenu(Main main) {
+    private static Menu runMenu(Main main) {
         var run = new Menu("Run");
         runProject(main);
         run.getItems().addAll(runProject);
@@ -89,7 +83,7 @@ public class MenuBar {
         return quit;
     }
 
-    private static Menu getHelpMenu() {
+    private static Menu helpMenu() {
         var helpMenu = new Menu("Help");
         var about = about();
         helpMenu.getItems().addAll(about);
@@ -109,6 +103,18 @@ public class MenuBar {
         return about;
     }
 
+    private static void newProject(Main main) {
+        newProject = new MenuItem("New Project...");
+        newProject.setAccelerator(new KeyCodeCombination(KeyCode.N, KeyCodeCombination.CONTROL_DOWN));
+        newProject.setOnAction(e -> main.getHomeScene().controller.newProjectClicked());
+    }
+
+    private static void openProject(Main main) {
+        openProject = new MenuItem("Open Project...");
+        openProject.setAccelerator(new KeyCodeCombination(KeyCode.O, KeyCodeCombination.CONTROL_DOWN));
+        openProject.setOnAction(e -> main.getHomeScene().controller.openProjectClicked());
+    }
+
     private static void saveProject(Main main) {
         saveProject = new MenuItem("Save Project...");
         saveProject.setAccelerator(new KeyCodeCombination(KeyCode.S, KeyCodeCombination.CONTROL_DOWN));
@@ -122,17 +128,5 @@ public class MenuBar {
             var stage = main.getPrimaryStage();
             main.initializeStage(stage);
         });
-    }
-
-    private static void openProject(Main main) {
-        openProject = new MenuItem("Open Project...");
-        openProject.setAccelerator(new KeyCodeCombination(KeyCode.O, KeyCodeCombination.CONTROL_DOWN));
-        openProject.setOnAction(e -> main.getHomeScene().homeController.openProject());
-    }
-
-    private static void newProject(Main main) {
-        newProject = new MenuItem("New Project...");
-        newProject.setAccelerator(new KeyCodeCombination(KeyCode.N, KeyCodeCombination.CONTROL_DOWN));
-        newProject.setOnAction(e -> main.getHomeScene().homeController.newProject());
     }
 }

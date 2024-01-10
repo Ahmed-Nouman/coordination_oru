@@ -23,7 +23,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import static se.oru.coordination.coordination_oru.gui.Utils.*;
 import static se.oru.coordination.coordination_oru.gui.Utils.writeJSON;
 
-public class NavigationButton {
+public class ControllerNavigation {
 
     private SceneState currentSceneState = SceneState.HOME;
     private final Button backButton = new Button("Back");
@@ -47,8 +47,7 @@ public class NavigationButton {
                 primaryStage.setTitle("Coordination_ORU");
                 primaryStage.setScene(main.getHomeScene().get());
                 primaryStage.centerOnScreen();
-                nextButton.setVisible(true); //FIXME: Handle logic in controllers
-                nextButton.setDisable(false);
+                nextButton.setVisible(true);
                 break;
             case MAP:
                 primaryStage.setTitle("Coordination_ORU: Setting up the map");
@@ -160,7 +159,7 @@ public class NavigationButton {
             ScheduledExecutorService executorService = Executors.newScheduledThreadPool(1);
 
             // Schedule the task to run n times with an interval of one minute
-            AtomicInteger runCount = new AtomicInteger(0);
+            var runCount = new AtomicInteger(0);
             ScheduledFuture<?> future = executorService.scheduleAtFixedRate(() -> {
                 if (runCount.incrementAndGet() <= main.getDataStatus().getNumberOfRuns()) {
                     runProject(main.getDataStatus()); // Run your task

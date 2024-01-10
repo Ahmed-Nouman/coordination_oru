@@ -9,12 +9,12 @@ import java.util.Optional;
 public class Main extends Application {
 
     private Stage primaryStage;
-    private final NavigationButton navigationButton = new NavigationButton();
+    private final ControllerNavigation controllerNavigation = new ControllerNavigation();
     private final DataStatus dataStatus = new DataStatus();
-    private final HomeScene homeScene = new HomeScene(this);
-    private final MapScene mapScene = new MapScene(this);
-    private final VehicleScene vehicleScene = new VehicleScene(this);
-    private final SimulationScene simulationScene = new SimulationScene(this);
+    private final SceneHome sceneHome = new SceneHome(this);
+    private final SceneMap sceneMap = new SceneMap(this);
+    private final SceneVehicle sceneVehicle = new SceneVehicle(this);
+    private final SceneSetup sceneSetup = new SceneSetup(this);
 
     public static void main(String[] args) {
         launch(args);
@@ -24,7 +24,7 @@ public class Main extends Application {
     public void start(Stage primaryStage) {
 
         initializeStage(primaryStage);
-        navigationButton.getNavigationController(primaryStage, this);
+        controllerNavigation.getNavigationController(primaryStage, this);
     }
 
     public void initializeStage(Stage primaryStage) {
@@ -55,28 +55,28 @@ public class Main extends Application {
         this.primaryStage = primaryStage;
     }
 
-    public NavigationButton getNavigationButton() {
-        return navigationButton;
+    public ControllerNavigation getNavigationButton() {
+        return controllerNavigation;
     }
 
     public DataStatus getDataStatus() {
         return dataStatus;
     }
 
-    public HomeScene getHomeScene() {
-        return homeScene;
+    public SceneHome getHomeScene() {
+        return sceneHome;
     }
 
-    public MapScene getMapScene() {
-        return mapScene;
+    public SceneMap getMapScene() {
+        return sceneMap;
     }
 
-    public VehicleScene getVehicleScene() {
-        return vehicleScene;
+    public SceneVehicle getVehicleScene() {
+        return sceneVehicle;
     }
 
-    public SimulationScene getSimulationScene() {
-        return simulationScene;
+    public SceneSetup getSimulationScene() {
+        return sceneSetup;
     }
 }
 

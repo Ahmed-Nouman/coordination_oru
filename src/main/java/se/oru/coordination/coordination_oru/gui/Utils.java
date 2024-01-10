@@ -127,12 +127,12 @@ public class Utils {
         return selectedFile;
     }
 
-    protected static MapData parseYAML(String filenameYAML) {
+    protected static MapData parseYAML(String fileName) {
         var yaml = new Yaml();
-        try (InputStream in = new FileInputStream(filenameYAML)) {
+        try (InputStream in = new FileInputStream(fileName)) {
             return yaml.loadAs(in, MapData.class);
         } catch (IOException e) {
-            throw new RuntimeException("Error parsing YAML file: " + filenameYAML, e);
+            throw new RuntimeException("Error parsing YAML file: " + fileName, e);
         }
     }
 

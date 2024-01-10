@@ -13,6 +13,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class MapDisplayWithMarkers extends StackPane {
+    private static final int MARKER_RADIUS = 8;
+    private static final int FONT_SIZE = 12;
     private final Canvas canvas;
     private final Image mapImage;
     private final Map<String, Pose> poses;
@@ -46,12 +48,10 @@ public class MapDisplayWithMarkers extends StackPane {
             double y = (canvas.getHeight() - point.getValue().getY() * scaleY * scaleImage);  // Invert y-axis
 
             graphicsContext.setFill(Color.LIGHTGREEN);
-            double fontSize = 8;
-            graphicsContext.setFont(Font.font("System", FontWeight.BOLD, fontSize));
-            int radius = 8;
-            graphicsContext.fillOval(x - (double) (radius / 2), (y - (double) radius / 2), radius, radius);
+            graphicsContext.setFont(Font.font("System", FontWeight.BOLD, FONT_SIZE));
+            graphicsContext.fillOval(x - (double) (MARKER_RADIUS / 2), (y - (double) MARKER_RADIUS / 2), MARKER_RADIUS, MARKER_RADIUS);
             int textOffset = 2 * point.getKey().length();
-            graphicsContext.fillText(point.getKey(), x - textOffset, y - radius);
+            graphicsContext.fillText(point.getKey(), x - textOffset, y - MARKER_RADIUS);
         }
     }
 }

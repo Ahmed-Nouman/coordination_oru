@@ -9,13 +9,13 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.text.Text;
 import se.oru.coordination.coordination_oru.utils.Heuristics;
 
-public class SimulationScene {
+public class SceneSetup {
     public static final int PADDING = 30;
     public static final int SPACING = 10;
     private final Main main;
-    private final SimulationController simulationController = new SimulationController(this);
+    private final ControllerSetup controllerSetup = new ControllerSetup(this);
 
-    public SimulationScene(Main main) {
+    public SceneSetup(Main main) {
         this.main = main;
     }
 
@@ -53,7 +53,7 @@ public class SimulationScene {
         GridPane.setConstraints(heuristicsChoiceBox, 1, 0);
         heuristicsChoiceBox.getItems().addAll(Heuristics.getAllHeuristicNames());
         heuristicsChoiceBox.setValue(heuristicsChoiceBox.getItems().stream().findFirst().orElse(null));
-        simulationController.getHeuristics(heuristicsChoiceBox);
+        controllerSetup.getHeuristics(heuristicsChoiceBox);
 
         // simulationTime text-field
         var simulationTime = new Text("Simulation Time (minutes): ");
@@ -62,7 +62,7 @@ public class SimulationScene {
         simulationTimeField.setMaxWidth(heuristicsChoiceBox.getPrefWidth());
         simulationTimeField.setText("30");
         GridPane.setConstraints(simulationTimeField, 1, 1);
-        simulationController.getSimulationTime(simulationTimeField);
+        controllerSetup.getSimulationTime(simulationTimeField);
 
         var numberOfRun = new Text("No. of Runs: ");
         GridPane.setConstraints(numberOfRun, 0, 2);
@@ -70,7 +70,7 @@ public class SimulationScene {
         numberOfRunField.setMaxWidth(heuristicsChoiceBox.getPrefWidth());
         numberOfRunField.setText("1");
         GridPane.setConstraints(numberOfRunField, 1, 2);
-        simulationController.getNumberOfRun(numberOfRunField);
+        controllerSetup.getNumberOfRun(numberOfRunField);
 
         var reportsLocationText = new Text("Reports will be saved in:");
         GridPane.setConstraints(reportsLocationText, 0, 5);
@@ -85,14 +85,14 @@ public class SimulationScene {
         var reportFolderButton = new Button("Browse...");
         GridPane.setConstraints(reportFolderButton, 1, 4);
         reportFolderButton.setVisible(false);
-        simulationController.getReportFolder(reportFolderButton, reportsLocationText, reportsFolderLocation);
+        controllerSetup.getReportFolder(reportFolderButton, reportsLocationText, reportsFolderLocation);
 
         var saveReports = new Text("Saving Vehicles Reports: ");
         GridPane.setConstraints(saveReports, 0, 3);
         var saveReportField = new CheckBox();
         saveReportField.setSelected(false);
         GridPane.setConstraints(saveReportField, 1, 3);
-        simulationController.getIfSavingReports(saveReportField, reportsFolderText, reportFolderButton, reportsLocationText, reportsFolderLocation);
+        controllerSetup.getIfSavingReports(saveReportField, reportsFolderText, reportFolderButton, reportsLocationText, reportsFolderLocation);
 
         centerPane.getChildren().addAll(heuristicsText, heuristicsChoiceBox, simulationTime,
                 simulationTimeField, numberOfRun, numberOfRunField, saveReports, saveReportField,

@@ -12,13 +12,13 @@ import javafx.scene.text.Text;
 import java.util.ArrayList;
 import java.util.List;
 
-public class VehicleScene {
+public class SceneVehicle {
     public static final int PADDING = 10;
     private final Main main;
     private final ListView<String> vehicleListView = new ListView<>();
-    private final VehicleController vehicleController = new VehicleController(this);
+    private final ControllerVehicle controllerVehicle = new ControllerVehicle(this);
 
-    public VehicleScene(Main main) {
+    public SceneVehicle(Main main) {
         this.main = main;
     }
 
@@ -52,7 +52,7 @@ public class VehicleScene {
                 }
             }
         });
-        vehicleController.getName(nameField);
+        controllerVehicle.getName(nameField);
 
         // priority text-field
         var priorityText = new Text("Priority: ");
@@ -68,7 +68,7 @@ public class VehicleScene {
                 }
             }
         });
-        vehicleController.getPriority(priorityTextField);
+        controllerVehicle.getPriority(priorityTextField);
 
         // length text-field
         Text lengthText = new Text("Length (m): ");

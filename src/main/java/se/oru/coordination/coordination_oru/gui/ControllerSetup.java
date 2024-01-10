@@ -11,11 +11,11 @@ import se.oru.coordination.coordination_oru.utils.Heuristics;
 
 import java.io.File;
 
-public class SimulationController {
-    private final SimulationScene simulationScene;
+public class ControllerSetup {
+    private final SceneSetup sceneSetup;
 
-    public SimulationController(SimulationScene simulationScene) {
-        this.simulationScene = simulationScene;
+    public ControllerSetup(SceneSetup sceneSetup) {
+        this.sceneSetup = sceneSetup;
     }
 
     public void getHeuristics(ChoiceBox<String> heuristicsChoiceBox) {
@@ -24,25 +24,25 @@ public class SimulationController {
             if (selectedHeuristic != null) {
                 switch (selectedHeuristic) {
                     case "MOST_DISTANCE_TRAVELLED":
-                        simulationScene.getMain().getDataStatus().setHeuristics(new Heuristics(Heuristics.HeuristicType.MOST_DISTANCE_TRAVELLED));
+                        sceneSetup.getMain().getDataStatus().setHeuristics(new Heuristics(Heuristics.HeuristicType.MOST_DISTANCE_TRAVELLED));
                         break;
                     case "MOST_DISTANCE_TO_TRAVEL":
-                        simulationScene.getMain().getDataStatus().setHeuristics(new Heuristics(Heuristics.HeuristicType.MOST_DISTANCE_TO_TRAVEL));
+                        sceneSetup.getMain().getDataStatus().setHeuristics(new Heuristics(Heuristics.HeuristicType.MOST_DISTANCE_TO_TRAVEL));
                         break;
                     case "RANDOM":
-                        simulationScene.getMain().getDataStatus().setHeuristics(new Heuristics(Heuristics.HeuristicType.RANDOM));
+                        sceneSetup.getMain().getDataStatus().setHeuristics(new Heuristics(Heuristics.HeuristicType.RANDOM));
                         break;
                     case "HIGHEST_PRIORITY_FIRST":
-                        simulationScene.getMain().getDataStatus().setHeuristics(new Heuristics(Heuristics.HeuristicType.HIGHEST_PRIORITY_FIRST));
+                        sceneSetup.getMain().getDataStatus().setHeuristics(new Heuristics(Heuristics.HeuristicType.HIGHEST_PRIORITY_FIRST));
                         break;
                     case "HUMAN_FIRST":
-                        simulationScene.getMain().getDataStatus().setHeuristics(new Heuristics(Heuristics.HeuristicType.HUMAN_FIRST));
+                        sceneSetup.getMain().getDataStatus().setHeuristics(new Heuristics(Heuristics.HeuristicType.HUMAN_FIRST));
                         break;
                     case "AUTONOMOUS_FIRST":
-                        simulationScene.getMain().getDataStatus().setHeuristics(new Heuristics(Heuristics.HeuristicType.AUTONOMOUS_FIRST));
+                        sceneSetup.getMain().getDataStatus().setHeuristics(new Heuristics(Heuristics.HeuristicType.AUTONOMOUS_FIRST));
                         break;
                     default:
-                        simulationScene.getMain().getDataStatus().setHeuristics(new Heuristics(Heuristics.HeuristicType.CLOSEST_FIRST));
+                        sceneSetup.getMain().getDataStatus().setHeuristics(new Heuristics(Heuristics.HeuristicType.CLOSEST_FIRST));
                         break;
                 }
             }
@@ -54,7 +54,7 @@ public class SimulationController {
             if (!isNowFocused) {
                 Boolean validated = Utils.validateInteger(simulationTimeField);
                 if (validated) {
-                    simulationScene.getMain().getDataStatus().setSimulationTime(Integer.parseInt(simulationTimeField.getText()));
+                    sceneSetup.getMain().getDataStatus().setSimulationTime(Integer.parseInt(simulationTimeField.getText()));
                 }
             }
         });
@@ -71,7 +71,7 @@ public class SimulationController {
                 reportsLocationText.setVisible(false);
                 reportsFolderLocation.setVisible(false);
             }
-            simulationScene.getMain().getDataStatus().setWriteVehicleReports(saveReportField.isSelected());
+            sceneSetup.getMain().getDataStatus().setWriteVehicleReports(saveReportField.isSelected());
         });
     }
 
@@ -80,7 +80,7 @@ public class SimulationController {
             if (!isNowFocused) {
                 Boolean validated = Utils.validateInteger(numberOfRunField);
                 if (validated) {
-                    simulationScene.getMain().getDataStatus().setNumberOfRuns(Integer.parseInt(numberOfRunField.getText()));
+                    sceneSetup.getMain().getDataStatus().setNumberOfRuns(Integer.parseInt(numberOfRunField.getText()));
                 }
             }
         });
@@ -93,8 +93,8 @@ public class SimulationController {
             if (selectedDirectory != null) {
                 reportsLocationText.setVisible(true);
                 reportsFolderLocation.setVisible(true);
-                simulationScene.getMain().getDataStatus().setReportsFolder(selectedDirectory.getAbsolutePath());
-                reportsFolderLocation.setText(simulationScene.getMain().getDataStatus().getReportsFolder());
+                sceneSetup.getMain().getDataStatus().setReportsFolder(selectedDirectory.getAbsolutePath());
+                reportsFolderLocation.setText(sceneSetup.getMain().getDataStatus().getReportsFolder());
             }
         });
     }
