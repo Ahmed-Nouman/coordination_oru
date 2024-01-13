@@ -2,8 +2,6 @@ package se.oru.coordination.coordination_oru.gui;
 
 import javafx.scene.canvas.Canvas;
 import javafx.scene.control.Alert;
-import javafx.scene.control.Button;
-import javafx.scene.control.ListView;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.image.Image;
 import javafx.scene.input.MouseEvent;
@@ -14,33 +12,28 @@ import se.oru.coordination.coordination_oru.utils.Round;
 import java.awt.*;
 import java.util.List;
 
-public class InteractiveMapDisplayWithMarkers {
+public class InteractiveMap {
 
-    public static final int DECIMAL_PLACES = 2;
-    private final ListView<String> listView;
-    protected final Button nextButton;
-    protected final ProjectData projectData;
-    protected final MapData mapData;
-    protected final OccupancyMap occupancyMap;
-    protected final Canvas canvas;
-    protected Image image;
+    private static final int DECIMAL_PLACES = 2;
+    private final OccupancyMap map;
+    private final Canvas canvas;
+    private Image image;
+    private final ControllerMap controller;
+    private final Main main;
 
-    public InteractiveMapDisplayWithMarkers(SceneMap scene) {
-        this.projectData = scene.getMain().getDataStatus().getProjectData();
-        this.mapData = scene.getMain().getDataStatus().getMapData();
-        this.listView = scene.getLocations();
-        this.nextButton = scene.getMain().getNavigationButton().getNextButton();
-        this.occupancyMap = new OccupancyMap(projectData.getMap());
-        this.canvas = new Canvas(occupancyMap.getPixelWidth(), occupancyMap.getPixelHeight());
+    public InteractiveMap(Main main, ControllerMap controller) {
+        this.main = main;
+        this.controller = controller;
+        this.map = new OccupancyMap(main.getDataStatus().getProjectData().getMap());
+        this.canvas = new Canvas(map.getPixelWidth(), map.getPixelHeight());
     }
 
-    public ScrollPane createMapInteractionNode() {
-        var scrollPane = createScrollablePane("file:" + projectData.getMapImage(mapData));
+    public ScrollPane createInteractiveMapNode() {
+        var scrollPane = createScrollablePane("file:" + main.getDataStatus().getProjectData().getMapImage(main.getDataStatus().getMapData()));
         UpdateMapImage.drawMapMarkers(this);
         scrollPane.setContent(canvas);
         setupCanvasEventHandlers();
-
-        getPoseList();
+        controller.getPoseList(this);
         return scrollPane;
     }
 
@@ -51,35 +44,30 @@ public class InteractiveMapDisplayWithMarkers {
     }
 
     private void setupCanvasEventHandlers() {
-        canvas.setOnMouseReleased(event -> handleMouseReleased(event, occupancyMap));
+        canvas.setOnMouseReleased(this::handleMouseReleased);
         // Additional event handlers can be set up here
     }
 
-    private void handleMouseReleased(MouseEvent event, OccupancyMap occupancyMap) {
+    private void handleMouseReleased(MouseEvent event) {
         var point = new Point((int) event.getX(), (int) event.getY());
-        var position = occupancyMap.convertToWorldCoordinates(point.x, point.y);
+        var position = map.convertToWorldCoordinates(point.x, point.y);
         position.x = Round.round(position.x, DECIMAL_PLACES);
         position.y = Round.round(position.y, DECIMAL_PLACES);
-        boolean occupancy = !occupancyMap.isOccupied(point.x, point.y);
+        boolean occupancy = !map.isOccupied(point.x, point.y);
 
         if (occupancy) { //FIXME: Simplify this if statement
             var annotatedPose = AddLocationDialogBox.display(position.x, position.y);
             if (annotatedPose != null) {
                 var poseName = annotatedPose.get(0);
                 var pose = parsePose(annotatedPose);
-                projectData.addPose(poseName, pose);
+                main.getDataStatus().getProjectData().addPose(poseName, pose);
                 UpdateMapImage.drawMapMarkersWithSelection(this, poseName);
-                addPose(poseName);
+                controller.addPose(poseName);
+                controller.updateLocations();
             }
         } else {
             AlertBox.display("Adding Location Error", "You cannot add a location on an occupied cell.", Alert.AlertType.ERROR);
         }
-    }
-
-    private void addPose(String poseName) {
-        listView.getItems().add(poseName); //FIXME: These three lines belong somewhere else
-        listView.getSelectionModel().select(poseName);
-//        nextButton.setDisable(!(projectData.noOfPoses() >= 2));
     }
 
     private static Pose parsePose(List<String> annotatedPose) {
@@ -121,9 +109,19 @@ public class InteractiveMapDisplayWithMarkers {
         return theta;
     }
 
-    public void getPoseList() {
-        listView.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> { // FIXME: listview does not belong here
-            UpdateMapImage.drawMapMarkersWithSelection(this, newValue);
-        });
+    public OccupancyMap getMap() {
+        return map;
+    }
+
+    public Canvas getCanvas() {
+        return canvas;
+    }
+
+    public Image getImage() {
+        return image;
+    }
+
+    public Main getMain() {
+        return main;
     }
 }

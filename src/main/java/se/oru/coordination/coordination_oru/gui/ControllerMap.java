@@ -14,8 +14,8 @@ public class ControllerMap {
             if (file != null) {
                 scene.getMain().getDataStatus().getProjectData().setMap(file.getAbsolutePath());
                 scene.getMain().getDataStatus().setMapData(Utils.parseYAML(scene.getMain().getDataStatus().getProjectData().getMap()));
-                var interactiveMapDisplay = new InteractiveMapDisplayWithMarkers(scene);
-                scene.getPane().setCenter(interactiveMapDisplay.createMapInteractionNode());
+                var interactiveMapDisplay = new InteractiveMap(scene.getMain(), this);
+                scene.getPane().setCenter(interactiveMapDisplay.createInteractiveMapNode());
                 scene.getAddLocation().setDisable(false);
             }
         });
@@ -39,7 +39,7 @@ public class ControllerMap {
         });
     }
 
-    public void updateLocations() { //FIXME: This method should be called if interactive map is updated
+    public void updateLocations() {
         scene.getLocations().getItems().clear();
         scene.getMain().getDataStatus().getProjectData().getPoses().forEach((key, value) -> scene.getLocations().getItems().add(key));
         scene.getLocations().getSelectionModel().selectFirst();
@@ -63,5 +63,16 @@ public class ControllerMap {
             scene.getLocations().getSelectionModel().selectFirst();
             updateLocations();
         });
+    }
+
+    public void getPoseList(InteractiveMap interactiveMap) {
+        scene.getLocations().getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
+            UpdateMapImage.drawMapMarkersWithSelection(interactiveMap, newValue);
+        });
+    }
+
+    public void addPose(String poseName) {
+        scene.getLocations().getItems().add(poseName);
+        scene.getLocations().getSelectionModel().select(poseName);
     }
 }

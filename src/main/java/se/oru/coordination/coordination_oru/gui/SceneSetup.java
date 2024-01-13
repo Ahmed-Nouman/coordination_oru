@@ -44,11 +44,11 @@ public class SceneSetup {
     }
 
     private void menuBar() {
-        pane.setTop(MenuBar.update(main, SceneState.SIMULATION));
+        pane.setTop(MenuBar.update(main, SceneState.EXPERIMENT));
     }
 
     private void navigationBar() {
-        pane.setBottom(NavigationBar.update(main, SceneState.SIMULATION));
+        pane.setBottom(NavigationBar.getBar(main, SceneState.EXPERIMENT));
     }
 
     private void centerPane() {

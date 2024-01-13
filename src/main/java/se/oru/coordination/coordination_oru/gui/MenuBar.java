@@ -40,7 +40,7 @@ public class MenuBar {
                 saveProject.setDisable(true);
                 runProject.setDisable(true);
                 break;
-            case SIMULATION:
+            case EXPERIMENT:
                 newProject.setDisable(true);
                 openProject.setDisable(true);
                 break;
@@ -73,13 +73,13 @@ public class MenuBar {
     private static void runProject(Main main) {
         runProject = new MenuItem("Run Project...");
         runProject.setAccelerator(new KeyCodeCombination(KeyCode.R, KeyCodeCombination.CONTROL_DOWN));
-        runProject.setOnAction(e -> main.getNavigationButton().runClicked(main));
+        runProject.setOnAction(e -> main.getNavigationButton().clickRun());
     }
 
     private static MenuItem quit(Main main) {
         var quit = new MenuItem("Quit");
         quit.setAccelerator(new KeyCodeCombination(KeyCode.Q, KeyCodeCombination.CONTROL_DOWN));
-        quit.setOnAction(e -> main.closeProgram(main.getPrimaryStage()));
+        quit.setOnAction(e -> main.closeProgram());
         return quit;
     }
 
@@ -118,15 +118,14 @@ public class MenuBar {
     private static void saveProject(Main main) {
         saveProject = new MenuItem("Save Project...");
         saveProject.setAccelerator(new KeyCodeCombination(KeyCode.S, KeyCodeCombination.CONTROL_DOWN));
-        saveProject.setOnAction(e -> main.getNavigationButton().saveProject(main));
+        saveProject.setOnAction(e -> main.getNavigationButton().trySaveProject());
     }
 
     private static void closeProject(Main main) {
         closeProject = new MenuItem("Close Project");
         closeProject.setAccelerator(new KeyCodeCombination(KeyCode.C, KeyCodeCombination.CONTROL_DOWN));
         closeProject.setOnAction(e -> {
-            var stage = main.getPrimaryStage();
-            main.initializeStage(stage);
+            main.getNavigationButton().clickReset();
         });
     }
 }

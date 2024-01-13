@@ -3,7 +3,7 @@ package se.oru.coordination.coordination_oru.gui;
 import java.util.List;
 
 public class MapData {
-    private String image;
+    private String image = "";
     private double resolution;
     private List<Double> origin;
     private int negate;

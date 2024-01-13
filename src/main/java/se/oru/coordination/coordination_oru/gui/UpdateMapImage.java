@@ -9,32 +9,32 @@ import se.oru.coordination.coordination_oru.motionplanning.OccupancyMap;
 import java.util.ArrayList;
 
 public class UpdateMapImage {
-    protected static void drawMapMarkers(InteractiveMapDisplayWithMarkers interactiveMapDisplayWithMarkers) {
-        drawMapMarkersWithSelection(interactiveMapDisplayWithMarkers, null);
+    protected static void drawMapMarkers(InteractiveMap interactiveMap) {
+        drawMapMarkersWithSelection(interactiveMap, null);
     }
 
-    protected static void drawMapMarkersWithSelection(InteractiveMapDisplayWithMarkers interactiveMapDisplayWithMarkers, String selectedPoseName) {
-        GraphicsContext graphicsContext = interactiveMapDisplayWithMarkers.canvas.getGraphicsContext2D();
-        int originX = 0;
-        int originY = 0;
-        graphicsContext.drawImage(interactiveMapDisplayWithMarkers.image, originX, originY);
-        drawMarkers(graphicsContext, interactiveMapDisplayWithMarkers.projectData, interactiveMapDisplayWithMarkers.occupancyMap, selectedPoseName);
+    protected static void drawMapMarkersWithSelection(InteractiveMap interactiveMap, String selectedPoseName) {
+        var graphicsContext = interactiveMap.getCanvas().getGraphicsContext2D();
+        var originX = 0;
+        var originY = 0;
+        graphicsContext.drawImage(interactiveMap.getImage(), originX, originY);
+        drawMarkers(graphicsContext, interactiveMap.getMain().getDataStatus().getProjectData(), interactiveMap.getMap(), selectedPoseName);
     }
 
-    private static void drawMarkers(GraphicsContext graphicsContext, ProjectData projectData, OccupancyMap occupancyMap, String selectedPoseName) {
-        for (Pose pose : new ArrayList<>(projectData.getPoses().values())) {
-            boolean isSelectedPose = selectedPoseName != null && pose.equals(projectData.getPose(selectedPoseName));
-            Color markerColor = isSelectedPose ? Color.RED : Color.LIGHTGREEN;
-            drawMarker(graphicsContext, occupancyMap, pose, markerColor);
+    private static void drawMarkers(GraphicsContext graphicsContext, ProjectData projectData, OccupancyMap map, String poseName) {
+        for (var pose : new ArrayList<>(projectData.getPoses().values())) {
+            var isSelectedPose = poseName != null && pose.equals(projectData.getPose(poseName));
+            var markerColor = isSelectedPose ? Color.RED : Color.LIGHTGREEN;
+            drawMarker(graphicsContext, map, pose, markerColor);
         }
     }
 
-    private static void drawMarker(GraphicsContext graphicsContext, OccupancyMap occupancyMap, Pose pose, Color color) {
-        int markerSize = 10;
+    private static void drawMarker(GraphicsContext graphicsContext, OccupancyMap map, Pose pose, Color color) {
+        var markerSize = 10;
         var position = new Coordinate(pose.getX(), pose.getY());
-        var pixel = occupancyMap.convertToPixels(position);
-        int x = (pixel[0] - markerSize / 2);
-        int y = (pixel[1] - markerSize / 2);
+        var pixel = map.convertToPixels(position);
+        var x = (pixel[0] - markerSize / 2);
+        var y = (pixel[1] - markerSize / 2);
         graphicsContext.setFill(color);
         graphicsContext.fillRect(x, y, markerSize, markerSize);
     }

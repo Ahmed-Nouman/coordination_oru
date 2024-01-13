@@ -2,7 +2,6 @@ package se.oru.coordination.coordination_oru.gui;
 
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
-import javafx.stage.Stage;
 import org.metacsp.multi.spatioTemporal.paths.Pose;
 import se.oru.coordination.coordination_oru.ConstantAccelerationForwardModel;
 import se.oru.coordination.coordination_oru.Mission;
@@ -24,90 +23,52 @@ import static se.oru.coordination.coordination_oru.gui.Utils.*;
 import static se.oru.coordination.coordination_oru.gui.Utils.writeJSON;
 
 public class ControllerNavigation {
-
-    private SceneState currentSceneState = SceneState.HOME;
     private final Button backButton = new Button("Back");
     private final Button nextButton = new Button("Next");
     private final Button saveButton = new Button("Save");
     private final Button resetButton = new Button("Reset");
     private final Button runButton = new Button("Run");
+    private final Main main;
+    private SceneState currentSceneState = SceneState.HOME;
 
-    public void getNavigationController(Stage primaryStage, Main main) {
-        main.getNavigationButton().nextClicked(primaryStage, main);
-        main.getNavigationButton().backClicked(primaryStage, main);
-        main.getNavigationButton().saveClicked(main);
-        main.getNavigationButton().resetClicked(primaryStage, main);
-        main.getNavigationButton().runClicked(main);
+    public ControllerNavigation(Main main) {
+        this.main = main;
     }
 
-    public void updateScene(SceneState newSceneState, Stage primaryStage, Main main) {
-        setCurrentScene(newSceneState);
-        switch (newSceneState) {
-            case HOME:
-                primaryStage.setTitle("Coordination_ORU");
-                primaryStage.setScene(main.getHomeScene().get());
-                primaryStage.centerOnScreen();
-                nextButton.setVisible(true);
-                break;
-            case MAP:
-                primaryStage.setTitle("Coordination_ORU: Setting up the map");
-                primaryStage.setScene(main.getMapScene().get());
-                primaryStage.centerOnScreen();
-                break;
-            case VEHICLE:
-                primaryStage.setTitle("Coordination_ORU: Setting up the vehicles");
-                primaryStage.setScene(main.getVehicleScene().get());
-                primaryStage.centerOnScreen();
-                break;
-            case SIMULATION:
-                primaryStage.setTitle("Coordination_ORU: Setting up the simulation");
-                primaryStage.setScene(main.getSimulationScene().get());
-                primaryStage.centerOnScreen();
-                break;
-            default:
-                break;
-        }
+    public void getNavigationController() {
+        main.getNavigationButton().clickNext();
+        main.getNavigationButton().clickBack();
+        main.getNavigationButton().clickSaved();
+        main.getNavigationButton().clickReset();
+        main.getNavigationButton().clickRun();
     }
 
-    public void backClicked(Stage primaryStage, Main main) {
+    public void updateScene(SceneState newScene) {
+        setScene(newScene);
+        newScene.update(main);
+    }
+
+    public void clickBack() {
         getBackButton().setOnAction(e -> {
-            switch (getCurrentScene()) {
-                case MAP:
-                    updateScene(SceneState.HOME, primaryStage, main);
-                    break;
-                case VEHICLE:
-                    updateScene(SceneState.MAP, primaryStage, main);
-                    break;
-                case SIMULATION:
-                    updateScene(SceneState.VEHICLE, primaryStage, main);
-                    break;
-                default:
-                    break;
+            var currentScene = getCurrentScene();
+            var backState = currentScene.getBackState();
+            if (backState != null) {
+                updateScene(backState);
             }
         });
     }
 
-    public void nextClicked(Stage primaryStage, Main main) {
+    public void clickNext() {
         getNextButton().setOnAction(e -> {
-            switch (getCurrentScene()) {
-                case HOME:
-                    updateScene(SceneState.MAP, primaryStage, main);
-                    break;
-                case MAP:
-                    updateScene(SceneState.VEHICLE, primaryStage, main);
-                    break;
-                case VEHICLE:
-                    updateScene(SceneState.SIMULATION, primaryStage, main);
-//                    var thread = new Thread(() -> verifySavePlans(main));
-//                    thread.start();
-                    break;
-                default:
-                    break;
+            var currentScene = getCurrentScene();
+            var nextState = currentScene.getNextState();
+            if (nextState != null) {
+                updateScene(nextState);
             }
         });
     }
 
-    private void verifySavePlans(Main main) {
+    private void verifySavePlans() {
         System.out.println("Saving plans...");
         for (var vehicle : main.getDataStatus().getProjectData().getVehicles()) {
             var autonomousVehicle = new AutonomousVehicle();
@@ -123,37 +84,43 @@ public class ControllerNavigation {
         }
     }
 
-    public void saveClicked(Main main) {
-        getSaveButton().setOnAction(e -> saveProject(main));
+    public void clickSaved() {
+        getSaveButton().setOnAction(e -> trySaveProject());
     }
 
-    public void saveProject(Main main) {
-        try{
-            if (main.getDataStatus().isNewProject()) {
-                AlertBox.display("Saving the project", "The project has been saved to: " + main.getDataStatus().getProjectFile(), Alert.AlertType.INFORMATION);
-                writeJSON(main.getDataStatus().getProjectData(), main.getDataStatus().getProjectFile());
-            } else {
-                if (main.getDataStatus().getProjectData().equals(main.getDataStatus().getOriginalProjectData())) {
-                    AlertBox.display("Saving the project", "There are no changes to save in the project: " + main.getDataStatus().getProjectFile(), Alert.AlertType.INFORMATION);
-                } else {
-                    var selectedFile = createFile(main, "project", "json");
-                    if (selectedFile != null) {
-                        main.getDataStatus().setProjectFile(selectedFile.getAbsolutePath());
-                        AlertBox.display("Saving the project", "The project has been saved to: " + main.getDataStatus().getProjectFile(), Alert.AlertType.INFORMATION);
-                        writeJSON(main.getDataStatus().getProjectData(), main.getDataStatus().getProjectFile());
-                    }
-                }
-            }
+    public void trySaveProject() {
+        try {
+            boolean isProjectUnchanged = main.getDataStatus().getProjectData().equals(main.getDataStatus().getOriginalProjectData());
+            if (isProjectUnchanged) doNotSaveProject();
+            else saveProject();
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
     }
 
-    public void resetClicked(Stage primaryStage, Main main) {
-        getResetButton().setOnAction(e -> main.initializeStage(primaryStage));
+    private void doNotSaveProject() {
+        AlertBox.display("Saving the Project", "There are no changes to save in the project: " + main.getDataStatus().getProjectFile(), Alert.AlertType.INFORMATION);
     }
 
-    public void runClicked(Main main) {
+    private void saveProject() throws IOException {
+        var file = createFile(main, "project", "json");
+        if (file != null) {
+            main.getDataStatus().setProjectFile(file.getAbsolutePath());
+            writeJSON(main.getDataStatus().getProjectData(), main.getDataStatus().getProjectFile());
+            AlertBox.display("Saving the Project", "The project has been saved to: " + main.getDataStatus().getProjectFile(), Alert.AlertType.INFORMATION);
+        }
+    }
+
+
+    public void clickReset() {
+        getResetButton().setOnAction(e -> {
+            updateScene(SceneState.HOME);
+            main.getNavigationButton().nextButton.setDisable(true);
+            main.getHomeScene().getFilePath().setText("");
+        });
+    }
+
+    public void clickRun() {
         getRunButton().setOnAction(e -> {
             // Create a ScheduledExecutorService with a single thread
             ScheduledExecutorService executorService = Executors.newScheduledThreadPool(1);
@@ -162,7 +129,7 @@ public class ControllerNavigation {
             var runCount = new AtomicInteger(0);
             ScheduledFuture<?> future = executorService.scheduleAtFixedRate(() -> {
                 if (runCount.incrementAndGet() <= main.getDataStatus().getNumberOfRuns()) {
-                    runProject(main.getDataStatus()); // Run your task
+                    runProject(); // Run your task
                 } else {
                     executorService.shutdown(); // Shutdown the executor after n executions
                 }
@@ -175,10 +142,10 @@ public class ControllerNavigation {
         });
     }
 
-    public void runProject(DataStatus dataStatus) {
+    public void runProject() {
 
-        final String YAML_FILE = dataStatus.getProjectData().getMap();
-        double mapResolution = dataStatus.getMapData().getResolution();
+        final String YAML_FILE = main.getDataStatus().getProjectData().getMap();
+        double mapResolution = main.getDataStatus().getMapData().getResolution();
         double scaleAdjustment = 1 / mapResolution;
         double lookAheadDistance = 45 / scaleAdjustment;
         double reportsTimeIntervalInSeconds = 0.1;
@@ -189,7 +156,7 @@ public class ControllerNavigation {
         tec.startInference();
 
         // Set Heuristics
-        tec.addComparator(dataStatus.getHeuristics().getComparator());
+        tec.addComparator(main.getDataStatus().getHeuristics().getComparator());
 
         // Set Local Re-ordering and Local Re-Planning to break Deadlocks
         tec.setBreakDeadlocks(true, false, false);
@@ -201,7 +168,7 @@ public class ControllerNavigation {
         viz.AccessInitialTransform();
         tec.setVisualization(viz);
 
-        dataStatus.getProjectData().getVehicles().forEach((vehicle) -> {
+        main.getDataStatus().getProjectData().getVehicles().forEach((vehicle) -> {
 
             AbstractVehicle newVehicle;
             if (vehicle.getType().equals("Autonomous")) {
@@ -219,11 +186,11 @@ public class ControllerNavigation {
             newVehicle.setMaxAcceleration(vehicle.getMaxAcceleration() / scaleAdjustment);
             newVehicle.setSafetyDistance(vehicle.getSafetyDistance() / scaleAdjustment);
             newVehicle.setColor(stringToColor(vehicle.getColor()));
-            newVehicle.setInitialPose(dataStatus.getProjectData().getPose(vehicle.getInitialPose()));
+            newVehicle.setInitialPose(main.getDataStatus().getProjectData().getPose(vehicle.getInitialPose()));
             newVehicle.setGoalPoses(vehicle.getMission()
                     .stream()
                     .map(ProjectData.MissionStep::getPoseName)
-                    .map(poseName -> dataStatus.getProjectData().getPose(poseName))
+                    .map(poseName -> main.getDataStatus().getProjectData().getPose(poseName))
                     .toArray(Pose[]::new));
 //            newVehicle.setMission(vehicle.getMission()); //FIXME Fix Mission, How to handle multiple missions to GoalPoses, handle stoppages
             newVehicle.setMissionRepetition(vehicle.getMissionRepetition()); //FIXME Handle Mission Repetitions in missionsDispatcher
@@ -242,15 +209,16 @@ public class ControllerNavigation {
             Missions.enqueueMission(mission);
         });
         Missions.setMap(YAML_FILE);
-        Missions.startMissionDispatchers(tec, dataStatus.getWriteVehicleReports(), reportsTimeIntervalInSeconds,
-                dataStatus.getSimulationTime(), dataStatus.getHeuristics().getName(), 100, dataStatus.getReportsFolder(), scaleAdjustment);
+        Missions.startMissionDispatchers(tec, main.getDataStatus().getWriteVehicleReports(), reportsTimeIntervalInSeconds,
+                main.getDataStatus().getSimulationTime(), main.getDataStatus().getHeuristics().getName(), 100,
+                main.getDataStatus().getReportsFolder(), scaleAdjustment);
     }
 
     public SceneState getCurrentScene() {
         return currentSceneState;
     }
 
-    public void setCurrentScene(SceneState sceneState) {
+    public void setScene(SceneState sceneState) {
         this.currentSceneState = sceneState;
     }
 

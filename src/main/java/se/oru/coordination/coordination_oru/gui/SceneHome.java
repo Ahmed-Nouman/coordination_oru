@@ -20,7 +20,7 @@ public class SceneHome {
     private static final int FONT_SIZE = 16;
     private Button newProject = new Button();
     private Button openProject = new Button();
-    private Text filePath = new Text("");
+    private final Text filePath = new Text("");
     private final Main main;
     private BorderPane pane;
     public final ControllerHome controller = new ControllerHome(this);
@@ -48,7 +48,7 @@ public class SceneHome {
     }
 
     private void navigationBar() {
-        pane.setBottom(NavigationBar.update(main, SceneState.HOME));
+        pane.setBottom(NavigationBar.getBar(main, SceneState.HOME));
     }
 
     private BorderPane initializePane() {
@@ -63,7 +63,6 @@ public class SceneHome {
         var centerPane = initializeCenterPane();
         var welcomeMessage = welcomeMessage();
         var buttons = buttonPane();
-        filePath = new Text("");
         centerPane.getChildren().addAll(welcomeMessage, buttons, filePath);
     }
 

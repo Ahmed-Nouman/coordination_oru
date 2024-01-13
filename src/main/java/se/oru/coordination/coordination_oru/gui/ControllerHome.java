@@ -27,7 +27,6 @@ public class ControllerHome {
         scene.getMain().getDataStatus().setProjectFile(file.getAbsolutePath());
         scene.getMain().getDataStatus().setProjectData(new ProjectData());
         scene.getMain().getDataStatus().setMapData(new MapData());
-        scene.getMain().getDataStatus().setNewProject(true);
         scene.getMain().getNavigationButton().getNextButton().setDisable(false);
     }
 
@@ -52,7 +51,6 @@ public class ControllerHome {
     private void initializeOpenProject(File file) {
         scene.getMain().getDataStatus().setProjectFile(file.getAbsolutePath());
         scene.getFilePath().setText("Name of Project: " + file.getName());
-        scene.getMain().getDataStatus().setNewProject(false);
         scene.getMain().getNavigationButton().getNextButton().setDisable(false);
     }
 

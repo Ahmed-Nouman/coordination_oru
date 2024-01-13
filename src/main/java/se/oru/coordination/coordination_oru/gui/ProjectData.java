@@ -129,7 +129,6 @@ public class ProjectData implements Serializable {
         return this.getPoses().size();
     }
 
-    // Inner class to represent a vehicle
     public static class Vehicle implements Serializable{
         private static int nextId = 1;
         private final int ID;

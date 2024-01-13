@@ -9,10 +9,9 @@ import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import org.metacsp.multi.spatioTemporal.paths.Pose;
 
-import java.util.HashMap;
 import java.util.Map;
 
-public class MapDisplayWithMarkers extends StackPane {
+public class staticMap extends StackPane {
     private static final int MARKER_RADIUS = 8;
     private static final int FONT_SIZE = 12;
     private final Canvas canvas;
@@ -22,7 +21,7 @@ public class MapDisplayWithMarkers extends StackPane {
     private final double originalImageWidth;
     private final double originalImageHeight;
 
-    public MapDisplayWithMarkers(String imagePath, Map<String, Pose> poses, double mapResolution, double newWidth, double newHeight) {
+    public staticMap(String imagePath, Map<String, Pose> poses, double mapResolution, double newWidth, double newHeight) {
         mapImage = new Image(imagePath);
         scaleImage = 1 / mapResolution;
         originalImageWidth = mapImage.getWidth();

@@ -11,6 +11,8 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
 
+import java.util.Objects;
+
 public class SceneMap {
     private static final int WIDTH = 1200;
     private static final int HEIGHT = 800;
@@ -40,37 +42,35 @@ public class SceneMap {
     private void controllers() {
         controller.clickAddLocation();
         controller.clickDeleteLocation();
+        controller.clickBrowse();
+        controller.updateLocations();
     }
 
     private void centerPane() {
-        if (main.getDataStatus().isNewProject()) {
-            var centerPane = new VBox();
-            centerPane.setAlignment(Pos.CENTER);
-            pane.setCenter(centerPane);
-            centerPane.setSpacing(30);
-            centerPane.setPadding(new Insets(30, 10, 30, 10));
-//        BorderPane.setMargin(centerPane, new Insets(20, 0, 20, 0));
-            var message = message();
-            browse = browse();
+        if (Objects.equals(main.getDataStatus().getMapData().getImage(), "")) {
+            var centerPane = initializeCenterPane();
+            var message = new Text("Select a map to load: ");
+            browse = new Button("Browse...");
             centerPane.getChildren().addAll(message, browse);
 
             main.getNavigationButton().getNextButton().setDisable(true);
-            controller.clickBrowse();
 
         } else {
             addLocation.setDisable(false);
             deleteLocation.setDisable(false);
-            var interactiveMapDisplay = new InteractiveMapDisplayWithMarkers(this);
-            pane.setCenter(interactiveMapDisplay.createMapInteractionNode()); //FIXME: Fix arguments
+            var interactiveMapDisplay = new InteractiveMap(main, controller);
+            pane.setCenter(interactiveMapDisplay.createInteractiveMapNode());
         }
     }
 
-    private Button browse() {
-        return new Button("Browse...");
-    }
-
-    private Text message() {
-        return new Text("Select a map to load: ");
+    private VBox initializeCenterPane() {
+        var centerPane = new VBox();
+        centerPane.setAlignment(Pos.CENTER);
+        pane.setCenter(centerPane);
+        centerPane.setSpacing(30);
+        centerPane.setPadding(new Insets(30, 10, 30, 10));
+//        BorderPane.setMargin(centerPane, new Insets(20, 0, 20, 0));
+        return centerPane;
     }
 
     private BorderPane initializePane() {
@@ -123,7 +123,6 @@ public class SceneMap {
     private ListView<String> locations() {
         locations.setPrefWidth(230);
         locations.setPrefHeight(820);
-        controller.updateLocations();
         return locations;
     }
 
@@ -138,7 +137,7 @@ public class SceneMap {
     }
 
     private void navigationBar() {
-        pane.setBottom(NavigationBar.update(main, SceneState.MAP));
+        pane.setBottom(NavigationBar.getBar(main, SceneState.MAP));
     }
 
     public Main getMain() {
@@ -165,7 +164,4 @@ public class SceneMap {
         return locations;
     }
 
-    public void setLocations(ListView<String> locations) {
-        this.locations = locations;
-    }
 }
