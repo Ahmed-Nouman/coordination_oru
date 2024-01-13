@@ -15,11 +15,11 @@ public class SceneMap {
     private static final int WIDTH = 1200;
     private static final int HEIGHT = 800;
     private static final int SPACING = 10;
-    private BorderPane pane;
     private ListView<String> locations = new ListView<>();
     private Button addLocation = new Button();
     private Button deleteLocation = new Button();
     private Button browse = new Button();
+    private BorderPane pane;
     private final Main main;
     public final ControllerMap controller = new ControllerMap(this);
 
@@ -33,10 +33,13 @@ public class SceneMap {
         navigationBar();
         rightPane();
         centerPane();
-
-        controller.addLocationClicked();
-        controller.deleteLocationClicked();
+        controllers();
         return new Scene(pane);
+    }
+
+    private void controllers() {
+        controller.clickAddLocation();
+        controller.clickDeleteLocation();
     }
 
     private void centerPane() {
@@ -52,7 +55,7 @@ public class SceneMap {
             centerPane.getChildren().addAll(message, browse);
 
             main.getNavigationButton().getNextButton().setDisable(true);
-            controller.browseClicked();
+            controller.clickBrowse();
 
         } else {
             addLocation.setDisable(false);
@@ -146,32 +149,16 @@ public class SceneMap {
         return pane;
     }
 
-    public void setPane(BorderPane pane) {
-        this.pane = pane;
-    }
-
     public Button getBrowse() {
         return browse;
-    }
-
-    public void setBrowse(Button browse) {
-        this.browse = browse;
     }
 
     public Button getAddLocation() {
         return addLocation;
     }
 
-    public void setAddLocation(Button addLocation) {
-        this.addLocation = addLocation;
-    }
-
     public Button getDeleteLocation() {
         return deleteLocation;
-    }
-
-    public void setDeleteLocation(Button deleteLocation) {
-        this.deleteLocation = deleteLocation;
     }
 
     public ListView<String> getLocations() {

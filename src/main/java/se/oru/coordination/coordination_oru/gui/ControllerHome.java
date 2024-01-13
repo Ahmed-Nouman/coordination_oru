@@ -12,7 +12,7 @@ public class ControllerHome {
         this.scene = scene;
     }
 
-    public void newProjectClicked() {
+    public void clickNewProject() {
         scene.getNewProject().setOnAction(e -> {
             var file = Utils.createFile(scene.getMain(), "newProject", "json");
             if (file != null) {
@@ -39,7 +39,7 @@ public class ControllerHome {
         }
     }
 
-    public void openProjectClicked() {
+    public void clickOpenProject() {
         scene.getOpenProject().setOnAction(e -> {
             var file = Utils.chooseFile(scene.getMain(), "Select a project file to open: ", "json");
             if (file != null) {

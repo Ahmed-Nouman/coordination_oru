@@ -106,13 +106,13 @@ public class MenuBar {
     private static void newProject(Main main) {
         newProject = new MenuItem("New Project...");
         newProject.setAccelerator(new KeyCodeCombination(KeyCode.N, KeyCodeCombination.CONTROL_DOWN));
-        newProject.setOnAction(e -> main.getHomeScene().controller.newProjectClicked());
+        newProject.setOnAction(e -> main.getHomeScene().controller.clickNewProject());
     }
 
     private static void openProject(Main main) {
         openProject = new MenuItem("Open Project...");
         openProject.setAccelerator(new KeyCodeCombination(KeyCode.O, KeyCodeCombination.CONTROL_DOWN));
-        openProject.setOnAction(e -> main.getHomeScene().controller.openProjectClicked());
+        openProject.setOnAction(e -> main.getHomeScene().controller.clickOpenProject());
     }
 
     private static void saveProject(Main main) {

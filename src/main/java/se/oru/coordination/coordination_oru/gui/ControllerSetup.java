@@ -1,100 +1,93 @@
 package se.oru.coordination.coordination_oru.gui;
 
-import javafx.scene.control.Button;
-import javafx.scene.control.CheckBox;
-import javafx.scene.control.ChoiceBox;
-import javafx.scene.control.TextField;
-import javafx.scene.text.Text;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.Stage;
 import se.oru.coordination.coordination_oru.utils.Heuristics;
 
-import java.io.File;
-
 public class ControllerSetup {
-    private final SceneSetup sceneSetup;
+    private final SceneSetup scene;
 
-    public ControllerSetup(SceneSetup sceneSetup) {
-        this.sceneSetup = sceneSetup;
+    public ControllerSetup(SceneSetup scene) {
+        this.scene = scene;
     }
 
-    public void getHeuristics(ChoiceBox<String> heuristicsChoiceBox) {
-        heuristicsChoiceBox.setOnAction(e -> {
-            String selectedHeuristic = heuristicsChoiceBox.getValue();
-            if (selectedHeuristic != null) {
-                switch (selectedHeuristic) {
+    public void chooseHeuristic() {
+        scene.getHeuristicsField().setOnAction(e -> {
+            var heuristic = scene.getHeuristicsField().getValue();
+            if (heuristic != null) {
+                switch (heuristic) {
                     case "MOST_DISTANCE_TRAVELLED":
-                        sceneSetup.getMain().getDataStatus().setHeuristics(new Heuristics(Heuristics.HeuristicType.MOST_DISTANCE_TRAVELLED));
+                        scene.getMain().getDataStatus().setHeuristics(new Heuristics(Heuristics.HeuristicType.MOST_DISTANCE_TRAVELLED));
                         break;
                     case "MOST_DISTANCE_TO_TRAVEL":
-                        sceneSetup.getMain().getDataStatus().setHeuristics(new Heuristics(Heuristics.HeuristicType.MOST_DISTANCE_TO_TRAVEL));
+                        scene.getMain().getDataStatus().setHeuristics(new Heuristics(Heuristics.HeuristicType.MOST_DISTANCE_TO_TRAVEL));
                         break;
                     case "RANDOM":
-                        sceneSetup.getMain().getDataStatus().setHeuristics(new Heuristics(Heuristics.HeuristicType.RANDOM));
+                        scene.getMain().getDataStatus().setHeuristics(new Heuristics(Heuristics.HeuristicType.RANDOM));
                         break;
                     case "HIGHEST_PRIORITY_FIRST":
-                        sceneSetup.getMain().getDataStatus().setHeuristics(new Heuristics(Heuristics.HeuristicType.HIGHEST_PRIORITY_FIRST));
+                        scene.getMain().getDataStatus().setHeuristics(new Heuristics(Heuristics.HeuristicType.HIGHEST_PRIORITY_FIRST));
                         break;
                     case "HUMAN_FIRST":
-                        sceneSetup.getMain().getDataStatus().setHeuristics(new Heuristics(Heuristics.HeuristicType.HUMAN_FIRST));
+                        scene.getMain().getDataStatus().setHeuristics(new Heuristics(Heuristics.HeuristicType.HUMAN_FIRST));
                         break;
                     case "AUTONOMOUS_FIRST":
-                        sceneSetup.getMain().getDataStatus().setHeuristics(new Heuristics(Heuristics.HeuristicType.AUTONOMOUS_FIRST));
+                        scene.getMain().getDataStatus().setHeuristics(new Heuristics(Heuristics.HeuristicType.AUTONOMOUS_FIRST));
                         break;
                     default:
-                        sceneSetup.getMain().getDataStatus().setHeuristics(new Heuristics(Heuristics.HeuristicType.CLOSEST_FIRST));
+                        scene.getMain().getDataStatus().setHeuristics(new Heuristics(Heuristics.HeuristicType.CLOSEST_FIRST));
                         break;
                 }
             }
         });
     }
 
-    public void getSimulationTime(TextField simulationTimeField) {
-        simulationTimeField.focusedProperty().addListener((observable, wasFocused, isNowFocused) -> {
+    public void changeSimulationTime() {
+        scene.getSimulationTimeField().focusedProperty().addListener((observable, wasFocused, isNowFocused) -> {
             if (!isNowFocused) {
-                Boolean validated = Utils.validateInteger(simulationTimeField);
+                var validated = Utils.validateInteger(scene.getSimulationTimeField());
                 if (validated) {
-                    sceneSetup.getMain().getDataStatus().setSimulationTime(Integer.parseInt(simulationTimeField.getText()));
+                    scene.getMain().getDataStatus().setSimulationTime(Integer.parseInt(scene.getSimulationTimeField().getText()));
                 }
             }
         });
     }
 
-    public void getIfSavingReports(CheckBox saveReportField, Text reportsFolderText, Button reportFolderButton, Text reportsLocationText, Text reportsFolderLocation) {
-        saveReportField.setOnAction(e -> {
-            if (saveReportField.isSelected()) {
-                reportsFolderText.setVisible(true);
-                reportFolderButton.setVisible(true);
+    public void checkSavingReport() {
+        scene.getSaveReportField().setOnAction(e -> {
+            if (scene.getSaveReportField().isSelected()) {
+                scene.getReportFolder().setVisible(true);
+                scene.getReportFolderField().setVisible(true);
             } else {
-                reportsFolderText.setVisible(false);
-                reportFolderButton.setVisible(false);
-                reportsLocationText.setVisible(false);
-                reportsFolderLocation.setVisible(false);
+                scene.getReportFolder().setVisible(false);
+                scene.getReportFolderField().setVisible(false);
+                scene.getReportLocation().setVisible(false);
+                scene.getReportLocationField().setVisible(false);
             }
-            sceneSetup.getMain().getDataStatus().setWriteVehicleReports(saveReportField.isSelected());
+            scene.getMain().getDataStatus().setWriteVehicleReports(scene.getSaveReportField().isSelected());
         });
     }
 
-    public void getNumberOfRun(TextField numberOfRunField) {
-        numberOfRunField.focusedProperty().addListener((observable, wasFocused, isNowFocused) -> {
+    public void changeNumberOfRun() {
+        scene.getNumberOfRunField().focusedProperty().addListener((observable, wasFocused, isNowFocused) -> {
             if (!isNowFocused) {
-                Boolean validated = Utils.validateInteger(numberOfRunField);
+                var validated = Utils.validateInteger(scene.getNumberOfRunField());
                 if (validated) {
-                    sceneSetup.getMain().getDataStatus().setNumberOfRuns(Integer.parseInt(numberOfRunField.getText()));
+                    scene.getMain().getDataStatus().setNumberOfRuns(Integer.parseInt(scene.getNumberOfRunField().getText()));
                 }
             }
         });
     }
 
-    public void getReportFolder(Button reportFolderButton, Text reportsLocationText, Text reportsFolderLocation) {
-        reportFolderButton.setOnAction(e -> {
-            DirectoryChooser directoryChooser = new DirectoryChooser();
-            File selectedDirectory = directoryChooser.showDialog(new Stage());
-            if (selectedDirectory != null) {
-                reportsLocationText.setVisible(true);
-                reportsFolderLocation.setVisible(true);
-                sceneSetup.getMain().getDataStatus().setReportsFolder(selectedDirectory.getAbsolutePath());
-                reportsFolderLocation.setText(sceneSetup.getMain().getDataStatus().getReportsFolder());
+    public void clickReportFolder() {
+        scene.getReportFolderField().setOnAction(e -> {
+            var directoryChooser = new DirectoryChooser();
+            var directory = directoryChooser.showDialog(new Stage());
+            if (directory != null) {
+                scene.getReportLocation().setVisible(true);
+                scene.getReportLocationField().setVisible(true);
+                scene.getMain().getDataStatus().setReportsFolder(directory.getAbsolutePath());
+                scene.getReportLocationField().setText(scene.getMain().getDataStatus().getReportsFolder());
             }
         });
     }

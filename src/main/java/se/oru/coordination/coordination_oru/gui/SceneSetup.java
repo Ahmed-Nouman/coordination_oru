@@ -9,34 +9,55 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.text.Text;
 import se.oru.coordination.coordination_oru.utils.Heuristics;
 
+import java.util.List;
+
 public class SceneSetup {
-    public static final int PADDING = 30;
-    public static final int SPACING = 10;
+    private static final int PADDING = 30;
+    private static final int SPACING = 10;
+    public static final int WIDTH = 220;
+    private Text heuristics;
+    private ChoiceBox<String> heuristicsField;
+    private Text simulationTime;
+    private TextField simulationTimeField;
+    private Text numberOfRun;
+    private TextField numberOfRunField;
+    private Text reportFolder;
+    private Button reportFolderField;
+    private Text reportLocation;
+    private Text reportLocationField;
+    private Text saveReport;
+    private CheckBox saveReportField;
+    private BorderPane pane;
     private final Main main;
-    private final ControllerSetup controllerSetup = new ControllerSetup(this);
+    private final ControllerSetup controller = new ControllerSetup(this);
 
     public SceneSetup(Main main) {
         this.main = main;
     }
 
     public Scene get() {
-        var pane = new BorderPane();
-        getMenuBar(pane);
-        getNavigationBar(pane);
-        getCenterPane(pane);
+        pane = new BorderPane();
+        menuBar();
+        navigationBar();
+        centerPane();
         return new Scene(pane);
     }
 
-    private void getMenuBar(BorderPane pane) {
+    private void menuBar() {
         pane.setTop(MenuBar.update(main, SceneState.SIMULATION));
     }
 
-    private void getNavigationBar(BorderPane pane) {
+    private void navigationBar() {
         pane.setBottom(NavigationBar.update(main, SceneState.SIMULATION));
     }
 
-    private void getCenterPane(BorderPane pane) {
-        // Center Pane
+    private void centerPane() {
+        var centerPane = initializeCenterPane();
+        setupCenterPane(centerPane);
+        controllers();
+    }
+
+    private GridPane initializeCenterPane() {
         var centerPane = new GridPane();
         centerPane.setPadding(new Insets(PADDING));
         BorderPane.setMargin(centerPane, new Insets(PADDING));
@@ -44,62 +65,121 @@ public class SceneSetup {
         centerPane.setVgap(SPACING);
         centerPane.setAlignment(Pos.CENTER);
         pane.setCenter(centerPane);
-
-        // heuristics choice-box
-        var heuristicsText = new Text("Heuristics: ");
-        GridPane.setConstraints(heuristicsText, 0, 0);
-        ChoiceBox<String> heuristicsChoiceBox = new ChoiceBox<>();
-        heuristicsChoiceBox.setPrefWidth(220);
-        GridPane.setConstraints(heuristicsChoiceBox, 1, 0);
-        heuristicsChoiceBox.getItems().addAll(Heuristics.getAllHeuristicNames());
-        heuristicsChoiceBox.setValue(heuristicsChoiceBox.getItems().stream().findFirst().orElse(null));
-        controllerSetup.getHeuristics(heuristicsChoiceBox);
-
-        // simulationTime text-field
-        var simulationTime = new Text("Simulation Time (minutes): ");
-        GridPane.setConstraints(simulationTime, 0, 1);
-        var simulationTimeField = new TextField();
-        simulationTimeField.setMaxWidth(heuristicsChoiceBox.getPrefWidth());
-        simulationTimeField.setText("30");
-        GridPane.setConstraints(simulationTimeField, 1, 1);
-        controllerSetup.getSimulationTime(simulationTimeField);
-
-        var numberOfRun = new Text("No. of Runs: ");
-        GridPane.setConstraints(numberOfRun, 0, 2);
-        var numberOfRunField = new TextField();
-        numberOfRunField.setMaxWidth(heuristicsChoiceBox.getPrefWidth());
-        numberOfRunField.setText("1");
-        GridPane.setConstraints(numberOfRunField, 1, 2);
-        controllerSetup.getNumberOfRun(numberOfRunField);
-
-        var reportsLocationText = new Text("Reports will be saved in:");
-        GridPane.setConstraints(reportsLocationText, 0, 5);
-        reportsLocationText.setVisible(false);
-        var reportsFolderLocation = new Text();
-        GridPane.setConstraints(reportsFolderLocation, 1, 5);
-        reportsFolderLocation.setVisible(false);
-
-        var reportsFolderText = new Text("Folder to Save the Reports: ");
-        GridPane.setConstraints(reportsFolderText, 0, 4);
-        reportsFolderText.setVisible(false);
-        var reportFolderButton = new Button("Browse...");
-        GridPane.setConstraints(reportFolderButton, 1, 4);
-        reportFolderButton.setVisible(false);
-        controllerSetup.getReportFolder(reportFolderButton, reportsLocationText, reportsFolderLocation);
-
-        var saveReports = new Text("Saving Vehicles Reports: ");
-        GridPane.setConstraints(saveReports, 0, 3);
-        var saveReportField = new CheckBox();
-        saveReportField.setSelected(false);
-        GridPane.setConstraints(saveReportField, 1, 3);
-        controllerSetup.getIfSavingReports(saveReportField, reportsFolderText, reportFolderButton, reportsLocationText, reportsFolderLocation);
-
-        centerPane.getChildren().addAll(heuristicsText, heuristicsChoiceBox, simulationTime,
-                simulationTimeField, numberOfRun, numberOfRunField, saveReports, saveReportField,
-                reportsFolderText, reportFolderButton, reportsLocationText, reportsFolderLocation);
+        return centerPane;
     }
 
+    private void setupCenterPane(GridPane centerPane) {
+        setupTexts();
+        setupFields();
+        addChildren(centerPane);
+    }
+
+    private void setupTexts() {
+        heuristics = text("Heuristics: ", 0, 0);
+        simulationTime = text("Simulation Time (minutes): ", 0, 1);
+        numberOfRun = text("No. of Runs: ", 0, 2);
+        saveReport = text("Saving Vehicles Reports: ", 0, 3);
+        reportFolder = text("Folder to Save the Reports: ", 0, 4);
+        reportFolder.setVisible(false);
+        reportLocation = text("Reports will be saved in:", 0, 5);
+        reportLocation.setVisible(false);
+    }
+
+    private void setupFields() {
+        var heuristicsType = Heuristics.getAllHeuristicNames();
+        heuristicsField = choiceBox(heuristicsType, 0);
+        simulationTimeField = textField(1);
+        simulationTimeField.setText("30");
+        numberOfRunField = textField(2);
+        numberOfRunField.setText("1");
+        saveReportField = checkBox(3);
+        saveReportField.setSelected(false);
+        reportFolderField = button("Browse...", 4);
+        reportFolderField.setVisible(false);
+        reportLocationField = text("", 1, 5);
+        reportLocationField.setVisible(false);
+    }
+
+    private void addChildren(GridPane centerPane) {
+        centerPane.getChildren().addAll(heuristics, heuristicsField, simulationTime,
+                simulationTimeField, numberOfRun, numberOfRunField, saveReport, saveReportField,
+                reportFolder, reportFolderField, reportLocation, reportLocationField);
+    }
+
+    private ChoiceBox<String> choiceBox(List<String> items, int row) {
+        var choiceBox = new ChoiceBox<String>();
+        choiceBox.getItems().addAll(items);
+        choiceBox.setMaxWidth(WIDTH);
+        choiceBox.setValue(items.stream().findFirst().orElse(null));
+        GridPane.setConstraints(choiceBox, 1, row);
+        return choiceBox;
+    }
+
+    private TextField textField(int row) {
+        var textField = new TextField();
+        textField.setMaxWidth(WIDTH);
+        GridPane.setConstraints(textField, 1, row);
+        return textField;
+    }
+
+    private CheckBox checkBox(int row) {
+        var checkBox = new CheckBox();
+        GridPane.setConstraints(checkBox, 1, row);
+        return checkBox;
+    }
+
+    private Button button(String name, int row) {
+        var button = new Button(name);
+        GridPane.setConstraints(button, 1, row);
+        return button;
+    }
+
+    private Text text(String name, int column, int row) {
+        var text = new Text(name);
+        GridPane.setConstraints(text, column, row);
+        return text;
+    }
+
+    private void controllers() {
+        controller.chooseHeuristic();
+        controller.changeSimulationTime();
+        controller.changeNumberOfRun();
+        controller.checkSavingReport();
+        controller.clickReportFolder();
+    }
     public Main getMain() {
         return main;
+    }
+
+    public ChoiceBox<String> getHeuristicsField() {
+        return heuristicsField;
+    }
+
+    public TextField getSimulationTimeField() {
+        return simulationTimeField;
+    }
+
+    public TextField getNumberOfRunField() {
+        return numberOfRunField;
+    }
+
+    public Button getReportFolderField() {
+        return reportFolderField;
+    }
+
+    public Text getReportLocationField() {
+        return reportLocationField;
+    }
+
+    public CheckBox getSaveReportField() {
+        return saveReportField;
+    }
+
+    public Text getReportLocation() {
+        return reportLocation;
+    }
+
+    public Text getReportFolder() {
+        return reportFolder;
     }
 }

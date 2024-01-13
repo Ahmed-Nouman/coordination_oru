@@ -8,7 +8,7 @@ public class ControllerMap {
         this.scene = scene;
     }
 
-    public void browseClicked() {
+    public void clickBrowse() {
         scene.getBrowse().setOnAction(e -> {
             var file = Utils.chooseFile(scene.getMain(), "Select a map file to open: ", "yaml");
             if (file != null) {
@@ -21,7 +21,7 @@ public class ControllerMap {
         });
     }
 
-    public void addLocationClicked() {
+    public void clickAddLocation() {
         scene.getAddLocation().setOnAction(e -> {
             var pose = new Pose(0, 0, 0);
             var addedPoseAsList = AddLocationDialogBox.display(pose.getX(), pose.getY());
@@ -56,7 +56,7 @@ public class ControllerMap {
         scene.getDeleteLocation().setDisable(scene.getLocations().getItems().isEmpty());
     }
 
-    public void deleteLocationClicked() {
+    public void clickDeleteLocation() {
         scene.getDeleteLocation().setOnAction(e -> {
             scene.getMain().getDataStatus().getProjectData().getPoses().remove(scene.getLocations().getSelectionModel().getSelectedItem());
             scene.getLocations().getItems().remove(scene.getLocations().getSelectionModel().getSelectedItem());

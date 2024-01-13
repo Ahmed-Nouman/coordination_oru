@@ -18,11 +18,11 @@ public class SceneHome {
     private static final int SPACING = 40;
     private static final int PADDING = 40;
     private static final int FONT_SIZE = 16;
-    private final Main main;
-    private BorderPane pane;
     private Button newProject = new Button();
     private Button openProject = new Button();
     private Text filePath = new Text("");
+    private final Main main;
+    private BorderPane pane;
     public final ControllerHome controller = new ControllerHome(this);
 
     public SceneHome(Main main) {
@@ -31,20 +31,23 @@ public class SceneHome {
 
     public Scene get() {
         pane = initializePane();
-        getMenuBar();
-        getCenterPane();
-        getNavigationBar();
-
-        controller.newProjectClicked();
-        controller.openProjectClicked();
+        menuBar();
+        centerPane();
+        navigationBar();
+        controllers();
         return new Scene(pane);
     }
 
-    private void getMenuBar() {
+    private void controllers() {
+        controller.clickNewProject();
+        controller.clickOpenProject();
+    }
+
+    private void menuBar() {
         pane.setTop(MenuBar.update(main, SceneState.HOME));
     }
 
-    private void getNavigationBar() {
+    private void navigationBar() {
         pane.setBottom(NavigationBar.update(main, SceneState.HOME));
     }
 
@@ -56,18 +59,22 @@ public class SceneHome {
         return pane;
     }
 
-    private void getCenterPane() {
+    private void centerPane() {
+        var centerPane = initializeCenterPane();
+        var welcomeMessage = welcomeMessage();
+        var buttons = buttonPane();
+        filePath = new Text("");
+        centerPane.getChildren().addAll(welcomeMessage, buttons, filePath);
+    }
+
+    private VBox initializeCenterPane() {
         var centerPane = new VBox();
         centerPane.setSpacing(SPACING);
         centerPane.setPadding(new Insets(PADDING));
         centerPane.setAlignment(Pos.CENTER);
         pane.setCenter(centerPane);
         BorderPane.setAlignment(centerPane, Pos.CENTER);
-
-        var welcomeMessage = welcomeMessage();
-        var buttons = buttonPane();
-        filePath = new Text("");
-        centerPane.getChildren().addAll(welcomeMessage, buttons, filePath);
+        return centerPane;
     }
 
     private Label welcomeMessage() {
@@ -96,23 +103,12 @@ public class SceneHome {
         return newProject;
     }
 
-    public void setNewProject(Button newProject) {
-        this.newProject = newProject;
-    }
-
     public Button getOpenProject() {
         return openProject;
-    }
-
-    public void setOpenProject(Button openProject) {
-        this.openProject = openProject;
     }
 
     public Text getFilePath() {
         return filePath;
     }
 
-    public void setFilePath(Text filePath) {
-        this.filePath = filePath;
-    }
 }
