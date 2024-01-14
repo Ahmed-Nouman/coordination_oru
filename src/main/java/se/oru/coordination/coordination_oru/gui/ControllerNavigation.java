@@ -76,7 +76,7 @@ public class ControllerNavigation {
     private void clickVerify() {
 
         var progressDialog = progressDialog();
-        Task<Void> task = new Task<>() {
+        var task = new Task<>() {
             @Override
             protected Void call() {
                 for (var vehicle : main.getDataStatus().getProjectData().getVehicles()) {
@@ -173,11 +173,11 @@ public class ControllerNavigation {
 
     public void clickRun() {
         // Create a ScheduledExecutorService with a single thread
-        ScheduledExecutorService executorService = Executors.newScheduledThreadPool(1);
+        var executorService = Executors.newScheduledThreadPool(1);
 
         // Schedule the task to run n times with an interval of one minute
         var runCount = new AtomicInteger(0);
-        ScheduledFuture<?> future = executorService.scheduleAtFixedRate(() -> {
+        var future = executorService.scheduleAtFixedRate(() -> {
             if (runCount.incrementAndGet() <= main.getDataStatus().getNumberOfRuns()) {
                 runProject(); // Run your task
             } else {
@@ -193,7 +193,7 @@ public class ControllerNavigation {
 
     public void runProject() {
 
-        var YAML_FILE = main.getDataStatus().getProjectData().getMap();
+        final var YAML_FILE = main.getDataStatus().getProjectData().getMap();
         var mapResolution = main.getDataStatus().getMapData().getResolution();
         var scaleAdjustment = 1 / mapResolution;
         var lookAheadDistance = 45 / scaleAdjustment;
@@ -210,16 +210,8 @@ public class ControllerNavigation {
         // Set Local Re-ordering and Local Re-Planning to break Deadlocks
         tec.setBreakDeadlocks(true, false, false);
 
-        // Set up a simple GUI (null means an empty map, otherwise provide yaml file)
-        var viz = new BrowserVisualization();
-        viz.setMap(YAML_FILE);
-        viz.setFontScale(3.5);
-        viz.AccessInitialTransform();
-        tec.setVisualization(viz);
+        main.getDataStatus().getProjectData().getVehicles().forEach((vehicle) -> {
 
-        for (int i = 0; i < main.getDataStatus().getProjectData().getVehicles().size(); i++) {
-
-            var vehicle = main.getDataStatus().getProjectData().getVehicles().get(i);
             AbstractVehicle newVehicle;
             if (vehicle.getType().equals("Autonomous")) {
                 newVehicle = new AutonomousVehicle();
@@ -236,12 +228,17 @@ public class ControllerNavigation {
             newVehicle.setMaxAcceleration(vehicle.getMaxAcceleration() / scaleAdjustment);
             newVehicle.setSafetyDistance(vehicle.getSafetyDistance() / scaleAdjustment);
             newVehicle.setColor(stringToColor(vehicle.getColor()));
-
-            newVehicle.setInitialPose(main.getDataStatus().getVehicles().get(i).getInitialPose());
-            newVehicle.setGoalPoses(main.getDataStatus().getVehicles().get(i).getGoalPoses());
-            newVehicle.setPath(main.getDataStatus().getVehicles().get(i).getPath());
+            newVehicle.setInitialPose(main.getDataStatus().getProjectData().getPose(vehicle.getInitialPose()));
+            newVehicle.setGoalPoses(vehicle.getMission()
+                    .stream()
+                    .map(ProjectData.MissionStep::getPoseName)
+                    .map(poseName -> main.getDataStatus().getProjectData().getPose(poseName))
+                    .toArray(Pose[]::new));
 //            newVehicle.setMission(vehicle.getMission()); //FIXME Fix Mission, How to handle multiple missions to GoalPoses, handle stoppages
             newVehicle.setMissionRepetition(vehicle.getMissionRepetition()); //FIXME Handle Mission Repetitions in missionsDispatcher
+
+            newVehicle.getPlan(newVehicle.getInitialPose(),
+                    newVehicle.getGoalPoses(), YAML_FILE, true);
 
             tec.setForwardModel(newVehicle.getID(), new ConstantAccelerationForwardModel(newVehicle.getMaxAcceleration(),
                     newVehicle.getMaxVelocity(), tec.getTemporalResolution(), tec.getControlPeriod(),
@@ -249,9 +246,17 @@ public class ControllerNavigation {
             tec.setDefaultFootprint(newVehicle.getFootprint());
 
             tec.placeRobot(newVehicle.getID(), newVehicle.getInitialPose());
+
             var mission = new Mission(newVehicle.getID(), newVehicle.getPath());
             Missions.enqueueMission(mission);
-        }
+        });
+
+        // Set up a simple GUI (null means an empty map, otherwise provide yaml file)
+        var viz = new BrowserVisualization();
+        viz.setMap(YAML_FILE);
+        viz.setFontScale(3.5);
+        viz.AccessInitialTransform();
+        tec.setVisualization(viz);
 
         Missions.setMap(YAML_FILE);
         Missions.startMissionDispatchers(tec, main.getDataStatus().getWriteVehicleReports(), reportsTimeIntervalInSeconds,

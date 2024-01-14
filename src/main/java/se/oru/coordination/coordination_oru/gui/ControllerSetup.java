@@ -12,83 +12,69 @@ public class ControllerSetup {
     }
 
     public void chooseHeuristic() {
-        scene.getHeuristicsField().setOnAction(e -> {
-            var heuristic = scene.getHeuristicsField().getValue();
-            if (heuristic != null) {
-                switch (heuristic) {
-                    case "MOST_DISTANCE_TRAVELLED":
-                        scene.getMain().getDataStatus().setHeuristics(new Heuristics(Heuristics.HeuristicType.MOST_DISTANCE_TRAVELLED));
-                        break;
-                    case "MOST_DISTANCE_TO_TRAVEL":
-                        scene.getMain().getDataStatus().setHeuristics(new Heuristics(Heuristics.HeuristicType.MOST_DISTANCE_TO_TRAVEL));
-                        break;
-                    case "RANDOM":
-                        scene.getMain().getDataStatus().setHeuristics(new Heuristics(Heuristics.HeuristicType.RANDOM));
-                        break;
-                    case "HIGHEST_PRIORITY_FIRST":
-                        scene.getMain().getDataStatus().setHeuristics(new Heuristics(Heuristics.HeuristicType.HIGHEST_PRIORITY_FIRST));
-                        break;
-                    case "HUMAN_FIRST":
-                        scene.getMain().getDataStatus().setHeuristics(new Heuristics(Heuristics.HeuristicType.HUMAN_FIRST));
-                        break;
-                    case "AUTONOMOUS_FIRST":
-                        scene.getMain().getDataStatus().setHeuristics(new Heuristics(Heuristics.HeuristicType.AUTONOMOUS_FIRST));
-                        break;
-                    default:
-                        scene.getMain().getDataStatus().setHeuristics(new Heuristics(Heuristics.HeuristicType.CLOSEST_FIRST));
-                        break;
-                }
+        var heuristic = scene.getHeuristicsField().getValue();
+        if (heuristic != null) {
+            switch (heuristic) {
+                case "MOST_DISTANCE_TRAVELLED":
+                    scene.getMain().getDataStatus().setHeuristics(new Heuristics(Heuristics.HeuristicType.MOST_DISTANCE_TRAVELLED));
+                    break;
+                case "MOST_DISTANCE_TO_TRAVEL":
+                    scene.getMain().getDataStatus().setHeuristics(new Heuristics(Heuristics.HeuristicType.MOST_DISTANCE_TO_TRAVEL));
+                    break;
+                case "RANDOM":
+                    scene.getMain().getDataStatus().setHeuristics(new Heuristics(Heuristics.HeuristicType.RANDOM));
+                    break;
+                case "HIGHEST_PRIORITY_FIRST":
+                    scene.getMain().getDataStatus().setHeuristics(new Heuristics(Heuristics.HeuristicType.HIGHEST_PRIORITY_FIRST));
+                    break;
+                case "HUMAN_FIRST":
+                    scene.getMain().getDataStatus().setHeuristics(new Heuristics(Heuristics.HeuristicType.HUMAN_FIRST));
+                    break;
+                case "AUTONOMOUS_FIRST":
+                    scene.getMain().getDataStatus().setHeuristics(new Heuristics(Heuristics.HeuristicType.AUTONOMOUS_FIRST));
+                    break;
+                default:
+                    scene.getMain().getDataStatus().setHeuristics(new Heuristics(Heuristics.HeuristicType.CLOSEST_FIRST));
+                    break;
             }
-        });
+        }
     }
 
     public void changeSimulationTime() {
-        scene.getSimulationTimeField().focusedProperty().addListener((observable, wasFocused, isNowFocused) -> {
-            if (!isNowFocused) {
-                var validated = Utils.validateInteger(scene.getSimulationTimeField());
-                if (validated) {
-                    scene.getMain().getDataStatus().setSimulationTime(Integer.parseInt(scene.getSimulationTimeField().getText()));
-                }
-            }
-        });
+        var validated = Utils.validateInteger(scene.getSimulationTimeField());
+        if (validated) {
+            scene.getMain().getDataStatus().setSimulationTime(Integer.parseInt(scene.getSimulationTimeField().getText()));
+        }
     }
 
     public void checkSavingReport() {
-        scene.getSaveReportField().setOnAction(e -> {
-            if (scene.getSaveReportField().isSelected()) {
-                scene.getReportFolder().setVisible(true);
-                scene.getReportFolderField().setVisible(true);
-            } else {
-                scene.getReportFolder().setVisible(false);
-                scene.getReportFolderField().setVisible(false);
-                scene.getReportLocation().setVisible(false);
-                scene.getReportLocationField().setVisible(false);
-            }
-            scene.getMain().getDataStatus().setWriteVehicleReports(scene.getSaveReportField().isSelected());
-        });
+        if (scene.getSaveReportField().isSelected()) {
+            scene.getReportFolder().setVisible(true);
+            scene.getReportFolderField().setVisible(true);
+        } else {
+            scene.getReportFolder().setVisible(false);
+            scene.getReportFolderField().setVisible(false);
+            scene.getReportLocation().setVisible(false);
+            scene.getReportLocationField().setVisible(false);
+        }
+        scene.getMain().getDataStatus().setWriteVehicleReports(scene.getSaveReportField().isSelected());
     }
 
     public void changeNumberOfRun() {
-        scene.getNumberOfRunField().focusedProperty().addListener((observable, wasFocused, isNowFocused) -> {
-            if (!isNowFocused) {
-                var validated = Utils.validateInteger(scene.getNumberOfRunField());
-                if (validated) {
-                    scene.getMain().getDataStatus().setNumberOfRuns(Integer.parseInt(scene.getNumberOfRunField().getText()));
-                }
-            }
-        });
+        var validated = Utils.validateInteger(scene.getNumberOfRunField());
+        if (validated) {
+            scene.getMain().getDataStatus().setNumberOfRuns(Integer.parseInt(scene.getNumberOfRunField().getText()));
+        }
     }
 
     public void clickReportFolder() {
-        scene.getReportFolderField().setOnAction(e -> {
-            var directoryChooser = new DirectoryChooser();
-            var directory = directoryChooser.showDialog(new Stage());
-            if (directory != null) {
-                scene.getReportLocation().setVisible(true);
-                scene.getReportLocationField().setVisible(true);
-                scene.getMain().getDataStatus().setReportsFolder(directory.getAbsolutePath());
-                scene.getReportLocationField().setText(scene.getMain().getDataStatus().getReportsFolder());
-            }
-        });
+        var directoryChooser = new DirectoryChooser();
+        var directory = directoryChooser.showDialog(new Stage());
+        if (directory != null) {
+            scene.getReportLocation().setVisible(true);
+            scene.getReportLocationField().setVisible(true);
+            scene.getMain().getDataStatus().setReportsFolder(directory.getAbsolutePath());
+            scene.getReportLocationField().setText(scene.getMain().getDataStatus().getReportsFolder());
+        }
     }
 }

@@ -141,11 +141,15 @@ public class SceneSetup {
     }
 
     private void controllers() {
-        controller.chooseHeuristic();
-        controller.changeSimulationTime();
-        controller.changeNumberOfRun();
-        controller.checkSavingReport();
-        controller.clickReportFolder();
+        simulationTimeField.focusedProperty().addListener((observable, wasFocused, isNowFocused) -> {
+            if (!isNowFocused) controller.changeSimulationTime();
+        });
+        numberOfRunField.focusedProperty().addListener((observable, wasFocused, isNowFocused) -> {
+            if (!isNowFocused) controller.changeNumberOfRun();
+        });
+        heuristicsField.setOnAction(e -> controller.chooseHeuristic());
+        saveReportField.setOnAction(e -> controller.checkSavingReport());
+        reportFolderField.setOnAction(e -> controller.clickReportFolder());
     }
     public Main getMain() {
         return main;

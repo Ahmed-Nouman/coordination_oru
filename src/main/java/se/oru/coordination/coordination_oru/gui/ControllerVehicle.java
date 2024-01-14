@@ -75,7 +75,7 @@ public class ControllerVehicle {
         }
     }
 
-    public void changeColor() {
+    public void chooseColor() {
         var vehicleName = scene.getVehicles().getSelectionModel().getSelectedItem();
         if (vehicleName != null) {
             var newColor = scene.getColorField().getValue();

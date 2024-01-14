@@ -218,15 +218,15 @@ public class SceneVehicle {
         safetyDistanceField.focusedProperty().addListener((observable, wasFocused, isNowFocused) -> {
             if (!isNowFocused) controller.changeSafetyDistance();
         });
-        colorField.setOnAction(e -> controller.changeColor());
-        initialPoseField.setOnAction(e -> controller.chooseInitialPose());
         missionRepetitionField.focusedProperty().addListener((observable, wasFocused, isNowFocused) -> {
             if (!isNowFocused) controller.changeMissionRepetition();
         });
-        isHumanField.setOnAction(e -> controller.checkIsHuman());
         lookAheadDistanceField.focusedProperty().addListener((observable, wasFocused, isNowFocused) -> {
             if (!isNowFocused) controller.changeLookAhead();
         });
+        colorField.setOnAction(e -> controller.chooseColor());
+        initialPoseField.setOnAction(e -> controller.chooseInitialPose());
+        isHumanField.setOnAction(e -> controller.checkIsHuman());
     }
 
     private void centerPane() {
