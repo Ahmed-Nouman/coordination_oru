@@ -33,13 +33,13 @@ public class SceneVehicle {
     private Text lookAheadDistance;
     private TextField lookAheadDistanceField;
     private final ListView<String> vehicles = new ListView<>();
-    private Button add;
-    private Button delete;
-    private Button down;
-    private Button up;
-    private ListView<String> missions;
-    private Button addVehicle;
-    private Button deleteVehicle;
+    private Button add = new Button();
+    private Button delete = new Button();
+    private Button down = new Button();
+    private Button up = new Button();
+    private ListView<String> missions = new ListView<>();
+    private Button addVehicle = new Button();
+    private Button deleteVehicle = new Button();
     private final Main main;
     private BorderPane pane;
     private final ControllerVehicle controller = new ControllerVehicle(this);
@@ -54,7 +54,7 @@ public class SceneVehicle {
         rightPane();
         navigationBar();
         centerPane();
-        controllers();
+        fieldController();
 
         vehicles.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
             if (newValue != null) {
@@ -109,7 +109,7 @@ public class SceneVehicle {
         addVehicle = new Button("Add Vehicle");
         deleteVehicle = new Button("Delete Vehicle");
 
-
+        vehicleController();
         var buttons = new HBox(addVehicle, deleteVehicle);
         buttons.setAlignment(Pos.CENTER);
         buttons.setSpacing(5);
@@ -155,6 +155,11 @@ public class SceneVehicle {
         return new Scene(pane);
     }
 
+    private void vehicleController() {
+        addVehicle.setOnAction(e -> controller.clickAddVehicle());
+        deleteVehicle.setOnAction(e -> controller.clickDeleteVehicle());
+    }
+
     private Label label() {
         var label = new Label("List of Vehicles: ");
         label.setFont(Font.font("System", FontWeight.SEMI_BOLD, 14));
@@ -181,21 +186,47 @@ public class SceneVehicle {
         missionButtons.getChildren().addAll(add, delete, down, up);
         missionField.setMaxWidth(TEXT_WIDTH);
         missionField.getChildren().addAll(missions, missionButtons);
+        missionController();
     }
 
-    private void controllers() {
-        controller.changeName();
-        controller.changePriority();
-        controller.changeLength();
-        controller.changeWidth();
-        controller.changeMaxVelocity();
-        controller.changeMaxAcceleration();
-        controller.changeSafetyDistance();
-        controller.changeColor();
-        controller.chooseInitialPose();
-        controller.checkIsHuman();
-        controller.changeMissionRepetition();
-        controller.changeLookAhead();
+    private void missionController() {
+        add.setOnAction(e -> controller.clickAdd());
+        delete.setOnAction(e -> controller.clickDelete());
+        down.setOnAction(e -> controller.clickDown());
+        up.setOnAction(e -> controller.clickUp());
+    }
+
+    private void fieldController() {
+        nameField.focusedProperty().addListener((observable, wasFocused, isNowFocused) -> {
+            if (!isNowFocused) controller.changeName();
+        });
+        priorityField.focusedProperty().addListener((observable, wasFocused, isNowFocused) -> {
+            if (!isNowFocused) controller.changePriority();
+        });
+        lengthField.focusedProperty().addListener((observable, wasFocused, isNowFocused) -> {
+            if (!isNowFocused) controller.changeLength();
+        });
+        widthField.focusedProperty().addListener((observable, wasFocused, isNowFocused) -> {
+            if (!isNowFocused) controller.changeWidth();
+        });
+        maxVelocityField.focusedProperty().addListener((observable, wasFocused, isNowFocused) -> {
+            if (!isNowFocused) controller.changeMaxVelocity();
+        });
+        maxAccelerationField.focusedProperty().addListener((observable, wasFocused, isNowFocused) -> {
+            if (!isNowFocused) controller.changeMaxAcceleration();
+        });
+        safetyDistanceField.focusedProperty().addListener((observable, wasFocused, isNowFocused) -> {
+            if (!isNowFocused) controller.changeSafetyDistance();
+        });
+        colorField.setOnAction(e -> controller.changeColor());
+        initialPoseField.setOnAction(e -> controller.chooseInitialPose());
+        missionRepetitionField.focusedProperty().addListener((observable, wasFocused, isNowFocused) -> {
+            if (!isNowFocused) controller.changeMissionRepetition();
+        });
+        isHumanField.setOnAction(e -> controller.checkIsHuman());
+        lookAheadDistanceField.focusedProperty().addListener((observable, wasFocused, isNowFocused) -> {
+            if (!isNowFocused) controller.changeLookAhead();
+        });
     }
 
     private void centerPane() {

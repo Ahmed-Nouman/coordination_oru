@@ -182,4 +182,8 @@ public class SceneSetup {
     public Text getReportFolder() {
         return reportFolder;
     }
+
+    public BorderPane getPane() {
+        return pane;
+    }
 }

@@ -7,7 +7,7 @@ public enum SceneState implements SceneUpdater {
             main.getPrimaryStage().setTitle("Coordination_ORU");
             main.getPrimaryStage().setScene(main.getHomeScene().get());
             main.getPrimaryStage().centerOnScreen();
-            main.getNavigationButton().getNextButton().setDisable(false);
+            main.getNavigationButton().getNext().setDisable(false);
         }
 
         @Override
@@ -27,6 +27,7 @@ public enum SceneState implements SceneUpdater {
             main.getPrimaryStage().setTitle("Coordination_ORU: Setting up the map");
             main.getPrimaryStage().setScene(main.getMapScene().get());
             main.getPrimaryStage().centerOnScreen();
+            main.getNavigationButton().getNext().setDisable(false);
         }
 
         @Override
@@ -63,7 +64,7 @@ public enum SceneState implements SceneUpdater {
         @Override
         public void update(Main main) {
             main.getPrimaryStage().setTitle("Coordination_ORU: Setting up the simulation");
-            main.getPrimaryStage().setScene(main.getSimulationScene().get());
+            main.getPrimaryStage().setScene(main.getSetupScene().get());
             main.getPrimaryStage().centerOnScreen();
         }
 

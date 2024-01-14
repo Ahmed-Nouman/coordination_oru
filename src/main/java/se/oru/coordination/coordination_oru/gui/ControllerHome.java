@@ -13,13 +13,11 @@ public class ControllerHome {
     }
 
     public void clickNewProject() {
-        scene.getNewProject().setOnAction(e -> {
-            var file = Utils.createFile(scene.getMain(), "newProject", "json");
-            if (file != null) {
-                initializeNewProject(file);
-                writeToFile(file);
-            }
-        });
+        var file = Utils.createFile(scene.getMain(), "newProject", "json");
+        if (file != null) {
+            initializeNewProject(file);
+            writeToFile(file);
+        }
     }
 
     private void initializeNewProject(File file) {
@@ -27,7 +25,7 @@ public class ControllerHome {
         scene.getMain().getDataStatus().setProjectFile(file.getAbsolutePath());
         scene.getMain().getDataStatus().setProjectData(new ProjectData());
         scene.getMain().getDataStatus().setMapData(new MapData());
-        scene.getMain().getNavigationButton().getNextButton().setDisable(false);
+        scene.getMain().getNavigationButton().getNext().setDisable(false);
     }
 
     private void writeToFile(File file) {
@@ -39,19 +37,17 @@ public class ControllerHome {
     }
 
     public void clickOpenProject() {
-        scene.getOpenProject().setOnAction(e -> {
-            var file = Utils.chooseFile(scene.getMain(), "Select a project file to open: ", "json");
-            if (file != null) {
-                initializeOpenProject(file);
-                readFromFile();
-            }
-        });
+        var file = Utils.chooseFile(scene.getMain(), "Select a project file to open: ", "json");
+        if (file != null) {
+            initializeOpenProject(file);
+            readFromFile();
+        }
     }
 
     private void initializeOpenProject(File file) {
         scene.getMain().getDataStatus().setProjectFile(file.getAbsolutePath());
         scene.getFilePath().setText("Name of Project: " + file.getName());
-        scene.getMain().getNavigationButton().getNextButton().setDisable(false);
+        scene.getMain().getNavigationButton().getNext().setDisable(false);
     }
 
     private void readFromFile() {

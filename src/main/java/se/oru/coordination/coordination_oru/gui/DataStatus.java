@@ -1,8 +1,14 @@
 package se.oru.coordination.coordination_oru.gui;
 
 import se.oru.coordination.coordination_oru.utils.Heuristics;
+import se.oru.coordination.coordination_oru.vehicles.AbstractVehicle;
+import se.oru.coordination.coordination_oru.vehicles.AutonomousVehicle;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class DataStatus {
+    private boolean isPlansVerified = false;
     private String projectFile = "";
     private ProjectData projectData;
     private ProjectData originalProjectData;
@@ -13,6 +19,7 @@ public class DataStatus {
     private String reportsFolder = "";
     private Heuristics heuristics = new Heuristics(Heuristics.HeuristicType.CLOSEST_FIRST);
     private int vehicleCounter = 0;
+    private final List<AutonomousVehicle> vehicles = new ArrayList<>();
 
     public String getProjectFile() {
         return projectFile;
@@ -94,4 +101,19 @@ public class DataStatus {
         this.vehicleCounter = vehicleCounter;
     }
 
+    public boolean isPlansVerified() {
+        return isPlansVerified;
+    }
+
+    public void setPlansVerified(boolean plansVerified) {
+        isPlansVerified = plansVerified;
+    }
+
+    public void addVehicle(AutonomousVehicle vehicle) {
+        this.vehicles.add(vehicle);
+    }
+
+    public List<AutonomousVehicle> getVehicles() {
+        return vehicles;
+    }
 }

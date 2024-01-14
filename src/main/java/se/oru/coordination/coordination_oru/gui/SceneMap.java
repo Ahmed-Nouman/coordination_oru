@@ -40,9 +40,9 @@ public class SceneMap {
     }
 
     private void controllers() {
-        controller.clickAddLocation();
-        controller.clickDeleteLocation();
-        controller.clickBrowse();
+        addLocation.setOnAction(e -> controller.clickAddLocation());
+        deleteLocation.setOnAction(e -> controller.clickDeleteLocation());
+        browse.setOnAction(e -> controller.clickBrowse());
         controller.updateLocations();
     }
 
@@ -53,7 +53,7 @@ public class SceneMap {
             browse = new Button("Browse...");
             centerPane.getChildren().addAll(message, browse);
 
-            main.getNavigationButton().getNextButton().setDisable(true);
+            main.getNavigationButton().getNext().setDisable(true);
 
         } else {
             addLocation.setDisable(false);

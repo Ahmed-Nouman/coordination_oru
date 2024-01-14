@@ -10,6 +10,8 @@ import se.oru.coordination.coordination_oru.utils.Missions;
 import se.oru.coordination.coordination_oru.vehicles.AutonomousVehicle;
 import se.oru.coordination.coordination_oru.vehicles.LookAheadVehicle;
 
+import java.awt.*;
+
 public class OneAutonomousOneLookAheadVehicles {
     public static void main(String[] args) {
 
@@ -22,6 +24,7 @@ public class OneAutonomousOneLookAheadVehicles {
 
 
         var autonomousVehicle = new AutonomousVehicle(drawPoint21, new Pose[] {orePass});
+        autonomousVehicle.setColor(Color.BLUE);
         var lookAheadVehicle = new LookAheadVehicle(predictableDistance, mainTunnelLeft, new Pose[] {mainTunnelRight});
         autonomousVehicle.getPlan(autonomousVehicle.getInitialPose(), autonomousVehicle.getGoalPoses(),
                 YAML_FILE, true);

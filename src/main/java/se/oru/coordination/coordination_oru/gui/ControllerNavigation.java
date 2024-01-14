@@ -1,7 +1,15 @@
 package se.oru.coordination.coordination_oru.gui;
 
+import javafx.concurrent.Task;
+import javafx.geometry.Insets;
+import javafx.geometry.Pos;
+import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
+import javafx.scene.control.ProgressBar;
+import javafx.scene.layout.VBox;
+import javafx.stage.Modality;
+import javafx.stage.Stage;
 import org.metacsp.multi.spatioTemporal.paths.Pose;
 import se.oru.coordination.coordination_oru.ConstantAccelerationForwardModel;
 import se.oru.coordination.coordination_oru.Mission;
@@ -23,24 +31,25 @@ import static se.oru.coordination.coordination_oru.gui.Utils.*;
 import static se.oru.coordination.coordination_oru.gui.Utils.writeJSON;
 
 public class ControllerNavigation {
-    private final Button backButton = new Button("Back");
-    private final Button nextButton = new Button("Next");
-    private final Button saveButton = new Button("Save");
-    private final Button resetButton = new Button("Reset");
-    private final Button runButton = new Button("Run");
+    private final Button back = new Button("Back");
+    private final Button next = new Button("Next");
+    private final Button save = new Button("Save");
+    private final Button reset = new Button("Reset");
+    private final Button verify = new Button("Verify");
+    private final Button run = new Button("Run");
     private final Main main;
     private SceneState currentSceneState = SceneState.HOME;
-
     public ControllerNavigation(Main main) {
         this.main = main;
     }
 
     public void getNavigationController() {
-        main.getNavigationButton().clickNext();
-        main.getNavigationButton().clickBack();
-        main.getNavigationButton().clickSaved();
-        main.getNavigationButton().clickReset();
-        main.getNavigationButton().clickRun();
+        main.getNavigationButton().next.setOnAction(e -> clickNext());
+        main.getNavigationButton().back.setOnAction(e -> clickBack());
+        main.getNavigationButton().save.setOnAction(e -> clickSave());
+        main.getNavigationButton().reset.setOnAction(e -> clickReset());
+        main.getNavigationButton().verify.setOnAction(e -> clickVerify());
+        main.getNavigationButton().run.setOnAction(e -> clickRun());
     }
 
     public void updateScene(SceneState newScene) {
@@ -49,43 +58,87 @@ public class ControllerNavigation {
     }
 
     public void clickBack() {
-        getBackButton().setOnAction(e -> {
-            var currentScene = getCurrentScene();
-            var backState = currentScene.getBackState();
-            if (backState != null) {
-                updateScene(backState);
-            }
-        });
-    }
-
-    public void clickNext() {
-        getNextButton().setOnAction(e -> {
-            var currentScene = getCurrentScene();
-            var nextState = currentScene.getNextState();
-            if (nextState != null) {
-                updateScene(nextState);
-            }
-        });
-    }
-
-    private void verifySavePlans() {
-        System.out.println("Saving plans...");
-        for (var vehicle : main.getDataStatus().getProjectData().getVehicles()) {
-            var autonomousVehicle = new AutonomousVehicle();
-            autonomousVehicle.setName(vehicle.getName());
-            autonomousVehicle.setInitialPose(main.getDataStatus().getProjectData().getPose(vehicle.getInitialPose()));
-            autonomousVehicle.setGoalPoses(vehicle.getMission()
-                .stream()
-                .map(ProjectData.MissionStep::getPoseName)
-                .map(poseName -> main.getDataStatus().getProjectData().getPose(poseName))
-                .toArray(Pose[]::new));
-            autonomousVehicle.getPlan(autonomousVehicle.getInitialPose(),
-                autonomousVehicle.getGoalPoses(), main.getDataStatus().getProjectData().getMap(), true);
+        var currentScene = getCurrentScene();
+        var backState = currentScene.getBackState();
+        if (backState != null) {
+            updateScene(backState);
         }
     }
 
-    public void clickSaved() {
-        getSaveButton().setOnAction(e -> trySaveProject());
+    public void clickNext() {
+        var currentScene = getCurrentScene();
+        var nextState = currentScene.getNextState();
+        if (nextState != null) {
+            updateScene(nextState);
+        }
+    }
+
+    private void clickVerify() {
+
+        var progressDialog = progressDialog();
+        Task<Void> task = new Task<>() {
+            @Override
+            protected Void call() {
+                for (var vehicle : main.getDataStatus().getProjectData().getVehicles()) {
+                    var autonomousVehicle = new AutonomousVehicle();
+                    autonomousVehicle.setName(vehicle.getName());
+                    autonomousVehicle.setInitialPose(main.getDataStatus().getProjectData().getPose(vehicle.getInitialPose()));
+                    autonomousVehicle.setGoalPoses(vehicle.getMission()
+                            .stream()
+                            .map(ProjectData.MissionStep::getPoseName)
+                            .map(poseName -> main.getDataStatus().getProjectData().getPose(poseName))
+                            .toArray(Pose[]::new));
+                    autonomousVehicle.getPlan(autonomousVehicle.getInitialPose(),
+                            autonomousVehicle.getGoalPoses(), main.getDataStatus().getProjectData().getMap(), true);
+                    main.getDataStatus().getVehicles().add(autonomousVehicle);
+                }
+                return null;
+            }
+
+            @Override
+            protected void succeeded() {
+                super.succeeded();
+                System.out.println("Verification succeeded");
+                progressDialog.close();
+                updateNavigationBar();
+            }
+
+            @Override
+            protected void failed() {
+                super.failed();
+                System.out.println("Verification failed");
+                progressDialog.close();
+            }
+        };
+        progressDialog.show();
+        new Thread(task).start();
+    }
+
+    private Stage progressDialog() {
+        var progressDialog = new Stage();
+        progressDialog.initModality(Modality.APPLICATION_MODAL);
+        progressDialog.setTitle("Verifying and Saving Plans");
+
+        var progressBar = new ProgressBar();
+        progressBar.setPrefWidth(250);
+
+        var dialogVbox = new VBox(20);
+        dialogVbox.setAlignment(Pos.CENTER);
+        dialogVbox.setPadding(new Insets(20));
+        dialogVbox.getChildren().add(progressBar);
+
+        var dialogScene = new Scene(dialogVbox);
+        progressDialog.setScene(dialogScene);
+        return progressDialog;
+    }
+
+    private void updateNavigationBar() {
+        main.getDataStatus().setPlansVerified(true);
+        main.getSetupScene().getPane().setBottom(NavigationBar.getBar(main, SceneState.EXPERIMENT));
+    }
+
+    public void clickSave() {
+        trySaveProject();
     }
 
     public void trySaveProject() {
@@ -113,42 +166,38 @@ public class ControllerNavigation {
 
 
     public void clickReset() {
-        getResetButton().setOnAction(e -> {
-            updateScene(SceneState.HOME);
-            main.getNavigationButton().nextButton.setDisable(true);
-            main.getHomeScene().getFilePath().setText("");
-        });
+        updateScene(SceneState.HOME);
+        main.getNavigationButton().next.setDisable(true);
+        main.getHomeScene().getFilePath().setText("");
     }
 
     public void clickRun() {
-        getRunButton().setOnAction(e -> {
-            // Create a ScheduledExecutorService with a single thread
-            ScheduledExecutorService executorService = Executors.newScheduledThreadPool(1);
+        // Create a ScheduledExecutorService with a single thread
+        ScheduledExecutorService executorService = Executors.newScheduledThreadPool(1);
 
-            // Schedule the task to run n times with an interval of one minute
-            var runCount = new AtomicInteger(0);
-            ScheduledFuture<?> future = executorService.scheduleAtFixedRate(() -> {
-                if (runCount.incrementAndGet() <= main.getDataStatus().getNumberOfRuns()) {
-                    runProject(); // Run your task
-                } else {
-                    executorService.shutdown(); // Shutdown the executor after n executions
-                }
-            }, 0, main.getDataStatus().getSimulationTime(), TimeUnit.MINUTES);
+        // Schedule the task to run n times with an interval of one minute
+        var runCount = new AtomicInteger(0);
+        ScheduledFuture<?> future = executorService.scheduleAtFixedRate(() -> {
+            if (runCount.incrementAndGet() <= main.getDataStatus().getNumberOfRuns()) {
+                runProject(); // Run your task
+            } else {
+                executorService.shutdown(); // Shutdown the executor after n executions
+            }
+        }, 0, main.getDataStatus().getSimulationTime(), TimeUnit.MINUTES);
 
-            // Optional: If you want to cancel the execution after 1 minute
-            executorService.schedule(() -> {
-                future.cancel(true); // This will interrupt the running task
-            }, main.getDataStatus().getSimulationTime(), TimeUnit.MINUTES);
-        });
+        // Optional: If you want to cancel the execution after 1 minute
+        executorService.schedule(() -> {
+            future.cancel(true); // This will interrupt the running task
+        }, main.getDataStatus().getSimulationTime(), TimeUnit.MINUTES);
     }
 
     public void runProject() {
 
-        final String YAML_FILE = main.getDataStatus().getProjectData().getMap();
-        double mapResolution = main.getDataStatus().getMapData().getResolution();
-        double scaleAdjustment = 1 / mapResolution;
-        double lookAheadDistance = 45 / scaleAdjustment;
-        double reportsTimeIntervalInSeconds = 0.1;
+        var YAML_FILE = main.getDataStatus().getProjectData().getMap();
+        var mapResolution = main.getDataStatus().getMapData().getResolution();
+        var scaleAdjustment = 1 / mapResolution;
+        var lookAheadDistance = 45 / scaleAdjustment;
+        var reportsTimeIntervalInSeconds = 0.1;
 
         // Instantiate a trajectory envelope coordinator.
         var tec = new TrajectoryEnvelopeCoordinatorSimulation();
@@ -168,8 +217,9 @@ public class ControllerNavigation {
         viz.AccessInitialTransform();
         tec.setVisualization(viz);
 
-        main.getDataStatus().getProjectData().getVehicles().forEach((vehicle) -> {
+        for (int i = 0; i < main.getDataStatus().getProjectData().getVehicles().size(); i++) {
 
+            var vehicle = main.getDataStatus().getProjectData().getVehicles().get(i);
             AbstractVehicle newVehicle;
             if (vehicle.getType().equals("Autonomous")) {
                 newVehicle = new AutonomousVehicle();
@@ -186,17 +236,12 @@ public class ControllerNavigation {
             newVehicle.setMaxAcceleration(vehicle.getMaxAcceleration() / scaleAdjustment);
             newVehicle.setSafetyDistance(vehicle.getSafetyDistance() / scaleAdjustment);
             newVehicle.setColor(stringToColor(vehicle.getColor()));
-            newVehicle.setInitialPose(main.getDataStatus().getProjectData().getPose(vehicle.getInitialPose()));
-            newVehicle.setGoalPoses(vehicle.getMission()
-                    .stream()
-                    .map(ProjectData.MissionStep::getPoseName)
-                    .map(poseName -> main.getDataStatus().getProjectData().getPose(poseName))
-                    .toArray(Pose[]::new));
+
+            newVehicle.setInitialPose(main.getDataStatus().getVehicles().get(i).getInitialPose());
+            newVehicle.setGoalPoses(main.getDataStatus().getVehicles().get(i).getGoalPoses());
+            newVehicle.setPath(main.getDataStatus().getVehicles().get(i).getPath());
 //            newVehicle.setMission(vehicle.getMission()); //FIXME Fix Mission, How to handle multiple missions to GoalPoses, handle stoppages
             newVehicle.setMissionRepetition(vehicle.getMissionRepetition()); //FIXME Handle Mission Repetitions in missionsDispatcher
-
-            newVehicle.getPlan(newVehicle.getInitialPose(),
-                    newVehicle.getGoalPoses(), YAML_FILE, true);
 
             tec.setForwardModel(newVehicle.getID(), new ConstantAccelerationForwardModel(newVehicle.getMaxAcceleration(),
                     newVehicle.getMaxVelocity(), tec.getTemporalResolution(), tec.getControlPeriod(),
@@ -204,10 +249,10 @@ public class ControllerNavigation {
             tec.setDefaultFootprint(newVehicle.getFootprint());
 
             tec.placeRobot(newVehicle.getID(), newVehicle.getInitialPose());
-
             var mission = new Mission(newVehicle.getID(), newVehicle.getPath());
             Missions.enqueueMission(mission);
-        });
+        }
+
         Missions.setMap(YAML_FILE);
         Missions.startMissionDispatchers(tec, main.getDataStatus().getWriteVehicleReports(), reportsTimeIntervalInSeconds,
                 main.getDataStatus().getSimulationTime(), main.getDataStatus().getHeuristics().getName(), 100,
@@ -222,23 +267,27 @@ public class ControllerNavigation {
         this.currentSceneState = sceneState;
     }
 
-    public Button getBackButton() {
-        return backButton;
+    public Button getBack() {
+        return back;
     }
 
-    public Button getNextButton() {
-        return nextButton;
+    public Button getNext() {
+        return next;
     }
 
-    public Button getSaveButton() {
-        return saveButton;
+    public Button getSave() {
+        return save;
     }
 
-    public Button getResetButton() {
-        return resetButton;
+    public Button getReset() {
+        return reset;
     }
 
-    public Button getRunButton() {
-        return runButton;
+    public Button getVerify() {
+        return verify;
+    }
+
+    public Button getRun() {
+        return run;
     }
 }

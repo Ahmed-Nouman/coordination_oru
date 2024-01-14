@@ -13,22 +13,28 @@ public class NavigationBar {
     private static final int PADDING = 10;
     private static final int BUTTON_SPACING = 50;
 
-    public static Pane getBar(Main main, SceneState sceneState) {
+    public static Pane getBar(Main main, SceneState scene) {
 
         var navigationPane = navigationPane();
         var buttonsButtons = navigationButtons();
 
-        switch (sceneState) {
+        switch (scene) {
             case HOME:
-                buttonsButtons.getChildren().addAll(main.getNavigationButton().getNextButton());
+                buttonsButtons.getChildren().addAll(main.getNavigationButton().getNext());
                 break;
             case MAP:
             case VEHICLE:
-                buttonsButtons.getChildren().addAll(main.getNavigationButton().getBackButton(), main.getNavigationButton().getNextButton());
+                buttonsButtons.getChildren().addAll(main.getNavigationButton().getBack(), main.getNavigationButton().getNext());
                 break;
             case EXPERIMENT:
-                buttonsButtons.getChildren().addAll(main.getNavigationButton().getResetButton(), main.getNavigationButton().getBackButton(),
-                        main.getNavigationButton().getSaveButton(), main.getNavigationButton().getRunButton());
+                buttonsButtons.getChildren().addAll(main.getNavigationButton().getReset(), main.getNavigationButton().getBack(),
+                        main.getNavigationButton().getSave());
+                if (main.getDataStatus().isPlansVerified()) {
+                    buttonsButtons.getChildren().add(main.getNavigationButton().getRun());
+                }
+                else {
+                    buttonsButtons.getChildren().add(main.getNavigationButton().getVerify());
+                }
                 break;
             default:
                 break;

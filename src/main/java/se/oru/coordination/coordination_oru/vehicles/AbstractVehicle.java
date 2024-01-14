@@ -79,7 +79,7 @@ public abstract class AbstractVehicle {
 //            throw  new IllegalArgumentException("Invalid type for goal poses");
 //        }
 
-        AbstractVehicle existingVehicle = VehiclesHashMap.getVehicle(ID);
+        var existingVehicle = VehiclesHashMap.getVehicle(ID);
         if (existingVehicle != null) {
             throw new IllegalStateException("ID " + ID + " already exists.");
         }

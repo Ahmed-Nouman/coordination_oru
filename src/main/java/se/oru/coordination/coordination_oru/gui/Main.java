@@ -3,6 +3,7 @@ package se.oru.coordination.coordination_oru.gui;
 import javafx.application.Application;
 import javafx.scene.control.*;
 import javafx.stage.Stage;
+import se.oru.coordination.coordination_oru.vehicles.AutonomousVehicle;
 
 public class Main extends Application {
 
@@ -68,7 +69,7 @@ public class Main extends Application {
         return sceneVehicle;
     }
 
-    public SceneSetup getSimulationScene() {
+    public SceneSetup getSetupScene() {
         return sceneSetup;
     }
 }

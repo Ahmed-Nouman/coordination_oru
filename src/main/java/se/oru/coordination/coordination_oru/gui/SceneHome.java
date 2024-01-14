@@ -39,8 +39,8 @@ public class SceneHome {
     }
 
     private void controllers() {
-        controller.clickNewProject();
-        controller.clickOpenProject();
+        newProject.setOnAction(e -> controller.clickNewProject());
+        openProject.setOnAction(e -> controller.clickOpenProject());
     }
 
     private void menuBar() {
@@ -55,7 +55,7 @@ public class SceneHome {
         pane = new BorderPane();
         pane.setPrefWidth(WIDTH);
         pane.setPrefHeight(HEIGHT);
-        main.getNavigationButton().getNextButton().setDisable(true);
+        main.getNavigationButton().getNext().setDisable(true);
         return pane;
     }
 
