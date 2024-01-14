@@ -3,7 +3,6 @@ package se.oru.coordination.coordination_oru.gui;
 import javafx.application.Application;
 import javafx.scene.control.*;
 import javafx.stage.Stage;
-import se.oru.coordination.coordination_oru.vehicles.AutonomousVehicle;
 
 public class Main extends Application {
 
@@ -40,7 +39,7 @@ public class Main extends Application {
             primaryStage.close();
         } else {
             var answer = AlertBox.display("Saving the project", "Would you like to save the project before exiting?", Alert.AlertType.CONFIRMATION);
-            if (answer.isPresent() && answer.get() == ButtonType.YES && getDataStatus().getProjectData() != null) getNavigationButton().trySaveProject();
+            if (answer.isPresent() && answer.get() == ButtonType.YES && getDataStatus().getProjectData() != null) getNavigationButton().saveProject.trySaveProject(getNavigationButton());
             primaryStage.close();
         }
     }

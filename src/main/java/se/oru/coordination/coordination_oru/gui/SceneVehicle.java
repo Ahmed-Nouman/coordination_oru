@@ -339,7 +339,7 @@ public class SceneVehicle {
         rightPane.setPadding(new Insets(PADDING));
         pane.setRight(rightPane);
         BorderPane.setMargin(rightPane, new Insets(10, 10, 10, 0));
-        var mapDisplay = new staticMap("file:" + main.getDataStatus().getProjectData().getMapImage(main.getDataStatus().getMapData()), main.getDataStatus().getProjectData().getPoses(),
+        var mapDisplay = new StaticMap("file:" + main.getDataStatus().getProjectData().getMapImage(main.getDataStatus().getMapData()), main.getDataStatus().getProjectData().getPoses(),
                 main.getDataStatus().getMapData().getResolution(), MAP_WIDTH, MAP_HEIGHT);
         rightPane.getChildren().add(mapDisplay);
     }

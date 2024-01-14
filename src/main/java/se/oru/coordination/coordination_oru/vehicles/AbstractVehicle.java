@@ -366,7 +366,7 @@ public abstract class AbstractVehicle {
         this.pathLength = pathLength;
     }
 
-    public LookAheadVehicle convertToLookAheadVehicle(AutonomousVehicle autonomousVehicle) {
+    public static LookAheadVehicle convertToLookAheadVehicle(AutonomousVehicle autonomousVehicle) {
         VehiclesHashMap.removeVehicle(autonomousVehicle.getID());
         return new LookAheadVehicle(
                 autonomousVehicle.getID(),
@@ -386,7 +386,7 @@ public abstract class AbstractVehicle {
         );
     }
 
-    public AutonomousVehicle convertToAutonomousVehicle(LookAheadVehicle lookAheadVehicle) {
+    public static AutonomousVehicle convertToAutonomousVehicle(LookAheadVehicle lookAheadVehicle) {
         VehiclesHashMap.removeVehicle(lookAheadVehicle.getID());
         return new AutonomousVehicle(
                 lookAheadVehicle.getID(),

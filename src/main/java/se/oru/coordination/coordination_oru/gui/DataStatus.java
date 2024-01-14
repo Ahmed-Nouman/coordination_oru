@@ -19,7 +19,7 @@ public class DataStatus {
     private String reportsFolder = "";
     private Heuristics heuristics = new Heuristics(Heuristics.HeuristicType.CLOSEST_FIRST);
     private int vehicleCounter = 0;
-    private final List<AutonomousVehicle> vehicles = new ArrayList<>();
+    private final List<AbstractVehicle> vehicles = new ArrayList<>();
 
     public String getProjectFile() {
         return projectFile;
@@ -109,11 +109,11 @@ public class DataStatus {
         isPlansVerified = plansVerified;
     }
 
-    public void addVehicle(AutonomousVehicle vehicle) {
+    public void addVehicle(AbstractVehicle vehicle) {
         this.vehicles.add(vehicle);
     }
 
-    public List<AutonomousVehicle> getVehicles() {
+    public List<AbstractVehicle> getVehicles() {
         return vehicles;
     }
 }

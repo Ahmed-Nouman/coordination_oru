@@ -11,7 +11,7 @@ import org.metacsp.multi.spatioTemporal.paths.Pose;
 
 import java.util.Map;
 
-public class staticMap extends StackPane {
+public class StaticMap extends StackPane {
     private static final int MARKER_RADIUS = 8;
     private static final int FONT_SIZE = 12;
     private final Canvas canvas;
@@ -21,7 +21,7 @@ public class staticMap extends StackPane {
     private final double originalImageWidth;
     private final double originalImageHeight;
 
-    public staticMap(String imagePath, Map<String, Pose> poses, double mapResolution, double newWidth, double newHeight) {
+    public StaticMap(String imagePath, Map<String, Pose> poses, double mapResolution, double newWidth, double newHeight) {
         mapImage = new Image(imagePath);
         scaleImage = 1 / mapResolution;
         originalImageWidth = mapImage.getWidth();

@@ -118,7 +118,7 @@ public class MenuBar {
     private static void saveProject(Main main) {
         saveProject = new MenuItem("Save Project...");
         saveProject.setAccelerator(new KeyCodeCombination(KeyCode.S, KeyCodeCombination.CONTROL_DOWN));
-        saveProject.setOnAction(e -> main.getNavigationButton().trySaveProject());
+        saveProject.setOnAction(e -> main.getNavigationButton().saveProject.trySaveProject(main.getNavigationButton()));
     }
 
     private static void closeProject(Main main) {

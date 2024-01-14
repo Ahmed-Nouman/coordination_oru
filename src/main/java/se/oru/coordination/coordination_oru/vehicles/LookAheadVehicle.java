@@ -24,7 +24,7 @@ import java.util.Arrays;
  * @author anm
  */
 
-public class LookAheadVehicle extends AbstractVehicle {
+public class LookAheadVehicle extends AutonomousVehicle {
     private double lookAheadDistance;
 
     /**

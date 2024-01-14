@@ -1145,11 +1145,9 @@ public class Missions {
 											   int terminationInMinutes, String heuristicName,
 											   int inferenceCycleTime, String resultDirectory, double scaleAdjustment) {
 
-		// Write robot reports to resultDirectory folder in .csv format
 		writeReports(tec, writeReports, intervalInSeconds,
 				terminationInMinutes, heuristicName, inferenceCycleTime, resultDirectory, scaleAdjustment);
 
-		// Add autonomous robots only for mission looping
 		addRobotsForLooping(tec);
 
 		if (missionDispatchThread == null) {
