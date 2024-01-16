@@ -52,6 +52,7 @@ public class ControllerNavigation {
         updateScene(SceneState.HOME);
         main.getNavigationButton().next.setDisable(true);
         main.getHomeScene().getFilePath().setText("");
+        main.getDataStatus().reset();
     }
 
     public SceneState getCurrentScene() {

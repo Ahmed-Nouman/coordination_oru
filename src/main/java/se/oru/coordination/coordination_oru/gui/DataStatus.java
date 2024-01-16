@@ -1,8 +1,8 @@
 package se.oru.coordination.coordination_oru.gui;
 
+import se.oru.coordination.coordination_oru.motionplanning.ompl.ReedsSheppCarPlanner;
 import se.oru.coordination.coordination_oru.utils.Heuristics;
 import se.oru.coordination.coordination_oru.vehicles.AbstractVehicle;
-import se.oru.coordination.coordination_oru.vehicles.AutonomousVehicle;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -10,13 +10,14 @@ import java.util.List;
 public class DataStatus {
     private boolean isPlansVerified = false;
     private String projectFile = "";
-    private ProjectData projectData;
-    private ProjectData originalProjectData;
+    private ProjectData projectData = new ProjectData();
+    private ProjectData originalProjectData = new ProjectData();
     private MapData mapData = new MapData();
     private Boolean writeVehicleReports = false;
     private int simulationTime = 5;
     private int numberOfRuns = 1;
     private String reportsFolder = "";
+    private ReedsSheppCarPlanner.PLANNING_ALGORITHM pathPlanner = ReedsSheppCarPlanner.PLANNING_ALGORITHM.RRTConnect;
     private Heuristics heuristics = new Heuristics(Heuristics.HeuristicType.CLOSEST_FIRST);
     private int vehicleCounter = 0;
     private final List<AbstractVehicle> vehicles = new ArrayList<>();
@@ -85,6 +86,14 @@ public class DataStatus {
         this.reportsFolder = reportsFolder;
     }
 
+    public ReedsSheppCarPlanner.PLANNING_ALGORITHM getPathPlanner() {
+        return pathPlanner;
+    }
+
+    public void setPathPlanner(ReedsSheppCarPlanner.PLANNING_ALGORITHM pathPlanner) {
+        this.pathPlanner = pathPlanner;
+    }
+
     public Heuristics getHeuristics() {
         return heuristics;
     }
@@ -115,5 +124,21 @@ public class DataStatus {
 
     public List<AbstractVehicle> getVehicles() {
         return vehicles;
+    }
+
+    public void reset() {
+        this.isPlansVerified = false;
+        this.projectFile = "";
+        this.projectData = new ProjectData();
+        this.originalProjectData = new ProjectData();
+        this.mapData = new MapData();
+        this.writeVehicleReports = false;
+        this.simulationTime = 5;
+        this.numberOfRuns = 1;
+        this.reportsFolder = "";
+        this.pathPlanner = ReedsSheppCarPlanner.PLANNING_ALGORITHM.RRTConnect;
+        this.heuristics = new Heuristics(Heuristics.HeuristicType.CLOSEST_FIRST);
+        this.vehicleCounter = 0;
+        this.vehicles.clear();
     }
 }

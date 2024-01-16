@@ -51,7 +51,9 @@ public abstract class AbstractVehicle {
     private double pathLength;
     private Mission mission;
     private int missionRepetition;
-    public static ReedsSheppCarPlanner.PLANNING_ALGORITHM planningAlgorithm = ReedsSheppCarPlanner.PLANNING_ALGORITHM.RRTConnect;
+    //TODO: Add mission support to the vehicle class List<GoalPose, time>
+    //TODO: Add safety distance support to the vehicle class
+    //FIXME: Move planning methods to a separate class. This class should only contain vehicle properties and methods
 //    private Map<Integer, AbstractMap.SimpleEntry<PoseSteering[], Integer>> planSegmentsMap;
     public AbstractVehicle(int ID, String name, int priority, Color color, double maxVelocity, double maxAcceleration,
                            int trackingPeriod, double length, double width, Pose initialPose, Pose[] goalPoses, double safetyDistance, int missionRepetition) {
@@ -101,17 +103,18 @@ public abstract class AbstractVehicle {
         return length * width;                  // FIXME Currently allows four sided vehicles only
     }
 
-    public void getPlan(Pose initialPose, Pose[] goalPoses, String map, Boolean inversePath, ReedsSheppCarPlanner.PLANNING_ALGORITHM planningAlgorithm,
-                        double radius, double planningTime, double turningRadius, double distanceBetweenPathPoints) {
-
-        var rsp = configureReedsSheppCarPlanner(planningAlgorithm, map, radius, planningTime, turningRadius,
-                distanceBetweenPathPoints);
-        generatePath(rsp, initialPose, goalPoses, inversePath);
+    public void getPlan(Pose initial, Pose[] goalPoses, String map, Boolean inversePath) {
+        getPlan(initial, goalPoses, map, inversePath, ReedsSheppCarPlanner.PLANNING_ALGORITHM.RRTConnect, 0.01, 60, 0.01, 0.1);
     }
 
-    public void getPlan(Pose initial, Pose[] goalPoses, String map, Boolean inversePath) {
-        getPlan(initial, goalPoses, map, inversePath, ReedsSheppCarPlanner.PLANNING_ALGORITHM.RRTConnect, 0.01,
-                60, 0.01, 0.1);
+    public void getPlan(Pose initial, Pose[] goalPoses, String map, ReedsSheppCarPlanner.PLANNING_ALGORITHM planningAlgorithm) {
+        getPlan(initial, goalPoses, map, false, planningAlgorithm, 0.01, 60, 0.01, 0.1);
+    }
+
+    public void getPlan(Pose initialPose, Pose[] goalPoses, String map, Boolean inversePath, ReedsSheppCarPlanner.PLANNING_ALGORITHM planningAlgorithm,
+                        double radius, double planningTime, double turningRadius, double distanceBetweenPathPoints) {
+        var rsp = configureReedsSheppCarPlanner(planningAlgorithm, map, radius, planningTime, turningRadius, distanceBetweenPathPoints);
+        generatePath(rsp, initialPose, goalPoses, inversePath);
     }
 
     private ReedsSheppCarPlanner configureReedsSheppCarPlanner(ReedsSheppCarPlanner.PLANNING_ALGORITHM planningAlgorithm, String map, double radius,
@@ -134,7 +137,7 @@ public abstract class AbstractVehicle {
 
         if (path == null) {
             System.err.println("No path found.");
-            System.exit(1);
+            System.exit(1); //TODO: Handle this better and throw an exception, not exiting the program
         }
 
         if (inversePath) ArrayUtils.addAll(path, rsp.getPathInv());
@@ -364,45 +367,6 @@ public abstract class AbstractVehicle {
 
     public void setPathLength(double pathLength) {
         this.pathLength = pathLength;
-    }
-
-    public static LookAheadVehicle convertToLookAheadVehicle(AutonomousVehicle autonomousVehicle) {
-        VehiclesHashMap.removeVehicle(autonomousVehicle.getID());
-        return new LookAheadVehicle(
-                autonomousVehicle.getID(),
-                autonomousVehicle.getName(),
-                20,
-                autonomousVehicle.getPriority(),
-                (Color) autonomousVehicle.getColor("color"),
-                autonomousVehicle.getMaxVelocity(),
-                autonomousVehicle.getMaxAcceleration(),
-                autonomousVehicle.getTrackingPeriod(),
-                autonomousVehicle.getLength(),
-                autonomousVehicle.getWidth(),
-                autonomousVehicle.getInitialPose(),
-                autonomousVehicle.getGoalPoses(),
-                autonomousVehicle.getSafetyDistance(),
-                autonomousVehicle.getMissionRepetition()
-        );
-    }
-
-    public static AutonomousVehicle convertToAutonomousVehicle(LookAheadVehicle lookAheadVehicle) {
-        VehiclesHashMap.removeVehicle(lookAheadVehicle.getID());
-        return new AutonomousVehicle(
-                lookAheadVehicle.getID(),
-                lookAheadVehicle.getName(),
-                lookAheadVehicle.getPriority(),
-                (Color) lookAheadVehicle.getColor("color"),
-                lookAheadVehicle.getMaxVelocity(),
-                lookAheadVehicle.getMaxAcceleration(),
-                lookAheadVehicle.getTrackingPeriod(),
-                lookAheadVehicle.getLength(),
-                lookAheadVehicle.getWidth(),
-                lookAheadVehicle.getInitialPose(),
-                lookAheadVehicle.getGoalPoses(),
-                lookAheadVehicle.getSafetyDistance(),
-                lookAheadVehicle.getMissionRepetition()
-        );
     }
 
     public void setID(int ID) {

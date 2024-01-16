@@ -2,6 +2,7 @@ package se.oru.coordination.coordination_oru.gui;
 
 import javafx.stage.DirectoryChooser;
 import javafx.stage.Stage;
+import se.oru.coordination.coordination_oru.motionplanning.ompl.ReedsSheppCarPlanner;
 import se.oru.coordination.coordination_oru.utils.Heuristics;
 
 public class ControllerSetup {
@@ -11,8 +12,17 @@ public class ControllerSetup {
         this.scene = scene;
     }
 
+    public void choosePathPlanner() {
+        var pathPlanner = scene.getPathPlannerField().getValue();
+        if (pathPlanner != null && pathPlanner.equals("Fast (RRTConnect)")) {
+            scene.getMain().getDataStatus().setPathPlanner(ReedsSheppCarPlanner.PLANNING_ALGORITHM.RRTConnect);
+        } else {
+            scene.getMain().getDataStatus().setPathPlanner(ReedsSheppCarPlanner.PLANNING_ALGORITHM.RRTstar);
+        }
+    }
+
     public void chooseHeuristic() {
-        var heuristic = scene.getHeuristicsField().getValue();
+        var heuristic = scene.getPriorityRuleField().getValue();
         if (heuristic != null) {
             switch (heuristic) {
                 case "MOST_DISTANCE_TRAVELLED":

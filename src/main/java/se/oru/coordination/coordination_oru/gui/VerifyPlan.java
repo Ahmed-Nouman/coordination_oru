@@ -27,18 +27,15 @@ public class VerifyPlan {
             @Override
             protected Void call() {
 
-                final var YAML_FILE = controllerNavigation.getMain().getDataStatus().getProjectData().getMap();
+                var YAML_FILE = controllerNavigation.getMain().getDataStatus().getProjectData().getMap();
                 var mapResolution = controllerNavigation.getMain().getDataStatus().getMapData().getResolution();
                 var scaleAdjustment = 1 / mapResolution;
 
                 for (var vehicle : controllerNavigation.getMain().getDataStatus().getProjectData().getVehicles()) {
-
                     AbstractVehicle newVehicle;
-                    if ("Human".equals(vehicle.getType())) {
+                    if ("Human".equals(vehicle.getType()))
                         newVehicle = new LookAheadVehicle(vehicle.getLookAheadDistance() / scaleAdjustment);
-                    } else {
-                        newVehicle = new AutonomousVehicle();
-                    }
+                    else newVehicle = new AutonomousVehicle();
 
                     newVehicle.setID(vehicle.getID());
                     newVehicle.setName(vehicle.getName());
@@ -57,8 +54,8 @@ public class VerifyPlan {
 //            newVehicle.setMission(vehicle.getMission()); //FIXME Fix Mission, How to handle multiple missions to GoalPoses, handle stoppages
                     newVehicle.setMissionRepetition(vehicle.getMissionRepetition()); //FIXME Handle Mission Repetitions in missionsDispatcher
 
-                    newVehicle.getPlan(newVehicle.getInitialPose(),
-                            newVehicle.getGoalPoses(), YAML_FILE, true);
+                    newVehicle.getPlan(newVehicle.getInitialPose(), newVehicle.getGoalPoses(), YAML_FILE,
+                            controllerNavigation.getMain().getDataStatus().getPathPlanner());
 
                     controllerNavigation.getMain().getDataStatus().getVehicles().add(newVehicle);
                 }

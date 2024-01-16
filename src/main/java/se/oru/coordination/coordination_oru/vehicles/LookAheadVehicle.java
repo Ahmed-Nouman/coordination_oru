@@ -71,6 +71,25 @@ public class LookAheadVehicle extends AutonomousVehicle {
                 0.5, 0.5, null, null, 0, 0);
     }
 
+    public static AutonomousVehicle convertToAutonomousVehicle(LookAheadVehicle lookAheadVehicle) {
+        VehiclesHashMap.removeVehicle(lookAheadVehicle.getID());
+        return new AutonomousVehicle(
+                lookAheadVehicle.getID(),
+                lookAheadVehicle.getName(),
+                lookAheadVehicle.getPriority(),
+                (Color) lookAheadVehicle.getColor("color"),
+                lookAheadVehicle.getMaxVelocity(),
+                lookAheadVehicle.getMaxAcceleration(),
+                lookAheadVehicle.getTrackingPeriod(),
+                lookAheadVehicle.getLength(),
+                lookAheadVehicle.getWidth(),
+                lookAheadVehicle.getInitialPose(),
+                lookAheadVehicle.getGoalPoses(),
+                lookAheadVehicle.getSafetyDistance(),
+                lookAheadVehicle.getMissionRepetition()
+        );
+    }
+
     /**
      * Updates the path of all LookAheadVehicles in the TrajectoryEnvelopeCoordinator.
      *

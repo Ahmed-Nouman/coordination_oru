@@ -44,4 +44,24 @@ public class AutonomousVehicle extends AbstractVehicle {
         this(vehicleNumber, null, 1, Color.YELLOW, 5.0, 1.0, 30, 0.5, 0.5,
                 null, null, 0, 0);
     }
+
+    public static LookAheadVehicle convertToLookAheadVehicle(AutonomousVehicle autonomousVehicle) {
+        VehiclesHashMap.removeVehicle(autonomousVehicle.getID());
+        return new LookAheadVehicle(
+                autonomousVehicle.getID(),
+                autonomousVehicle.getName(),
+                20,
+                autonomousVehicle.getPriority(),
+                (Color) autonomousVehicle.getColor("color"),
+                autonomousVehicle.getMaxVelocity(),
+                autonomousVehicle.getMaxAcceleration(),
+                autonomousVehicle.getTrackingPeriod(),
+                autonomousVehicle.getLength(),
+                autonomousVehicle.getWidth(),
+                autonomousVehicle.getInitialPose(),
+                autonomousVehicle.getGoalPoses(),
+                autonomousVehicle.getSafetyDistance(),
+                autonomousVehicle.getMissionRepetition()
+        );
+    }
 }
