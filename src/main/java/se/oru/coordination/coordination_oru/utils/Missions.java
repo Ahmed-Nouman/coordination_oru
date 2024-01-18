@@ -1231,12 +1231,13 @@ public class Missions {
 	private static void addRobotsForLooping(TrajectoryEnvelopeCoordinator tec) {
 		for (int robotID : convertSetToIntArray(tec.getAllRobotIDs())) {
 			dispatchableRobots.add(robotID);
-			if (Objects.equals(VehiclesHashMap.getVehicle(robotID).getType(), "AutonomousVehicle")) {
-				loopMissions.put(robotID, true);
-			}
-			else {
-				loopMissions.put(robotID, false);
-			}
+			loopMissions.put(robotID, true);
+//			if (Objects.equals(VehiclesHashMap.getVehicle(robotID).getType(), "AutonomousVehicle")) {
+//				loopMissions.put(robotID, true);
+//			}
+//			else {
+//				loopMissions.put(robotID, false);
+//			}
 		}
 	}
 

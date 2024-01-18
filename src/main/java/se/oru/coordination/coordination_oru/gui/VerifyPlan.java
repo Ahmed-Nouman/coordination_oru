@@ -54,8 +54,7 @@ public class VerifyPlan {
 //            newVehicle.setMission(vehicle.getMission()); //FIXME Fix Mission, How to handle multiple missions to GoalPoses, handle stoppages
                     newVehicle.setMissionRepetition(vehicle.getMissionRepetition()); //FIXME Handle Mission Repetitions in missionsDispatcher
 
-                    newVehicle.getPlan(newVehicle.getInitialPose(), newVehicle.getGoalPoses(), YAML_FILE,
-                            controllerNavigation.getMain().getDataStatus().getPathPlanner());
+                    newVehicle.getPlan(newVehicle, YAML_FILE, controllerNavigation.getMain().getDataStatus().getPathPlanner());
 
                     controllerNavigation.getMain().getDataStatus().getVehicles().add(newVehicle);
                 }

@@ -38,22 +38,14 @@ public class SevenAutonomousOneLookAheadVehicles {
         var autonomousVehicle5 = new AutonomousVehicle(drawPoint22, new Pose[] {orePass});
         var autonomousVehicle6 = new AutonomousVehicle(drawPoint23, new Pose[] {orePass});
         var autonomousVehicle7 = new AutonomousVehicle(drawPoint24, new Pose[] {orePass});
-        lookAheadVehicle.getPlan(lookAheadVehicle.getInitialPose(), lookAheadVehicle.getGoalPoses(),
-                YAML_FILE, true);
-        autonomousVehicle1.getPlan(autonomousVehicle1.getInitialPose(), autonomousVehicle1.getGoalPoses(),
-                YAML_FILE, true);
-        autonomousVehicle2.getPlan(autonomousVehicle2.getInitialPose(), autonomousVehicle2.getGoalPoses(),
-                YAML_FILE, true);
-        autonomousVehicle3.getPlan(autonomousVehicle3.getInitialPose(), autonomousVehicle3.getGoalPoses(),
-                YAML_FILE,true);
-        autonomousVehicle4.getPlan(autonomousVehicle4.getInitialPose(), autonomousVehicle4.getGoalPoses(),
-                YAML_FILE, true);
-        autonomousVehicle5.getPlan(autonomousVehicle5.getInitialPose(), autonomousVehicle5.getGoalPoses(),
-                YAML_FILE,true);
-        autonomousVehicle6.getPlan(autonomousVehicle6.getInitialPose(), autonomousVehicle6.getGoalPoses(),
-                YAML_FILE, true);
-        autonomousVehicle7.getPlan(autonomousVehicle7.getInitialPose(), autonomousVehicle7.getGoalPoses(),
-                YAML_FILE, true);
+        lookAheadVehicle.getPlan(lookAheadVehicle, YAML_FILE, true);
+        autonomousVehicle1.getPlan(autonomousVehicle1, YAML_FILE, true);
+        autonomousVehicle2.getPlan(autonomousVehicle2, YAML_FILE, true);
+        autonomousVehicle3.getPlan(autonomousVehicle3, YAML_FILE,true);
+        autonomousVehicle4.getPlan(autonomousVehicle4, YAML_FILE, true);
+        autonomousVehicle5.getPlan(autonomousVehicle5, YAML_FILE,true);
+        autonomousVehicle6.getPlan(autonomousVehicle6, YAML_FILE, true);
+        autonomousVehicle7.getPlan(autonomousVehicle7, YAML_FILE, true);
 
         // Instantiate a trajectory envelope coordinator.
         final var tec = new TrajectoryEnvelopeCoordinatorSimulation(2000, 1000,

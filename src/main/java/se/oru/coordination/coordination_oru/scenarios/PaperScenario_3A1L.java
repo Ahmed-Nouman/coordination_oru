@@ -58,14 +58,10 @@ public class PaperScenario_3A1L {
         var lookAheadVehicle = new LookAheadVehicle("H1", lookAheadDistance,1,  Color.GREEN, 14, 3,
                 30, 0.9, 0.5, entrance, new Pose[] {mainTunnelLeft}, 0, 0);
 
-        autonomousRobot1.getPlan(autonomousRobot1.getInitialPose(), autonomousRobot1.getGoalPoses(),
-                YAML_FILE, true);
-        autonomousRobot2.getPlan(autonomousRobot2.getInitialPose(), autonomousRobot2.getGoalPoses(),
-                YAML_FILE, true);
-        autonomousRobot3.getPlan(autonomousRobot3.getInitialPose(), autonomousRobot3.getGoalPoses(),
-                YAML_FILE, true);
-        lookAheadVehicle.getPlan(lookAheadVehicle.getInitialPose(), lookAheadVehicle.getGoalPoses(),
-                YAML_FILE, true);
+        autonomousRobot1.getPlan(autonomousRobot1, YAML_FILE, true);
+        autonomousRobot2.getPlan(autonomousRobot2, YAML_FILE, true);
+        autonomousRobot3.getPlan(autonomousRobot3, YAML_FILE, true);
+        lookAheadVehicle.getPlan(lookAheadVehicle, YAML_FILE, true);
 
         // Instantiate a trajectory envelope coordinator.
         var tec = new TrajectoryEnvelopeCoordinatorSimulation(1000, 10000, 14, 3);

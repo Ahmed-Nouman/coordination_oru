@@ -53,17 +53,12 @@ public class ProductionScenario {
         var drillRig = new LookAheadVehicle("drillRig", drillLookAheadDistance, 2, Color.GREEN, 5,
                 2, 1000, 2, 1, drillPoint, new Pose[] {drawPoint2}, 0, 0);
 
-        autonomousRobot1.getPlan(autonomousRobot1.getInitialPose(), autonomousRobot1.getGoalPoses(),
-                YAML_FILE, true);
-        autonomousRobot2.getPlan(autonomousRobot2.getInitialPose(), autonomousRobot2.getGoalPoses(),
-                YAML_FILE, true);
-        autonomousRobot3.getPlan(autonomousRobot3.getInitialPose(), autonomousRobot3.getGoalPoses(),
-                YAML_FILE, true);
-        autonomousRobot4.getPlan(autonomousRobot4.getInitialPose(), autonomousRobot4.getGoalPoses(),
-                YAML_FILE, true);
-        autonomousRobot5.getPlan(autonomousRobot5.getInitialPose(), autonomousRobot5.getGoalPoses(),
-                YAML_FILE, true);
-        drillRig.getPlan(drillRig.getInitialPose(), drillRig.getGoalPoses(), YAML_FILE, false);
+        autonomousRobot1.getPlan(autonomousRobot1, YAML_FILE, true);
+        autonomousRobot2.getPlan(autonomousRobot2, YAML_FILE, true);
+        autonomousRobot3.getPlan(autonomousRobot3, YAML_FILE, true);
+        autonomousRobot4.getPlan(autonomousRobot4, YAML_FILE, true);
+        autonomousRobot5.getPlan(autonomousRobot5, YAML_FILE, true);
+        drillRig.getPlan(drillRig, YAML_FILE, false);
 
         // Instantiate a trajectory envelope coordinator.
         var tec = new TrajectoryEnvelopeCoordinatorSimulation(2000, 1000, 5, 2);

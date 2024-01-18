@@ -17,7 +17,7 @@ public class ControllerVehicle {
             scene.getMain().getDataStatus().getProjectData().getVehicle(scene.getMain().getDataStatus().getProjectData().getVehicleID(oldName, scene.getMain().getDataStatus().getProjectData().getVehicles())).setName(newName);
             scene.getVehicles().getItems().clear();
             scene.getMain().getDataStatus().getProjectData().getVehicles().forEach(vehicle -> scene.getVehicles().getItems().add(vehicle.getName()));
-            scene.getVehicles().getSelectionModel().selectFirst();
+            scene.getVehicles().getSelectionModel().select(newName);
         }
     }
 

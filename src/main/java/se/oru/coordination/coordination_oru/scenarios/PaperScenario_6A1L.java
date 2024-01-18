@@ -70,20 +70,13 @@ public class PaperScenario_6A1L {
         var lookAheadRobot = new LookAheadVehicle("H1", lookAheadDistance, 1,  Color.GREEN, MAX_VELOCITY, MAX_ACCELERATION,
                 TRACKING_PERIOD, X_LENGTH, Y_LENGTH, entrance, new Pose[] {mainTunnelLeft, entrance}, 0, 0);
 
-        autonomousRobot1.getPlan(autonomousRobot1.getInitialPose(), autonomousRobot1.getGoalPoses(),
-                YAML_FILE, true);
-        autonomousRobot2.getPlan(autonomousRobot2.getInitialPose(), autonomousRobot2.getGoalPoses(),
-                YAML_FILE, true);
-        autonomousRobot3.getPlan(autonomousRobot3.getInitialPose(), autonomousRobot3.getGoalPoses(),
-                YAML_FILE, true);
-        autonomousRobot4.getPlan(autonomousRobot4.getInitialPose(), autonomousRobot4.getGoalPoses(),
-                YAML_FILE, true);
-        autonomousRobot5.getPlan(autonomousRobot5.getInitialPose(), autonomousRobot5.getGoalPoses(),
-                YAML_FILE, true);
-        autonomousRobot6.getPlan(autonomousRobot6.getInitialPose(), autonomousRobot6.getGoalPoses(),
-                YAML_FILE, true);
-        lookAheadRobot.getPlan(lookAheadRobot.getInitialPose(), lookAheadRobot.getGoalPoses(),
-                YAML_FILE, false);
+        autonomousRobot1.getPlan(autonomousRobot1, YAML_FILE, true);
+        autonomousRobot2.getPlan(autonomousRobot2, YAML_FILE, true);
+        autonomousRobot3.getPlan(autonomousRobot3, YAML_FILE, true);
+        autonomousRobot4.getPlan(autonomousRobot4, YAML_FILE, true);
+        autonomousRobot5.getPlan(autonomousRobot5, YAML_FILE, true);
+        autonomousRobot6.getPlan(autonomousRobot6, YAML_FILE, true);
+        lookAheadRobot.getPlan(lookAheadRobot, YAML_FILE, false);
 
         // Instantiate a trajectory envelope coordinator. TODO Velocity and acceleration are hard coded for tec.
         var tec = new TrajectoryEnvelopeCoordinatorSimulation(1000, 1000, MAX_VELOCITY, MAX_ACCELERATION);

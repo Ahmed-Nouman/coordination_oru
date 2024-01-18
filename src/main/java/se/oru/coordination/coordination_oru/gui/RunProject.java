@@ -60,8 +60,9 @@ public class RunProject {
 
         var viz = new BrowserVisualization();
         viz.setMap(YAML_FILE);
+//        viz.AccessInitialTransform();
+        viz.setInitialTransform(9.0, 11.0, 5.0);
         viz.setFontScale(3.5);
-        viz.AccessInitialTransform();
         tec.setVisualization(viz);
 
         Missions.setMap(YAML_FILE);

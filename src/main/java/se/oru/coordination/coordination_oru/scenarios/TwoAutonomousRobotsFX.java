@@ -35,8 +35,8 @@ public class TwoAutonomousRobotsFX extends Application {
         // TODO Include time delays
 //        autonomousRobot2.getPlanSegments(autonomousRobot2.getInitialPose(),
 //                autonomousRobot2.getGoalPoses(), waitingTimes, YAML_FILE);
-        autonomousRobot1.getPlan(autonomousRobot1.getInitialPose(), autonomousRobot1.getGoalPoses(), YAML_FILE, false); // FIXME Why?
-        autonomousRobot2.getPlan(autonomousRobot2.getInitialPose(), autonomousRobot2.getGoalPoses(), YAML_FILE, false);
+        autonomousRobot1.getPlan(autonomousRobot1, YAML_FILE, false); // FIXME Why?
+        autonomousRobot2.getPlan(autonomousRobot2, YAML_FILE, false);
         // Instantiate a trajectory envelope coordinator.
         var tec = new TrajectoryEnvelopeCoordinatorSimulation();
 

@@ -200,8 +200,9 @@ public class Utils {
             public void serialize(Object object, JsonGenerator GSON, SerializerProvider serializers) throws IOException {
                 if (object instanceof Vehicle) {
                     GSON.writeStartObject();
-                    // Serialize other Vehicle fields
+                    // Serialize other Vehicle fields FIXME: Why does saving project saves poseName?
                     GSON.writeStringField("ID", String.valueOf(((Vehicle) object).getID()));
+                    GSON.writeStringField("priority", String.valueOf(((Vehicle) object).getPriority()));
                     GSON.writeStringField("name", ((Vehicle) object).getName());
                     GSON.writeStringField("type", ((Vehicle) object).getType());
                     GSON.writeStringField("lookAheadDistance", String.valueOf(((Vehicle) object).getLookAheadDistance()));

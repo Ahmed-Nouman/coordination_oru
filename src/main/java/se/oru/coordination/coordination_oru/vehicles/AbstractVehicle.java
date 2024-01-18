@@ -103,12 +103,16 @@ public abstract class AbstractVehicle {
         return length * width;                  // FIXME Currently allows four sided vehicles only
     }
 
-    public void getPlan(Pose initial, Pose[] goalPoses, String map, Boolean inversePath) {
-        getPlan(initial, goalPoses, map, inversePath, ReedsSheppCarPlanner.PLANNING_ALGORITHM.RRTConnect, 0.01, 60, 0.01, 0.1);
+    public void getPlan(AbstractVehicle vehicle, String map, Boolean inversePath) {
+        if (vehicle.initialPose != null && vehicle.goalPoses != null) {
+            getPlan(vehicle.initialPose, vehicle.goalPoses, map, inversePath, ReedsSheppCarPlanner.PLANNING_ALGORITHM.RRTConnect, 0.01, 60, 0.01, 0.1);
+        }
     }
 
-    public void getPlan(Pose initial, Pose[] goalPoses, String map, ReedsSheppCarPlanner.PLANNING_ALGORITHM planningAlgorithm) {
-        getPlan(initial, goalPoses, map, false, planningAlgorithm, 0.01, 60, 0.01, 0.1);
+    public void getPlan(AbstractVehicle vehicle, String map, ReedsSheppCarPlanner.PLANNING_ALGORITHM planningAlgorithm) {
+        if (vehicle.initialPose != null && vehicle.goalPoses != null) {
+            getPlan(vehicle.initialPose, vehicle.goalPoses, map, false, planningAlgorithm, 0.01, 60, 0.01, 0.1);
+        }
     }
 
     public void getPlan(Pose initialPose, Pose[] goalPoses, String map, Boolean inversePath, ReedsSheppCarPlanner.PLANNING_ALGORITHM planningAlgorithm,

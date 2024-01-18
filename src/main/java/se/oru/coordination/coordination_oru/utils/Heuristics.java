@@ -56,9 +56,9 @@ public class Heuristics {
 
     public static List<String> getAllHeuristicNames() {
         List<String> heuristicNames = new ArrayList<>();
+        heuristicNames.add("CLOSEST_FIRST");
         heuristicNames.add("AUTONOMOUS_FIRST");
         heuristicNames.add("BIGGER_FOOTPRINT_FIRST");
-        heuristicNames.add("CLOSEST_FIRST");
         heuristicNames.add("HUMAN_FIRST");
         heuristicNames.add("HIGHEST_PRIORITY_FIRST");
         heuristicNames.add("MOST_DISTANCE_TO_TRAVEL");

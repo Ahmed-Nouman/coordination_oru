@@ -26,10 +26,8 @@ public class OneAutonomousOneLookAheadVehicles {
         var autonomousVehicle = new AutonomousVehicle(drawPoint21, new Pose[] {orePass});
         autonomousVehicle.setColor(Color.BLUE);
         var lookAheadVehicle = new LookAheadVehicle(predictableDistance, mainTunnelLeft, new Pose[] {mainTunnelRight});
-        autonomousVehicle.getPlan(autonomousVehicle.getInitialPose(), autonomousVehicle.getGoalPoses(),
-                YAML_FILE, true);
-        lookAheadVehicle.getPlan(lookAheadVehicle.getInitialPose(), lookAheadVehicle.getGoalPoses(),
-                YAML_FILE, true);
+        autonomousVehicle.getPlan(autonomousVehicle, YAML_FILE, true);
+        lookAheadVehicle.getPlan(lookAheadVehicle, YAML_FILE, true);
 
         // Instantiate a trajectory envelope coordinator.
         var tec = new TrajectoryEnvelopeCoordinatorSimulation(2000, 1000, 5, 2);
