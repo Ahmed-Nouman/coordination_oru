@@ -44,6 +44,9 @@ public class SceneMap {
         deleteLocation.setOnAction(e -> controller.clickDeleteLocation());
         browse.setOnAction(e -> controller.clickBrowse());
         controller.updateLocations();
+        locations.setOnMouseClicked(e -> {
+            if (e.getClickCount() == 2) controller.doubleCLickLocation();
+        });
     }
 
     private void centerPane() {

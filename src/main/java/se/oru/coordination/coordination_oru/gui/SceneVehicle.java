@@ -33,13 +33,13 @@ public class SceneVehicle {
     private Text lookAheadDistance;
     private TextField lookAheadDistanceField;
     private final ListView<String> vehicles = new ListView<>();
-    private Button add = new Button();
-    private Button delete = new Button();
-    private Button down = new Button();
-    private Button up = new Button();
+    private final Button add = new Button("Add");
+    private final Button delete = new Button("Delete");
+    private final Button down = new Button("↑");
+    private final Button up = new Button("↓");
     private ListView<String> missions = new ListView<>();
-    private Button addVehicle = new Button();
-    private Button deleteVehicle = new Button();
+    private final Button addVehicle = new Button("Add Vehicle");
+    private final Button deleteVehicle = new Button("Delete Vehicle");
     private final Main main;
     private BorderPane pane;
     private final ControllerVehicle controller = new ControllerVehicle(this);
@@ -105,9 +105,6 @@ public class SceneVehicle {
         vehicles.getItems().clear();
         main.getDataStatus().getProjectData().getVehicles().forEach(vehicle -> vehicles.getItems().add(vehicle.getName()));
         vehicles.getSelectionModel().selectFirst();
-
-        addVehicle = new Button("Add Vehicle");
-        deleteVehicle = new Button("Delete Vehicle");
 
         vehicleController();
         var buttons = new HBox(addVehicle, deleteVehicle);
@@ -179,10 +176,6 @@ public class SceneVehicle {
         var missionButtons = new HBox();
         missionButtons.setSpacing(5);
         missionButtons.setAlignment(Pos.CENTER);
-        add = new Button("Add");
-        delete = new Button("Delete");
-        down = new Button("↑");
-        up = new Button("↓");
         missionButtons.getChildren().addAll(add, delete, down, up);
         missionField.setMaxWidth(TEXT_WIDTH);
         missionField.getChildren().addAll(missions, missionButtons);
@@ -194,6 +187,9 @@ public class SceneVehicle {
         delete.setOnAction(e -> controller.clickDelete());
         down.setOnAction(e -> controller.clickDown());
         up.setOnAction(e -> controller.clickUp());
+        missions.setOnMouseClicked(e -> {
+            if (e.getClickCount() == 2) controller.doubleCLickMission();
+        });
     }
 
     private void fieldController() {

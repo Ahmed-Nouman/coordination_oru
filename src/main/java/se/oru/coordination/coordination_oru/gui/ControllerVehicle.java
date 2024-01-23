@@ -213,12 +213,7 @@ public void clickDelete() {
     }
 
     public void clickAdd() {
-        var addedMission = AddMissionDialogBox.display("Adding a Mission", scene.getMain().getDataStatus().getProjectData().getPoses().keySet(), scene.getMissions());
-        var vehicle = scene.getMain().getDataStatus().getProjectData().getVehicle(scene.getMain().getDataStatus().getProjectData().getVehicleID(scene.getVehicles().getSelectionModel().getSelectedItem(), scene.getMain().getDataStatus().getProjectData().getVehicles()));
-        if (vehicle != null && addedMission != null) {
-            var missionSteps = vehicle.getMission();
-            missionSteps.add(addedMission);
-        }
+        AddMissionDialog.add(scene);
     }
 
     public void clickDown() {
@@ -249,5 +244,9 @@ public void clickDelete() {
                 missionSteps.add(index + 1, missionStep);
             }
         }
+    }
+
+    public void doubleCLickMission() {
+        EditMissionDialog.edit(scene);
     }
 }

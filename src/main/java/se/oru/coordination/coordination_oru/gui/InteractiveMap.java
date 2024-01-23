@@ -55,8 +55,8 @@ public class InteractiveMap {
         position.y = Round.round(position.y, DECIMAL_PLACES);
         boolean occupancy = !map.isOccupied(point.x, point.y);
 
-        if (occupancy) { //FIXME: Simplify this if statement
-            var annotatedPose = AddLocationDialogBox.display(position.x, position.y);
+        if (occupancy) { //FIXME: Simplify this if statement. Maybe?
+            var annotatedPose = AddLocationDialog.add(position.x, position.y);
             if (annotatedPose != null) {
                 var poseName = annotatedPose.get(0);
                 var pose = parsePose(annotatedPose);

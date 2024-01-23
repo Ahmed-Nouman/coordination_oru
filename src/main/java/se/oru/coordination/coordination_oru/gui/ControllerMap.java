@@ -21,16 +21,16 @@ public class ControllerMap {
 
     public void clickAddLocation() {
         var pose = new Pose(0, 0, 0);
-        var addedPoseAsList = AddLocationDialogBox.display(pose.getX(), pose.getY());
-        if (addedPoseAsList != null) {
-            var addedPoseName = addedPoseAsList.get(0);
-            var addedPoseX = Double.parseDouble(addedPoseAsList.get(2));
-            var addedPoseY = Double.parseDouble(addedPoseAsList.get(3));
-            var addedPoseTheta = Utils.getOrientation(addedPoseAsList.get(1));
-            var addedPose = new Pose(addedPoseX, addedPoseY, addedPoseTheta);
-            scene.getMain().getDataStatus().getProjectData().getPoses().put(addedPoseName, addedPose);
-            scene.getLocations().getItems().add(addedPoseName);
-            scene.getLocations().getSelectionModel().select(addedPoseName);
+        var addPose = AddLocationDialog.add(pose.getX(), pose.getY());
+        if (addPose != null) {
+            var poseName = addPose.get(0);
+            var orientation = Utils.getOrientation(addPose.get(1));
+            var x = Double.parseDouble(addPose.get(2));
+            var y = Double.parseDouble(addPose.get(3));
+            var addedPose = new Pose(x, y, orientation);
+            scene.getMain().getDataStatus().getProjectData().getPoses().put(poseName, addedPose);
+            scene.getLocations().getItems().add(poseName);
+            scene.getLocations().getSelectionModel().select(poseName);
             updateLocations();
         }
     }
@@ -38,7 +38,7 @@ public class ControllerMap {
     public void updateLocations() {
         scene.getLocations().getItems().clear();
         scene.getMain().getDataStatus().getProjectData().getPoses().forEach((key, value) -> scene.getLocations().getItems().add(key));
-        scene.getLocations().getSelectionModel().selectFirst();
+        scene.getLocations().getSelectionModel().selectFirst(); //FIXME: Remove clearing and set the location to last edited one. Maybe?
         verifyNext();
         verifyDeletion();
     }
@@ -68,5 +68,20 @@ public class ControllerMap {
     public void addPose(String poseName) {
         scene.getLocations().getItems().add(poseName);
         scene.getLocations().getSelectionModel().select(poseName);
+    }
+
+    public void doubleCLickLocation() {
+        var poseName = scene.getLocations().getSelectionModel().getSelectedItem();
+        var pose = EditLocationDialog.edit(scene, poseName);
+        if (pose != null) {
+            scene.getMain().getDataStatus().getProjectData().getPoses().remove(poseName);
+            var newPoseName = pose.get(0);
+            var theta = Math.toRadians(Double.parseDouble(pose.get(1)));
+            var x = Double.parseDouble(pose.get(2));
+            var y = Double.parseDouble(pose.get(3));
+            var newPose = new Pose(x, y, theta);
+            scene.getMain().getDataStatus().getProjectData().getPoses().put(newPoseName, newPose);
+            updateLocations();
+        }
     }
 }

@@ -1,7 +1,8 @@
 package se.oru.coordination.coordination_oru.gui;
 
 import javafx.application.Application;
-import javafx.scene.control.*;
+import javafx.scene.control.Alert;
+import javafx.scene.control.ButtonType;
 import javafx.stage.Stage;
 
 public class Main extends Application {
