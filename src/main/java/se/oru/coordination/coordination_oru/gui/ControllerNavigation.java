@@ -1,6 +1,8 @@
 package se.oru.coordination.coordination_oru.gui;
 
+import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
+import javafx.scene.control.ButtonType;
 
 public class ControllerNavigation {
     private final Button back = new Button("Back");
@@ -93,5 +95,15 @@ public class ControllerNavigation {
 
     public void clickRun() {
         runProject.runProject();
+    }
+
+    public void closeProgram(Main main) {
+        if (main.getDataStatus().getProjectData() == null || main.getDataStatus().getProjectData().equals(main.getDataStatus().getOriginalProjectData())) {
+            main.getPrimaryStage().close();
+        } else {
+            var answer = AlertBox.display("Saving the project", "Would you like to save the project before exiting?", Alert.AlertType.CONFIRMATION);
+            if (answer.isPresent() && answer.get() == ButtonType.YES && main.getDataStatus().getProjectData() != null) main.getNavigationButton().saveProject.trySaveProject(main.getNavigationButton());
+            main.getPrimaryStage().close();
+        }
     }
 }

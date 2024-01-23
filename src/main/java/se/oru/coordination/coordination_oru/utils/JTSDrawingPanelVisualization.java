@@ -3,7 +3,6 @@ package se.oru.coordination.coordination_oru.utils;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.GeometryFactory;
-import com.vividsolutions.jts.geom.Polygon;
 import org.metacsp.multi.spatial.DE9IM.GeometricShapeDomain;
 import org.metacsp.multi.spatioTemporal.paths.TrajectoryEnvelope;
 import org.metacsp.utility.UI.JTSDrawingPanel;
@@ -21,8 +20,7 @@ import java.util.Objects;
 
 public class JTSDrawingPanelVisualization implements FleetVisualization {
 
-    public JTSDrawingPanel frame;
-    private JTSDrawingPanel panel = null;
+	private JTSDrawingPanel panel = null;
 
 	public JTSDrawingPanelVisualization() {
 		this(null);
@@ -72,9 +70,11 @@ public class JTSDrawingPanelVisualization implements FleetVisualization {
 		double y = rr.getPose().getY();
 		double theta = rr.getPose().getTheta();
 
-		String name = "R" + te.getRobotID();
-		if (VehiclesHashMap.getVehicle(te.getRobotID()).getName() != null) {
+		var name = "R" + te.getRobotID();
+		var color = "#ff0000";
+		if (VehiclesHashMap.getVehicle(te.getRobotID()) != null) {
 			name = VehiclesHashMap.getVehicle(te.getRobotID()).getName();
+			color = (String) VehiclesHashMap.getVehicle(rr.getRobotID()).getColor("code");
 		}
 
 		// Show Representation
@@ -83,27 +83,10 @@ public class JTSDrawingPanelVisualization implements FleetVisualization {
 		name += extraData;
 
 		if (rr.getPathIndex() != -1) panel.addGeometry(name, TrajectoryEnvelope.getFootprint(te.getFootprint(), x, y, theta), false,
-				true, false, (String) VehiclesHashMap.getVehicle(te.getRobotID()).getColor("code"));
+				true, false, color);
 		else panel.addGeometry(name, TrajectoryEnvelope.getFootprint(te.getFootprint(), te.getTrajectory().getPose()[0].getX(),
 				te.getTrajectory().getPose()[0].getY(), te.getTrajectory().getPose()[0].getTheta()), false, true,
 				false, "#FF0000");
-	}
-	
-	@Override
-	public void displayRobotState(Polygon fp, RobotReport rr, String ... extraStatusInfo) {
-		double x = rr.getPose().getX();
-		double y = rr.getPose().getY();
-		double theta = rr.getPose().getTheta();
-
-		String name = "R" + rr.getRobotID();
-		if (VehiclesHashMap.getVehicle(rr.getRobotID()).getName() != null) {
-			name = VehiclesHashMap.getVehicle(rr.getRobotID()).getName();
-		}
-
-		if (rr.getPathIndex() != -1) panel.addGeometry(name, TrajectoryEnvelope.getFootprint(fp, x, y, theta), false,
-				true, false, (String) VehiclesHashMap.getVehicle(rr.getRobotID()).getColor("code"));
-		else panel.addGeometry(name, TrajectoryEnvelope.getFootprint(fp, x, y, theta), false,
-				true, false, "#FF0000");
 	}
 
 	@Override

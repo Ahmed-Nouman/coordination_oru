@@ -1,8 +1,6 @@
 package se.oru.coordination.coordination_oru.gui;
 
 import javafx.application.Application;
-import javafx.scene.control.Alert;
-import javafx.scene.control.ButtonType;
 import javafx.stage.Stage;
 
 public class Main extends Application {
@@ -13,7 +11,7 @@ public class Main extends Application {
     private final SceneMap sceneMap = new SceneMap(this);
     private final SceneVehicle sceneVehicle = new SceneVehicle(this);
     private final SceneSetup sceneSetup = new SceneSetup(this);
-    private final ControllerNavigation controllerNavigation = new ControllerNavigation(this);
+    final ControllerNavigation controllerNavigation = new ControllerNavigation(this);
 
     public static void main(String[] args) {
         launch(args);
@@ -28,21 +26,9 @@ public class Main extends Application {
 
     private void initializeStage() {
         primaryStage.setTitle("Coordination_ORU");
-        primaryStage.setOnCloseRequest(e -> closeProgram());
+        primaryStage.setOnCloseRequest(e -> controllerNavigation.closeProgram(this));
         primaryStage.setScene(getHomeScene().get());
         primaryStage.show();
-    }
-
-    protected void closeProgram() {
-        if (getDataStatus().getProjectData() == null) {
-            primaryStage.close();
-        } else if (getDataStatus().getProjectData().equals(getDataStatus().getOriginalProjectData())) {
-            primaryStage.close();
-        } else {
-            var answer = AlertBox.display("Saving the project", "Would you like to save the project before exiting?", Alert.AlertType.CONFIRMATION);
-            if (answer.isPresent() && answer.get() == ButtonType.YES && getDataStatus().getProjectData() != null) getNavigationButton().saveProject.trySaveProject(getNavigationButton());
-            primaryStage.close();
-        }
     }
 
     public Stage getPrimaryStage() {
