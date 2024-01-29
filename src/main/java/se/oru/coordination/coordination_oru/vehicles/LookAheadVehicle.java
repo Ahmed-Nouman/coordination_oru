@@ -123,11 +123,9 @@ public class LookAheadVehicle extends AutonomousVehicle {
      * @return An array of PoseSteering objects representing the limited path.
      */
     public synchronized PoseSteering[] getLimitedPath(int vehicleID, double lookAheadDistance, TrajectoryEnvelopeCoordinator tec) {
-        if (lookAheadDistance < 0) {
-            return getPath(); // Return the full path if lookAheadDistance is negative
-        }
+        if (lookAheadDistance < 0) return getPath();
 
-        double distance = 0.0;
+        var distance = 0.0;
         var vehicleReport = tec.getRobotReport(vehicleID);
         var fullPath = getPath();
 
@@ -136,19 +134,17 @@ public class LookAheadVehicle extends AutonomousVehicle {
             return new PoseSteering[0];
         }
 
-        double currentDistance = vehicleReport.getDistanceTraveled();
-        double totalDistance = getPlanLength();
-        int pathIndex = Math.max(vehicleReport.getPathIndex(), 0); // Avoid null point exception for starting
+        var currentDistance = vehicleReport.getDistanceTraveled();
+        var totalDistance = getPlanLength();
+        int pathIndex = Math.max(vehicleReport.getPathIndex(), 0);
 
         for (; pathIndex < fullPath.length - 1 && distance <= lookAheadDistance; pathIndex++) {
             if ((currentDistance + lookAheadDistance) >= totalDistance) {
-                return fullPath; // For last iteration less than look ahead distance
+                return fullPath;
             } else {
                 distance += fullPath[pathIndex].getPose().distanceTo(fullPath[pathIndex + 1].getPose());
             }
         }
-
-        // Create a new path with a limited length
         return Arrays.copyOfRange(fullPath, 0, pathIndex);
     }
 

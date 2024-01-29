@@ -4,19 +4,17 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
 import com.vividsolutions.jts.geom.Coordinate;
-import com.vividsolutions.jts.geom.Geometry;
 import org.jgrapht.GraphPath;
 import org.jgrapht.alg.shortestpath.DijkstraShortestPath;
 import org.jgrapht.graph.DefaultWeightedEdge;
 import org.jgrapht.graph.SimpleDirectedWeightedGraph;
 import org.metacsp.multi.spatioTemporal.paths.Pose;
 import org.metacsp.multi.spatioTemporal.paths.PoseSteering;
-import org.metacsp.multi.spatioTemporal.paths.Trajectory;
-import org.metacsp.multi.spatioTemporal.paths.TrajectoryEnvelope;
 import org.metacsp.utility.logging.MetaCSPLogging;
 import se.oru.coordination.coordination_oru.Mission;
 import se.oru.coordination.coordination_oru.TrajectoryEnvelopeCoordinator;
 import se.oru.coordination.coordination_oru.motionplanning.AbstractMotionPlanner;
+import se.oru.coordination.coordination_oru.simulation2D.TrajectoryEnvelopeCoordinatorSimulation;
 import se.oru.coordination.coordination_oru.vehicles.AbstractVehicle;
 import se.oru.coordination.coordination_oru.vehicles.AutonomousVehicle;
 import se.oru.coordination.coordination_oru.vehicles.LookAheadVehicle;
@@ -31,6 +29,8 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
 import java.util.Map.Entry;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 import java.util.logging.Logger;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
@@ -51,8 +51,7 @@ public class Missions {
 	protected static HashMap<Integer,ArrayList<Mission>> missions = new HashMap<Integer, ArrayList<Mission>>();
 	protected static HashMap<Integer,MissionDispatchingCallback> mdcs = new HashMap<Integer, MissionDispatchingCallback>();
 	protected static HashMap<Mission,ArrayList<Mission>> concatenatedMissions = new HashMap<Mission, ArrayList<Mission>>();
-	//protected static String pathPrefix = "";
-	protected static SimpleDirectedWeightedGraph<String, DefaultWeightedEdge> graph = new SimpleDirectedWeightedGraph<String, DefaultWeightedEdge>(DefaultWeightedEdge.class); 
+	protected static SimpleDirectedWeightedGraph<String, DefaultWeightedEdge> graph = new SimpleDirectedWeightedGraph<String, DefaultWeightedEdge>(DefaultWeightedEdge.class);
 	protected static String mapYAML = null;
 	protected static String mapImageFilename = null;
 	protected static BufferedImage map = null;
@@ -64,29 +63,9 @@ public class Missions {
 	protected static Thread missionDispatchThread = null;
 	protected static HashSet<Integer> dispatchableRobots = new HashSet<Integer>();
 	protected static HashMap<Integer,Boolean> loopMissions = new HashMap<Integer,Boolean>();
-	
-	/**
-	 * Set the minimum acceptable distance between path poses. This is used to re-sample paths
-	 * when they are loaded from file or when the method {@link #resamplePathsInRoadMap()} is called.
-	 * @param minPathDist The minimum acceptable distance between path poses.
-	 */
-	public static void setMinPathDistance(double minPathDist) {
-		minPathDistance = minPathDist;
-	}
-	
-	/**
-	 * Re-sample all paths so that the minimum distance between path poses is the value
-	 * set by {@link #setMinPathDistance(double)}.
-	 */
-	public static void resamplePathsInRoadMap() {
-		for (String pathname : paths.keySet()) {
-			paths.put(pathname, resamplePath(paths.get(pathname)));
-		}
-	}
-	
+
 	/**
 	 * Re-sample a given path so that the minimum distance between path poses is the value
-	 * set by {@link #setMinPathDistance(double)}.
 	 */
 	public static PoseSteering[] resamplePath(PoseSteering[] path) {
 		if (minPathDistance < 0) return path;
@@ -104,51 +83,17 @@ public class Missions {
 		return ret.toArray(new PoseSteering[ret.size()]);
 	}
 
-	/**
-	 * Get the length in meters of a path. This is the sum of distances between path poses.
-	 * @return The length in meters of a path. This is the sum of distances between path poses.
-	 */
-	public static double getPathLength(PoseSteering[] path) {
-		double length = 0.0;
-		for (int i = 0; i < path.length-1; i++) {
-			length += path[i].getPose().distanceTo(path[i+1].getPose());
-		}
-		return length;
-	}
-
-
-	/**
-	 * Get the length in meters of a path. This is the sum of distances between path poses.
-	 * @return The length in meters of a path. This is the sum of distances between path poses.
-	 */
-	public static double getPathLength(Pose[] path) {
-		double length = 0.0;
-		for (int i = 0; i < path.length-1; i++) {
-			length += path[i].distanceTo(path[i+1]);
-		}
-		return length;
-	}
-	
-	public static String[] getNearLocations(String location) {
-		return getNearLocations(getLocationPose(location));
-	}
 
 	public static String[] getNearLocations(Pose p) {
-		ArrayList<String> ret = new ArrayList<String>();
-		for (String  loc : Missions.getLocationsAndPoses().keySet()) ret.add(loc);
+        ArrayList<String> ret = new ArrayList<>(Missions.getLocationsAndPoses().keySet());
 		
-		Collections.sort(ret, new Comparator<String>() {
-			@Override
-			public int compare(String arg0, String arg1) {
-				double dist0 = Missions.getLocationPose(arg0).distanceTo(p);
-				double dist1 = Missions.getLocationPose(arg1).distanceTo(p);
-				if (dist0 < dist1) return -1;
-				if (dist0 > dist1) return 1;
-				return 0;
-			}
-		});
+		ret.sort((arg0, arg1) -> {
+            double dist0 = Missions.getLocationPose(arg0).distanceTo(p);
+            double dist1 = Missions.getLocationPose(arg1).distanceTo(p);
+            return Double.compare(dist0, dist1);
+        });
 		
-		return ret.toArray(new String[ret.size()]);
+		return ret.toArray(new String[0]);
 	}
 	
 	/**
@@ -175,14 +120,6 @@ public class Missions {
 		return Missions.mapOrigin;
 	}
 
-	/**
-	 * Get the YAML file of the current map, if set.
-	 * @return The YAML file of the current map, <code>null</code> if no map is known.
-	 */
-	public static String getMapYAML() {
-		return Missions.mapYAML;
-	}
-	
 	/**
 	 * Save the current map (if known) as PNG with the corresponding YAML descriptor.
 	 * @param fileName The name of the image/YAML files to save.
@@ -380,21 +317,7 @@ public class Missions {
 		}
 		catch (IOException e) { e.printStackTrace(); }
 	}
-	
-	/**
-	 * Get the name of the initial location of each robot's first {@link Mission}.
-	 * The pose corresponding to each location name can be looked up via the method {@link Missions#getLocation(String)}.
-	 * @return The name of the initial location of each robot's first {@link Mission}.
-	 */
-	public static HashMap<Integer,String> getInitialLocations() {
-		HashMap<Integer,String> ret = new HashMap<Integer, String>();
-		for (Integer robotID : missions.keySet()) {
-			Mission m = Missions.peekMission(robotID);
-			if (m != null) ret.put(robotID, m.getFromLocation());
-		}
-		return ret;
-	}
-	
+
 	/**
 	 * Get the pose of the initial location of each robot's first {@link Mission}.
 	 * @return The pose of the initial location of each robot's first {@link Mission}.
@@ -424,7 +347,6 @@ public class Missions {
 	private static void buildGraph() {
 		
 		graph = new SimpleDirectedWeightedGraph<String, DefaultWeightedEdge>(DefaultWeightedEdge.class);
-		
 		metaCSPLogger.info("Updating the roadmap...");
 		
 		for (String oneLoc : locations.keySet()) {
@@ -524,38 +446,18 @@ public class Missions {
 	}
 	
 	/**
-	 * Get all the {@link Mission}s currently currently known
-	 * @return All the {@link Mission}s currently currently known
+	 * Get all the {@link Mission}s currently known
+	 * @return All the {@link Mission}s currently known
 	 */
 	public static HashMap<Integer,ArrayList<Mission>> getMissions() {
 		return missions;
 	}
 
 	/**
-	 * Add a new {@link Mission} for a robot.
-	 * @param m The mission to push.
-	 */
-	@Deprecated
-	public static void putMission(Mission m) {
-		if (!missions.containsKey(m.getRobotID())) missions.put(m.getRobotID(), new ArrayList<Mission>());
-		missions.get(m.getRobotID()).add(m);
-	}
-	
-	/**
 	 * Enqueue a new {@link Mission} for a robot.
 	 * @param m The mission to enqueue.
 	 */
 	public static void enqueueMission(Mission m) {
-		if (!missions.containsKey(m.getRobotID())) missions.put(m.getRobotID(), new ArrayList<Mission>());
-		missions.get(m.getRobotID()).add(m);
-	}
-
-	/**
-	 * Push a new {@link Mission} for a robot on the mission queue.
-	 * @param m The mission to push
-	 */
-	@Deprecated
-	public static void pushMission(Mission m) {
 		if (!missions.containsKey(m.getRobotID())) missions.put(m.getRobotID(), new ArrayList<Mission>());
 		missions.get(m.getRobotID()).add(m);
 	}
@@ -583,22 +485,7 @@ public class Missions {
 		}
 		return null;
 	}
-	
-	/**
-	 * Pop the first mission from the queue of a given robot. 
-	 * @param robotID The ID of the robot.
-	 * @return The first mission from the queue of a given robot.
-	 */
-	@Deprecated
-	public static Mission popMission(int robotID) {
-		if (hasMissions(robotID) && !missions.get(robotID).isEmpty()) {
-			Mission m = missions.get(robotID).get(0);
-			missions.get(robotID).remove(0);
-			return m;
-		}
-		return null;
-	}
-	
+
 	/**
 	 * Pop the first mission from the queue of a given robot, but do NOT remove the mission from the queue. 
 	 * @param robotID The ID of the robot.
@@ -606,8 +493,7 @@ public class Missions {
 	 */
 	public static Mission peekMission(int robotID) {
 		if (hasMissions(robotID) && !missions.get(robotID).isEmpty()) {
-			Mission m = missions.get(robotID).get(0);
-			return m;
+            return missions.get(robotID).get(0);
 		}
 		return null;
 	}
@@ -624,17 +510,6 @@ public class Missions {
 	}
 
 	/**
-	 * Normalize an angle to be within (-PI,PI].
-	 * @param th The angle to normalize
-	 * @return A value within (-PI,PI]
-	 */
-	public static double wrapAngle180a(double th) {
-		double ret = Math.atan2(Math.sin(th), Math.cos(th));
-		if (Math.abs(ret-Math.PI) < 0.00001) return Math.PI;
-		return ret;
-	}
-	
-	/**
 	 * Normalize an angle to be within [-PI,PI).
 	 * @param th The angle to normalize
 	 * @return A value within [-PI,PI)
@@ -643,35 +518,6 @@ public class Missions {
 		double ret = Math.atan2(Math.sin(th), Math.cos(th));
 		if (Math.abs(ret-Math.PI) < 0.00001) return -Math.PI;
 		return ret;
-	}
-
-	/**
-	 * Normalize an angle to be within [0,2*PI).
-	 * @param th The angle to normalize
-	 * @return A value within [0,2*PI)
-	 */
-	public static double wrapAngle360(double th) {
-		double ret = Math.atan2(Math.sin(th), Math.cos(th));
-		if (ret < 0) return ret+2*Math.PI;
-		return ret;
-	}
-
-	/**
-	 * Get the last placement along the {@link Trajectory} of a {@link TrajectoryEnvelope} that does
-	 * not overlap with the final pose of the robot.
-	 * @param te The trajectory envelope to search on
-	 * @return The last placement along the {@link Trajectory} of a {@link TrajectoryEnvelope} that does
-	 * not overlap with the final pose of the robot.
-	 */
-	public static Geometry getBackBlockingObstacle(TrajectoryEnvelope te) {
-		Trajectory traj = te.getTrajectory();
-		PoseSteering[] path = traj.getPoseSteering();
-		Geometry placementLast = te.makeFootprint(path[path.length-1]);
-		for (int i = path.length-2; i >= 0; i--) {
-			Geometry placement = te.makeFootprint(path[i]);
-			if (!placement.intersects(placementLast)) return placement;
-		}
-		return null;
 	}
 
 	/**
@@ -702,7 +548,7 @@ public class Missions {
 	
 	/**
 	 * Load a roadmap stored in a give directory or file.
-	 * @param fileName The directory or file to load the roadmap from.
+	 * @param path The directory or file to load the roadmap from.
 	 * If a directory is given, the filename is assumed to he "roadmap.txt"
 	 * (the same convention used in saving, see {@link #saveRoadMap(String)}).
 	 */
@@ -876,7 +722,7 @@ public class Missions {
 		return ret;
 	}
 
-	
+
 	/**
 	 * Get the mission following a given mission.
 	 * @param m A mission.
@@ -884,7 +730,7 @@ public class Missions {
 	 */
 	public static Mission getNextMission(Mission m) {
 		for (int i = 0; i < missions.get(m.getRobotID()).size(); i++) {
-			if (missions.get(m.getRobotID()).get(i).equals(m)) return missions.get(m.getRobotID()).get((i+1)%missions.get(m.getRobotID()).size()); 
+			if (missions.get(m.getRobotID()).get(i).equals(m)) return missions.get(m.getRobotID()).get((i+1)%missions.get(m.getRobotID()).size());
 		}
 		return null;
 	}
@@ -898,7 +744,7 @@ public class Missions {
 		for (int i = 0; i < missions.get(m.getRobotID()).size(); i++) {
 			if (missions.get(m.getRobotID()).get(i).equals(m)) {
 				if (i == 0) return missions.get(m.getRobotID()).get(missions.get(m.getRobotID()).size()-1);
-				return missions.get(m.getRobotID()).get((i-1)); 
+				return missions.get(m.getRobotID()).get((i-1));
 			}
 		}
 		return null;
@@ -908,7 +754,7 @@ public class Missions {
 	 * Get path files from the data loaded by method {@link Missions#loadLocationAndPathData(String)}.
 	 * @param fromLocation The name of the source location.
 	 * @param toLocation The name of the destination location.
-	 * @return The name of the file where the path is stored. 
+	 * @return The name of the file where the path is stored.
 	 */
 	@Deprecated
 	public static String getPathFile(String fromLocation, String toLocation) {
@@ -921,7 +767,7 @@ public class Missions {
 		//if (ret == null) throw new Error("No path between " + fromLocation + " and " + toLocation);
 		return ret;
 	}
-	
+
 	/**
 	 * Queries whether a path between two named locations is known.
 	 * @param fromLocation The source location.
@@ -1027,16 +873,16 @@ public class Missions {
         Collections.addAll(toAdd, m);
 		concatenatedMissions.put(m[0], toAdd);
 	}
-		
+
 	/**
 	 * Add a {@link MissionDispatchingCallback} which defines methods to be called before and after mission dispatching.
-	 * @param robotID The callback functions will be invoked whenever a mission for this robot is dispatched. 
+	 * @param robotID The callback functions will be invoked whenever a mission for this robot is dispatched.
 	 * @param cb The {@link MissionDispatchingCallback} to attach.
 	 */
 	public static void addMissionDispatchingCallback(int robotID, MissionDispatchingCallback cb) {
 		mdcs.put(robotID, cb);
 	}
-	
+
 	/**
 	 * Include the given robots in the periodic mission dispatching thread (and start the thread if it is not started).
 	 * The thread cycles through the known missions for each robot and dispatches as soon as the robot is free.
@@ -1222,6 +1068,101 @@ public class Missions {
 		startMissionDispatchers(tec, true, convertSetToIntArray(tec.getAllRobotIDs()));
 	}
 
+	public static void runMissionsIndefinitely(TrajectoryEnvelopeCoordinatorSimulation tec) {
+		// Initialize a common stoppage time map for all robots with Double values
+		Map<Integer, Double> commonStoppageTimes = new HashMap<>();
+		commonStoppageTimes.put(0, 0.25); // 0.25 minutes (15 seconds) for mission number 0
+//		commonStoppageTimes.put(1, 0.5);  // 0.5 minutes (30 seconds) for mission number 1
+
+        var executorService = Executors.newScheduledThreadPool(tec.getAllRobotIDs().size());
+		for (int robotID : convertSetToIntArray(tec.getAllRobotIDs())) {
+			executorService.execute(() -> {
+                var missionNumber = 0;
+				var missions = Missions.getMissions(robotID);
+                while (true) {
+					if (missionNumber >= missions.size()) missionNumber = 0;
+					missionNumber = handleMission(tec, missionNumber, missions);
+					delayBetweenMission(missionNumber, commonStoppageTimes);
+					threadSleep();
+				}
+			});
+		}
+	}
+
+	private static int handleMission(TrajectoryEnvelopeCoordinatorSimulation tec, int missionNumber, List<Mission> missions) {
+		var nextMission = missions.get(missionNumber);
+		synchronized (tec) {
+			if (tec.addMissions(nextMission)) {
+				missionNumber++;
+			}
+		}
+		return missionNumber;
+	}
+
+	private static void delayBetweenMission(int missionNumber, Map<Integer, Double> commonStoppageTimes) {
+		if (missionNumber > 0) { // Apply stoppage time after the first mission
+			double stoppageTimeInMinutes = commonStoppageTimes.getOrDefault(missionNumber - 1, 0.0);
+			long stoppageTimeInMillis = (long) (stoppageTimeInMinutes * 60 * 1000);
+			try {
+				TimeUnit.MILLISECONDS.sleep(stoppageTimeInMillis);
+			} catch (InterruptedException e) {
+				e.getMessage();
+			}
+		}
+	}
+
+	private static void threadSleep() {
+		try {
+			TimeUnit.MILLISECONDS.sleep(100);
+		} catch (InterruptedException e) {
+			e.getMessage();
+		}
+	}
+
+	public static void runMissionsOnce(TrajectoryEnvelopeCoordinatorSimulation tec) { //TODO: Assumption, This code assumes you have all the mission pre-planned and stored in the vehicles
+		// Initialize a common stoppage time map for all robots with Double values
+		Map<Integer, Double> commonStoppageTimes = new HashMap<>();
+		commonStoppageTimes.put(0, 0.25); // 0.25 minutes (15 seconds) for mission number 0
+//		commonStoppageTimes.put(1, 0.5);  // 0.5 minutes (30 seconds) for mission number 1
+
+		var executorService = Executors.newScheduledThreadPool(tec.getAllRobotIDs().size());
+		for (int robotID : convertSetToIntArray(tec.getAllRobotIDs())) {
+			executorService.execute(() -> {
+				var missionNumber = 0;
+				var missions = Missions.getMissions(robotID);
+                while (missionNumber < missions.size()) {
+                    missionNumber = handleMission(tec, missionNumber, missions);
+                    delayBetweenMission(missionNumber, commonStoppageTimes);
+                    threadSleep(); // FIXME: Check if need it?
+                }
+			});
+		}
+		executorService.shutdown();
+	}
+
+	public static void runMissionsForDuration(TrajectoryEnvelopeCoordinatorSimulation tec, int durationInMinutes) {
+		Map<Integer, Double> commonStoppageTimes = new HashMap<>();
+		commonStoppageTimes.put(0, 0.25); // 15 seconds for mission number 0
+		commonStoppageTimes.put(1, 0.5);  // 30 seconds for mission number 1
+
+		var executorService = Executors.newScheduledThreadPool(tec.getAllRobotIDs().size());
+		for (int robotID : convertSetToIntArray(tec.getAllRobotIDs())) {
+			executorService.execute(() -> {
+				var missionNumber = 0;
+				var missions = Missions.getMissions(robotID);
+				while (!Thread.currentThread().isInterrupted()) {
+					if (missionNumber >= missions.size()) missionNumber = 0;
+					missionNumber = handleMission(tec, missionNumber, missions);
+					delayBetweenMission(missionNumber, commonStoppageTimes);
+					threadSleep();
+				}
+			});
+		}
+		executorService.schedule(() -> {
+			executorService.shutdownNow();
+		}, durationInMinutes, TimeUnit.MINUTES);
+	}
+
 	/**
 	 * Adds robots for mission looping, i.e., assigns the looping status of the missions for each robot.
 	 * Robots of type {@code "AutonomousRobot"} have their missions set to loop.
@@ -1391,9 +1332,7 @@ public class Missions {
 		PoseSteering[] retArray = ret.toArray(new PoseSteering[ret.size()]);
 		return resamplePath(retArray);
 	}
-	
 
-	
 	/**
 	 * Create a mission following a given mission. The mission will make the follower robot navigate from its
 	 * current pose to the start pose of the leader's mission, after which the follower robot will follow the
@@ -1422,22 +1361,4 @@ public class Missions {
 		}
         return new Mission(followerID, followerPath);
 	}
-
-//	public static void enqueueMissionsFromMap(AutonomousVehicle vehicle) {
-//		Map<Integer, AbstractMap.SimpleEntry<PoseSteering[], Integer>> planSegmentsMap = vehicle.getPlanSegmentsMap();
-//
-//		for (Map.Entry<Integer, AbstractMap.SimpleEntry<PoseSteering[], Integer>> entry : planSegmentsMap.entrySet()) {
-//			var mission = new Mission(vehicle.getID(), entry.getValue().getKey());
-//			Missions.enqueueMission(mission);
-//		}
-//	}
-
-	public static Set<String> getAllGraphVertices() {
-		return graph.vertexSet();
-	}
-	
-	public static Set<DefaultWeightedEdge> getAllGraphEdges() {
-		return graph.edgeSet();
-	}
-
 }

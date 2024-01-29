@@ -3,7 +3,6 @@ package se.oru.coordination.coordination_oru.scenarios;
 import org.metacsp.multi.spatioTemporal.paths.Pose;
 import se.oru.coordination.coordination_oru.ConstantAccelerationForwardModel;
 import se.oru.coordination.coordination_oru.Mission;
-import se.oru.coordination.coordination_oru.motionplanning.ompl.ReedsSheppCarPlanner;
 import se.oru.coordination.coordination_oru.simulation2D.TrajectoryEnvelopeCoordinatorSimulation;
 import se.oru.coordination.coordination_oru.utils.BrowserVisualization;
 import se.oru.coordination.coordination_oru.utils.Heuristics;
@@ -104,7 +103,7 @@ public class ProductionCycleAutonomousMine {
         drillVehicle.getPlan(drillVehicle, YAML_FILE, false);
         chargingVehicle.getPlan(chargingVehicle, YAML_FILE, false);
         waterVehicle.getPlan(waterVehicle.getInitialPose(), waterVehicleGoal, YAML_FILE, false,
-                ReedsSheppCarPlanner.PLANNING_ALGORITHM.RRTConnect, 0.01, 120,
+                0.01, 120,
                 0.01, 0.1);
 
         Thread.sleep(5000);

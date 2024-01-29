@@ -21,7 +21,7 @@ public class ControllerMap {
 
     public void clickAddLocation() {
         var pose = new Pose(0, 0, 0);
-        var addPose = AddLocationDialog.add(pose.getX(), pose.getY());
+        var addPose = LocationDialog.add(pose.getX(), pose.getY());
         if (addPose != null) {
             var poseName = addPose.get(0);
             var orientation = Utils.getOrientation(addPose.get(1));
@@ -72,7 +72,7 @@ public class ControllerMap {
 
     public void doubleCLickLocation() {
         var poseName = scene.getLocations().getSelectionModel().getSelectedItem();
-        var pose = EditLocationDialog.edit(scene, poseName);
+        var pose = LocationDialog.edit(scene, poseName);
         if (pose != null) {
             scene.getMain().getDataStatus().getProjectData().getPoses().remove(poseName);
             var newPoseName = pose.get(0);

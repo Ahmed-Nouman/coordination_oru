@@ -127,7 +127,7 @@ public class TwoRobotsTotalOverlap {
 		rsp.setGoals(goalRobot22);
 		rsp.plan();
 		Mission m22 = new Mission(2,rsp.getPath());
-		m22.setStoppingPoint(rsp.getPath()[rsp.getPath().length-10].getPose(), 40000);
+//		m22.setStoppingPoint(rsp.getPath()[rsp.getPath().length-10].getPose(), 40000);
 		Missions.enqueueMission(m22);
 		
 		System.out.println("Added missions " + Missions.getMissions());

@@ -10,6 +10,7 @@ import se.oru.coordination.coordination_oru.motionplanning.OccupancyMap;
 import se.oru.coordination.coordination_oru.utils.Round;
 
 import java.awt.*;
+import java.util.Arrays;
 import java.util.List;
 
 public class InteractiveMap {
@@ -56,7 +57,7 @@ public class InteractiveMap {
         boolean occupancy = !map.isOccupied(point.x, point.y);
 
         if (occupancy) { //FIXME: Simplify this if statement. Maybe?
-            var annotatedPose = AddLocationDialog.add(position.x, position.y);
+            var annotatedPose = LocationDialog.add(position.x, position.y);
             if (annotatedPose != null) {
                 var poseName = annotatedPose.get(0);
                 var pose = parsePose(annotatedPose);
@@ -71,42 +72,10 @@ public class InteractiveMap {
     }
 
     private static Pose parsePose(List<String> annotatedPose) {
+        var theta = Math.toRadians(Double.parseDouble(annotatedPose.get(1)));
         var x = Double.parseDouble(annotatedPose.get(2));
         var y = Double.parseDouble(annotatedPose.get(3));
-        var theta = parseOrientation(annotatedPose);
         return new Pose(x, y, theta);
-    }
-
-    private static double parseOrientation(List<String> annotatedPose) {
-        var orientation = annotatedPose.get(1);
-        double theta;
-        switch (orientation) {
-            case "DOWN":
-                theta = 3 * Math.PI / 2;
-                break;
-            case "DOWN_RIGHT":
-                theta = 7 * Math.PI / 4;
-                break;
-            case "DOWN_LEFT":
-                theta = 5 * Math.PI / 4;
-                break;
-            case "LEFT":
-                theta = Math.PI;
-                break;
-            case "UP_LEFT":
-                theta = 3 * Math.PI / 4;
-                break;
-            case "UP":
-                theta = Math.PI / 2;
-                break;
-            case "UP_RIGHT":
-                theta = Math.PI / 4;
-                break;
-            default:
-                theta = 0;
-                break;
-        }
-        return theta;
     }
 
     public OccupancyMap getMap() {

@@ -1,7 +1,7 @@
 import os
 import pandas as pd
 
-root_directory = '../results/lookAheadPaper_2023/'
+root_directory = '../results/heuristicsPaper_2024/'
 
 def read_robot_csv(filepath):
     if not os.path.exists(filepath):
@@ -24,10 +24,10 @@ def get_time_spent(df):
         return 0
 
     # Filter rows where PathIndex is positive
-    active_df = df[df['PathIndex'] >= 0]
+    active_df = df[df['Velocity'] >= 0]
     
-    # Calculate active time based on the number of rows and the fact that each row is 0.25 seconds apart
-    total_active_time = len(active_df) * 0.25 / 60  # Convert to minutes
+    # Calculate active time based on the number of rows and the fact that each row is 0.10 seconds apart
+    total_active_time = len(active_df) * 0.10 / 60  # Convert to minutes
     return total_active_time
 
 def get_coordination_time(df):
@@ -37,8 +37,8 @@ def get_coordination_time(df):
     # Filter rows where CriticalPoint is non-negative
     coordination_df = df[df['CriticalPoint'] >= 0]
 
-    # Calculate coordination time based on the number of rows and the fact that each row is 0.25 seconds apart
-    total_coordination_time = len(coordination_df) * 0.25 / 60  # Convert to minutes
+    # Calculate coordination time based on the number of rows and the fact that each row is 0.10 seconds apart
+    total_coordination_time = len(coordination_df) * 0.10 / 60  # Convert to minutes
     return total_coordination_time
 
 if __name__ == "__main__":

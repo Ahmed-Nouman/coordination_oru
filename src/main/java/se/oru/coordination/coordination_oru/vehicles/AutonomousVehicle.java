@@ -36,12 +36,12 @@ public class AutonomousVehicle extends AbstractVehicle {
     }
 
     public AutonomousVehicle(Pose initialPose, Pose[] goalPoses) {
-        this(vehicleNumber, null, 1, Color.YELLOW, 5.0, 1.0, 30, 0.5, 0.5,
+        this(vehicleNumber, null, 1, Color.YELLOW, 10.0, 1.0, 30, 9.0, 6.0,
                 initialPose, goalPoses, 0, 0);
     }
 
     public AutonomousVehicle() {
-        this(vehicleNumber, null, 1, Color.YELLOW, 5.0, 1.0, 30, 0.5, 0.5,
+        this(vehicleNumber, null, 1, Color.YELLOW, 10.0, 1.0, 30, 9.0, 6.0,
                 null, null, 0, 0);
     }
 

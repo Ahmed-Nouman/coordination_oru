@@ -1,13 +1,11 @@
 package se.oru.coordination.coordination_oru;
 
-import javafx.util.Pair;
 import org.metacsp.multi.spatioTemporal.paths.Pose;
 import org.metacsp.multi.spatioTemporal.paths.PoseSteering;
 import se.oru.coordination.coordination_oru.utils.Missions;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 
 /**
  * The {@link Mission} data structure represents a goal for a robot, to be reached via a given
@@ -17,19 +15,18 @@ import java.util.List;
  *
  */
 public class Mission implements Comparable<Mission> {
-	protected static int NUMMISSIONS = 0;
+	protected static int NUM_MISSIONS = 0;
 	protected int robotID;
 	protected PoseSteering[] path;
-	private List<Pair<Pose, Integer>> stoppingPairs;
-	protected int order = NUMMISSIONS++;
+	protected int order = NUM_MISSIONS++;
 	protected String fromLocation = null;
 	protected String toLocation = null;
 	protected Pose fromPose = null;
 	protected Pose toPose = null;
-	protected ArrayList<Pose> stoppingPoints = new ArrayList<Pose>();
-	protected ArrayList<Integer> stoppingPointDurations = new ArrayList<Integer>();
+	protected ArrayList<Pose> stoppingPoints = new ArrayList<>();
+	protected ArrayList<Integer> stoppingPointDurations = new ArrayList<>();
 	//protected HashMap<Pose,Integer> stoppingPoints = new HashMap<Pose, Integer>();
-	
+
 	/**
 	 * Instantiates a {@link Mission} for a given robot to navigate between two locations, but where the path
 	 * is not given and should be computed subsequently (before adding the mission to the {@link TrajectoryEnvelopeCoordinator}).
@@ -69,19 +66,6 @@ public class Mission implements Comparable<Mission> {
 		this(robotID, path, fromLocation, toLocation, path[0].getPose(), path[path.length-1].getPose());
 	}
 
-
-	/**
-	 * Constructs a Mission object with the specified parameters.
-	 * It initializes the mission's robot ID, path, and stopping points with durations.
-	 *
-	 * @param robotID The ID of the robot.
-	 * @param path An array of {@link PoseSteering}s representing the path to be driven.
-	 * @param stoppingPointsWithDurations A List of Pairs, where each Pair consists of a Pose and its associated stopping duration.
-	 */
-	public Mission(int robotID, PoseSteering[] path, List<Pair<Pose, Integer>> stoppingPointsWithDurations) {
-		this(robotID, path);
-		this.stoppingPairs = stoppingPointsWithDurations;
-	}
 
 	/**
 	 * Make the robot stop at the nearest location to a given pose for a given duration.

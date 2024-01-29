@@ -213,7 +213,7 @@ public void clickDelete() {
     }
 
     public void clickAdd() {
-        AddMissionDialog.add(scene);
+        MissionDialog.add(scene);
     }
 
     public void clickDown() {
@@ -247,6 +247,6 @@ public void clickDelete() {
     }
 
     public void doubleCLickMission() {
-        EditMissionDialog.edit(scene);
+        MissionDialog.edit(scene);
     }
 }

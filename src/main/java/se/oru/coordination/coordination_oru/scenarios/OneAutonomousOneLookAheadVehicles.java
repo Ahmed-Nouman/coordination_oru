@@ -16,15 +16,16 @@ public class OneAutonomousOneLookAheadVehicles {
 
         double predictableDistance = 25.0;
         final Pose mainTunnelLeft = new Pose(4.25,15.35, -Math.PI);
-        final Pose mainTunnelRight = new Pose(80.05,24.75, Math.PI);
+        final Pose mainTunnelRight = new Pose(78.05,24.75, Math.PI);
         final Pose drawPoint21 = new Pose(52.95,87.75,-Math.PI/2);
         final Pose orePass = new Pose(54.35,11.25,-Math.PI/2);
         final String YAML_FILE = "maps/mine-map-test.yaml";
 
 
-        var autonomousVehicle = new AutonomousVehicle(drawPoint21, new Pose[] {orePass});
-        autonomousVehicle.setColor(Color.BLUE);
-        var lookAheadVehicle = new LookAheadVehicle(predictableDistance, mainTunnelLeft, new Pose[] {mainTunnelRight});
+        var autonomousVehicle = new AutonomousVehicle("A1",1, Color.YELLOW, 10.0, 1.0, 30,
+                0.9, 0.65, drawPoint21, new Pose[] {orePass}, 0, 0);
+        var lookAheadVehicle = new LookAheadVehicle("H1", 10, 1, Color.BLUE, 10.0, 1.0, 30,
+                0.9, 0.65, mainTunnelLeft, new Pose[] {mainTunnelRight}, 0, 0);
         autonomousVehicle.getPlan(autonomousVehicle, YAML_FILE, true);
         lookAheadVehicle.getPlan(lookAheadVehicle, YAML_FILE, true);
 
