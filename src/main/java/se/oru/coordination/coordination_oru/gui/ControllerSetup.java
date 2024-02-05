@@ -25,7 +25,7 @@ public class ControllerSetup {
         var heuristic = scene.getPriorityRuleField().getValue();
         if (heuristic != null) {
             switch (heuristic) {
-                case "MOST_DISTANCE_TRAVELLED":
+                 case "MOST_DISTANCE_TRAVELLED":
                     scene.getMain().getDataStatus().setHeuristics(new Heuristics(Heuristics.HeuristicType.MOST_DISTANCE_TRAVELLED));
                     break;
                 case "MOST_DISTANCE_TO_TRAVEL":
@@ -37,11 +37,23 @@ public class ControllerSetup {
                 case "HIGHEST_PRIORITY_FIRST":
                     scene.getMain().getDataStatus().setHeuristics(new Heuristics(Heuristics.HeuristicType.HIGHEST_PRIORITY_FIRST));
                     break;
+                case "HIGHEST_PRIORITY_AND_CLOSEST_FIRST":
+                    scene.getMain().getDataStatus().setHeuristics(new Heuristics(Heuristics.HeuristicType.HIGHEST_PRIORITY_AND_CLOSEST_FIRST));
+                    break;
                 case "HUMAN_FIRST":
                     scene.getMain().getDataStatus().setHeuristics(new Heuristics(Heuristics.HeuristicType.HUMAN_FIRST));
                     break;
+                case "HUMAN_AND_CLOSEST_FIRST":
+                    scene.getMain().getDataStatus().setHeuristics(new Heuristics(Heuristics.HeuristicType.HUMAN_AND_CLOSEST_FIRST));
+                    break;
                 case "AUTONOMOUS_FIRST":
                     scene.getMain().getDataStatus().setHeuristics(new Heuristics(Heuristics.HeuristicType.AUTONOMOUS_FIRST));
+                    break;
+                case "AUTONOMOUS_AND_CLOSEST_FIRST":
+                    scene.getMain().getDataStatus().setHeuristics(new Heuristics(Heuristics.HeuristicType.AUTONOMOUS_AND_CLOSEST_FIRST));
+                    break;
+                case "BIGGER_VEHICLE_FIRST":
+                    scene.getMain().getDataStatus().setHeuristics(new Heuristics(Heuristics.HeuristicType.BIGGER_VEHICLE_FIRST));
                     break;
                 default:
                     scene.getMain().getDataStatus().setHeuristics(new Heuristics(Heuristics.HeuristicType.CLOSEST_FIRST));

@@ -105,7 +105,7 @@ public abstract class AbstractVehicle {
 
     public void getPlan(AbstractVehicle vehicle, String map, Boolean inversePath) {
         if (vehicle.initialPose != null && vehicle.goalPoses != null)
-            getPlan(vehicle.initialPose, vehicle.goalPoses, map, inversePath, 0.02, 60, 1.0, 0.1);
+            getPlan(vehicle.initialPose, vehicle.goalPoses, map, inversePath, 0.09, 60, 3.5, 0.1);
     }
 
     public void getPlan(Pose initialPose, Pose[] goalPoses, String map, Boolean inversePath,

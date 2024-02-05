@@ -94,7 +94,7 @@ public class SceneSetup {
     private void setupFields() {
         var pathPlanners = List.of("Fast (RRTConnect)", "Optimal (RRT*)");
         pathPlannerField = choiceBox(pathPlanners, 0);
-        var priorityRules = Heuristics.getAllHeuristicNames();
+        var priorityRules = Heuristics.getHeuristicNames();
         priorityRuleField = choiceBox(priorityRules, 1);
         simulationTimeField = textField(4);
         simulationTimeField.setText("30");

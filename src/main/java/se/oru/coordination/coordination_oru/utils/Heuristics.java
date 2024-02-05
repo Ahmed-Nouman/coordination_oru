@@ -5,10 +5,7 @@ import se.oru.coordination.coordination_oru.RobotAtCriticalSection;
 import se.oru.coordination.coordination_oru.RobotReport;
 import se.oru.coordination.coordination_oru.vehicles.VehiclesHashMap;
 
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Random;
+import java.util.*;
 
 import static se.oru.coordination.coordination_oru.vehicles.AbstractVehicle.calculateFootprintArea;
 
@@ -42,10 +39,16 @@ public class Heuristics {
                 return random();
             case HIGHEST_PRIORITY_FIRST:
                 return highestPriorityFirst();
+            case HIGHEST_PRIORITY_AND_CLOSEST_FIRST:
+                return highestPriorityAndClosestFirst();
             case HUMAN_FIRST:
                 return humanFirst();
+            case HUMAN_AND_CLOSEST_FIRST:
+                return humanAndClosestFirst();
             case AUTONOMOUS_FIRST:
                 return autonomousFirst();
+            case AUTONOMOUS_AND_CLOSEST_FIRST:
+                return autonomousAndClosestFirst();
             case BIGGER_VEHICLE_FIRST:
                 return biggerVehicleFirst();
             default:
@@ -53,17 +56,11 @@ public class Heuristics {
         }
     }
 
-    public static List<String> getAllHeuristicNames() {
-        List<String> heuristicNames = new ArrayList<>();
-        heuristicNames.add("CLOSEST_FIRST");
-        heuristicNames.add("AUTONOMOUS_FIRST");
-        heuristicNames.add("BIGGER_VEHICLE_FIRST");
-        heuristicNames.add("HUMAN_FIRST");
-        heuristicNames.add("HIGHEST_PRIORITY_FIRST");
-        heuristicNames.add("MOST_DISTANCE_TO_TRAVEL");
-        heuristicNames.add("MOST_DISTANCE_TRAVELLED");
-        heuristicNames.add("RANDOM");
-        return heuristicNames;
+    public static ArrayList<String> getHeuristicNames() {
+        var types = HeuristicType.values();
+        var names = new ArrayList<String>();
+        for (HeuristicType type : types) names.add(type.name());
+        return names;
     }
 
     /**
@@ -146,6 +143,16 @@ public class Heuristics {
         };
     }
 
+    public Comparator<RobotAtCriticalSection> highestPriorityAndClosestFirst() {
+        heuristicName = "HIGHEST_PRIORITY_AND_CLOSEST_FIRST";
+        return (robot1, robot2) -> {
+            int priority1 = VehiclesHashMap.getVehicle(robot1.getRobotReport().getRobotID()).getPriority();
+            int priority2 = VehiclesHashMap.getVehicle(robot2.getRobotReport().getRobotID()).getPriority();
+            if (priority1 == priority2) return closestFirst().compare(robot1, robot2);
+            return (int) Math.signum(priority2 - priority1);
+        };
+    }
+
     /**
      * Returns a comparator for determining the order based on whether the robot is a look-ahead robot.
      * Humans are given priority over other robots.
@@ -165,6 +172,22 @@ public class Heuristics {
                 return 1;
             } else {
                 return 0;
+            }
+        };
+    }
+
+    public Comparator<RobotAtCriticalSection> humanAndClosestFirst() {
+        heuristicName = "HUMAN_AND_CLOSEST_FIRST";
+        return (robot1, robot2) -> {
+            boolean isO1LookAhead = VehiclesHashMap.getVehicle(robot1.getRobotReport().getRobotID()).getClass().getSimpleName().equals("LookAheadVehicle");
+            boolean isO2LookAhead = VehiclesHashMap.getVehicle(robot2.getRobotReport().getRobotID()).getClass().getSimpleName().equals("LookAheadVehicle");
+
+            if (isO1LookAhead && !isO2LookAhead) {
+                return -1;
+            } else if (!isO1LookAhead && isO2LookAhead) {
+                return 1;
+            } else {
+                return closestFirst().compare(robot1, robot2);
             }
         };
     }
@@ -192,6 +215,22 @@ public class Heuristics {
         };
     }
 
+    public Comparator<RobotAtCriticalSection> autonomousAndClosestFirst() {
+        heuristicName = "AUTONOMOUS_AND_CLOSEST_FIRST";
+        return (robot1, robot2) -> {
+            boolean isO1Autonomous = VehiclesHashMap.getVehicle(robot1.getRobotReport().getRobotID()).getClass().getSimpleName().equals("AutonomousVehicle");
+            boolean isO2Autonomous = VehiclesHashMap.getVehicle(robot2.getRobotReport().getRobotID()).getClass().getSimpleName().equals("AutonomousVehicle");
+
+            if (isO1Autonomous && !isO2Autonomous) {
+                return -1;
+            } else if (!isO1Autonomous && isO2Autonomous) {
+                return 1;
+            } else {
+                return closestFirst().compare(robot1, robot2);
+            }
+        };
+    }
+
     public Comparator<RobotAtCriticalSection> biggerVehicleFirst() {
         heuristicName = "BIGGER_VEHICLE_FIRST";
         return (robot1, robot2) -> {
@@ -215,8 +254,11 @@ public class Heuristics {
         MOST_DISTANCE_TO_TRAVEL,
         RANDOM,
         HIGHEST_PRIORITY_FIRST,
+        HIGHEST_PRIORITY_AND_CLOSEST_FIRST,
         HUMAN_FIRST,
+        HUMAN_AND_CLOSEST_FIRST,
         AUTONOMOUS_FIRST,
+        AUTONOMOUS_AND_CLOSEST_FIRST,
         BIGGER_VEHICLE_FIRST
     }
 

@@ -4,6 +4,7 @@ import org.metacsp.multi.spatioTemporal.paths.Pose;
 import org.metacsp.multi.spatioTemporal.paths.PoseSteering;
 import se.oru.coordination.coordination_oru.ConstantAccelerationForwardModel;
 import se.oru.coordination.coordination_oru.Mission;
+import se.oru.coordination.coordination_oru.motionplanning.ompl.ReedsSheppCarPlanner;
 import se.oru.coordination.coordination_oru.simulation2D.TrajectoryEnvelopeCoordinatorSimulation;
 import se.oru.coordination.coordination_oru.utils.BrowserVisualization;
 import se.oru.coordination.coordination_oru.utils.Heuristics;
@@ -20,16 +21,17 @@ import java.util.Collections;
 public class HeuristicsPaperScenario {
 
     public static final String YAML_FILE = "maps/mine-map-heuristic-paper.yaml";
-    public static final Heuristics.HeuristicType HEURISTIC_TYPE = Heuristics.HeuristicType.RANDOM;
+    public static final Heuristics.HeuristicType HEURISTIC_TYPE = Heuristics.HeuristicType.CLOSEST_FIRST;
+    public static final ReedsSheppCarPlanner.PLANNING_ALGORITHM PLANNING_ALGORITHM = ReedsSheppCarPlanner.PLANNING_ALGORITHM.RRTstar;
     public static final double LENGTH = 9.0;
     public static final double WIDTH = 6.5;
-    public static final double MAX_VELOCITY = 40.0;
-    public static final double MAX_ACCELERATION = 10.0;
+    public static final double MAX_VELOCITY = 10.0;
+    public static final double MAX_ACCELERATION = 1.0;
     public static final boolean VISUALIZATION = true;
     public static final boolean WRITE_VEHICLE_REPORTS = true;
     public static final double REPORTING_TIME = 0.1;
     public static final int INFERENCE_CYCLE_TIME = 100;
-    public static final int REPORTING_INTERVAL = 3;
+    public static final int REPORTING_INTERVAL = 30;
     public static final int TRACKING_PERIOD = 30;
     public static final String reportAddress = "/src/main/java/se/oru/coordination/coordination_oru/results/heuristicsPaper_2024";
     public static final double UP = Math.PI / 2;
@@ -54,7 +56,7 @@ public class HeuristicsPaperScenario {
         final var width = WIDTH / scaleAdjustment;
 
         final var mainTunnelLeft = new Pose(3.35, 13.85, UP_RIGHT);
-        final var mainTunnelRight = new Pose(80.05, 26.25, DOWN_RIGHT);
+        final var mainTunnelRight = new Pose(80.05, 26.25, UP_RIGHT);
         final var drawPoint1 = new Pose(10.35, 56.75, DOWN);
         final var drawPoint2 = new Pose(20.55, 50.75, LEFT);
         final var drawPoint3 = new Pose(26.95, 56.15, DOWN);
@@ -63,26 +65,31 @@ public class HeuristicsPaperScenario {
         final var drawPoint6 = new Pose(54.65, 55.95, LEFT);
         final var drawPoint7 = new Pose(61.35, 50.65, DOWN);
         final var drawPoint8 = new Pose(69.55, 48.95, DOWN);
-        final var orePass = new Pose(39.95, 9.15, UP);
+        final var orePass = new Pose(39.95, 9.15, DOWN);
 
         var productionVehicle1 = new AutonomousVehicle("P1",0, Color.YELLOW, maxVelocity, maxAcceleration, TRACKING_PERIOD,
                 length, width, drawPoint1, new Pose[] {orePass}, 0, 0);
+        productionVehicle1.setPlanningAlgorithm(PLANNING_ALGORITHM);
 //        var productionVehicle2 = new AutonomousVehicle("P2", 0, Color.YELLOW, maxVelocity, maxAcceleration, TRACKING_PERIOD,
 //                length, width, drawPoint2, new Pose[] {orePass}, 0, 0);
         var productionVehicle3 = new AutonomousVehicle("P3", 0, Color.YELLOW, maxVelocity, maxAcceleration, TRACKING_PERIOD,
                 length, width, drawPoint3, new Pose[] {orePass}, 0, 0);
+        productionVehicle1.setPlanningAlgorithm(PLANNING_ALGORITHM);
 //        var productionVehicle4 = new AutonomousVehicle("P4", 0, Color.YELLOW, maxVelocity, maxAcceleration, TRACKING_PERIOD,
 //                length, width, drawPoint4, new Pose[] {orePass}, 0, 0);
         var productionVehicle5 = new AutonomousVehicle("P5", 0, Color.YELLOW, maxVelocity, maxAcceleration, TRACKING_PERIOD,
                 length, width, drawPoint5, new Pose[] {orePass}, 0, 0);
+        productionVehicle5.setPlanningAlgorithm(PLANNING_ALGORITHM);
 //        var productionVehicle6 = new AutonomousVehicle("P6", 0, Color.YELLOW, maxVelocity, maxAcceleration, TRACKING_PERIOD,
 //                length, width, drawPoint6, new Pose[] {orePass}, 0, 0);
         var productionVehicle7 = new AutonomousVehicle("P7", 0, Color.YELLOW, maxVelocity, maxAcceleration, TRACKING_PERIOD,
                 length, width, drawPoint7, new Pose[] {orePass}, 0, 0);
+        productionVehicle7.setPlanningAlgorithm(PLANNING_ALGORITHM);
 //        var productionVehicle8 = new AutonomousVehicle("P8", 0, Color.YELLOW, maxVelocity, maxAcceleration, TRACKING_PERIOD,
 //                length, width, drawPoint8, new Pose[] {orePass}, 0, 0);
-        var serviceVehicle = new AutonomousVehicle("S1", 0,  Color.GREEN, maxVelocity, maxAcceleration,
+        var serviceVehicle = new AutonomousVehicle("S1", 1,  Color.GREEN, maxVelocity, maxAcceleration,
                 TRACKING_PERIOD, length, width, mainTunnelLeft, new Pose[] {mainTunnelRight}, 0, 0);
+        serviceVehicle.setPlanningAlgorithm(PLANNING_ALGORITHM);
 
         productionVehicle1.getPlan(productionVehicle1, YAML_FILE, true);
 //        productionVehicle2.getPlan(productionVehicle2, YAML_FILE, false);
@@ -193,6 +200,7 @@ public class HeuristicsPaperScenario {
 //        Missions.enqueueMission(m9Back);
         Missions.setMap(YAML_FILE);
 //        Missions.runMissionsOnce(tec);
+//        Missions.runMissionsIndefinitely(tec);
 //        Missions.startMissionDispatchers(tec);
         Missions.startMissionDispatchers(tec, WRITE_VEHICLE_REPORTS, REPORTING_TIME, REPORTING_INTERVAL, heuristicName,
                 INFERENCE_CYCLE_TIME, reportsFolder, scaleAdjustment);
