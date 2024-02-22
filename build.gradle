@@ -27,7 +27,7 @@ plugins {
   id 'maven'
 }
 
-mainClassName = 'se.oru.coordination.coordination_oru.gui.GUI'
+mainClassName = 'se.oru.coordination.coordination_oru.gui.Main'
 version = '0.6.3'
 group = 'se.oru.coordination'
 
@@ -49,12 +49,12 @@ javafx{
 
 jar {
   manifest {
-    attributes('Main-Class': 'se.oru.coordination.coordination_oru.gui.GUI')
+    attributes('Main-Class': 'se.oru.coordination.coordination_oru.gui.Main')
   }
 }
 
 shadowJar {
-  archiveBaseName.set('MyApp')
+  archiveBaseName.set('Coordination_ORU_GUI')
   archiveVersion.set('0.0.1')
   archiveClassifier.set('')
 }

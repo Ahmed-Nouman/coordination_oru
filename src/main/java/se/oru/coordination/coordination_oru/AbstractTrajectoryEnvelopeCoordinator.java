@@ -19,6 +19,7 @@ import org.metacsp.utility.logging.MetaCSPLogging;
 import se.oru.coordination.coordination_oru.motionplanning.AbstractMotionPlanner;
 import se.oru.coordination.coordination_oru.utils.FleetVisualization;
 import se.oru.coordination.coordination_oru.utils.StringUtils;
+import se.oru.coordination.coordination_oru.vehicles.VehiclesHashMap;
 
 import javax.swing.*;
 import java.io.File;
@@ -136,6 +137,7 @@ public abstract class AbstractTrajectoryEnvelopeCoordinator {
 	//State knowledge
 
 	protected HashMap<Integer,Boolean> isDriving = new HashMap<Integer, Boolean>();
+
 	/**
 	 * Get the envelopes representing robots that are not idle.
 	 * @return Envelopes representing robots that are not idle.
@@ -155,7 +157,7 @@ public abstract class AbstractTrajectoryEnvelopeCoordinator {
 	@Deprecated
 	public ArrayList<SpatialEnvelope> getDrivingEnvelope() {
 		//Collect all driving envelopes and current pose indices
-		ArrayList<SpatialEnvelope> drivingEnvelopes = new ArrayList<SpatialEnvelope>();
+		ArrayList<SpatialEnvelope> drivingEnvelopes = new ArrayList<>();
 		for (AbstractTrajectoryEnvelopeTracker atet : trackers.values()) {
 			if (!(atet instanceof TrajectoryEnvelopeTrackerDummy)) {
 				drivingEnvelopes.add(atet.getTrajectoryEnvelope().getSpatialEnvelope());
@@ -752,14 +754,15 @@ public abstract class AbstractTrajectoryEnvelopeCoordinator {
 	protected int getCriticalPoint(int yieldingRobotID, CriticalSection cs, int leadingRobotCurrentPathIndex) {
 
 		//Number of additional path points robot 2 should stay behind robot 1
-		int TRAILING_PATH_POINTS = 3;
+        var TRAILING_PATH_POINTS = 25;
+		//FIXME: This is where the safety distance needs to be applied. This is only applicable to all the robots? Can we make it individual agent possible?
 
-		int leadingRobotStart = -1;
-		int yieldingRobotStart = -1;
-		int leadingRobotEnd = -1;
-		int yieldingRobotEnd = -1;
-		TrajectoryEnvelope leadingRobotTE = null;
-		TrajectoryEnvelope yieldingRobotTE = null;
+        var leadingRobotStart = -1;
+        var yieldingRobotStart = -1;
+        var leadingRobotEnd = -1;
+        var yieldingRobotEnd = -1;
+		TrajectoryEnvelope leadingRobotTE;
+		TrajectoryEnvelope yieldingRobotTE;
 		if (cs.getTrajectoryEnvelope1().getRobotID() == yieldingRobotID) {
 			leadingRobotStart = cs.getTrajectoryEnvelopeStart2();
 			yieldingRobotStart = cs.getTrajectoryEnvelopeStart1();
@@ -782,11 +785,11 @@ public abstract class AbstractTrajectoryEnvelopeCoordinator {
 		}
 
 		//Compute sweep of robot 1's footprint from current position to LOOKAHEAD
-		Pose leadingRobotPose = leadingRobotTE.getTrajectory().getPose()[leadingRobotCurrentPathIndex];
-		Geometry leadingRobotInPose = TrajectoryEnvelope.getFootprint(leadingRobotTE.getFootprint(), leadingRobotPose.getX(), leadingRobotPose.getY(), leadingRobotPose.getTheta());
+        var leadingRobotPose = leadingRobotTE.getTrajectory().getPose()[leadingRobotCurrentPathIndex];
+        var leadingRobotInPose = TrajectoryEnvelope.getFootprint(leadingRobotTE.getFootprint(), leadingRobotPose.getX(), leadingRobotPose.getY(), leadingRobotPose.getTheta());
 		if (leadingRobotCurrentPathIndex <= leadingRobotEnd) {
 			for (int i = leadingRobotCurrentPathIndex+1; i <= leadingRobotEnd; i++) {
-				Pose leadingRobotNextPose = leadingRobotTE.getTrajectory().getPose()[i];
+                var leadingRobotNextPose = leadingRobotTE.getTrajectory().getPose()[i];
 				try {
 					leadingRobotInPose = leadingRobotInPose.union(TrajectoryEnvelope.getFootprint(leadingRobotTE.getFootprint(), leadingRobotNextPose.getX(), leadingRobotNextPose.getY(), leadingRobotNextPose.getTheta()));
 				} catch (Exception e) { e.printStackTrace(); }
@@ -795,8 +798,8 @@ public abstract class AbstractTrajectoryEnvelopeCoordinator {
 
 		//Return pose at which yielding robot should stop given driving robot's projected sweep
 		for (int i = yieldingRobotStart; i <= yieldingRobotEnd; i++) {
-			Pose yieldingRobotPose = yieldingRobotTE.getTrajectory().getPose()[i];
-			Geometry yieldingRobotInPose = TrajectoryEnvelope.getFootprint(yieldingRobotTE.getFootprint(), yieldingRobotPose.getX(), yieldingRobotPose.getY(), yieldingRobotPose.getTheta());
+            var yieldingRobotPose = yieldingRobotTE.getTrajectory().getPose()[i];
+            var yieldingRobotInPose = TrajectoryEnvelope.getFootprint(yieldingRobotTE.getFootprint(), yieldingRobotPose.getX(), yieldingRobotPose.getY(), yieldingRobotPose.getTheta());
 			if (leadingRobotInPose.intersects(yieldingRobotInPose)) {
 				return Math.max(0, i-TRAILING_PATH_POINTS);
 			}
@@ -805,7 +808,6 @@ public abstract class AbstractTrajectoryEnvelopeCoordinator {
 		//The only situation where the above has not returned is when robot 2 should
 		//stay "parked", therefore wait at index 0
 		return Math.max(0, yieldingRobotStart-TRAILING_PATH_POINTS);
-
 	}
 
 	/**
@@ -858,7 +860,7 @@ public abstract class AbstractTrajectoryEnvelopeCoordinator {
 
 	protected Geometry[] getObstaclesInCriticalPoints(int ... robotIDs) {
 		//Compute one obstacle per given robot, placed in the robot's waiting pose
-		ArrayList<Geometry> ret = new ArrayList<Geometry>();
+        var ret = new ArrayList<Geometry>();
 		for (int robotID : robotIDs) {
 			AbstractTrajectoryEnvelopeTracker tracker = null;
 			synchronized(trackers) {

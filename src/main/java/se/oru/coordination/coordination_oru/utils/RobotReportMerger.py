@@ -28,8 +28,8 @@ for subdir, _, files in os.walk(base_directory):
             for num in robot_numbers:
                 fieldnames.append(f'{metric}_{num}(m/s)' if metric == 'V' else f'{metric}_{num}')
         
-        # for i in range(1, highest_robot_num):
-            # fieldnames.append(f'DS_{i}(m)')
+        for i in range(1, highest_robot_num):
+            fieldnames.append(f'DS_{i}(m)')
 
         writer = csv.DictWriter(outfile, fieldnames=fieldnames)
         writer.writeheader()
@@ -52,14 +52,14 @@ for subdir, _, files in os.walk(base_directory):
                     robot_positions[robot_num].append((float(row['Pose_X']), float(row['Pose_Y'])))
 
         # Calculate DH_i for each row
-        # for idx, row in enumerate(all_rows):
-            # for i in range(1, highest_robot_num):
-                # if idx >= len(robot_positions[i]) or idx >= len(robot_positions[highest_robot_num]):
-                    # continue  # Skip the calculation if the index is out of range for either robot.
-                # position_i = robot_positions[i][idx]
-                # position_x = robot_positions[highest_robot_num][idx]
-                # distance = compute_distance(position_i[0], position_i[1], position_x[0], position_x[1])
-                # row[f'DS_{i}(m)'] = round(distance, 1)
+        for idx, row in enumerate(all_rows):
+            for i in range(1, highest_robot_num):
+                if idx >= len(robot_positions[i]) or idx >= len(robot_positions[highest_robot_num]):
+                    continue  # Skip the calculation if the index is out of range for either robot.
+                position_i = robot_positions[i][idx]
+                position_x = robot_positions[highest_robot_num][idx]
+                distance = compute_distance(position_i[0], position_i[1], position_x[0], position_x[1])
+                row[f'DS_{i}(m)'] = round(10 * distance, 1)
 
         writer.writerows(all_rows)
 

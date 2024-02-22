@@ -377,16 +377,16 @@ public class Missions {
 	 */
 	public static PoseSteering[] getShortestPath(String ... locations) {
 		if (locations.length < 2) throw new Error("Please provide at least two locations for path extraction!");
-		DijkstraShortestPath<String, DefaultWeightedEdge> dijkstraShortestPath = new DijkstraShortestPath<String, DefaultWeightedEdge>(graph);
-		ArrayList<PoseSteering> overallShortestPath = new ArrayList<PoseSteering>();
+        var dijkstraShortestPath = new DijkstraShortestPath<>(graph);
+        var overallShortestPath = new ArrayList<PoseSteering>();
 		for (int k = 0; k < locations.length-1; k++) {
-		    GraphPath<String, DefaultWeightedEdge> gp = dijkstraShortestPath.getPath(locations[k], locations[k+1]);			
+            var gp = dijkstraShortestPath.getPath(locations[k], locations[k+1]);
 		    if (gp == null) return null;
-		    List<String> oneShortestPath = gp.getVertexList();
-		    ArrayList<PoseSteering> allPoses = new ArrayList<PoseSteering>();
+            var oneShortestPath = gp.getVertexList();
+            var allPoses = new ArrayList<PoseSteering>();
 		    for (int i = 0; i < oneShortestPath.size()-1; i++) {
 		    	//PoseSteering[] onePath = loadKnownPath(oneShortestPath.get(i),oneShortestPath.get(i+1));
-		    	PoseSteering[] onePath = paths.get(oneShortestPath.get(i)+"->"+oneShortestPath.get(i+1));
+                var onePath = paths.get(oneShortestPath.get(i)+"->"+oneShortestPath.get(i+1));
 		    	if (i == 0) allPoses.add(onePath[0]);
                 allPoses.addAll(Arrays.asList(onePath).subList(1, onePath.length - 1));
 		    	if (i == oneShortestPath.size()-2) allPoses.add(onePath[onePath.length-1]);
@@ -641,7 +641,6 @@ public class Missions {
         }
         catch (Exception ex) { ex.printStackTrace(); }
 	}
-	
 
 	/**
 	 * Add a path to the set of known paths.

@@ -49,6 +49,7 @@ public abstract class AbstractVehicle {
     private Map<Pose, Double> missions;
     private int missionRepetition;
     private double safetyDistance;
+    private double safetyPathPoints;
     private PoseSteering[] path;
     private double pathLength;
     private ReedsSheppCarPlanner.PLANNING_ALGORITHM planningAlgorithm;
@@ -105,7 +106,7 @@ public abstract class AbstractVehicle {
 
     public void getPlan(AbstractVehicle vehicle, String map, Boolean inversePath) {
         if (vehicle.initialPose != null && vehicle.goalPoses != null)
-            getPlan(vehicle.initialPose, vehicle.goalPoses, map, inversePath, 0.09, 60, 3.5, 0.1);
+            getPlan(vehicle.initialPose, vehicle.goalPoses, map, inversePath, 0.09, 60, 2.0, 0.1);
     }
 
     public void getPlan(Pose initialPose, Pose[] goalPoses, String map, Boolean inversePath,
@@ -272,6 +273,7 @@ public abstract class AbstractVehicle {
     public void setPath(PoseSteering[] path) {
         this.path = path;
         setPlanLength(path);
+        setSafetyPathPoints();
     }
 
     public void setLength(double length) {
@@ -393,5 +395,13 @@ public abstract class AbstractVehicle {
 
     public void setPlanningAlgorithm(ReedsSheppCarPlanner.PLANNING_ALGORITHM planningAlgorithm) {
         this.planningAlgorithm = planningAlgorithm;
+    }
+
+    public double getSafetyPathPoints() {
+        return safetyPathPoints;
+    }
+
+    public void setSafetyPathPoints() { //FIXME: Need to change the safety distance from 0.5 to 5.0
+        if (this.path != null) this.safetyPathPoints = (int) Math.round(pathLength / safetyDistance);
     }
 }

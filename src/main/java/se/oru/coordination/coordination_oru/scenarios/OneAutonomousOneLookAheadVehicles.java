@@ -24,7 +24,7 @@ public class OneAutonomousOneLookAheadVehicles {
 
         var autonomousVehicle = new AutonomousVehicle("A1",1, Color.YELLOW, 10.0, 1.0, 30,
                 0.9, 0.65, drawPoint21, new Pose[] {orePass}, 0, 0);
-        var lookAheadVehicle = new LookAheadVehicle("H1", 10, 1, Color.BLUE, 10.0, 1.0, 30,
+        var lookAheadVehicle = new AutonomousVehicle("H1", 1, Color.BLUE, 10.0, 1.0, 30,
                 0.9, 0.65, mainTunnelLeft, new Pose[] {mainTunnelRight}, 0, 0);
         autonomousVehicle.getPlan(autonomousVehicle, YAML_FILE, true);
         lookAheadVehicle.getPlan(lookAheadVehicle, YAML_FILE, true);
@@ -51,9 +51,9 @@ public class OneAutonomousOneLookAheadVehicles {
         viz.setInitialTransform(11, 45, -3.5);
         tec.setVisualization(viz);
 
-        var lookAheadVehicleInitialPlan = lookAheadVehicle.getLimitedPath(lookAheadVehicle.getID(), predictableDistance, tec);
+//        var lookAheadVehicleInitialPlan = lookAheadVehicle.getLimitedPath(lookAheadVehicle.getID(), predictableDistance, tec);
         var m1 = new Mission(autonomousVehicle.getID(), autonomousVehicle.getPath());
-        var m2 = new Mission(lookAheadVehicle.getID(), lookAheadVehicleInitialPlan);
+        var m2 = new Mission(lookAheadVehicle.getID(), lookAheadVehicle.getPath());
 
         Missions.enqueueMission(m1);
         Missions.enqueueMission(m2);

@@ -21,14 +21,14 @@ import java.util.Collections;
 public class HeuristicsPaperScenario {
 
     public static final String YAML_FILE = "maps/mine-map-heuristic-paper.yaml";
-    public static final Heuristics.HeuristicType HEURISTIC_TYPE = Heuristics.HeuristicType.CLOSEST_FIRST;
-    public static final ReedsSheppCarPlanner.PLANNING_ALGORITHM PLANNING_ALGORITHM = ReedsSheppCarPlanner.PLANNING_ALGORITHM.RRTstar;
+    public static final Heuristics.HeuristicType HEURISTIC_TYPE = Heuristics.HeuristicType.HIGHEST_PRIORITY_AND_CLOSEST_FIRST;
+    public static final ReedsSheppCarPlanner.PLANNING_ALGORITHM PLANNING_ALGORITHM = ReedsSheppCarPlanner.PLANNING_ALGORITHM.RRTConnect;
     public static final double LENGTH = 9.0;
-    public static final double WIDTH = 6.5;
-    public static final double MAX_VELOCITY = 10.0;
-    public static final double MAX_ACCELERATION = 1.0;
+    public static final double WIDTH = 7.0;
+    public static final double MAX_VELOCITY = 30.0;
+    public static final double MAX_ACCELERATION = 5.0;
     public static final boolean VISUALIZATION = true;
-    public static final boolean WRITE_VEHICLE_REPORTS = true;
+    public static final boolean WRITE_VEHICLE_REPORTS = false;
     public static final double REPORTING_TIME = 0.1;
     public static final int INFERENCE_CYCLE_TIME = 100;
     public static final int REPORTING_INTERVAL = 30;
@@ -156,7 +156,7 @@ public class HeuristicsPaperScenario {
             var viz = new BrowserVisualization();
             viz.setMap(YAML_FILE);
             viz.setFontScale(2.75);
-            viz.setInitialTransform(11.0, 23.0, 23.0);
+            viz.setInitialTransform(11.0, 16.18, 22.50);
             tec.setVisualization(viz);
         }
         var m1 = new Mission(productionVehicle1.getID(), productionVehicle1.getPath());
@@ -183,6 +183,7 @@ public class HeuristicsPaperScenario {
 //        var m9Inv = new ArrayList<>(Arrays.asList(serviceVehicle.getPath()));
 //        Collections.reverse(m9Inv);
 //        var m9Back = new Mission(serviceVehicle.getID(), m9Inv.toArray(new PoseSteering[0]));
+//        Missions.saveRoadMap("missions/gg");
 
         Missions.enqueueMission(m1);
 //        Missions.enqueueMission(m1Back);

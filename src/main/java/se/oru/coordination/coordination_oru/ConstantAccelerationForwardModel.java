@@ -4,6 +4,7 @@ import org.metacsp.multi.spatioTemporal.paths.Pose;
 import org.metacsp.multi.spatioTemporal.paths.Trajectory;
 import org.metacsp.multi.spatioTemporal.paths.TrajectoryEnvelope;
 import se.oru.coordination.coordination_oru.simulation2D.State;
+import se.oru.coordination.coordination_oru.simulation2D.TrajectoryEnvelopeTrackerRK4;
 
 public class ConstantAccelerationForwardModel implements ForwardModel {
 		
@@ -70,18 +71,18 @@ public class ConstantAccelerationForwardModel implements ForwardModel {
 	
 	@Override
 	public int getEarliestStoppingPathIndex(TrajectoryEnvelope te, RobotReport currentState) {
-		State state = new State(currentState.getDistanceTraveled(), currentState.getVelocity());
+        var state = new State(currentState.getDistanceTraveled(), currentState.getVelocity());
 		double time = 0.0;
 		double deltaTime = 0.0001;
 		long lookaheadInMillis = this.controlPeriodInMillis + 2L *(TrajectoryEnvelopeCoordinator.MAX_TX_DELAY + trackingPeriodInMillis);
 		if (lookaheadInMillis > 0) {
 			while (time*temporalResolution < lookaheadInMillis) {
-				se.oru.coordination.coordination_oru.simulation2D.TrajectoryEnvelopeTrackerRK4.integrateRK4(state, time, deltaTime, false, maxVel, 1.0, maxAccel*1.1);
+				TrajectoryEnvelopeTrackerRK4.integrateRK4(state, time, deltaTime, false, maxVel, 1.0, maxAccel*1.1);
 				time += deltaTime;
 			}
 		}
 		while (state.getVelocity() > 0) {
-			se.oru.coordination.coordination_oru.simulation2D.TrajectoryEnvelopeTrackerRK4.integrateRK4(state, time, deltaTime, true, maxVel, 1.0, maxAccel*0.9);
+			TrajectoryEnvelopeTrackerRK4.integrateRK4(state, time, deltaTime, true, maxVel, 1.0, maxAccel*0.9);
 			time += deltaTime;
 		}
 		return getPathIndex(te,state);

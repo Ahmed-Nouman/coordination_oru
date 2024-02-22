@@ -100,10 +100,12 @@ public class ControllerNavigation {
     public void closeProgram(Main main) {
         if (main.getDataStatus().getProjectData() == null || main.getDataStatus().getProjectData().equals(main.getDataStatus().getOriginalProjectData())) {
             main.getPrimaryStage().close();
+            System.exit(0);
         } else {
             var answer = AlertBox.display("Saving the project", "Would you like to save the project before exiting?", Alert.AlertType.CONFIRMATION);
             if (answer.isPresent() && answer.get() == ButtonType.YES && main.getDataStatus().getProjectData() != null) main.getNavigationButton().saveProject.trySaveProject(main.getNavigationButton());
             main.getPrimaryStage().close();
+            System.exit(0);
         }
     }
 }

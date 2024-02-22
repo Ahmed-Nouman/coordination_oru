@@ -20,7 +20,7 @@ public class Heuristics {
     private final HeuristicType heuristicType;
 
     public Heuristics() {
-        this.heuristicType = HeuristicType.CLOSEST_FIRST;
+        this.heuristicType = HeuristicType.RANDOM;
     }
 
     public Heuristics(HeuristicType heuristicType) {
@@ -114,18 +114,7 @@ public class Heuristics {
      */
     public Comparator<RobotAtCriticalSection> random() {
         heuristicName = "RANDOM";
-        Random random = new Random();
-
-        return (_robot1, _robot2) -> {
-            switch (random.nextInt(3)) {
-                case 0:
-                    return 0;
-                case 1:
-                    return 1;
-                default:
-                    return -1;
-            }
-        };
+        return (_robot1, _robot2) -> 0;
     }
 
     /**

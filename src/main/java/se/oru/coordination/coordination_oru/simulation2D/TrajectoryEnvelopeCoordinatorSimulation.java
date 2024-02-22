@@ -20,7 +20,7 @@ public class TrajectoryEnvelopeCoordinatorSimulation extends TrajectoryEnvelopeC
 	protected static final long START_TIME = Calendar.getInstance().getTimeInMillis();
 	protected boolean useInternalCPs = true;
 	protected boolean checkCollisions = false; // TODO Check if it works
-	protected ArrayList<CollisionEvent> collisionsList = new ArrayList<CollisionEvent>();
+	protected ArrayList<CollisionEvent> collisionsList = new ArrayList<>();
 	protected Thread collisionThread = null;
 	protected AtomicInteger totalMessagesLost = new AtomicInteger(0);
 	protected AtomicInteger totalPacketsLost = new AtomicInteger(0);

@@ -51,7 +51,7 @@ public class Dependency implements Comparable<Dependency> {
 	 */
 	public boolean equals(Object obj) {
 		if (!(obj instanceof Dependency)) return false;
-		Dependency other = (Dependency)obj;
+        var other = (Dependency)obj;
 		return this.teWaiting.equals(other.teWaiting) && this.teDriving.equals(other.teDriving) && this.waitingPoint == other.waitingPoint && this.thresholdPoint == other.thresholdPoint;
 	}
 	
@@ -71,7 +71,7 @@ public class Dependency implements Comparable<Dependency> {
 	
 	@Override
 	public String toString() {
-		int drivingTEID = 0;
+        var drivingTEID = 0;
 		if (teDriving != null) drivingTEID = teDriving.getID();
 		return getWaitingRobotID()+"/"+waitingPoint+"(TE" + teWaiting.getID() + ")-"+getDrivingRobotID()+"/"+thresholdPoint+"(TE" + drivingTEID + ")";
 	}

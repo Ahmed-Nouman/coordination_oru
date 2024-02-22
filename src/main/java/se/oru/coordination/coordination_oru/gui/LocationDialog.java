@@ -25,7 +25,7 @@ public class LocationDialog {
     public static List<String> add(double x, double y) {
         title = "Add Pose";
         buttonText = "Add";
-        return showLocationDialog("Pose", x, y, 0);
+        return showLocationDialog("PoseName", x, y, 0);
     }
 
     public static List<String> edit(SceneMap scene, String poseName) {
