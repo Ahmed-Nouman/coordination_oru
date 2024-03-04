@@ -53,6 +53,6 @@ public class RampScenario {
         Missions.enqueueMission(m1);
         Missions.enqueueMission(m2);
         Missions.setMap(YAML_FILE);
-        Missions.startMissionDispatchers(tec, true);
+        Missions.startMissionDispatchers(tec);
     }
 }

@@ -140,7 +140,7 @@ public class TrajectoryEnvelopeCoordinatorSimulation extends TrajectoryEnvelopeC
 
 	@Override
 	public boolean addMissions(Mission... missions) {
-		HashMap<Mission, HashMap<Pose, Integer>> userStoppingPoints = new HashMap<Mission, HashMap<Pose,Integer>>();
+        var userStoppingPoints = new HashMap<Mission, HashMap<Pose,Integer>>();
 		if (this.useInternalCPs) {
 			for (Mission m : missions) {
 				PoseSteering[] path = m.getPath();

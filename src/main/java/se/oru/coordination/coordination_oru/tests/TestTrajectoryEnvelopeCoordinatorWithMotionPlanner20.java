@@ -89,7 +89,7 @@ public class TestTrajectoryEnvelopeCoordinatorWithMotionPlanner20 {
 		
 		System.out.println("Added missions " + Missions.getMissions());
 
-		Missions.startMissionDispatchers(tec, false, 2);
+		Missions.startMissionDispatchers(tec);
 		System.out.println("Started mission " + Missions.getMission(2, 0));
 
 		//Starts early enough to avoid deadlock:
@@ -104,7 +104,7 @@ public class TestTrajectoryEnvelopeCoordinatorWithMotionPlanner20 {
 		rsp.plan();
 		Missions.enqueueMission(new Mission(1,rsp.getPath()));
 
-		Missions.startMissionDispatchers(tec, false, 1);
+		Missions.startMissionDispatchers(tec);
 		System.out.println("Started mission " + Missions.getMission(1, 0));
 
 		

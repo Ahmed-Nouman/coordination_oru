@@ -129,7 +129,7 @@ public class TwoRobotsFollowingVsOpposing {
 		
 		System.out.println("Added missions " + Missions.getMissions());
 		
-		Missions.startMissionDispatchers(tec, 1,2,3,4);
+		Missions.startMissionDispatchers(tec);
 		
 	}
 

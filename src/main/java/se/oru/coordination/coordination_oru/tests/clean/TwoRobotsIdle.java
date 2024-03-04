@@ -75,7 +75,7 @@ public class TwoRobotsIdle {
 		tec.placeRobot(1, startRobot1);
 		tec.placeRobot(2, startRobot2);
 
-		Missions.startMissionDispatchers(tec, false, 1,2);
+		Missions.startMissionDispatchers(tec);
 				
 	}
 

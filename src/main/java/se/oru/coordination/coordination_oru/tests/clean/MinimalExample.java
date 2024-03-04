@@ -138,7 +138,7 @@ public class MinimalExample {
 		tec.setVisualization(viz);
 		
 		//Start dispatching threads for each robot, each of which dispatches the next mission as soon as the robot is idle
-		Missions.startMissionDispatchers(tec, robotIDs);	
+		Missions.startMissionDispatchers(tec);
 		
 
 	}

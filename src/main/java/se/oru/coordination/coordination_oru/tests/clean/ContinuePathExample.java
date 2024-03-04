@@ -92,7 +92,7 @@ public class ContinuePathExample {
 		Mission m = new Mission(1, pathL0R0);
 		Missions.enqueueMission(m);
 
-		Missions.startMissionDispatchers(tec, false, 1);
+		Missions.startMissionDispatchers(tec);
 
 		Thread.sleep(7000);
 

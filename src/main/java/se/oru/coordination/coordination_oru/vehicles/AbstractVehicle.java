@@ -49,7 +49,7 @@ public abstract class AbstractVehicle {
     private Map<Pose, Double> missions;
     private int missionRepetition;
     private double safetyDistance;
-    private double safetyPathPoints;
+    private int safetyPathPoints;
     private PoseSteering[] path;
     private double pathLength;
     private ReedsSheppCarPlanner.PLANNING_ALGORITHM planningAlgorithm;
@@ -310,6 +310,7 @@ public abstract class AbstractVehicle {
         return maxAcceleration;
     }
 
+    //TODO: This needs to go from here. Maybe Tracker?
     public void setTrackingPeriod(int trackingPeriod) {
         this.trackingPeriod = trackingPeriod;
     }
@@ -397,11 +398,11 @@ public abstract class AbstractVehicle {
         this.planningAlgorithm = planningAlgorithm;
     }
 
-    public double getSafetyPathPoints() {
+    public int getSafetyPathPoints() {
         return safetyPathPoints;
     }
 
-    public void setSafetyPathPoints() { //FIXME: Need to change the safety distance from 0.5 to 5.0
-        if (this.path != null) this.safetyPathPoints = (int) Math.round(pathLength / safetyDistance);
+    public void setSafetyPathPoints() {
+        if (this.path != null) this.safetyPathPoints = (int) Math.round(path.length / pathLength * safetyDistance);
     }
 }

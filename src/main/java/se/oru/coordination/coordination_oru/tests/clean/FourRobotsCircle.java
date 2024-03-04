@@ -141,7 +141,7 @@ public class FourRobotsCircle {
 		Missions.enqueueMission(new Mission(4, pss2));
 		Missions.enqueueMission(new Mission(4, pss3));
 		
-		Missions.startMissionDispatchers(tec, 1,2,3,4);
+		Missions.startMissionDispatchers(tec);
 
 	}
 

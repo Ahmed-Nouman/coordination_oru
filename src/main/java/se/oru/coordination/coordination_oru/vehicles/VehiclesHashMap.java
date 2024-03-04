@@ -106,4 +106,5 @@ public class VehiclesHashMap {
     public static void removeVehicle(int ID) {
         list.remove(ID);
     }
+
 }

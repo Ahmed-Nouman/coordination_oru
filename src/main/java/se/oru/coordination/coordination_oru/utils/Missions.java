@@ -4,7 +4,6 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
 import com.vividsolutions.jts.geom.Coordinate;
-import org.jgrapht.GraphPath;
 import org.jgrapht.alg.shortestpath.DijkstraShortestPath;
 import org.jgrapht.graph.DefaultWeightedEdge;
 import org.jgrapht.graph.SimpleDirectedWeightedGraph;
@@ -25,7 +24,6 @@ import java.awt.image.BufferedImage;
 import java.io.*;
 import java.lang.reflect.Type;
 import java.nio.file.Files;
-import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
 import java.util.Map.Entry;
@@ -45,36 +43,34 @@ import java.util.zip.ZipOutputStream;
  */
 public class Missions {
 
-	protected static HashMap<String,Pose> locations = new HashMap<String, Pose>();
-	protected static HashMap<String,PoseSteering[]> paths = new HashMap<String, PoseSteering[]>();
+	protected static HashMap<String,Pose> locations = new HashMap<>();
+	protected static HashMap<String,PoseSteering[]> paths = new HashMap<>();
 	private static final Logger metaCSPLogger = MetaCSPLogging.getLogger(Missions.class);
-	protected static HashMap<Integer,ArrayList<Mission>> missions = new HashMap<Integer, ArrayList<Mission>>();
-	protected static HashMap<Integer,MissionDispatchingCallback> mdcs = new HashMap<Integer, MissionDispatchingCallback>();
-	protected static HashMap<Mission,ArrayList<Mission>> concatenatedMissions = new HashMap<Mission, ArrayList<Mission>>();
-	protected static SimpleDirectedWeightedGraph<String, DefaultWeightedEdge> graph = new SimpleDirectedWeightedGraph<String, DefaultWeightedEdge>(DefaultWeightedEdge.class);
+	protected static HashMap<Integer,ArrayList<Mission>> missions = new HashMap<>();
+	protected static HashMap<Integer,MissionDispatchingCallback> missionDispatchCallback = new HashMap<>();
+	protected static HashMap<Mission,ArrayList<Mission>> concatenatedMissions = new HashMap<>();
+	protected static SimpleDirectedWeightedGraph<String, DefaultWeightedEdge> graph = new SimpleDirectedWeightedGraph<>(DefaultWeightedEdge.class);
 	protected static String mapYAML = null;
 	protected static String mapImageFilename = null;
 	protected static BufferedImage map = null;
 	protected static double mapResolution = -1;
 	protected static Coordinate mapOrigin = null;
-
 	protected static double minPathDistance = -1;
-	
 	protected static Thread missionDispatchThread = null;
-	protected static HashSet<Integer> dispatchableRobots = new HashSet<Integer>();
-	protected static HashMap<Integer,Boolean> loopMissions = new HashMap<Integer,Boolean>();
+	protected static HashSet<Integer> dispatchableRobots = new HashSet<>();
+	protected static HashMap<Integer,Boolean> loopMissions = new HashMap<>();
 
 	/**
 	 * Re-sample a given path so that the minimum distance between path poses is the value
 	 */
 	public static PoseSteering[] resamplePath(PoseSteering[] path) {
 		if (minPathDistance < 0) return path;
-		ArrayList<PoseSteering> ret = new ArrayList<PoseSteering>();
-		PoseSteering lastAdded = path[0];
+        var ret = new ArrayList<PoseSteering>();
+        var lastAdded = path[0];
 		ret.add(lastAdded);
 		for (int i = 1; i < path.length; i++) {
-			Coordinate p1 = lastAdded.getPose().getPosition();
-			Coordinate p2 = path[i].getPose().getPosition();
+            var p1 = lastAdded.getPose().getPosition();
+            var p2 = path[i].getPose().getPosition();
 			if (p2.distance(p1) > minPathDistance) {
 				lastAdded = path[i];
 				ret.add(path[i]);
@@ -83,9 +79,8 @@ public class Missions {
 		return ret.toArray(new PoseSteering[ret.size()]);
 	}
 
-
 	public static String[] getNearLocations(Pose p) {
-        ArrayList<String> ret = new ArrayList<>(Missions.getLocationsAndPoses().keySet());
+        var ret = new ArrayList<String>(Missions.getLocationsAndPoses().keySet());
 		
 		ret.sort((arg0, arg1) -> {
             double dist0 = Missions.getLocationPose(arg0).distanceTo(p);
@@ -323,30 +318,17 @@ public class Missions {
 	 * @return The pose of the initial location of each robot's first {@link Mission}.
 	 */
 	public static HashMap<Integer,Pose> getInitialPoses() {
-		HashMap<Integer,Pose> ret = new HashMap<Integer, Pose>();
+        var ret = new HashMap<Integer, Pose>();
 		for (Integer robotID : missions.keySet()) {
 			Mission m = Missions.peekMission(robotID);
 			if (m != null) ret.put(robotID, m.getFromPose());
 		}
 		return ret;
 	}
-	
-	/**
-	 * Get the IDs of robots involved in at least one {@link Mission}.
-	 * @return The IDs of robots involved in at least one {@link Mission}.
-	 */
-	public static int[] getIDsOfRobotsWithMissions() {
-		int[] ret = new int[missions.keySet().size()];
-		int index = 0;
-		for (int robotID : missions.keySet()) {
-			ret[index++] = robotID;
-		}
-		return ret;
-	}
-	
+
 	private static void buildGraph() {
 		
-		graph = new SimpleDirectedWeightedGraph<String, DefaultWeightedEdge>(DefaultWeightedEdge.class);
+		graph = new SimpleDirectedWeightedGraph<>(DefaultWeightedEdge.class);
 		metaCSPLogger.info("Updating the roadmap...");
 		
 		for (String oneLoc : locations.keySet()) {
@@ -680,7 +662,7 @@ public class Missions {
 	 */
 	public static void removeLocationFromRoadMap(String locationName) {
 		locations.remove(locationName);
-		ArrayList<String> toRemove = new ArrayList<String>();
+        var toRemove = new ArrayList<String>();
 		for (String key : paths.keySet()) {
 			if (key.substring(0,key.indexOf("->")).equals(locationName)) toRemove.add(key);
 			else if (key.substring(key.indexOf("->")).equals(locationName)) toRemove.add(key);
@@ -721,52 +703,6 @@ public class Missions {
 		return ret;
 	}
 
-
-	/**
-	 * Get the mission following a given mission.
-	 * @param m A mission.
-	 * @return The mission following the given mission.
-	 */
-	public static Mission getNextMission(Mission m) {
-		for (int i = 0; i < missions.get(m.getRobotID()).size(); i++) {
-			if (missions.get(m.getRobotID()).get(i).equals(m)) return missions.get(m.getRobotID()).get((i+1)%missions.get(m.getRobotID()).size());
-		}
-		return null;
-	}
-
-	/**
-	 * Get the mission preceding a given mission.
-	 * @param m A mission.
-	 * @return The mission preceding the given mission.
-	 */
-	public static Mission getPreviousMission(Mission m) {
-		for (int i = 0; i < missions.get(m.getRobotID()).size(); i++) {
-			if (missions.get(m.getRobotID()).get(i).equals(m)) {
-				if (i == 0) return missions.get(m.getRobotID()).get(missions.get(m.getRobotID()).size()-1);
-				return missions.get(m.getRobotID()).get((i-1));
-			}
-		}
-		return null;
-	}
-
-	/**
-	 * Get path files from the data loaded by method {@link Missions#loadLocationAndPathData(String)}.
-	 * @param fromLocation The name of the source location.
-	 * @param toLocation The name of the destination location.
-	 * @return The name of the file where the path is stored.
-	 */
-	@Deprecated
-	public static String getPathFile(String fromLocation, String toLocation) {
-		//String ret = paths.get(fromLocation+"->"+toLocation);
-		String ret = fromLocation+"->"+toLocation;
-		if (!locations.containsKey(fromLocation)) throw new Error("Unknown location " + fromLocation);
-		if (!locations.containsKey(toLocation)) throw new Error("Unknown location " + toLocation);
-		File f = new File(ret);
-		if(!f.exists() || f.isDirectory()) throw new Error("No path between " + fromLocation + " and " + toLocation);
-		//if (ret == null) throw new Error("No path between " + fromLocation + " and " + toLocation);
-		return ret;
-	}
-
 	/**
 	 * Queries whether a path between two named locations is known.
 	 * @param fromLocation The source location.
@@ -778,17 +714,6 @@ public class Missions {
 	}
 	
 	/**
-	 * Return a path between locations if available (throws error if locations and/or path are now known)
-	 * @param fromLocation The source location
-	 * @param toLocation The goal location
-	 * @return The path between the two (known) locations
-	 */
-//	public static PoseSteering[] loadKnownPath(String fromLocation, String toLocation) {
-//		if (!isKnownPath(fromLocation, toLocation)) throw new Error("No path between " + fromLocation + " and " + toLocation);
-//		return loadPathFromFile(pathPrefix+getPathFile(fromLocation, toLocation));
-//	}
-
-	/**
 	 * Get a property from a YAML file
 	 * @param property The name of the property
 	 * @param yamlFile The YAML file from which to get the property
@@ -797,8 +722,8 @@ public class Missions {
 	public static String getProperty(String property, String yamlFile) {
 		String ret = null;
 		try {
-			File file = new File(yamlFile);
-			BufferedReader br = new BufferedReader(new FileReader(file));
+            var file = new File(yamlFile);
+            var br = new BufferedReader(new FileReader(file));
 			String st;
 			while((st=br.readLine()) != null){
 				String key = st.substring(0, st.indexOf(":")).trim();
@@ -812,35 +737,6 @@ public class Missions {
 		}
 		catch (IOException e) { e.printStackTrace(); }
 		return ret;
-	}
-
-	/**
-	 * Exclude the given robots from the dispatching thread.
-	 * @param robotIDs The IDs of the robots to be excluded.
-	 */
-	public static void stopMissionDispatchers(int ... robotIDs) {
-		for (int robotID : robotIDs) {
-			dispatchableRobots.remove(robotID);
-			mdcs.remove(robotID);
-		}
-	}
-
-	/**
-	 * Save a path to a file.
-	 * @param fileName The name of the file.
-	 * @param path The path to save.
-	 */
-	public static void writePath(String fileName, ArrayList<PoseSteering> path) {
-        try {
-            File file = new File(fileName);
-            System.out.println("Saved path file: " + file.getAbsolutePath());
-            PrintWriter writer = new PrintWriter(file);
-            for (PoseSteering ps : path) {
-            	writer.println(ps.getPose().getX() + "\t" + ps.getPose().getY() + "\t" + ps.getPose().getTheta() + "\t" + ps.getSteering());
-            }
-            writer.close();
-        }
-        catch (Exception e) { e.printStackTrace(); }
 	}
 
 	/**
@@ -862,111 +758,86 @@ public class Missions {
 	}
 
 	/**
-	 * Tag a set of {@link Mission}s as concatenated, meaning that they should be executed in sequence.
-	 * This marking will be accounted for by the dispatchers started via methods {@link Missions#startMissionDispatchers(TrajectoryEnvelopeCoordinator, int...)}
-	 * and {@link Missions#startMissionDispatchers(TrajectoryEnvelopeCoordinator, boolean, int...)}.
-	 * @param m The {@link Mission}s that should be considered concatenated.
-	 */
-	public static void concatenateMissions(Mission ... m) {
-		ArrayList<Mission> toAdd = new ArrayList<Mission>();
-        Collections.addAll(toAdd, m);
-		concatenatedMissions.put(m[0], toAdd);
-	}
-
-	/**
-	 * Add a {@link MissionDispatchingCallback} which defines methods to be called before and after mission dispatching.
-	 * @param robotID The callback functions will be invoked whenever a mission for this robot is dispatched.
-	 * @param cb The {@link MissionDispatchingCallback} to attach.
-	 */
-	public static void addMissionDispatchingCallback(int robotID, MissionDispatchingCallback cb) {
-		mdcs.put(robotID, cb);
-	}
-
-	/**
 	 * Include the given robots in the periodic mission dispatching thread (and start the thread if it is not started).
 	 * The thread cycles through the known missions for each robot and dispatches as soon as the robot is free.
-	 * This method will loop through all mission forever.
+	 *
 	 * @param tec The {@link TrajectoryEnvelopeCoordinator} that coordinates the missions.
-	 * @param robotIDs The robot IDs which should be considered dispatchable.
 	 */
-	public static void startMissionDispatchers(final TrajectoryEnvelopeCoordinator tec, int ... robotIDs) {
-		startMissionDispatchers(tec, true, robotIDs);
-	}
-	
-	/**
-	 * Include the given robots in the periodic mission dispatching thread (and start the thread if it is not started).
-	 * The thread cycles through the known missions for each robot and dispatches as soon as the robot is free.
-	 * @param tec The {@link TrajectoryEnvelopeCoordinator} that coordinates the missions.
-	 * @param loop Set to <code>false</code> if missions should be de-queued once dispatched. 
-	 * @param robotIDs The robot IDs which should be considered dispatchable.
-	 */
-	public static void startMissionDispatchers(final TrajectoryEnvelopeCoordinator tec, final boolean loop, int ... robotIDs) {
-		
-		for (int robotID : robotIDs) {
-			dispatchableRobots.add(robotID);
-			loopMissions.put(robotID, loop);
-		}
-		
+	public static void startMissionDispatchers(final TrajectoryEnvelopeCoordinator tec) {
+
+		addAllRobotsForLooping(tec);
+
 		if (missionDispatchThread == null) {
-			missionDispatchThread = new Thread() {
-				@Override
-				public void run() {
-					while (true) {
-						for (int robotID : dispatchableRobots) {
-							if (Missions.hasMissions(robotID)) {
-								Mission m = Missions.peekMission(robotID);
-								if (m != null) {								
-									synchronized(tec) {
-										if (tec.isFree(m.getRobotID())) {
-											//cat with future missions if necessary
-											if (concatenatedMissions.containsKey(m)) {
-												ArrayList<Mission> catMissions = concatenatedMissions.get(m);
-												m = new Mission(m.getRobotID(), m.getFromLocation(), catMissions.get(catMissions.size()-1).getToLocation(), m.getFromPose(), catMissions.get(catMissions.size()-1).getToPose());
-												ArrayList<PoseSteering> path = new ArrayList<PoseSteering>();
-												for (int i = 0; i < catMissions.size(); i++) {
-													Mission oneMission = catMissions.get(i);
-													if (mdcs.containsKey(robotID)) mdcs.get(robotID).beforeMissionDispatch(oneMission);
-													if (i == 0) path.add(oneMission.getPath()[0]);
-													for (int j = 1; j < oneMission.getPath().length-1; j++) {
-														path.add(oneMission.getPath()[j]);
-													}
-													if (i == catMissions.size()-1) path.add(oneMission.getPath()[oneMission.getPath().length-1]);
-												}
-												m.setPath(path.toArray(new PoseSteering[path.size()]));
-											}
-											else if (mdcs.containsKey(robotID)) mdcs.get(robotID).beforeMissionDispatch(m);							
-										}
-			
-										//addMission returns true iff the robot was free to accept a new mission
-										if (tec.addMissions(m)) {
-											//tec.computeCriticalSectionsAndStartTrackingAddedMission();
-											if (mdcs.containsKey(robotID)) mdcs.get(robotID).afterMissionDispatch(m);
-											if (!loopMissions.get(robotID)) {
-												Missions.removeMissions(m);
-												System.out.println("Removed mission " + m);
-												if (concatenatedMissions.get(m) != null) {
-													for (Mission cm : concatenatedMissions.get(m)) {
-														Missions.removeMissions(cm);
-													}
-												}
-											}
-											else {
-												Missions.dequeueMission(m.getRobotID());
-												Missions.enqueueMission(m);
-											}
-										}
-									}
-								}
-							}
-						}
-						//Sleep for a little (sec 2)
-						try { Thread.sleep(2000); }
-						catch (InterruptedException e) { e.printStackTrace(); }
-					}
-				}
-			};
+			missionDispatchThread = new Thread(() -> {
+                while (true) {
+                    for (int robotID : dispatchableRobots) {
+                        if (Missions.hasMissions(robotID)) {
+                            Mission m = Missions.peekMission(robotID);
+                            if (m != null) {
+                                synchronized(tec) {
+                                    if (tec.isFree(m.getRobotID())) {
+                                        //cat with future missions if necessary
+                                        if (concatenatedMissions.containsKey(m)) {
+                                            var catMissions = concatenatedMissions.get(m);
+                                            m = new Mission(m.getRobotID(), m.getFromLocation(), catMissions.get(catMissions.size()-1).getToLocation(), m.getFromPose(), catMissions.get(catMissions.size()-1).getToPose());
+                                            var path = new ArrayList<PoseSteering>();
+                                            for (int i = 0; i < catMissions.size(); i++) {
+                                                Mission oneMission = catMissions.get(i);
+                                                if (missionDispatchCallback.containsKey(robotID)) missionDispatchCallback.get(robotID).beforeMissionDispatch(oneMission);
+                                                if (i == 0) path.add(oneMission.getPath()[0]);
+                                                for (int j = 1; j < oneMission.getPath().length-1; j++) {
+                                                    path.add(oneMission.getPath()[j]);
+                                                }
+                                                if (i == catMissions.size()-1) path.add(oneMission.getPath()[oneMission.getPath().length-1]);
+                                            }
+                                            m.setPath(path.toArray(new PoseSteering[path.size()]));
+                                        }
+                                        else if (missionDispatchCallback.containsKey(robotID)) missionDispatchCallback.get(robotID).beforeMissionDispatch(m);
+                                    }
+
+                                    //addMission returns true iff the robot was free to accept a new mission
+                                    if (tec.addMissions(m)) {
+                                        //tec.computeCriticalSectionsAndStartTrackingAddedMission();
+                                        if (missionDispatchCallback.containsKey(robotID)) missionDispatchCallback.get(robotID).afterMissionDispatch(m);
+                                        if (!loopMissions.get(robotID)) {
+                                            Missions.removeMissions(m);
+                                            System.out.println("Removed mission " + m);
+                                            if (concatenatedMissions.get(m) != null) {
+                                                for (Mission cm : concatenatedMissions.get(m)) {
+                                                    Missions.removeMissions(cm);
+                                                }
+                                            }
+                                        }
+                                        else {
+                                            Missions.dequeueMission(m.getRobotID());
+                                            Missions.enqueueMission(m);
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    //Sleep for a little (sec 2)
+                    try { Thread.sleep(2000); }
+                    catch (InterruptedException e) { e.printStackTrace(); }
+                }
+            }, "missionDispatchThread");
 			missionDispatchThread.start();
 		}
+	}
+
+	private static void addAllRobotsForLooping(TrajectoryEnvelopeCoordinator tec) {
+		for (int robotID : convertSetToIntArray(tec.getAllRobotIDs())) {
+			dispatchableRobots.add(robotID);
+			loopMissions.put(robotID, true);
+		}
+	}
+
+	public static int[] convertSetToIntArray(Set<Integer> set) {
+		var array = new int[set.size()];
+		int index = 0;
+		for (int num : set) array[index++] = num;
+		return array;
 	}
 
 	/**
@@ -979,21 +850,21 @@ public class Missions {
 	 * duration defined by {@code terminationInMinutes}. The name of the heuristic used in the
 	 * current simulation run, defined by {@code heuristicName}, is also recorded.
 	 *
-	 * @param tec The {@link TrajectoryEnvelopeCoordinator} that coordinates the missions.
-	 * @param writeReports {@code true} to write reports; {@code false} otherwise.
-	 * @param intervalInSeconds The interval in seconds between consecutive reports.
+	 * @param tec                  The {@link TrajectoryEnvelopeCoordinator} that coordinates the missions.
+	 * @param writeReports         {@code true} to write reports; {@code false} otherwise.
+	 * @param intervalInSeconds    The interval in seconds between consecutive reports.
 	 * @param terminationInMinutes The termination time in minutes for writing reports.
-	 * @param heuristicName The name of the heuristic used in the current simulation run.
-	 * @param resultDirectory The directory where to write the robot reports.
+	 * @param heuristicName        The name of the heuristic used in the current simulation run.
+	 * @param resultDirectory      The directory where to write the robot reports.
 	 */
 	public static void startMissionDispatchers(TrajectoryEnvelopeCoordinator tec, boolean writeReports, double intervalInSeconds,
 											   int terminationInMinutes, String heuristicName,
-											   int inferenceCycleTime, String resultDirectory, double scaleAdjustment) {
+											   String resultDirectory, double scaleAdjustment) {
 
-		writeReports(tec, writeReports, intervalInSeconds,
-				terminationInMinutes, heuristicName, inferenceCycleTime, resultDirectory, scaleAdjustment);
+		WriteReports.writeReports(tec, writeReports, intervalInSeconds,
+				terminationInMinutes, heuristicName, resultDirectory, scaleAdjustment);
 
-		addRobotsForLooping(tec);
+		addAllRobotsForLooping(tec);
 
 		if (missionDispatchThread == null) {
 			missionDispatchThread = new Thread("missionDispatchThread") {
@@ -1002,18 +873,18 @@ public class Missions {
 					while (true) {
 						for (int robotID : dispatchableRobots) {
 							if (Missions.hasMissions(robotID)) {
-								Mission m = Missions.peekMission(robotID);
+                                var m = Missions.peekMission(robotID);
 								if (m != null) {
 									synchronized(tec) {
 										if (tec.isFree(m.getRobotID())) {
 											//cat with future missions if necessary
 											if (concatenatedMissions.containsKey(m)) {
-												ArrayList<Mission> catMissions = concatenatedMissions.get(m);
+                                                var catMissions = concatenatedMissions.get(m);
 												m = new Mission(m.getRobotID(), m.getFromLocation(), catMissions.get(catMissions.size()-1).getToLocation(), m.getFromPose(), catMissions.get(catMissions.size()-1).getToPose());
-												ArrayList<PoseSteering> path = new ArrayList<PoseSteering>();
+                                                var path = new ArrayList<PoseSteering>();
 												for (int i = 0; i < catMissions.size(); i++) {
 													Mission oneMission = catMissions.get(i);
-													if (mdcs.containsKey(robotID)) mdcs.get(robotID).beforeMissionDispatch(oneMission);
+													if (missionDispatchCallback.containsKey(robotID)) missionDispatchCallback.get(robotID).beforeMissionDispatch(oneMission);
 													if (i == 0) path.add(oneMission.getPath()[0]);
 													for (int j = 1; j < oneMission.getPath().length-1; j++) {
 														path.add(oneMission.getPath()[j]);
@@ -1022,13 +893,13 @@ public class Missions {
 												}
 												m.setPath(path.toArray(new PoseSteering[path.size()]));
 											}
-											else if (mdcs.containsKey(robotID)) mdcs.get(robotID).beforeMissionDispatch(m);
+											else if (missionDispatchCallback.containsKey(robotID)) missionDispatchCallback.get(robotID).beforeMissionDispatch(m);
 										}
 
 										//addMission returns true iff the robot was free to accept a new mission
 										if (tec.addMissions(m)) {
 											//tec.computeCriticalSectionsAndStartTrackingAddedMission();
-											if (mdcs.containsKey(robotID)) mdcs.get(robotID).afterMissionDispatch(m);
+											if (missionDispatchCallback.containsKey(robotID)) missionDispatchCallback.get(robotID).afterMissionDispatch(m);
 											if (!loopMissions.get(robotID)) {
 												Missions.removeMissions(m);
 												System.out.println("Removed mission " + m);
@@ -1055,16 +926,6 @@ public class Missions {
 			};
 			missionDispatchThread.start();
 		}
-	}
-
-	/**
-	 * Include the given robots in the periodic mission dispatching thread (and start the thread if it is not started).
-	 * The thread cycles through the known missions for each robot and dispatches as soon as the robot is free.
-	 * This method will loop through all missions forever.
-	 * @param tec The {@link TrajectoryEnvelopeCoordinator} that coordinates the missions.
-	 */
-	public synchronized static void startMissionDispatchers(final TrajectoryEnvelopeCoordinator tec) {
-		startMissionDispatchers(tec, true, convertSetToIntArray(tec.getAllRobotIDs()));
 	}
 
 	public static void runMissionsIndefinitely(TrajectoryEnvelopeCoordinatorSimulation tec) {
@@ -1099,7 +960,7 @@ public class Missions {
 	}
 
 	private static void delayBetweenMission(int missionNumber, Map<Integer, Double> commonStoppageTimes) {
-		if (missionNumber > 0) { // Apply stoppage time after the first mission
+		if (missionNumber > 0) {
 			double stoppageTimeInMinutes = commonStoppageTimes.getOrDefault(missionNumber - 1, 0.0);
 			long stoppageTimeInMillis = (long) (stoppageTimeInMinutes * 60 * 1000);
 			try {
@@ -1163,105 +1024,22 @@ public class Missions {
 	}
 
 	/**
-	 * Adds robots for mission looping, i.e., assigns the looping status of the missions for each robot.
-	 * Robots of type {@code "AutonomousRobot"} have their missions set to loop.
-	 *
-	 * @param tec The {@link TrajectoryEnvelopeCoordinator} that coordinates the missions.
-	 */
-	private static void addRobotsForLooping(TrajectoryEnvelopeCoordinator tec) {
-		for (int robotID : convertSetToIntArray(tec.getAllRobotIDs())) {
-			dispatchableRobots.add(robotID);
-			loopMissions.put(robotID, true);
-//			if (Objects.equals(VehiclesHashMap.getVehicle(robotID).getType(), "AutonomousVehicle")) {
-//				loopMissions.put(robotID, true);
-//			}
-//			else {
-//				loopMissions.put(robotID, false);
-//			}
-		}
-	}
-
-	/**
-	 * Converts a Set of Integers to an int array.
-	 *
-	 * @param set The Set of Integers to be converted.
-	 * @return The resulting int array.
-	 */
-	public static int[] convertSetToIntArray(Set<Integer> set) {
-		int[] array = new int[set.size()]; // Create a new int array with the same size as the Set
-		int index = 0;
-		for (int num : set) {
-			array[index++] = num; // Store each element from the Set into the int array
-		}
-		return array; // Return the resulting int array
-	}
-
-	/**
-	 * Writes robot reports to the specified directory based on the provided conditions.
-	 * Robot reports are generated at an interval and for a duration defined by the user.
-	 * The method also incorporates the heuristic information used for the simulation.
-	 * The reported values, including the robot's pose and speed, can be scaled using the {@code scaleAdjustment} parameter.
-	 *
-	 * @param tec                  The {@link TrajectoryEnvelopeCoordinator} managing the missions.
-	 * @param writeReports         If {@code true}, the method will write reports, otherwise, it won't.
-	 * @param intervalInSeconds    The time interval (in seconds) between consecutive report generations.
-	 * @param terminationInMinutes The maximum duration (in minutes) for which reports should be written.
-	 * @param heuristicName        The name of the heuristic used during the simulation.
-	 * @param inferenceCycleTime   The cycle time (in milliseconds) for updating the coordination thread.
-	 * @param resultDirectory      The directory path where the robot reports will be saved.
-	 * @param scaleAdjustment      A scaling factor to adjust the reported values of robot pose and speed.
-	 */
-	public static void writeReports(TrajectoryEnvelopeCoordinator tec,
-									boolean writeReports, double intervalInSeconds, int terminationInMinutes,
-									String heuristicName, int inferenceCycleTime, String resultDirectory,
-									double scaleAdjustment) {
-		double updatedLookAheadDistance = 0.0;
-		double lookAheadDistance = 0.0;
-
-		// For fully predictable path of the robot
-		for (int robotID : convertSetToIntArray(tec.getAllRobotIDs())) {
-			var robot = VehiclesHashMap.getVehicle(robotID);
-			if (robot instanceof LookAheadVehicle) {
-				var lookAheadRobot = (LookAheadVehicle) robot;
-				lookAheadDistance = lookAheadRobot.getLookAheadDistance();
-				if (lookAheadDistance < 0) {
-					updatedLookAheadDistance = lookAheadRobot.getPlanLength();
-				}
-			}
-		}
-
-		// Write robot reports to ../results/... folder in .csv format
-		if (writeReports) {
-			System.out.println("Writing robot reports.");
-			double distance = lookAheadDistance > 0 ? lookAheadDistance : updatedLookAheadDistance;
-
-			String filePath = createFile(distance * scaleAdjustment, heuristicName, inferenceCycleTime, resultDirectory);
-			var reportCollector = new RobotReportCollector();
-			reportCollector.handleRobotReports(tec, filePath, (long) (1000 * intervalInSeconds),
-					terminationInMinutes, scaleAdjustment);
-		} else {
-			System.out.println("Not writing robot reports.");
-		}
-	}
-
-	/**
 	 * Constructs a file path for saving robot reports. The method also creates the directory
 	 * if it doesn't exist. The filename is derived from the count of autonomous and lookahead robots,
 	 * the heuristic applied, and the lookahead distance.
 	 *
-	 * @param lookAheadDistance  The distance for which the robot plans its path ahead of its current position.
-	 *                           Should be a positive number.
-	 * @param heuristicName      The heuristic's name used in the simulation. Expected to be non-null.
-	 * @param updateCycleTime    The cycle time for updating the coordination thread.
-	 * @param resultDirectory    The directory path where the robot report files will be saved.
-	 *                           If the path doesn't exist, the method attempts to create it.
-	 * @return                   The full path, including directory and filename, where the report will be saved.
+	 * @param lookAheadDistance The distance for which the robot plans its path ahead of its current position.
+	 *                          Should be a positive number.
+	 * @param heuristicName     The heuristic's name used in the simulation. Expected to be non-null.
+	 * @param resultDirectory   The directory path where the robot report files will be saved.
+	 *                          If the path doesn't exist, the method attempts to create it.
+	 * @return The full path, including directory and filename, where the report will be saved.
 	 */
 
-	public static String createFile(double lookAheadDistance, String heuristicName, int updateCycleTime,
+	public static String createFile(double lookAheadDistance, String heuristicName,
 									String resultDirectory) {
 
-		Path directoryPath = Paths.get(resultDirectory);
+        var directoryPath = Paths.get(resultDirectory);
 
 		// Try creating the directory if it doesn't exist
 		try {
@@ -1285,7 +1063,7 @@ public class Missions {
 
 		// Generate the filename based on the number of autonomous and lookahead robots
 		String fileName = "A" + autonomousRobotCount + "H" + lookAheadRobotCount +
-				"_" + heuristicName.charAt(0) + "_" + (int) lookAheadDistance + "_" + updateCycleTime + "_";
+				"_" + heuristicName.charAt(0) + "_" + (int) lookAheadDistance + "_";
 
 		return resultDirectory + "/" + fileName;
 	}

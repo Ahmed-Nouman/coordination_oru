@@ -153,6 +153,6 @@ public class PaperScenario_6A1L {
 
         Missions.startMissionDispatchers(tec, writeVehicleReports,
                 timeIntervalInSeconds, terminationInMinutes, heuristicName,
-                inferenceCycleTime, reportsFolder, scaleAdjustment);
+                reportsFolder, scaleAdjustment);
     }
 }

@@ -107,7 +107,7 @@ public class OneRobotPlacement {
 
 		Mission m1 = new Mission(1,pss1);
 		Missions.enqueueMission(m1);
-		Missions.startMissionDispatchers(tec, 1);
+		Missions.startMissionDispatchers(tec);
 
 	}
 

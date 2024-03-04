@@ -125,7 +125,7 @@ public class Waves {
 
 		System.out.println("Added missions " + Missions.getMissions());
 		
-		Missions.startMissionDispatchers(tec, robotIDs);
+		Missions.startMissionDispatchers(tec);
 	}
 
 }

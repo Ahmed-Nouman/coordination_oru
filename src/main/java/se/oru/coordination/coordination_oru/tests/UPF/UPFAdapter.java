@@ -139,7 +139,7 @@ public class UPFAdapter {
 		int[] robotIDs = new int[robotsToIDs.size()];
 		int counter = 0;
 		for (Integer robotID : robotsToIDs.values()) robotIDs[counter++] = robotID;
-		Missions.startMissionDispatchers(tec, false, robotIDs);
+		Missions.startMissionDispatchers(tec);
 	}
 	
 	public static void main(String[] args) throws InterruptedException {

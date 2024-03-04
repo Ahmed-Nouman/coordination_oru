@@ -114,7 +114,7 @@ public class TestTrajectoryEnvelopeCoordinatorWithMotionPlannerReplanMiddle {
 		
 		System.out.println("Added missions " + Missions.getMissions());
 		
-		Missions.startMissionDispatchers(tec, false, 1, 2);
+		Missions.startMissionDispatchers(tec);
 		
 		
 	}

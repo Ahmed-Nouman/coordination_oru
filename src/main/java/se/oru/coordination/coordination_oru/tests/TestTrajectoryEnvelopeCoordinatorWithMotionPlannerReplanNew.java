@@ -106,7 +106,7 @@ public class TestTrajectoryEnvelopeCoordinatorWithMotionPlannerReplanNew {
 		System.out.println("Added missions " + Missions.getMissions());
 		Missions.enqueueMission(r1Mission);
 
-		Missions.startMissionDispatchers(tec, false, 1 ,2);
+		Missions.startMissionDispatchers(tec);
 		
 		Thread.sleep(5000);
 		

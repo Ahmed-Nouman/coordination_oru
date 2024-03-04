@@ -92,7 +92,7 @@ public class TestTrajectoryEnvelopeCoordinatorWithMotionPlanner22 {
 		Missions.enqueueMission(new Mission(2,rsp.getPath()));
 		
 		System.out.println("Added missions " + Missions.getMissions());		
-		Missions.startMissionDispatchers(tec, false, 1, 2);
+		Missions.startMissionDispatchers(tec);
 
 		
 	}

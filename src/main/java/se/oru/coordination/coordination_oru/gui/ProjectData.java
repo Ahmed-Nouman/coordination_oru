@@ -1,5 +1,6 @@
 package se.oru.coordination.coordination_oru.gui;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.metacsp.multi.spatioTemporal.paths.Pose;
 
 import java.io.Serializable;
@@ -83,6 +84,7 @@ public class ProjectData implements Serializable {
         vehicles.removeIf(vehicle -> vehicle.getID() == vehicleID);
     }
 
+    @JsonIgnore
     public ArrayList<String> getPosesName() {
         return new ArrayList<>(poses.keySet());
     }
