@@ -90,7 +90,7 @@ public class Diameter {
 		tec.startInference();
 		
 		//Add robots to the mission dispatching thread 
-		Missions.startMissionDispatchers(tec);
+		Missions.startMissionDispatcher(tec);
 	
 	}
 }

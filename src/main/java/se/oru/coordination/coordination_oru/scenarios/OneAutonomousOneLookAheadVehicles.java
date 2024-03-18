@@ -57,6 +57,6 @@ public class OneAutonomousOneLookAheadVehicles {
         Missions.enqueueMission(m1);
         Missions.enqueueMission(m2);
         Missions.setMap(YAML_FILE);
-        Missions.startMissionDispatchers(tec);
+        Missions.startMissionDispatcher(tec);
     }
 }

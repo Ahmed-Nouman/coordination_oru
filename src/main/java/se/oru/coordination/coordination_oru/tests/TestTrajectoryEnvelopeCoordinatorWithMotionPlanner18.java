@@ -80,15 +80,15 @@ public class TestTrajectoryEnvelopeCoordinatorWithMotionPlanner18 {
 		Mission m2 = new Mission(2,path2);
 		Mission m3 = new Mission(3,path3);
 		
-		Missions.startMissionDispatchers(tec);
+		Missions.startMissionDispatcher(tec);
 		
 		Thread.sleep(2000);
 		
-		Missions.startMissionDispatchers(tec);
+		Missions.startMissionDispatcher(tec);
 		
 		Thread.sleep(2000);
 		
-		Missions.startMissionDispatchers(tec);
+		Missions.startMissionDispatcher(tec);
 		
 	}
 	

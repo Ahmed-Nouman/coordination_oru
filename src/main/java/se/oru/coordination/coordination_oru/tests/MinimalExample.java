@@ -140,7 +140,7 @@ public class MinimalExample {
 		
 		//Start dispatching threads for each robot, each of which
 		//dispatches the next mission as soon as the robot is idle
-		Missions.startMissionDispatchers(tec);
+		Missions.startMissionDispatcher(tec);
 		
 
 	}

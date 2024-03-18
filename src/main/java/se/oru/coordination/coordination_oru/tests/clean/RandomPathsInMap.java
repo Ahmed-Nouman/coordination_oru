@@ -128,7 +128,7 @@ public class RandomPathsInMap {
 
 		System.out.println("Added missions " + Missions.getMissions());
 				
-		Missions.startMissionDispatchers(tec);
+		Missions.startMissionDispatcher(tec);
 		
 		//Used to generate scenario loaded in the ScenarioLoading example
 		Missions.setMap(yamlFile);

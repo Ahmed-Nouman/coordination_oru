@@ -151,7 +151,7 @@ public class PaperScenario_6A1L {
         Missions.enqueueMission(m6);
         Missions.setMap(YAML_FILE);
 
-        Missions.startMissionDispatchers(tec, writeVehicleReports,
+        Missions.startMissionDispatcher(tec, writeVehicleReports,
                 timeIntervalInSeconds, terminationInMinutes, heuristicName,
                 reportsFolder, scaleAdjustment);
     }

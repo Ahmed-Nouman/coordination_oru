@@ -81,11 +81,11 @@ public class ThreeRobotsAsynchronousGoalPosting {
 		Missions.enqueueMission(new Mission(2,path2));
 		Missions.enqueueMission(new Mission(3,path3));
 
-		Missions.startMissionDispatchers(tec);
+		Missions.startMissionDispatcher(tec);
 		
 		Thread.sleep(4000);
 		
-		Missions.startMissionDispatchers(tec);
+		Missions.startMissionDispatcher(tec);
 	}
 	
 }

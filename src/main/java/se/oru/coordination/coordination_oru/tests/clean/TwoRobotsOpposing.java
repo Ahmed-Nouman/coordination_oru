@@ -99,7 +99,7 @@ public class TwoRobotsOpposing {
 		
 		System.out.println("Added missions " + Missions.getMissions());
 
-		Missions.startMissionDispatchers(tec);
+		Missions.startMissionDispatcher(tec);
 		
 	}
 

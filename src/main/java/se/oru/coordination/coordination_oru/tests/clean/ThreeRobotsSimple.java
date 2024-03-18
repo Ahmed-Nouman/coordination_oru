@@ -101,7 +101,7 @@ public class ThreeRobotsSimple {
 			tec.setMotionPlanner(i+1, rsp);
 		}
 
-		Missions.startMissionDispatchers(tec);
+		Missions.startMissionDispatcher(tec);
 
 	}
 	

@@ -92,7 +92,7 @@ public class ReplacePathExample {
 		Mission m = new Mission(1, initialPath);
 		Missions.enqueueMission(m);
 
-		Missions.startMissionDispatchers(tec);
+		Missions.startMissionDispatcher(tec);
 
 		int buffer = 20;
 		while (tec.getRobotReport(1).getPathIndex() < replacementIndex-buffer) Thread.sleep(50);

@@ -194,7 +194,7 @@ public class HeuristicsPaperScenario {
 //        Missions.runMissionsOnce(tec);
 //        Missions.runMissionsIndefinitely(tec);
 //        Missions.startMissionDispatchers(tec);
-        Missions.startMissionDispatchers(tec, WRITE_VEHICLE_REPORTS, REPORTING_TIME, REPORTING_INTERVAL, heuristicName, reportsFolder, SCALE_ADJUSTMENT);
+        Missions.startMissionDispatcher(tec, WRITE_VEHICLE_REPORTS, REPORTING_TIME, REPORTING_INTERVAL, heuristicName, reportsFolder, SCALE_ADJUSTMENT);
     }
 
 }

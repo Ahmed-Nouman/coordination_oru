@@ -120,7 +120,7 @@ public class PaperScenario_3A1L {
         Missions.setMap(YAML_FILE);
 
 //        Missions.startMissionDispatchers(tec, true, 1, 2, 3, 4);
-        Missions.startMissionDispatchers(tec, writeRobotReports, timeIntervalInSeconds,
+        Missions.startMissionDispatcher(tec, writeRobotReports, timeIntervalInSeconds,
                 terminationInMinutes, heuristicName, resultsDirectory, 1);
     }
 }

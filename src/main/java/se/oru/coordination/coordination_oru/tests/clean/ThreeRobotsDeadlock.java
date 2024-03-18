@@ -102,7 +102,7 @@ public class ThreeRobotsDeadlock {
 		
 		//Thread.sleep(6000);
 
-		Missions.startMissionDispatchers(tec);
+		Missions.startMissionDispatcher(tec);
 
 	}
 	

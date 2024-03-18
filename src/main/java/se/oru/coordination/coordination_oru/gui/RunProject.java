@@ -67,7 +67,7 @@ public class RunProject {
         tec.setVisualization(viz);
 
         Missions.setMap(YAML_FILE);
-        Missions.startMissionDispatchers(tec, controllerNavigation.getMain().getDataStatus().getWriteVehicleReports(), reportsTimeIntervalInSeconds,
+        Missions.startMissionDispatcher(tec, controllerNavigation.getMain().getDataStatus().getWriteVehicleReports(), reportsTimeIntervalInSeconds,
                 controllerNavigation.getMain().getDataStatus().getSimulationTime(), controllerNavigation.getMain().getDataStatus().getHeuristics().getName(),
                 controllerNavigation.getMain().getDataStatus().getReportsFolder(), scaleAdjustment);
     }

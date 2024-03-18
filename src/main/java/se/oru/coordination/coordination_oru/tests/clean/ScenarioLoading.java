@@ -70,7 +70,7 @@ public class ScenarioLoading {
 		viz.setInitialTransform(20.0, 9.0, 2.0);
 		tec.setVisualization(viz);
 
-		Missions.startMissionDispatchers(tec);
+		Missions.startMissionDispatcher(tec);
 		
 		//Missions.saveMap("fuzz");
 		

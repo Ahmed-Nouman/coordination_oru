@@ -91,7 +91,7 @@ public class Mission implements Comparable<Mission> {
 	 * @return The stopping points along this {@link Mission}'s trajectory along with their durations.
 	 */
 	public HashMap<Pose,Integer> getStoppingPoints() {
-		HashMap<Pose,Integer> ret = new HashMap<Pose, Integer>();
+		HashMap<Pose,Integer> ret = new HashMap<>();
 		for (int i = 0; i < this.stoppingPoints.size(); i++) {
 			ret.put(this.stoppingPoints.get(i), this.stoppingPointDurations.get(i));
 		}

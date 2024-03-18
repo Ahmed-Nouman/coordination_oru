@@ -172,7 +172,7 @@ public class ThreeDifferentRobotsLinear {
 
 		//Thread.sleep(6000);
 		
-		Missions.startMissionDispatchers(tec);
+		Missions.startMissionDispatcher(tec);
 
 	}
 
