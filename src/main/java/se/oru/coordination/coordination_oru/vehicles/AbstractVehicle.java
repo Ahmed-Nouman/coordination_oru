@@ -4,11 +4,14 @@ import com.vividsolutions.jts.geom.Coordinate;
 import org.apache.commons.lang.ArrayUtils;
 import org.metacsp.multi.spatioTemporal.paths.Pose;
 import org.metacsp.multi.spatioTemporal.paths.PoseSteering;
+import se.oru.coordination.coordination_oru.DataStructure.Task;
 import se.oru.coordination.coordination_oru.motionplanning.ompl.ReedsSheppCarPlanner;
 import se.oru.coordination.coordination_oru.utils.Round;
 
 import java.awt.*;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -39,23 +42,25 @@ public abstract class AbstractVehicle {
     private final String type = this.getClass().getSimpleName();
     private double maxVelocity;
     private double maxAcceleration;
-    private int trackingPeriod;
+    private int trackingPeriod; //FIXME: This should be moved to the tracker class
     private double length;
     private double width;
     private Coordinate[] footprint;
     private Color color;
     private Pose initialPose;
-    private Pose[] goalPoses;
+    private Pose[] goalPoses; //FIXME:should be removed later
+    private List<Task> tasks = new ArrayList<>();
     private Map<Pose, Double> missions;
     private int missionRepetition;
     private double safetyDistance;
     private int safetyPathPoints;
-    private PoseSteering[] path;
+    private PoseSteering[] path; //FIXME:should be removed later
+    private List<PoseSteering[]> paths = new ArrayList<>();
+
     private double pathLength;
     private ReedsSheppCarPlanner.PLANNING_ALGORITHM planningAlgorithm;
 
     //TODO: Add mission support to the vehicle class List<GoalPose, time>
-    //TODO: Add safety distance support to the vehicle class
     //FIXME: Move planning methods to a separate class. This class should only contain vehicle properties and methods
 //    private Map<Integer, AbstractMap.SimpleEntry<PoseSteering[], Integer>> planSegmentsMap;
     public AbstractVehicle(int ID, String name, int priority, Color color, double maxVelocity, double maxAcceleration,
@@ -76,15 +81,6 @@ public abstract class AbstractVehicle {
         this.footprint = makeFootprint(length, width);
         this.planningAlgorithm = ReedsSheppCarPlanner.PLANNING_ALGORITHM.RRTConnect;
 
-        // Adjusted to handle both a single Pose and an array of Poses
-//        if (goalPoses instanceof Pose) {
-//            this.goalPoses = new Pose[]{(Pose) goalPoses};
-//        } else if (goalPoses instanceof Pose[]) {
-//            this.goalPoses = (Pose[]) goalPoses;
-//        } else {
-//            throw  new IllegalArgumentException("Invalid type for goal poses");
-//        }
-
         var existingVehicle = VehiclesHashMap.getVehicle(ID);
         if (existingVehicle != null) throw new IllegalStateException("ID " + ID + " already exists.");
 
@@ -102,6 +98,14 @@ public abstract class AbstractVehicle {
 
     public static double calculateFootprintArea(double length, double width) {
         return length * width;                  // FIXME Currently allows four sided vehicles only
+    }
+
+    public void getPlans(String map, Boolean inversePath) {
+        if (initialPose != null && tasks != null)
+            for (Task task : tasks) {
+                getPlan(initialPose, task.getPoses(), map, inversePath, 0.09, 60, 2.0, 0.1);
+                initialPose = task.getPoses()[task.getPoses().length-1];
+            }
     }
 
     public void getPlan(AbstractVehicle vehicle, String map, Boolean inversePath) {
@@ -140,6 +144,7 @@ public abstract class AbstractVehicle {
 
         if (inversePath) path = (PoseSteering[]) ArrayUtils.addAll(path, rsp.getPathInv());
         this.setPath(path);
+        paths.add(path);
     }
 
     @Override
@@ -347,6 +352,10 @@ public abstract class AbstractVehicle {
         this.goalPoses = goalPoses;
     }
 
+    public void setGoalPoses(Pose goalPose) {
+        this.goalPoses = new Pose[] {goalPose};
+    }
+
     public void setName(String name) {
         this.name = name;
     }
@@ -404,5 +413,21 @@ public abstract class AbstractVehicle {
 
     public void setSafetyPathPoints() {
         if (this.path != null) this.safetyPathPoints = (int) Math.round(path.length / pathLength * safetyDistance);
+    }
+
+    public List<Task> getTasks() {
+        return tasks;
+    }
+
+    public void addTask(Task task) {
+        this.tasks.add(task);
+    }
+
+    public List<PoseSteering[]> getPaths() {
+        return paths;
+    }
+
+    public void setPaths(List<PoseSteering[]> paths) {
+        this.paths = paths;
     }
 }
