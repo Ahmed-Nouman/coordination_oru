@@ -896,25 +896,20 @@ public class Missions {
 		}
 	}
 
-	public static void runMissionsOnce(TrajectoryEnvelopeCoordinatorSimulation tec) { //TODO: Assumption, This code assumes you have all the mission pre-planned and stored in the vehicles
-		// Initialize a common stoppage time map for all robots with Double values
-//		Map<Integer, Double> commonStoppageTimes = new HashMap<>();
-//		commonStoppageTimes.put(0, 0.25); // 0.25 minutes (15 seconds) for mission number 0
-//		commonStoppageTimes.put(1, 0.5);  // 0.5 minutes (30 seconds) for mission number 1
-
+	public static void runMissionsOnce(TrajectoryEnvelopeCoordinatorSimulation tec) {
 		var executorService = Executors.newScheduledThreadPool(tec.getAllRobotIDs().size());
 		for (int robotID : convertSetToIntArray(tec.getAllRobotIDs())) {
 			executorService.execute(() -> {
 				var missionNumber = 0;
 				var missions = Missions.getMissions(robotID);
-                while (missionNumber < missions.size()) {
-                    missionNumber = handleMission(tec, missionNumber, missions);
-					double stoppageTime = VehiclesHashMap.getVehicle(robotID).getTasks().get(missionNumber-1).getTime();
-					System.out.println("Mission number: " + missionNumber);
-					System.out.println("Stoppage time: " + stoppageTime);
-                    delayBetweenMission(missionNumber, stoppageTime);
-//                    threadSleep(); // FIXME: Check if need it?
-                }
+				for (int i = 0; i < missions.size(); i++) {
+					System.out.println("Robot" + robotID + "Call" + i);
+					var nextMission = missions.get(missionNumber);
+					synchronized (tec) {
+						if (tec.addMissions(nextMission)) missionNumber++;
+					}
+					delayBetweenMission(missionNumber, VehiclesHashMap.getVehicle(robotID).getTasks().get(missionNumber).getTime());
+				}
 			});
 		}
 		executorService.shutdown();
