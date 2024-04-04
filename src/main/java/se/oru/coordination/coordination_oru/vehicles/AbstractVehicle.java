@@ -419,6 +419,13 @@ public abstract class AbstractVehicle {
         return tasks;
     }
 
+    public void addGoal(Pose goalPose) {
+    this.tasks.add(new Task(new Pose[] {goalPose}, 0.0));
+    }
+    public void addGoals(Pose[] goalPoses) {
+        this.tasks.add(new Task(goalPoses, 0.0));
+    }
+
     public void addTask(Task task) {
         this.tasks.add(task);
     }

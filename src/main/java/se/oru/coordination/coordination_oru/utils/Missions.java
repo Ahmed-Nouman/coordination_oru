@@ -903,7 +903,6 @@ public class Missions {
 				var missionNumber = 0;
 				var missions = Missions.getMissions(robotID);
 				for (int i = 0; i < missions.size(); i++) {
-					System.out.println("Robot" + robotID + "Call" + i);
 					var nextMission = missions.get(missionNumber);
 					synchronized (tec) {
 						if (tec.addMissions(nextMission)) missionNumber++;
