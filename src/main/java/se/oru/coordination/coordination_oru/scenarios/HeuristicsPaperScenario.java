@@ -2,7 +2,6 @@ package se.oru.coordination.coordination_oru.scenarios;
 
 import org.metacsp.multi.spatioTemporal.paths.Pose;
 import se.oru.coordination.coordination_oru.ConstantAccelerationForwardModel;
-import se.oru.coordination.coordination_oru.Mission;
 import se.oru.coordination.coordination_oru.motionplanning.ompl.ReedsSheppCarPlanner;
 import se.oru.coordination.coordination_oru.simulation2D.TrajectoryEnvelopeCoordinatorSimulation;
 import se.oru.coordination.coordination_oru.utils.*;
@@ -60,38 +59,38 @@ public class HeuristicsPaperScenario {
         final var orePass = new Pose(39.95, 9.15, DOWN);
 
         var productionVehicle1 = new AutonomousVehicle("P1",0, Color.YELLOW, maxVelocity, maxAcceleration,
-                length, width, drawPoint1, new Pose[] {orePass}, PRODUCTION_SAFETY_DISTANCE, 0);
-        productionVehicle1.setPlanningAlgorithm(PLANNING_ALGORITHM);
+                length, width, drawPoint1, PRODUCTION_SAFETY_DISTANCE, 0);
+        productionVehicle1.setGoals(new Pose[] {orePass, drawPoint1});
 //        var productionVehicle2 = new AutonomousVehicle("P2", 0, Color.YELLOW, maxVelocity, maxAcceleration, TRACKING_PERIOD,
 //                length, width, drawPoint2, new Pose[] {orePass}, 0, 0);
         var productionVehicle3 = new AutonomousVehicle("P3", 0, Color.YELLOW, maxVelocity, maxAcceleration,
-                length, width, drawPoint3, new Pose[] {orePass}, PRODUCTION_SAFETY_DISTANCE, 0);
-        productionVehicle1.setPlanningAlgorithm(PLANNING_ALGORITHM);
+                length, width, drawPoint3, PRODUCTION_SAFETY_DISTANCE, 0);
+        productionVehicle3.setGoals(new Pose[] {orePass, drawPoint3});
 //        var productionVehicle4 = new AutonomousVehicle("P4", 0, Color.YELLOW, maxVelocity, maxAcceleration, TRACKING_PERIOD,
 //                length, width, drawPoint4, new Pose[] {orePass}, 0, 0);
         var productionVehicle5 = new AutonomousVehicle("P5", 0, Color.YELLOW, maxVelocity, maxAcceleration,
-                length, width, drawPoint5, new Pose[] {orePass}, PRODUCTION_SAFETY_DISTANCE, 0);
-        productionVehicle5.setPlanningAlgorithm(PLANNING_ALGORITHM);
+                length, width, drawPoint5, PRODUCTION_SAFETY_DISTANCE, 0);
+        productionVehicle5.setGoals(new Pose[] {orePass, drawPoint5});
 //        var productionVehicle6 = new AutonomousVehicle("P6", 0, Color.YELLOW, maxVelocity, maxAcceleration, TRACKING_PERIOD,
 //                length, width, drawPoint6, new Pose[] {orePass}, 0, 0);
         var productionVehicle7 = new AutonomousVehicle("P7", 0, Color.YELLOW, maxVelocity, maxAcceleration,
-                length, width, drawPoint7, new Pose[] {orePass}, PRODUCTION_SAFETY_DISTANCE, 0);
-        productionVehicle7.setPlanningAlgorithm(PLANNING_ALGORITHM);
+                length, width, drawPoint7, PRODUCTION_SAFETY_DISTANCE, 0);
+        productionVehicle7.setGoals(new Pose[] {orePass, drawPoint7});
 //        var productionVehicle8 = new AutonomousVehicle("P8", 0, Color.YELLOW, maxVelocity, maxAcceleration, TRACKING_PERIOD,
 //                length, width, drawPoint8, new Pose[] {orePass}, 0, 0);
         var serviceVehicle = new AutonomousVehicle("S1", 1,  Color.GREEN, maxVelocity, maxAcceleration,
-                length, width, mainTunnelLeft, new Pose[] {mainTunnelRight}, SERVICE_SAFETY_DISTANCE, 0);
-        serviceVehicle.setPlanningAlgorithm(PLANNING_ALGORITHM);
+                length, width, mainTunnelLeft, SERVICE_SAFETY_DISTANCE, 0);
+        serviceVehicle.setGoals(new Pose[] {mainTunnelLeft, mainTunnelRight});
 
-        productionVehicle1.getPlan(YAML_FILE);
+        productionVehicle1.generatePlans(YAML_FILE);
 //        productionVehicle2.getPlan(productionVehicle2, YAML_FILE, false);
-        productionVehicle3.getPlan(YAML_FILE);
+        productionVehicle3.generatePlans(YAML_FILE);
 //        productionVehicle4.getPlan(productionVehicle4, YAML_FILE, false);
-        productionVehicle5.getPlan(YAML_FILE);
+        productionVehicle5.generatePlans(YAML_FILE);
 //        productionVehicle6.getPlan(productionVehicle6, YAML_FILE, false);
-        productionVehicle7.getPlan(YAML_FILE);
+        productionVehicle7.generatePlans(YAML_FILE);
 //        productionVehicle8.getPlan(productionVehicle8, YAML_FILE, false);
-        serviceVehicle.getPlan(YAML_FILE);
+        serviceVehicle.generatePlans(YAML_FILE);
 
         // Instantiate a trajectory envelope coordinator. TODO Velocity and acceleration are hard coded for tec.
         var tec = new TrajectoryEnvelopeCoordinatorSimulation(1000, 1000, maxVelocity, maxAcceleration);
@@ -127,15 +126,7 @@ public class HeuristicsPaperScenario {
                 tec.getRobotTrackingPeriodInMillis(serviceVehicle.getID())));
 
         tec.setDefaultFootprint(productionVehicle1.getFootprint());
-        tec.placeRobot(productionVehicle1.getID(), productionVehicle1.getInitialPose());
-//        tec.placeRobot(productionVehicle2.getID(), productionVehicle2.getInitialPose());
-        tec.placeRobot(productionVehicle3.getID(), productionVehicle3.getInitialPose());
-//        tec.placeRobot(productionVehicle4.getID(), productionVehicle4.getInitialPose());
-        tec.placeRobot(productionVehicle5.getID(), productionVehicle5.getInitialPose());
-//        tec.placeRobot(productionVehicle6.getID(), productionVehicle6.getInitialPose());
-        tec.placeRobot(productionVehicle7.getID(), productionVehicle7.getInitialPose());
-//        tec.placeRobot(productionVehicle8.getID(), productionVehicle8.getInitialPose());
-        tec.placeRobot(serviceVehicle.getID(), serviceVehicle.getInitialPose());
+        tec.placeRobotsAtStartPoses();
 
         var heuristic = new Heuristics(HEURISTIC_TYPE);
         tec.addComparator(heuristic.getComparator());
@@ -150,51 +141,13 @@ public class HeuristicsPaperScenario {
             viz.setInitialTransform(11.0, 16.18, 22.50);
             tec.setVisualization(viz);
         }
-        var m1 = new Mission(productionVehicle1.getID(), productionVehicle1.getPath());
-//        var m1Inv = new ArrayList<>(Arrays.asList(productionVehicle1.getPath()));
-//        Collections.reverse(m1Inv);
-//        var m1Back = new Mission(productionVehicle1.getID(), m1Inv.toArray(new PoseSteering[0]));
-//        var m2 = new Mission(productionVehicle2.getID(), productionVehicle2.getPath());
-        var m3 = new Mission(productionVehicle3.getID(), productionVehicle3.getPath());
-//        var m3Inv = new ArrayList<>(Arrays.asList(productionVehicle3.getPath()));
-//        Collections.reverse(m3Inv);
-//        var m3Back = new Mission(productionVehicle3.getID(), m3Inv.toArray(new PoseSteering[0]));
-//        var m4 = new Mission(productionVehicle4.getID(), productionVehicle4.getPath());
-        var m5 = new Mission(productionVehicle5.getID(), productionVehicle5.getPath());
-//        var m5Inv = new ArrayList<>(Arrays.asList(productionVehicle5.getPath()));
-//        Collections.reverse(m5Inv);
-//        var m5Back = new Mission(productionVehicle5.getID(), m5Inv.toArray(new PoseSteering[0]));
-//        var m6 = new Mission(productionVehicle6.getID(), productionVehicle6.getPath());
-        var m7 = new Mission(productionVehicle7.getID(), productionVehicle7.getPath());
-//        var m7Inv = new ArrayList<>(Arrays.asList(productionVehicle7.getPath()));
-//        Collections.reverse(m7Inv);
-//        var m7Back = new Mission(productionVehicle7.getID(), m7Inv.toArray(new PoseSteering[0]));
-//        var m8 = new Mission(productionVehicle8.getID(), productionVehicle8.getPath());
-        var m9 = new Mission(serviceVehicle.getID(), serviceVehicle.getPath());
-//        var m9Inv = new ArrayList<>(Arrays.asList(serviceVehicle.getPath()));
-//        Collections.reverse(m9Inv);
-//        var m9Back = new Mission(serviceVehicle.getID(), m9Inv.toArray(new PoseSteering[0]));
-//        Missions.saveRoadMap("missions/gg");
 
-        Missions.enqueueMission(m1);
-//        Missions.enqueueMission(m1Back);
-//        Missions.enqueueMission(m2);
-        Missions.enqueueMission(m3);
-//        Missions.enqueueMission(m3Back);
-//        Missions.enqueueMission(m4);
-        Missions.enqueueMission(m5);
-//        Missions.enqueueMission(m5Back);
-//        Missions.enqueueMission(m6);
-        Missions.enqueueMission(m7);
-//        Missions.enqueueMission(m7Back);
-//        Missions.enqueueMission(m8);
-        Missions.enqueueMission(m9);
-//        Missions.enqueueMission(m9Back);
+        Missions.generateMissions();
         Missions.setMap(YAML_FILE);
-//        Missions.runMissionsOnce(tec);
+        Missions.runMissionsOnce(tec);
 //        Missions.runMissionsIndefinitely(tec);
 //        Missions.startMissionDispatchers(tec);
-        Missions.startMissionDispatcher(tec, WRITE_VEHICLE_REPORTS, REPORTING_TIME, REPORTING_INTERVAL, heuristicName, reportsFolder, SCALE_ADJUSTMENT);
+//        Missions.startMissionDispatcher(tec, WRITE_VEHICLE_REPORTS, REPORTING_TIME, REPORTING_INTERVAL, heuristicName, reportsFolder, SCALE_ADJUSTMENT);
     }
 
 }

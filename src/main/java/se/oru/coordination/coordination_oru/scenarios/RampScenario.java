@@ -9,6 +9,8 @@ import se.oru.coordination.coordination_oru.utils.Missions;
 import se.oru.coordination.coordination_oru.vehicles.AutonomousVehicle;
 import se.oru.coordination.coordination_oru.vehicles.LookAheadVehicle;
 
+import java.awt.*;
+
 public class RampScenario {
     public static void main(String[] args) {
 
@@ -21,10 +23,13 @@ public class RampScenario {
         final Pose orePass = new Pose(54.35, 11.25, -Math.PI / 2);
         final String YAML_FILE = "maps/mine-map-test.yaml";
 
-        var autonomousVehicle = new AutonomousVehicle(drawPoint21, new Pose[] {orePass});
-        var lookAheadVehicle = new LookAheadVehicle(predictableDistance, mainTunnelLeft, new Pose[] {mainTunnelRight});
-        autonomousVehicle.getPlan(YAML_FILE);
-        lookAheadVehicle.getPlan(YAML_FILE);
+        var autonomousVehicle = new AutonomousVehicle("A1", 1, Color.YELLOW, 10.0, 1.0, 9.0, 6.0,
+                drawPoint21, 0, 0);
+        autonomousVehicle.setGoals(orePass);
+        var lookAheadVehicle = new LookAheadVehicle("L1", predictableDistance, 1, Color.YELLOW, 10.0, 1.0, 9.0, 6.0,
+                mainTunnelLeft, 0, 0);
+        autonomousVehicle.generatePlans(YAML_FILE);
+        lookAheadVehicle.generatePlans(YAML_FILE);
 
         // Instantiate a trajectory envelope coordinator.
         var tec = new TrajectoryEnvelopeCoordinatorSimulation(2000, 1000, 5, 2);

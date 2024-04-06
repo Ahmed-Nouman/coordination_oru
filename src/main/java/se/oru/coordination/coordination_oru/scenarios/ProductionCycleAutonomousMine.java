@@ -45,16 +45,20 @@ public class ProductionCycleAutonomousMine {
                 drawPoint36, drawPoint37, drawPoint38, workStation3};
 
         var drillVehicle = new AutonomousVehicle("drillRig", 1, Color.MAGENTA, 5, 2,
-                0.5, 0.5, mainTunnelLeft, drillRigGoal, 0, 0);
+                0.5, 0.5, mainTunnelLeft, 0, 0);
         var chargingVehicle = new AutonomousVehicle("chargingVehicle", 1, Color.PINK, 5, 2,
-                0.5, 0.5, mainTunnelLeft, chargingVehicleGoal, 0, 0);
+                0.5, 0.5, mainTunnelLeft, 0, 0);
         var waterVehicle = new AutonomousVehicle("waterVehicle", 1, Color.BLUE, 5, 2,
-                0.5, 0.5, mainTunnelLeft, waterVehicleGoal, 0, 0);
+                0.5, 0.5, mainTunnelLeft, 0, 0);
 
-        var autonomousVehicle1 = new AutonomousVehicle(drawPoint16, new Pose[] {orePass});
-        var autonomousVehicle2 = new AutonomousVehicle(drawPoint23, new Pose[] {orePass});
-        autonomousVehicle1.getPlan(YAML_FILE);
-        autonomousVehicle2.getPlan(YAML_FILE);
+        var autonomousVehicle1 = new AutonomousVehicle("A1", 1, Color.YELLOW, 10.0, 1.0, 9.0, 6.0,
+                drawPoint16, 0, 0);
+        autonomousVehicle1.setGoals(orePass);
+        var autonomousVehicle2 = new AutonomousVehicle("A2", 1, Color.YELLOW, 10.0, 1.0, 9.0, 6.0,
+                drawPoint23, 0, 0);
+        autonomousVehicle2.setGoals(orePass);
+        autonomousVehicle1.generatePlans(YAML_FILE);
+        autonomousVehicle2.generatePlans(YAML_FILE);
 
         // Instantiate a trajectory envelope coordinator.
         final var tec = new TrajectoryEnvelopeCoordinatorSimulation(2000, 1000, 5, 2);
@@ -100,11 +104,9 @@ public class ProductionCycleAutonomousMine {
         tec.setForwardModel(waterVehicle.getID(), new ConstantAccelerationForwardModel(waterVehicle.getMaxAcceleration(), waterVehicle.getMaxVelocity(), tec.getTemporalResolution(),
                 tec.getControlPeriod(), tec.getRobotTrackingPeriodInMillis(waterVehicle.getID())));
 
-        drillVehicle.getPlan(YAML_FILE);
-        chargingVehicle.getPlan(YAML_FILE);
-        waterVehicle.getPlan(YAML_FILE,
-                0.01, 120,
-                0.01, 0.1);
+        drillVehicle.generatePlans(YAML_FILE);
+        chargingVehicle.generatePlans(YAML_FILE);
+        waterVehicle.generatePlans(YAML_FILE);
 
         Thread.sleep(5000);
         tec.placeRobot(drillVehicle.getID(), mainTunnelLeft);

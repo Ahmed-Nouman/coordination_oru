@@ -11,7 +11,6 @@ import java.awt.*;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
 
 /**
  * The AbstractVehicle class is an abstract base class for representing different types of vehicles.
@@ -46,7 +45,6 @@ public abstract class AbstractVehicle {
     private Coordinate[] footprint;
     private Color color;
     private Pose initialPose;
-    private Pose[] goalPoses; //FIXME:should be removed later
     private final List<Task> tasks = new ArrayList<>();
     private int missionRepetition;
     private double safetyDistance;
@@ -58,7 +56,7 @@ public abstract class AbstractVehicle {
 
     //FIXME: Move planning methods to a separate class. This class should only contain vehicle properties and methods
     public AbstractVehicle(int ID, String name, int priority, Color color, double maxVelocity, double maxAcceleration,
-                           double length, double width, Pose initialPose, Pose[] goalPoses, double safetyDistance, int missionRepetition) {
+                           double length, double width, Pose initialPose, double safetyDistance, int missionRepetition) {
         this.ID = ID;
         this.name = name;
         this.priority = priority;
@@ -68,7 +66,6 @@ public abstract class AbstractVehicle {
         this.length = length;
         this.width = width;
         this.initialPose = initialPose;
-        this.goalPoses = goalPoses;
         this.safetyDistance = safetyDistance;
         this.missionRepetition = missionRepetition;
         this.footprint = makeFootprint(length, width);
@@ -81,7 +78,7 @@ public abstract class AbstractVehicle {
         vehicleNumber++;
     }
     public static Coordinate[] makeFootprint(double length, double width) {
-        return new Coordinate[]{               // FIXME Currently allows four sided vehicles only
+        return new Coordinate[]{               //FIXME: Currently allows four sided vehicles only
                 new Coordinate(-length, width),        //back left
                 new Coordinate(length, width),         //back right
                 new Coordinate(length, -width),        //front right
@@ -90,28 +87,17 @@ public abstract class AbstractVehicle {
     }
 
     public static double calculateFootprintArea(double length, double width) {
-        return length * width;                  // FIXME Currently allows four sided vehicles only
+        return length * width;                  //FIXME: Currently allows four sided vehicles only
     }
 
     public void generatePlans(String map) {
-        if (!tasks.isEmpty())
+        if (!tasks.isEmpty()) {
             for (Task task : tasks) {
                 var rsp = configureReedsSheppCarPlanner(map, 0.09, 30, 2.0, 0.1);
                 generatePath(rsp, initialPose, task.getPoses());
-                initialPose = task.getPoses()[task.getPoses().length-1];
+                initialPose = task.getPoses()[task.getPoses().length - 1];
             }
-    }
-
-    //FIXME: Removing the method causes errors in the code. It should be removed later
-    public void getPlan(String map) {
-        if (initialPose != null && goalPoses != null)
-            getPlan(map, 0.09, 30, 2.0, 0.1);
-    }
-
-    public void getPlan(String map,
-                        double radius, double planningTime, double turningRadius, double distanceBetweenPathPoints) {
-        var rsp = configureReedsSheppCarPlanner(map, radius, planningTime, turningRadius, distanceBetweenPathPoints);
-        generatePath(rsp, initialPose, goalPoses);
+        }
     }
 
     private ReedsSheppCarPlanner configureReedsSheppCarPlanner(String map, double radius, double planningTime,
@@ -154,7 +140,6 @@ public abstract class AbstractVehicle {
                 ", length=" + length +
                 ", width=" + width +
                 ", initialPose=" + initialPose +
-                ", goalPoses=" + Arrays.toString(goalPoses) +
                 ", safetyDistance=" + safetyDistance +
                 ", pathLength=" + pathLength +
                 ", footprint=" + Arrays.toString(footprint) +
@@ -167,7 +152,7 @@ public abstract class AbstractVehicle {
 
     public Coordinate[] getFootprint() {
         return footprint;
-    } //TODO: Each vehicle should be able to have a separate footprint in tec not the default one. ALso, allow non-rectangular footprints
+    } //TODO: Each vehicle should be able to have a separate footprint in tec not the default one. Also, allow non-rectangular footprints
 
     public void setColor(Object color) {
         if (color instanceof String) {
@@ -323,18 +308,6 @@ public abstract class AbstractVehicle {
 
     public void setInitialPose(Pose initialPose) {
         this.initialPose = initialPose;
-    }
-
-    public Pose[] getGoalPoses() {
-        return goalPoses;
-    }
-
-    public void setGoalPoses(Pose[] goalPoses) {
-        this.goalPoses = goalPoses;
-    }
-
-    public void setGoalPoses(Pose goalPose) {
-        this.goalPoses = new Pose[] {goalPose};
     }
 
     public void setName(String name) {

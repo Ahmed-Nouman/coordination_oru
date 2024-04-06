@@ -40,52 +40,25 @@ public class LookAheadVehicle extends AutonomousVehicle {
      * @param length            Physical length of the vehicle.
      * @param width             Physical width of the vehicle.
      * @param initialPose       Initial pose of the vehicle in the environment.
-     * @param goalPoses         Target poses that the vehicle aims to reach.
      * @param safetyDistance    Minimum safe distance to be maintained from other objects.
      */
     public LookAheadVehicle(int ID, String name, double lookAheadDistance, int priorityID, Color color, double maxVelocity, double maxAcceleration,
-                            double length, double width, Pose initialPose, Pose[] goalPoses, double safetyDistance, int missionRepetition) {
-        super(ID, name, priorityID, color, maxVelocity, maxAcceleration, length, width, initialPose, goalPoses, safetyDistance,
+                            double length, double width, Pose initialPose, double safetyDistance, int missionRepetition) {
+        super(ID, name, priorityID, color, maxVelocity, maxAcceleration, length, width, initialPose, safetyDistance,
                 missionRepetition);
         this.lookAheadDistance = lookAheadDistance;
     }
 
     public LookAheadVehicle(String name, double lookAheadDistance, int priorityID, Color color, double maxVelocity, double maxAcceleration,
-                            double length, double width, Pose initialPose, Pose[] goalPoses, double safetyDistance, int missionRepetition) {
-        this(vehicleNumber, name, lookAheadDistance, priorityID, color, maxVelocity, maxAcceleration, length, width, initialPose, goalPoses, safetyDistance,
+                            double length, double width, Pose initialPose, double safetyDistance, int missionRepetition) {
+        this(vehicleNumber, name, lookAheadDistance, priorityID, color, maxVelocity, maxAcceleration, length, width, initialPose, safetyDistance,
                 missionRepetition);
     }
 
-    public LookAheadVehicle(double lookAheadDistance, Pose initialPose, Pose[] goalPoses) {
-        this(vehicleNumber, null, lookAheadDistance, 1, Color.YELLOW, 5.0, 1.0,
-                0.5, 0.5, initialPose, goalPoses, 0, 0);
-    }
-
+    //FIXME: Remove as a constructor
     public LookAheadVehicle(double lookAheadDistance) {
         this(vehicleNumber, null,  lookAheadDistance,  1, Color.YELLOW, 5.0, 1.0,
-                0.5, 0.5, null, null, 0, 0);
-    }
-    public LookAheadVehicle() {
-        this(vehicleNumber, null,  20,  1, Color.YELLOW, 5.0, 1.0,
-                0.5, 0.5, null, null, 0, 0);
-    }
-
-    public static AutonomousVehicle convertToAutonomousVehicle(LookAheadVehicle lookAheadVehicle) {
-        VehiclesHashMap.removeVehicle(lookAheadVehicle.getID());
-        return new AutonomousVehicle(
-                lookAheadVehicle.getID(),
-                lookAheadVehicle.getName(),
-                lookAheadVehicle.getPriority(),
-                (Color) lookAheadVehicle.getColor("color"),
-                lookAheadVehicle.getMaxVelocity(),
-                lookAheadVehicle.getMaxAcceleration(),
-                lookAheadVehicle.getLength(),
-                lookAheadVehicle.getWidth(),
-                lookAheadVehicle.getInitialPose(),
-                lookAheadVehicle.getGoalPoses(),
-                lookAheadVehicle.getSafetyDistance(),
-                lookAheadVehicle.getMissionRepetition()
-        );
+                0.5, 0.5, null, 0, 0);
     }
 
     /**

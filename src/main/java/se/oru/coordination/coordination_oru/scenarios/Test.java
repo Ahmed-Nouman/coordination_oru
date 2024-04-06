@@ -2,7 +2,6 @@ package se.oru.coordination.coordination_oru.scenarios;
 
 import org.metacsp.multi.spatioTemporal.paths.Pose;
 import se.oru.coordination.coordination_oru.DataStructure.Task;
-import se.oru.coordination.coordination_oru.Mission;
 import se.oru.coordination.coordination_oru.simulation2D.TrajectoryEnvelopeCoordinatorSimulation;
 import se.oru.coordination.coordination_oru.utils.BrowserVisualization;
 import se.oru.coordination.coordination_oru.utils.Heuristics;
@@ -22,14 +21,14 @@ public class Test {
 
 
         var autonomousVehicle = new AutonomousVehicle("A1",1, Color.YELLOW, 10.0, 1.0,
-                0.9, 0.65, drawPoint21, new Pose[] {orePass}, 0, 0);
+                0.9, 0.65, drawPoint21, 0, 0);
         autonomousVehicle.setGoals(mainTunnelRight);
 //        autonomousVehicle.setGoals(new Pose[] {mainTunnelRight, drawPoint21});
 //        autonomousVehicle.addTask(new Task(new Pose[] {mainTunnelRight}, 0.25));
 //        autonomousVehicle.addTask(new Task(new Pose[] {mainTunnelLeft}, 0.5));
 
         var autonomousVehicle1 = new AutonomousVehicle("A2",1, Color.YELLOW, 10.0, 1.0,
-                0.9, 0.65, orePass, new Pose[] {mainTunnelLeft}, 0, 0);
+                0.9, 0.65, orePass, 0, 0);
         autonomousVehicle1.addTask(new Task(new Pose[] {mainTunnelLeft}, 0.25));
         autonomousVehicle1.addTask(new Task(new Pose[] {orePass}, 0.5));
 

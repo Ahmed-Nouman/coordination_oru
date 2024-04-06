@@ -30,22 +30,37 @@ public class SevenAutonomousOneLookAheadVehicles {
         final Pose orePass = new Pose(54.35,11.25,-Math.PI/2);
 
         var lookAheadVehicle = new LookAheadVehicle("H1",predictableDistance,1,  Color.CYAN, 5, 2,
-                0.5, 0.5, mainTunnelLeft, new Pose[] {mainTunnelRight}, 0, 0);
-        var autonomousVehicle1 = new AutonomousVehicle(drawPoint17, new Pose[] {orePass});
-        var autonomousVehicle2 = new AutonomousVehicle(drawPoint19, new Pose[] {orePass});
-        var autonomousVehicle3 = new AutonomousVehicle(drawPoint20, new Pose[] {orePass});
-        var autonomousVehicle4 = new AutonomousVehicle(drawPoint21, new Pose[] {orePass});
-        var autonomousVehicle5 = new AutonomousVehicle(drawPoint22, new Pose[] {orePass});
-        var autonomousVehicle6 = new AutonomousVehicle(drawPoint23, new Pose[] {orePass});
-        var autonomousVehicle7 = new AutonomousVehicle(drawPoint24, new Pose[] {orePass});
-        lookAheadVehicle.getPlan(YAML_FILE);
-        autonomousVehicle1.getPlan(YAML_FILE);
-        autonomousVehicle2.getPlan(YAML_FILE);
-        autonomousVehicle3.getPlan(YAML_FILE);
-        autonomousVehicle4.getPlan(YAML_FILE);
-        autonomousVehicle5.getPlan(YAML_FILE);
-        autonomousVehicle6.getPlan(YAML_FILE);
-        autonomousVehicle7.getPlan(YAML_FILE);
+                0.5, 0.5, mainTunnelLeft, 0, 0);
+        lookAheadVehicle.setGoals(mainTunnelRight);
+        var autonomousVehicle1 = new AutonomousVehicle("A1", 1, Color.YELLOW, 10.0, 1.0, 9.0, 6.0,
+                drawPoint17, 0, 0);
+        autonomousVehicle1.setGoals(orePass);
+        var autonomousVehicle2 = new AutonomousVehicle("A2", 1, Color.YELLOW, 10.0, 1.0, 9.0, 6.0,
+                drawPoint19, 0, 0);
+        autonomousVehicle2.setGoals(orePass);
+        var autonomousVehicle3 = new AutonomousVehicle("A3", 1, Color.YELLOW, 10.0, 1.0, 9.0, 6.0,
+                drawPoint20, 0, 0);
+        autonomousVehicle3.setGoals(orePass);
+        var autonomousVehicle4 = new AutonomousVehicle("A4", 1, Color.YELLOW, 10.0, 1.0, 9.0, 6.0,
+                drawPoint21, 0, 0);
+        autonomousVehicle4.setGoals(orePass);
+        var autonomousVehicle5 = new AutonomousVehicle("A5", 1, Color.YELLOW, 10.0, 1.0, 9.0, 6.0,
+                drawPoint22, 0, 0);
+        autonomousVehicle5.setGoals(orePass);
+        var autonomousVehicle6 = new AutonomousVehicle("A6", 1, Color.YELLOW, 10.0, 1.0, 9.0, 6.0,
+                drawPoint23, 0, 0);
+        autonomousVehicle6.setGoals(orePass);
+        var autonomousVehicle7 = new AutonomousVehicle("A7", 1, Color.YELLOW, 10.0, 1.0, 9.0, 6.0,
+                drawPoint24, 0, 0);
+        autonomousVehicle7.setGoals(orePass);
+        lookAheadVehicle.generatePlans(YAML_FILE);
+        autonomousVehicle1.generatePlans(YAML_FILE);
+        autonomousVehicle2.generatePlans(YAML_FILE);
+        autonomousVehicle3.generatePlans(YAML_FILE);
+        autonomousVehicle4.generatePlans(YAML_FILE);
+        autonomousVehicle5.generatePlans(YAML_FILE);
+        autonomousVehicle6.generatePlans(YAML_FILE);
+        autonomousVehicle7.generatePlans(YAML_FILE);
 
         // Instantiate a trajectory envelope coordinator.
         final var tec = new TrajectoryEnvelopeCoordinatorSimulation(2000, 1000,

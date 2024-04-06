@@ -1,7 +1,6 @@
 package se.oru.coordination.coordination_oru.scenarios;
 
 import org.metacsp.multi.spatioTemporal.paths.Pose;
-import se.oru.coordination.coordination_oru.Mission;
 import se.oru.coordination.coordination_oru.simulation2D.TrajectoryEnvelopeCoordinatorSimulation;
 import se.oru.coordination.coordination_oru.utils.BrowserVisualization;
 import se.oru.coordination.coordination_oru.utils.Heuristics;
@@ -20,7 +19,7 @@ public class Test2 {
         final String YAML_FILE = "maps/mine-map-test.yaml";
 
         var autonomousVehicle = new AutonomousVehicle("A1",1, Color.YELLOW, 10.0, 1.0,
-                0.9, 0.65, drawPoint21, new Pose[] {orePass, mainTunnelLeft, mainTunnelRight}, 0, 0);
+                0.9, 0.65, drawPoint21, 0, 0);
         autonomousVehicle.setGoals(new Pose[] {orePass, mainTunnelLeft, mainTunnelRight}); //FIXME: For getPlans 1) set Goal/Goals/Tasks and remove GoalPoses
         autonomousVehicle.generatePlans(YAML_FILE);
 

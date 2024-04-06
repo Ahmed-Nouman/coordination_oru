@@ -22,11 +22,11 @@ public class OneAutonomousOneLookAheadVehicles {
 
 
         var autonomousVehicle = new AutonomousVehicle("A1",1, Color.YELLOW, 10.0, 1.0,
-                0.9, 0.65, drawPoint21, new Pose[] {orePass}, 0, 0);
+                0.9, 0.65, drawPoint21, 0, 0);
         var lookAheadVehicle = new AutonomousVehicle("H1", 1, Color.BLUE, 10.0, 1.0,
-                0.9, 0.65, mainTunnelLeft, new Pose[] {mainTunnelRight}, 0, 0);
-        autonomousVehicle.getPlan(YAML_FILE);
-        lookAheadVehicle.getPlan(YAML_FILE);
+                0.9, 0.65, mainTunnelLeft, 0, 0);
+        autonomousVehicle.generatePlans(YAML_FILE);
+        lookAheadVehicle.generatePlans(YAML_FILE);
 
         // Instantiate a trajectory envelope coordinator.
         var tec = new TrajectoryEnvelopeCoordinatorSimulation(2000, 1000, 5, 2);

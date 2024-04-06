@@ -35,26 +35,26 @@ public class VerifyPlan {
                     AbstractVehicle newVehicle;
                     if ("Human".equals(vehicle.getType()))
                         newVehicle = new LookAheadVehicle(vehicle.getLookAheadDistance() / scaleAdjustment);
-                    else newVehicle = new AutonomousVehicle();
+                    else newVehicle = new AutonomousVehicle(vehicle.getID(),
+                            vehicle.getName(),
+                            vehicle.getPriority(),
+                            Utils.stringToColor(vehicle.getColor()),
+                            vehicle.getMaxVelocity() / scaleAdjustment,
+                            vehicle.getMaxAcceleration() / scaleAdjustment,
+                            vehicle.getLength() / scaleAdjustment,
+                            vehicle.getWidth() / scaleAdjustment,
+                            controllerNavigation.getMain().getDataStatus().getProjectData().getPose(vehicle.getInitialPose()),
+                            vehicle.getSafetyDistance() / scaleAdjustment,
+                            vehicle.getMissionRepetition());
 
-                    newVehicle.setID(vehicle.getID());
-                    newVehicle.setName(vehicle.getName());
-                    newVehicle.setLength(vehicle.getLength() / scaleAdjustment);
-                    newVehicle.setWidth(vehicle.getWidth() / scaleAdjustment);
-                    newVehicle.setMaxVelocity(vehicle.getMaxVelocity() / scaleAdjustment);
-                    newVehicle.setMaxAcceleration(vehicle.getMaxAcceleration() / scaleAdjustment);
-                    newVehicle.setSafetyDistance(vehicle.getSafetyDistance() / scaleAdjustment);
-                    newVehicle.setColor(Utils.stringToColor(vehicle.getColor()));
-                    newVehicle.setInitialPose(controllerNavigation.getMain().getDataStatus().getProjectData().getPose(vehicle.getInitialPose()));
-                    newVehicle.setGoalPoses(vehicle.getMission()
+                    newVehicle.setGoals(vehicle.getMission()
                             .stream()
                             .map(ProjectData.MissionStep::getPoseName)
                             .map(poseName -> controllerNavigation.getMain().getDataStatus().getProjectData().getPose(poseName))
                             .toArray(Pose[]::new));
 //            newVehicle.setMission(vehicle.getMission()); //FIXME Fix Mission, How to handle multiple missions to GoalPoses, handle stoppages
-                    newVehicle.setMissionRepetition(vehicle.getMissionRepetition()); //FIXME Handle Mission Repetitions in missionsDispatcher
 
-                    newVehicle.getPlan(YAML_FILE);
+                    newVehicle.generatePlans(YAML_FILE);
                     newVehicle.setPlanningAlgorithm(controllerNavigation.getMain().getDataStatus().getPathPlanner());
 
                     controllerNavigation.getMain().getDataStatus().getVehicles().add(newVehicle);
