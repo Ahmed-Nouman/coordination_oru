@@ -21,20 +21,20 @@ public class Test {
         final String YAML_FILE = "maps/mine-map-test.yaml";
 
 
-        var autonomousVehicle = new AutonomousVehicle("A1",1, Color.YELLOW, 10.0, 1.0, 30,
+        var autonomousVehicle = new AutonomousVehicle("A1",1, Color.YELLOW, 10.0, 1.0,
                 0.9, 0.65, drawPoint21, new Pose[] {orePass}, 0, 0);
-//        autonomousVehicle.addGoal(mainTunnelRight);
-        autonomousVehicle.addGoals(new Pose[] {mainTunnelRight, drawPoint21});
+        autonomousVehicle.setGoals(mainTunnelRight);
+//        autonomousVehicle.setGoals(new Pose[] {mainTunnelRight, drawPoint21});
 //        autonomousVehicle.addTask(new Task(new Pose[] {mainTunnelRight}, 0.25));
 //        autonomousVehicle.addTask(new Task(new Pose[] {mainTunnelLeft}, 0.5));
 
-        var autonomousVehicle1 = new AutonomousVehicle("A2",1, Color.YELLOW, 10.0, 1.0, 30,
+        var autonomousVehicle1 = new AutonomousVehicle("A2",1, Color.YELLOW, 10.0, 1.0,
                 0.9, 0.65, orePass, new Pose[] {mainTunnelLeft}, 0, 0);
         autonomousVehicle1.addTask(new Task(new Pose[] {mainTunnelLeft}, 0.25));
         autonomousVehicle1.addTask(new Task(new Pose[] {orePass}, 0.5));
 
-        autonomousVehicle.getPlans(YAML_FILE, false);
-        autonomousVehicle1.getPlans(YAML_FILE, false);
+        autonomousVehicle.generatePlans(YAML_FILE);
+        autonomousVehicle1.generatePlans(YAML_FILE);
 
         // Instantiate a trajectory envelope coordinator.
         var tec = new TrajectoryEnvelopeCoordinatorSimulation(2000, 1000, 5, 2);
@@ -44,8 +44,9 @@ public class Test {
         tec.startInference();
 
         tec.setDefaultFootprint(autonomousVehicle.getFootprint());
-        tec.placeRobot(autonomousVehicle.getID(), autonomousVehicle.getPaths().get(0)[0].getPose());
-        tec.placeRobot(autonomousVehicle1.getID(), autonomousVehicle1.getPaths().get(0)[0].getPose());
+        tec.placeRobotsAtStartPoses();
+//        tec.placeRobot(autonomousVehicle.getID(), autonomousVehicle.getPaths().get(0)[0].getPose()); //FIXME: DO Automatic placing of vehicles
+//        tec.placeRobot(autonomousVehicle1.getID(), autonomousVehicle1.getPaths().get(0)[0].getPose());
         tec.addComparator(new Heuristics(Heuristics.HeuristicType.CLOSEST_FIRST).getComparator());
         tec.setUseInternalCriticalPoints(false);
         tec.setYieldIfParking(true);
@@ -58,16 +59,16 @@ public class Test {
         viz.setInitialTransform(11, 45, -3.5);
         tec.setVisualization(viz);
 
-        var m1 = new Mission(autonomousVehicle.getID(), autonomousVehicle.getPaths().get(0));
+//        var m1 = new Mission(autonomousVehicle.getID(), autonomousVehicle.getPaths().get(0));
 //        var m2 = new Mission(autonomousVehicle.getID(), autonomousVehicle.getPaths().get(1));
-        var m3 = new Mission(autonomousVehicle1.getID(), autonomousVehicle1.getPaths().get(0));
-        var m4 = new Mission(autonomousVehicle1.getID(), autonomousVehicle1.getPaths().get(1));
+//        var m3 = new Mission(autonomousVehicle1.getID(), autonomousVehicle1.getPaths().get(0));
+//        var m4 = new Mission(autonomousVehicle1.getID(), autonomousVehicle1.getPaths().get(1));
 
-        Missions.enqueueMission(m1);
+//        Missions.enqueueMission(m1);
 //        Missions.enqueueMission(m2);
-        Missions.enqueueMission(m3);
-        Missions.enqueueMission(m4);
-
+//        Missions.enqueueMission(m3);
+//        Missions.enqueueMission(m4);
+        Missions.generateMissions();
         Missions.setMap(YAML_FILE);
         Missions.runMissionsOnce(tec);
     }

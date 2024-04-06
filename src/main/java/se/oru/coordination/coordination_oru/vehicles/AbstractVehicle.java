@@ -1,7 +1,6 @@
 package se.oru.coordination.coordination_oru.vehicles;
 
 import com.vividsolutions.jts.geom.Coordinate;
-import org.apache.commons.lang.ArrayUtils;
 import org.metacsp.multi.spatioTemporal.paths.Pose;
 import org.metacsp.multi.spatioTemporal.paths.PoseSteering;
 import se.oru.coordination.coordination_oru.DataStructure.Task;
@@ -42,36 +41,30 @@ public abstract class AbstractVehicle {
     private final String type = this.getClass().getSimpleName();
     private double maxVelocity;
     private double maxAcceleration;
-    private int trackingPeriod; //FIXME: This should be moved to the tracker class
     private double length;
     private double width;
     private Coordinate[] footprint;
     private Color color;
     private Pose initialPose;
     private Pose[] goalPoses; //FIXME:should be removed later
-    private List<Task> tasks = new ArrayList<>();
-    private Map<Pose, Double> missions;
+    private final List<Task> tasks = new ArrayList<>();
     private int missionRepetition;
     private double safetyDistance;
     private int safetyPathPoints;
     private PoseSteering[] path; //FIXME:should be removed later
     private List<PoseSteering[]> paths = new ArrayList<>();
-
     private double pathLength;
     private ReedsSheppCarPlanner.PLANNING_ALGORITHM planningAlgorithm;
 
-    //TODO: Add mission support to the vehicle class List<GoalPose, time>
     //FIXME: Move planning methods to a separate class. This class should only contain vehicle properties and methods
-//    private Map<Integer, AbstractMap.SimpleEntry<PoseSteering[], Integer>> planSegmentsMap;
     public AbstractVehicle(int ID, String name, int priority, Color color, double maxVelocity, double maxAcceleration,
-                           int trackingPeriod, double length, double width, Pose initialPose, Pose[] goalPoses, double safetyDistance, int missionRepetition) {
+                           double length, double width, Pose initialPose, Pose[] goalPoses, double safetyDistance, int missionRepetition) {
         this.ID = ID;
         this.name = name;
         this.priority = priority;
         this.color = color;
         this.maxVelocity = maxVelocity;
         this.maxAcceleration = maxAcceleration;
-        this.trackingPeriod = trackingPeriod;
         this.length = length;
         this.width = width;
         this.initialPose = initialPose;
@@ -100,23 +93,25 @@ public abstract class AbstractVehicle {
         return length * width;                  // FIXME Currently allows four sided vehicles only
     }
 
-    public void getPlans(String map, Boolean inversePath) {
-        if (initialPose != null && tasks != null)
+    public void generatePlans(String map) {
+        if (!tasks.isEmpty())
             for (Task task : tasks) {
-                getPlan(initialPose, task.getPoses(), map, inversePath, 0.09, 60, 2.0, 0.1);
+                var rsp = configureReedsSheppCarPlanner(map, 0.09, 30, 2.0, 0.1);
+                generatePath(rsp, initialPose, task.getPoses());
                 initialPose = task.getPoses()[task.getPoses().length-1];
             }
     }
 
-    public void getPlan(AbstractVehicle vehicle, String map, Boolean inversePath) {
-        if (vehicle.initialPose != null && vehicle.goalPoses != null)
-            getPlan(vehicle.initialPose, vehicle.goalPoses, map, inversePath, 0.09, 60, 2.0, 0.1);
+    //FIXME: Removing the method causes errors in the code. It should be removed later
+    public void getPlan(String map) {
+        if (initialPose != null && goalPoses != null)
+            getPlan(map, 0.09, 30, 2.0, 0.1);
     }
 
-    public void getPlan(Pose initialPose, Pose[] goalPoses, String map, Boolean inversePath,
+    public void getPlan(String map,
                         double radius, double planningTime, double turningRadius, double distanceBetweenPathPoints) {
         var rsp = configureReedsSheppCarPlanner(map, radius, planningTime, turningRadius, distanceBetweenPathPoints);
-        generatePath(rsp, initialPose, goalPoses, inversePath);
+        generatePath(rsp, initialPose, goalPoses);
     }
 
     private ReedsSheppCarPlanner configureReedsSheppCarPlanner(String map, double radius, double planningTime,
@@ -131,7 +126,7 @@ public abstract class AbstractVehicle {
         return rsp;
     }
 
-    private void generatePath(ReedsSheppCarPlanner rsp, Pose initialPose, Pose[] goalPoses, boolean inversePath) {
+    private void generatePath(ReedsSheppCarPlanner rsp, Pose initialPose, Pose[] goalPoses) {
         rsp.setStart(initialPose);
         rsp.setGoals(goalPoses);
         rsp.plan();
@@ -142,7 +137,6 @@ public abstract class AbstractVehicle {
             System.exit(1); //TODO: Handle this better and throw an exception, not exiting the program
         }
 
-        if (inversePath) path = (PoseSteering[]) ArrayUtils.addAll(path, rsp.getPathInv());
         this.setPath(path);
         paths.add(path);
     }
@@ -157,7 +151,6 @@ public abstract class AbstractVehicle {
                 ", color=" + getColor("code") +
                 ", maxVelocity=" + maxVelocity +
                 ", maxAcceleration=" + maxAcceleration +
-                ", trackingPeriod=" + trackingPeriod +
                 ", length=" + length +
                 ", width=" + width +
                 ", initialPose=" + initialPose +
@@ -168,16 +161,13 @@ public abstract class AbstractVehicle {
                 '}';
     }
 
-//    public Map<Integer, AbstractMap.SimpleEntry<PoseSteering[], Integer>> getPlanSegmentsMap() {
-//        return planSegmentsMap;
-//    }
     public int getID() {
         return ID;
     }
 
     public Coordinate[] getFootprint() {
         return footprint;
-    } //TODO Each vehicle should be able to have a separate footprint in tec not the default one
+    } //TODO: Each vehicle should be able to have a separate footprint in tec not the default one. ALso, allow non-rectangular footprints
 
     public void setColor(Object color) {
         if (color instanceof String) {
@@ -315,15 +305,6 @@ public abstract class AbstractVehicle {
         return maxAcceleration;
     }
 
-    //TODO: This needs to go from here. Maybe Tracker?
-    public void setTrackingPeriod(int trackingPeriod) {
-        this.trackingPeriod = trackingPeriod;
-    }
-
-    public Integer getTrackingPeriod() {
-        return trackingPeriod;
-    }
-
     public String getType() {
         return type;
     }
@@ -380,17 +361,6 @@ public abstract class AbstractVehicle {
         this.ID = ID;
     }
 
-    public void setMissions(Map<Pose, Double> missions) {
-        this.missions = missions;
-    }
-
-    public Map<Pose, Double> getMissions() {
-        return missions;
-    }
-    public void addMission(Map<Pose, Double> mission) {
-        this.missions.put(mission.keySet().iterator().next(), mission.values().iterator().next());
-    }
-
     public void setMissionRepetition(int missionRepetition) {
         this.missionRepetition = missionRepetition;
     }
@@ -419,10 +389,10 @@ public abstract class AbstractVehicle {
         return tasks;
     }
 
-    public void addGoal(Pose goalPose) {
+    public void setGoals(Pose goalPose) {
     this.tasks.add(new Task(new Pose[] {goalPose}, 0.0));
     }
-    public void addGoals(Pose[] goalPoses) {
+    public void setGoals(Pose[] goalPoses) {
         this.tasks.add(new Task(goalPoses, 0.0));
     }
 

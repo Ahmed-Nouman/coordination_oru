@@ -31,14 +31,14 @@ public class ProductionCycleMine {
         final Pose orePass = new Pose(54.35, 11.25, -Math.PI / 2);
 
         var drillVehicle = new LookAheadVehicle("drillRig", predictableDistance, 1, Color.CYAN, 5, 2,
-                1000,  0.5, 0.5, drawPoint16, new Pose[] {orePass}, 0, 0);
+                0.5, 0.5, drawPoint16, new Pose[] {orePass}, 0, 0);
         var chargingVehicle = new LookAheadVehicle("chargingVehicle", 6 * predictableDistance, 1, Color.WHITE,
-                5, 2, 1000,  0.5, 0.5, drawPoint24, new Pose[] {mainTunnelRight}, 0, 0);
+                5, 2, 0.5, 0.5, drawPoint24, new Pose[] {mainTunnelRight}, 0, 0);
 
         var autonomousVehicle1 = new AutonomousVehicle(drawPoint16, new Pose[] {orePass});
         var autonomousVehicle2 = new AutonomousVehicle(drawPoint23, new Pose[] {orePass});
-        autonomousVehicle1.getPlan(autonomousVehicle1, YAML_FILE, true);
-        autonomousVehicle2.getPlan(autonomousVehicle2, YAML_FILE, true);
+        autonomousVehicle1.getPlan(YAML_FILE);
+        autonomousVehicle2.getPlan(YAML_FILE);
 
         // Instantiate a trajectory envelope coordinator.
         final var tec = new TrajectoryEnvelopeCoordinatorSimulation(2000, 1000, 5, 2);
@@ -84,8 +84,8 @@ public class ProductionCycleMine {
         final Pose[] drillRigGoal = {drawPoint38, drawPoint18, drawPoint24, mainTunnelRight};
         final Pose[] chargingVehicleGoal = {drawPoint24, drawPoint23, drawPoint18, drawPoint16, drawPoint38, mainTunnelLeft};
 
-        drillVehicle.getPlan(drillVehicle, YAML_FILE, false);
-        chargingVehicle.getPlan(chargingVehicle, YAML_FILE, false);
+        drillVehicle.getPlan(YAML_FILE);
+        chargingVehicle.getPlan(YAML_FILE);
         Thread.sleep(5000);
         tec.placeRobot(drillVehicle.getID(), mainTunnelLeft);
         PoseSteering[] drillInitialPath = drillVehicle.getLimitedPath(drillVehicle.getID(), drillVehicle.getLookAheadDistance(), tec);

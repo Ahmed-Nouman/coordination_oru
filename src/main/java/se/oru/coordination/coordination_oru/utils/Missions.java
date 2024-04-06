@@ -187,7 +187,22 @@ public class Missions {
 		}
 		catch (IOException e) { e.printStackTrace(); }
 	}
-	
+
+	public static void generateMissions() {
+		if (VehiclesHashMap.getInstance() == null || VehiclesHashMap.getList().isEmpty()) throw new Error("No vehicles to generate missions for!");
+		for (AbstractVehicle vehicle : VehiclesHashMap.getList().values()) {
+			if (vehicle instanceof AutonomousVehicle) {
+				AutonomousVehicle autonomousVehicle = (AutonomousVehicle)vehicle;
+				if (autonomousVehicle.getPaths() != null) {
+					for (PoseSteering[] path : autonomousVehicle.getPaths()) {
+						Mission mission = new Mission(autonomousVehicle.getID(), path);
+						Missions.enqueueMission(mission);
+					}
+				}
+			}
+		}
+	}
+
 	private static class ScenarioContainer {
 		private final String locationsJSON;
 		private final String pathsJSON;

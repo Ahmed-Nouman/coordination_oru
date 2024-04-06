@@ -21,12 +21,12 @@ public class OneAutonomousOneLookAheadVehicles {
         final String YAML_FILE = "maps/mine-map-test.yaml";
 
 
-        var autonomousVehicle = new AutonomousVehicle("A1",1, Color.YELLOW, 10.0, 1.0, 30,
+        var autonomousVehicle = new AutonomousVehicle("A1",1, Color.YELLOW, 10.0, 1.0,
                 0.9, 0.65, drawPoint21, new Pose[] {orePass}, 0, 0);
-        var lookAheadVehicle = new AutonomousVehicle("H1", 1, Color.BLUE, 10.0, 1.0, 30,
+        var lookAheadVehicle = new AutonomousVehicle("H1", 1, Color.BLUE, 10.0, 1.0,
                 0.9, 0.65, mainTunnelLeft, new Pose[] {mainTunnelRight}, 0, 0);
-        autonomousVehicle.getPlan(autonomousVehicle, YAML_FILE, true);
-        lookAheadVehicle.getPlan(lookAheadVehicle, YAML_FILE, true);
+        autonomousVehicle.getPlan(YAML_FILE);
+        lookAheadVehicle.getPlan(YAML_FILE);
 
         // Instantiate a trajectory envelope coordinator.
         var tec = new TrajectoryEnvelopeCoordinatorSimulation(2000, 1000, 5, 2);

@@ -40,25 +40,25 @@ public class ProductionScenario {
         final Pose orePass3 = new Pose(62.95, 9.75, -Math.PI / 2);
         final Pose orePass4 = new Pose(69.15, 53.15, -Math.PI / 2);
 
-        var autonomousRobot1 = new AutonomousVehicle("A1", 2, Color.YELLOW, 5, 2, 1000, 2,
+        var autonomousRobot1 = new AutonomousVehicle("A1", 2, Color.YELLOW, 5, 2, 2,
                 1, drawPoint1, new Pose[] {orePass1}, 0, 0);
-        var autonomousRobot2 = new AutonomousVehicle("A2",2, Color.YELLOW, 5, 2, 1000, 2,
+        var autonomousRobot2 = new AutonomousVehicle("A2",2, Color.YELLOW, 5, 2, 2,
                 1, drawPoint2, new Pose[] {orePass2}, 0, 0);
-        var autonomousRobot3 = new AutonomousVehicle("A3", 2, Color.YELLOW, 5, 2, 1000, 2,
+        var autonomousRobot3 = new AutonomousVehicle("A3", 2, Color.YELLOW, 5, 2, 2,
                 1, drawPoint3, new Pose[] {orePass3}, 0, 0);
-        var autonomousRobot4 = new AutonomousVehicle("A4", 2, Color.YELLOW, 5, 2, 1000, 2,
+        var autonomousRobot4 = new AutonomousVehicle("A4", 2, Color.YELLOW, 5, 2, 2,
                 1, drawPoint4, new Pose[] {orePass4}, 0, 0);
-        var autonomousRobot5 = new AutonomousVehicle("A5", 1, Color.RED, 0.05, 0.02, 1000,
+        var autonomousRobot5 = new AutonomousVehicle("A5", 1, Color.RED, 0.05, 0.02,
                 3.5, 3.5, mainTunnelLeft, new Pose[] {mainTunnelRight}, 0, 0);
         var drillRig = new LookAheadVehicle("drillRig", drillLookAheadDistance, 2, Color.GREEN, 5,
-                2, 1000, 2, 1, drillPoint, new Pose[] {drawPoint2}, 0, 0);
+                2, 2, 1, drillPoint, new Pose[] {drawPoint2}, 0, 0);
 
-        autonomousRobot1.getPlan(autonomousRobot1, YAML_FILE, true);
-        autonomousRobot2.getPlan(autonomousRobot2, YAML_FILE, true);
-        autonomousRobot3.getPlan(autonomousRobot3, YAML_FILE, true);
-        autonomousRobot4.getPlan(autonomousRobot4, YAML_FILE, true);
-        autonomousRobot5.getPlan(autonomousRobot5, YAML_FILE, true);
-        drillRig.getPlan(drillRig, YAML_FILE, false);
+        autonomousRobot1.getPlan(YAML_FILE);
+        autonomousRobot2.getPlan(YAML_FILE);
+        autonomousRobot3.getPlan(YAML_FILE);
+        autonomousRobot4.getPlan(YAML_FILE);
+        autonomousRobot5.getPlan(YAML_FILE);
+        drillRig.getPlan(YAML_FILE);
 
         // Instantiate a trajectory envelope coordinator.
         var tec = new TrajectoryEnvelopeCoordinatorSimulation(2000, 1000, 5, 2);

@@ -30,7 +30,7 @@ public class SevenAutonomousOneLookAheadVehicles {
         final Pose orePass = new Pose(54.35,11.25,-Math.PI/2);
 
         var lookAheadVehicle = new LookAheadVehicle("H1",predictableDistance,1,  Color.CYAN, 5, 2,
-                30, 0.5, 0.5, mainTunnelLeft, new Pose[] {mainTunnelRight}, 0, 0);
+                0.5, 0.5, mainTunnelLeft, new Pose[] {mainTunnelRight}, 0, 0);
         var autonomousVehicle1 = new AutonomousVehicle(drawPoint17, new Pose[] {orePass});
         var autonomousVehicle2 = new AutonomousVehicle(drawPoint19, new Pose[] {orePass});
         var autonomousVehicle3 = new AutonomousVehicle(drawPoint20, new Pose[] {orePass});
@@ -38,14 +38,14 @@ public class SevenAutonomousOneLookAheadVehicles {
         var autonomousVehicle5 = new AutonomousVehicle(drawPoint22, new Pose[] {orePass});
         var autonomousVehicle6 = new AutonomousVehicle(drawPoint23, new Pose[] {orePass});
         var autonomousVehicle7 = new AutonomousVehicle(drawPoint24, new Pose[] {orePass});
-        lookAheadVehicle.getPlan(lookAheadVehicle, YAML_FILE, true);
-        autonomousVehicle1.getPlan(autonomousVehicle1, YAML_FILE, true);
-        autonomousVehicle2.getPlan(autonomousVehicle2, YAML_FILE, true);
-        autonomousVehicle3.getPlan(autonomousVehicle3, YAML_FILE,true);
-        autonomousVehicle4.getPlan(autonomousVehicle4, YAML_FILE, true);
-        autonomousVehicle5.getPlan(autonomousVehicle5, YAML_FILE,true);
-        autonomousVehicle6.getPlan(autonomousVehicle6, YAML_FILE, true);
-        autonomousVehicle7.getPlan(autonomousVehicle7, YAML_FILE, true);
+        lookAheadVehicle.getPlan(YAML_FILE);
+        autonomousVehicle1.getPlan(YAML_FILE);
+        autonomousVehicle2.getPlan(YAML_FILE);
+        autonomousVehicle3.getPlan(YAML_FILE);
+        autonomousVehicle4.getPlan(YAML_FILE);
+        autonomousVehicle5.getPlan(YAML_FILE);
+        autonomousVehicle6.getPlan(YAML_FILE);
+        autonomousVehicle7.getPlan(YAML_FILE);
 
         // Instantiate a trajectory envelope coordinator.
         final var tec = new TrajectoryEnvelopeCoordinatorSimulation(2000, 1000,

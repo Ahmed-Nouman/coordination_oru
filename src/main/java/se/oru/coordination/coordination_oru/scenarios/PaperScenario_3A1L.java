@@ -49,19 +49,19 @@ public class PaperScenario_3A1L {
         final Pose orePass2 = new Pose(76.35, 31.05, -Math.PI / 2.7);
         final Pose orePass3 = new Pose(92.65, 33.15, -Math.PI / 2);
 
-        var autonomousRobot1 = new AutonomousVehicle("A1", 1, Color.YELLOW, 100, 3, 30,
+        var autonomousRobot1 = new AutonomousVehicle("A1", 1, Color.YELLOW, 100, 3,
                 0.9, 0.5, drawPoint28, new Pose[]{orePass1}, 0, 0);
-        var autonomousRobot2 = new AutonomousVehicle("A2", 1, Color.YELLOW, 14, 3, 30,
+        var autonomousRobot2 = new AutonomousVehicle("A2", 1, Color.YELLOW, 14, 3,
                 0.9, 0.5, drawPoint32A, new Pose[] {orePass2}, 0, 0);
-        var autonomousRobot3 = new AutonomousVehicle("A3", 1, Color.YELLOW, 14, 3, 30,
+        var autonomousRobot3 = new AutonomousVehicle("A3", 1, Color.YELLOW, 14, 3,
                 0.9, 0.5, drawPoint35, new Pose[] {orePass3}, 0, 0);
         var lookAheadVehicle = new LookAheadVehicle("H1", lookAheadDistance,1,  Color.GREEN, 14, 3,
-                30, 0.9, 0.5, entrance, new Pose[] {mainTunnelLeft}, 0, 0);
+                0.9, 0.5, entrance, new Pose[] {mainTunnelLeft}, 0, 0);
 
-        autonomousRobot1.getPlan(autonomousRobot1, YAML_FILE, true);
-        autonomousRobot2.getPlan(autonomousRobot2, YAML_FILE, true);
-        autonomousRobot3.getPlan(autonomousRobot3, YAML_FILE, true);
-        lookAheadVehicle.getPlan(lookAheadVehicle, YAML_FILE, true);
+        autonomousRobot1.getPlan(YAML_FILE);
+        autonomousRobot2.getPlan(YAML_FILE);
+        autonomousRobot3.getPlan(YAML_FILE);
+        lookAheadVehicle.getPlan(YAML_FILE);
 
         // Instantiate a trajectory envelope coordinator.
         var tec = new TrajectoryEnvelopeCoordinatorSimulation(1000, 10000, 14, 3);

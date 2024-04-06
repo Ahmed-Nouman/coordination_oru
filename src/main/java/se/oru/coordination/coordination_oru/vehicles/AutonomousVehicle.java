@@ -23,25 +23,25 @@ import java.awt.*;
 
 public class AutonomousVehicle extends AbstractVehicle {
 
-    public AutonomousVehicle(int ID, String name, int priorityID, Color color, double maxVelocity, double maxAcceleration, int trackingPeriod,
+    public AutonomousVehicle(int ID, String name, int priorityID, Color color, double maxVelocity, double maxAcceleration,
                              double length, double width, Pose initialPose, Pose[] goalPoses, double safetyDistance, int missionRepetition) {
-        super(ID, name, priorityID, color, maxVelocity, maxAcceleration, trackingPeriod, length, width, initialPose, goalPoses, safetyDistance,
+        super(ID, name, priorityID, color, maxVelocity, maxAcceleration, length, width, initialPose, goalPoses, safetyDistance,
                 missionRepetition);
     }
 
-    public AutonomousVehicle(String name, int priorityID, Color color, double maxVelocity, double maxAcceleration, int trackingPeriod, double length,
+    public AutonomousVehicle(String name, int priorityID, Color color, double maxVelocity, double maxAcceleration, double length,
                              double width, Pose initialPose, Pose[] goalPoses, double safetyDistance, int missionRepetition) {
-        this(vehicleNumber, name, priorityID, color, maxVelocity, maxAcceleration, trackingPeriod, length, width, initialPose, goalPoses, safetyDistance,
+        this(vehicleNumber, name, priorityID, color, maxVelocity, maxAcceleration, length, width, initialPose, goalPoses, safetyDistance,
                 missionRepetition);
     }
 
     public AutonomousVehicle(Pose initialPose, Pose[] goalPoses) {
-        this(vehicleNumber, null, 1, Color.YELLOW, 10.0, 1.0, 30, 9.0, 6.0,
+        this(vehicleNumber, null, 1, Color.YELLOW, 10.0, 1.0, 9.0, 6.0,
                 initialPose, goalPoses, 0, 0);
     }
 
     public AutonomousVehicle() {
-        this(vehicleNumber, null, 1, Color.YELLOW, 10.0, 1.0, 30, 9.0, 6.0,
+        this(vehicleNumber, null, 1, Color.YELLOW, 10.0, 1.0, 9.0, 6.0,
                 null, null, 0, 0);
     }
 
@@ -55,7 +55,6 @@ public class AutonomousVehicle extends AbstractVehicle {
                 (Color) autonomousVehicle.getColor("color"),
                 autonomousVehicle.getMaxVelocity(),
                 autonomousVehicle.getMaxAcceleration(),
-                autonomousVehicle.getTrackingPeriod(),
                 autonomousVehicle.getLength(),
                 autonomousVehicle.getWidth(),
                 autonomousVehicle.getInitialPose(),

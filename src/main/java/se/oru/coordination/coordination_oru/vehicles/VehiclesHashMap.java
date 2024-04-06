@@ -98,7 +98,7 @@ public class VehiclesHashMap {
 
         for (Integer vehicleID : list.keySet()) {
             AbstractVehicle vehicle = list.get(vehicleID);
-            vehicleTrackingPeriod.put(vehicleID, vehicle.getTrackingPeriod());
+            vehicleTrackingPeriod.put(vehicleID, 30); //FIXME: Hardcoded value, Maybe need to add as parameter to the tracker class
         }
         return vehicleTrackingPeriod;
     }

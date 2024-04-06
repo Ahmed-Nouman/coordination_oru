@@ -7,24 +7,22 @@ import se.oru.coordination.coordination_oru.utils.BrowserVisualization;
 import se.oru.coordination.coordination_oru.utils.Heuristics;
 import se.oru.coordination.coordination_oru.utils.Missions;
 import se.oru.coordination.coordination_oru.vehicles.AutonomousVehicle;
-import se.oru.coordination.coordination_oru.vehicles.LookAheadVehicle;
 
-public class RampScenario {
+import java.awt.*;
+
+public class Test2 {
     public static void main(String[] args) {
 
-        final int simulationTimeMinutes = 2;
-        double predictableDistance = 25.0;
-        long simulationTime = System.currentTimeMillis() + (simulationTimeMinutes * 60 * 1000);
-        final Pose mainTunnelLeft = new Pose(4.25, 15.35, -Math.PI);
-        final Pose mainTunnelRight = new Pose(80.05, 24.75, Math.PI);
-        final Pose drawPoint21 = new Pose(52.95, 87.75, -Math.PI / 2);
-        final Pose orePass = new Pose(54.35, 11.25, -Math.PI / 2);
+        final Pose mainTunnelLeft = new Pose(4.25,15.35, -Math.PI);
+        final Pose mainTunnelRight = new Pose(78.05,24.75, Math.PI);
+        final Pose drawPoint21 = new Pose(52.95,87.75,-Math.PI/2);
+        final Pose orePass = new Pose(54.35,11.25,-Math.PI/2);
         final String YAML_FILE = "maps/mine-map-test.yaml";
 
-        var autonomousVehicle = new AutonomousVehicle(drawPoint21, new Pose[] {orePass});
-        var lookAheadVehicle = new LookAheadVehicle(predictableDistance, mainTunnelLeft, new Pose[] {mainTunnelRight});
-        autonomousVehicle.getPlan(YAML_FILE);
-        lookAheadVehicle.getPlan(YAML_FILE);
+        var autonomousVehicle = new AutonomousVehicle("A1",1, Color.YELLOW, 10.0, 1.0,
+                0.9, 0.65, drawPoint21, new Pose[] {orePass, mainTunnelLeft, mainTunnelRight}, 0, 0);
+        autonomousVehicle.setGoals(new Pose[] {orePass, mainTunnelLeft, mainTunnelRight}); //FIXME: For getPlans 1) set Goal/Goals/Tasks and remove GoalPoses
+        autonomousVehicle.generatePlans(YAML_FILE);
 
         // Instantiate a trajectory envelope coordinator.
         var tec = new TrajectoryEnvelopeCoordinatorSimulation(2000, 1000, 5, 2);
@@ -34,25 +32,22 @@ public class RampScenario {
         tec.startInference();
 
         tec.setDefaultFootprint(autonomousVehicle.getFootprint());
-        tec.placeRobot(autonomousVehicle.getID(), autonomousVehicle.getInitialPose());
-        tec.placeRobot(lookAheadVehicle.getID(), lookAheadVehicle.getInitialPose());
+        tec.placeRobotsAtStartPoses();
         tec.addComparator(new Heuristics(Heuristics.HeuristicType.CLOSEST_FIRST).getComparator());
         tec.setUseInternalCriticalPoints(false);
         tec.setYieldIfParking(true);
         tec.setBreakDeadlocks(true, false, false);
 
-        // Set up a simple GUI (null means empty map, otherwise provide yaml file)
-        var viz = new BrowserVisualization(YAML_FILE);
+        // Set up a simple GUI (null means an empty map, otherwise provide yaml file)
+        var viz = new BrowserVisualization();
+        viz.setMap(YAML_FILE);
         viz.setFontScale(4);
         viz.setInitialTransform(11, 45, -3.5);
         tec.setVisualization(viz);
 
-        var m1 = new Mission(autonomousVehicle.getID(), autonomousVehicle.getPath());
-        var m2 = new Mission(lookAheadVehicle.getID(), lookAheadVehicle.getPath());
-
-        Missions.enqueueMission(m1);
-        Missions.enqueueMission(m2);
+//        var lookAheadVehicleInitialPlan = lookAheadVehicle.getLimitedPath(lookAheadVehicle.getID(), predictableDistance, tec);
+        Missions.generateMissions();
         Missions.setMap(YAML_FILE);
-        Missions.startMissionDispatcher(tec);
+        Missions.runMissionsOnce(tec);
     }
 }

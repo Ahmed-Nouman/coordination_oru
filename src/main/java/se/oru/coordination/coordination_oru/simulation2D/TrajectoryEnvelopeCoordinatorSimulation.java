@@ -6,6 +6,9 @@ import org.metacsp.multi.spatioTemporal.paths.Pose;
 import org.metacsp.multi.spatioTemporal.paths.PoseSteering;
 import org.metacsp.multi.spatioTemporal.paths.TrajectoryEnvelope;
 import se.oru.coordination.coordination_oru.*;
+import se.oru.coordination.coordination_oru.utils.Missions;
+import se.oru.coordination.coordination_oru.vehicles.AbstractVehicle;
+import se.oru.coordination.coordination_oru.vehicles.AutonomousVehicle;
 import se.oru.coordination.coordination_oru.vehicles.VehiclesHashMap;
 
 import java.util.ArrayList;
@@ -426,4 +429,15 @@ public class TrajectoryEnvelopeCoordinatorSimulation extends TrajectoryEnvelopeC
 	public int getCountCollisionsList() {
 		return collisionsList.size();
 	}
-}
+
+	public void placeRobotsAtStartPoses() {
+		if (VehiclesHashMap.getInstance() == null || VehiclesHashMap.getList().isEmpty()) throw new Error("No vehicles available to place at locations.");
+		for (AbstractVehicle vehicle : VehiclesHashMap.getList().values()) {
+			if (vehicle instanceof AutonomousVehicle) {
+                var autonomousVehicle = (AutonomousVehicle)vehicle;
+				autonomousVehicle.getPaths().get(0)[0].getPose();
+				this.placeRobot(autonomousVehicle.getID(), autonomousVehicle.getPaths().get(0)[0].getPose());
+				}
+			}
+		}
+	}

@@ -37,7 +37,6 @@ public class LookAheadVehicle extends AutonomousVehicle {
      * @param color             Visual representation color of the vehicle.
      * @param maxVelocity       Maximum velocity that the vehicle can achieve.
      * @param maxAcceleration   Maximum acceleration rate of the vehicle.
-     * @param trackingPeriod    The duration over which the vehicle's state is tracked.
      * @param length            Physical length of the vehicle.
      * @param width             Physical width of the vehicle.
      * @param initialPose       Initial pose of the vehicle in the environment.
@@ -45,29 +44,29 @@ public class LookAheadVehicle extends AutonomousVehicle {
      * @param safetyDistance    Minimum safe distance to be maintained from other objects.
      */
     public LookAheadVehicle(int ID, String name, double lookAheadDistance, int priorityID, Color color, double maxVelocity, double maxAcceleration,
-                            int trackingPeriod, double length, double width, Pose initialPose, Pose[] goalPoses, double safetyDistance, int missionRepetition) {
-        super(ID, name, priorityID, color, maxVelocity, maxAcceleration, trackingPeriod, length, width, initialPose, goalPoses, safetyDistance,
+                            double length, double width, Pose initialPose, Pose[] goalPoses, double safetyDistance, int missionRepetition) {
+        super(ID, name, priorityID, color, maxVelocity, maxAcceleration, length, width, initialPose, goalPoses, safetyDistance,
                 missionRepetition);
         this.lookAheadDistance = lookAheadDistance;
     }
 
     public LookAheadVehicle(String name, double lookAheadDistance, int priorityID, Color color, double maxVelocity, double maxAcceleration,
-                            int trackingPeriod, double length, double width, Pose initialPose, Pose[] goalPoses, double safetyDistance, int missionRepetition) {
-        this(vehicleNumber, name, lookAheadDistance, priorityID, color, maxVelocity, maxAcceleration, trackingPeriod, length, width, initialPose, goalPoses, safetyDistance,
+                            double length, double width, Pose initialPose, Pose[] goalPoses, double safetyDistance, int missionRepetition) {
+        this(vehicleNumber, name, lookAheadDistance, priorityID, color, maxVelocity, maxAcceleration, length, width, initialPose, goalPoses, safetyDistance,
                 missionRepetition);
     }
 
     public LookAheadVehicle(double lookAheadDistance, Pose initialPose, Pose[] goalPoses) {
-        this(vehicleNumber, null, lookAheadDistance, 1, Color.YELLOW, 5.0, 1.0, 30,
+        this(vehicleNumber, null, lookAheadDistance, 1, Color.YELLOW, 5.0, 1.0,
                 0.5, 0.5, initialPose, goalPoses, 0, 0);
     }
 
     public LookAheadVehicle(double lookAheadDistance) {
-        this(vehicleNumber, null,  lookAheadDistance,  1, Color.YELLOW, 5.0, 1.0, 30,
+        this(vehicleNumber, null,  lookAheadDistance,  1, Color.YELLOW, 5.0, 1.0,
                 0.5, 0.5, null, null, 0, 0);
     }
     public LookAheadVehicle() {
-        this(vehicleNumber, null,  20,  1, Color.YELLOW, 5.0, 1.0, 30,
+        this(vehicleNumber, null,  20,  1, Color.YELLOW, 5.0, 1.0,
                 0.5, 0.5, null, null, 0, 0);
     }
 
@@ -80,7 +79,6 @@ public class LookAheadVehicle extends AutonomousVehicle {
                 (Color) lookAheadVehicle.getColor("color"),
                 lookAheadVehicle.getMaxVelocity(),
                 lookAheadVehicle.getMaxAcceleration(),
-                lookAheadVehicle.getTrackingPeriod(),
                 lookAheadVehicle.getLength(),
                 lookAheadVehicle.getWidth(),
                 lookAheadVehicle.getInitialPose(),

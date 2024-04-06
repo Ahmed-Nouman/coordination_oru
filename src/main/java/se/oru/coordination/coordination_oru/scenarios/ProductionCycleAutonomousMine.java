@@ -44,17 +44,17 @@ public class ProductionCycleAutonomousMine {
                 drawPoint20, drawPoint19, drawPoint18, drawPoint17, drawPoint16, drawPoint15,
                 drawPoint36, drawPoint37, drawPoint38, workStation3};
 
-        var drillVehicle = new AutonomousVehicle("drillRig", 1, Color.MAGENTA, 5, 2, 1000,
+        var drillVehicle = new AutonomousVehicle("drillRig", 1, Color.MAGENTA, 5, 2,
                 0.5, 0.5, mainTunnelLeft, drillRigGoal, 0, 0);
-        var chargingVehicle = new AutonomousVehicle("chargingVehicle", 1, Color.PINK, 5, 2, 1000,
+        var chargingVehicle = new AutonomousVehicle("chargingVehicle", 1, Color.PINK, 5, 2,
                 0.5, 0.5, mainTunnelLeft, chargingVehicleGoal, 0, 0);
-        var waterVehicle = new AutonomousVehicle("waterVehicle", 1, Color.BLUE, 5, 2, 1000,
+        var waterVehicle = new AutonomousVehicle("waterVehicle", 1, Color.BLUE, 5, 2,
                 0.5, 0.5, mainTunnelLeft, waterVehicleGoal, 0, 0);
 
         var autonomousVehicle1 = new AutonomousVehicle(drawPoint16, new Pose[] {orePass});
         var autonomousVehicle2 = new AutonomousVehicle(drawPoint23, new Pose[] {orePass});
-        autonomousVehicle1.getPlan(autonomousVehicle1, YAML_FILE, true);
-        autonomousVehicle2.getPlan(autonomousVehicle2, YAML_FILE, true);
+        autonomousVehicle1.getPlan(YAML_FILE);
+        autonomousVehicle2.getPlan(YAML_FILE);
 
         // Instantiate a trajectory envelope coordinator.
         final var tec = new TrajectoryEnvelopeCoordinatorSimulation(2000, 1000, 5, 2);
@@ -100,9 +100,9 @@ public class ProductionCycleAutonomousMine {
         tec.setForwardModel(waterVehicle.getID(), new ConstantAccelerationForwardModel(waterVehicle.getMaxAcceleration(), waterVehicle.getMaxVelocity(), tec.getTemporalResolution(),
                 tec.getControlPeriod(), tec.getRobotTrackingPeriodInMillis(waterVehicle.getID())));
 
-        drillVehicle.getPlan(drillVehicle, YAML_FILE, false);
-        chargingVehicle.getPlan(chargingVehicle, YAML_FILE, false);
-        waterVehicle.getPlan(waterVehicle.getInitialPose(), waterVehicleGoal, YAML_FILE, false,
+        drillVehicle.getPlan(YAML_FILE);
+        chargingVehicle.getPlan(YAML_FILE);
+        waterVehicle.getPlan(YAML_FILE,
                 0.01, 120,
                 0.01, 0.1);
 

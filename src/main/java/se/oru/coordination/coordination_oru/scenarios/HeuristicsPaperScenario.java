@@ -59,39 +59,39 @@ public class HeuristicsPaperScenario {
         final var drawPoint8 = new Pose(69.55, 48.95, DOWN);
         final var orePass = new Pose(39.95, 9.15, DOWN);
 
-        var productionVehicle1 = new AutonomousVehicle("P1",0, Color.YELLOW, maxVelocity, maxAcceleration, TRACKING_PERIOD,
+        var productionVehicle1 = new AutonomousVehicle("P1",0, Color.YELLOW, maxVelocity, maxAcceleration,
                 length, width, drawPoint1, new Pose[] {orePass}, PRODUCTION_SAFETY_DISTANCE, 0);
         productionVehicle1.setPlanningAlgorithm(PLANNING_ALGORITHM);
 //        var productionVehicle2 = new AutonomousVehicle("P2", 0, Color.YELLOW, maxVelocity, maxAcceleration, TRACKING_PERIOD,
 //                length, width, drawPoint2, new Pose[] {orePass}, 0, 0);
-        var productionVehicle3 = new AutonomousVehicle("P3", 0, Color.YELLOW, maxVelocity, maxAcceleration, TRACKING_PERIOD,
+        var productionVehicle3 = new AutonomousVehicle("P3", 0, Color.YELLOW, maxVelocity, maxAcceleration,
                 length, width, drawPoint3, new Pose[] {orePass}, PRODUCTION_SAFETY_DISTANCE, 0);
         productionVehicle1.setPlanningAlgorithm(PLANNING_ALGORITHM);
 //        var productionVehicle4 = new AutonomousVehicle("P4", 0, Color.YELLOW, maxVelocity, maxAcceleration, TRACKING_PERIOD,
 //                length, width, drawPoint4, new Pose[] {orePass}, 0, 0);
-        var productionVehicle5 = new AutonomousVehicle("P5", 0, Color.YELLOW, maxVelocity, maxAcceleration, TRACKING_PERIOD,
+        var productionVehicle5 = new AutonomousVehicle("P5", 0, Color.YELLOW, maxVelocity, maxAcceleration,
                 length, width, drawPoint5, new Pose[] {orePass}, PRODUCTION_SAFETY_DISTANCE, 0);
         productionVehicle5.setPlanningAlgorithm(PLANNING_ALGORITHM);
 //        var productionVehicle6 = new AutonomousVehicle("P6", 0, Color.YELLOW, maxVelocity, maxAcceleration, TRACKING_PERIOD,
 //                length, width, drawPoint6, new Pose[] {orePass}, 0, 0);
-        var productionVehicle7 = new AutonomousVehicle("P7", 0, Color.YELLOW, maxVelocity, maxAcceleration, TRACKING_PERIOD,
+        var productionVehicle7 = new AutonomousVehicle("P7", 0, Color.YELLOW, maxVelocity, maxAcceleration,
                 length, width, drawPoint7, new Pose[] {orePass}, PRODUCTION_SAFETY_DISTANCE, 0);
         productionVehicle7.setPlanningAlgorithm(PLANNING_ALGORITHM);
 //        var productionVehicle8 = new AutonomousVehicle("P8", 0, Color.YELLOW, maxVelocity, maxAcceleration, TRACKING_PERIOD,
 //                length, width, drawPoint8, new Pose[] {orePass}, 0, 0);
         var serviceVehicle = new AutonomousVehicle("S1", 1,  Color.GREEN, maxVelocity, maxAcceleration,
-                TRACKING_PERIOD, length, width, mainTunnelLeft, new Pose[] {mainTunnelRight}, SERVICE_SAFETY_DISTANCE, 0);
+                length, width, mainTunnelLeft, new Pose[] {mainTunnelRight}, SERVICE_SAFETY_DISTANCE, 0);
         serviceVehicle.setPlanningAlgorithm(PLANNING_ALGORITHM);
 
-        productionVehicle1.getPlan(productionVehicle1, YAML_FILE, true);
+        productionVehicle1.getPlan(YAML_FILE);
 //        productionVehicle2.getPlan(productionVehicle2, YAML_FILE, false);
-        productionVehicle3.getPlan(productionVehicle3, YAML_FILE,true);
+        productionVehicle3.getPlan(YAML_FILE);
 //        productionVehicle4.getPlan(productionVehicle4, YAML_FILE, false);
-        productionVehicle5.getPlan(productionVehicle5, YAML_FILE,true);
+        productionVehicle5.getPlan(YAML_FILE);
 //        productionVehicle6.getPlan(productionVehicle6, YAML_FILE, false);
-        productionVehicle7.getPlan(productionVehicle7, YAML_FILE, true);
+        productionVehicle7.getPlan(YAML_FILE);
 //        productionVehicle8.getPlan(productionVehicle8, YAML_FILE, false);
-        serviceVehicle.getPlan(serviceVehicle, YAML_FILE, true);
+        serviceVehicle.getPlan(YAML_FILE);
 
         // Instantiate a trajectory envelope coordinator. TODO Velocity and acceleration are hard coded for tec.
         var tec = new TrajectoryEnvelopeCoordinatorSimulation(1000, 1000, maxVelocity, maxAcceleration);

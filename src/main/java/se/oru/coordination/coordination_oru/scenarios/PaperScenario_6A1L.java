@@ -55,28 +55,28 @@ public class PaperScenario_6A1L {
         final Pose orePass2 = new Pose(76.35, 31.05, -Math.PI / 2.7);
         final Pose orePass3 = new Pose(92.65, 33.15, -Math.PI / 2);
 
-        var autonomousRobot1 = new AutonomousVehicle("A1",1, Color.YELLOW, MAX_VELOCITY, MAX_ACCELERATION, TRACKING_PERIOD,
+        var autonomousRobot1 = new AutonomousVehicle("A1",1, Color.YELLOW, MAX_VELOCITY, MAX_ACCELERATION,
                 X_LENGTH, Y_LENGTH, drawPoint28, new Pose[] {orePass1}, 0, 0);
-        var autonomousRobot2 = new AutonomousVehicle("A2", 1, Color.YELLOW, MAX_VELOCITY, MAX_ACCELERATION, TRACKING_PERIOD,
+        var autonomousRobot2 = new AutonomousVehicle("A2", 1, Color.YELLOW, MAX_VELOCITY, MAX_ACCELERATION,
                 X_LENGTH, Y_LENGTH, drawPoint30, new Pose[] {orePass1}, 0, 0);
-        var autonomousRobot3 = new AutonomousVehicle("A3", 1, Color.YELLOW, MAX_VELOCITY, MAX_ACCELERATION, TRACKING_PERIOD,
+        var autonomousRobot3 = new AutonomousVehicle("A3", 1, Color.YELLOW, MAX_VELOCITY, MAX_ACCELERATION,
                 X_LENGTH, Y_LENGTH, drawPoint32A, new Pose[] {orePass2}, 0, 0);
-        var autonomousRobot4 = new AutonomousVehicle("A4", 1, Color.YELLOW, MAX_VELOCITY, MAX_ACCELERATION, TRACKING_PERIOD,
+        var autonomousRobot4 = new AutonomousVehicle("A4", 1, Color.YELLOW, MAX_VELOCITY, MAX_ACCELERATION,
                 X_LENGTH, Y_LENGTH, drawPoint34, new Pose[] {orePass2}, 0, 0);
-        var autonomousRobot5 = new AutonomousVehicle("A5", 1, Color.YELLOW, MAX_VELOCITY, MAX_ACCELERATION, TRACKING_PERIOD,
+        var autonomousRobot5 = new AutonomousVehicle("A5", 1, Color.YELLOW, MAX_VELOCITY, MAX_ACCELERATION,
                 X_LENGTH, Y_LENGTH, drawPoint35, new Pose[] {orePass3}, 0, 0);
-        var autonomousRobot6 = new AutonomousVehicle("A6", 1, Color.YELLOW, MAX_VELOCITY, MAX_ACCELERATION, TRACKING_PERIOD,
+        var autonomousRobot6 = new AutonomousVehicle("A6", 1, Color.YELLOW, MAX_VELOCITY, MAX_ACCELERATION,
                 X_LENGTH, Y_LENGTH, drawPoint12, new Pose[] {orePass3}, 0, 0);
         var lookAheadRobot = new LookAheadVehicle("H1", lookAheadDistance, 1,  Color.GREEN, MAX_VELOCITY, MAX_ACCELERATION,
-                TRACKING_PERIOD, X_LENGTH, Y_LENGTH, entrance, new Pose[] {mainTunnelLeft, entrance}, 0, 0);
+                X_LENGTH, Y_LENGTH, entrance, new Pose[] {mainTunnelLeft, entrance}, 0, 0);
 
-        autonomousRobot1.getPlan(autonomousRobot1, YAML_FILE, true);
-        autonomousRobot2.getPlan(autonomousRobot2, YAML_FILE, true);
-        autonomousRobot3.getPlan(autonomousRobot3, YAML_FILE, true);
-        autonomousRobot4.getPlan(autonomousRobot4, YAML_FILE, true);
-        autonomousRobot5.getPlan(autonomousRobot5, YAML_FILE, true);
-        autonomousRobot6.getPlan(autonomousRobot6, YAML_FILE, true);
-        lookAheadRobot.getPlan(lookAheadRobot, YAML_FILE, false);
+        autonomousRobot1.getPlan(YAML_FILE);
+        autonomousRobot2.getPlan(YAML_FILE);
+        autonomousRobot3.getPlan(YAML_FILE);
+        autonomousRobot4.getPlan(YAML_FILE);
+        autonomousRobot5.getPlan(YAML_FILE);
+        autonomousRobot6.getPlan(YAML_FILE);
+        lookAheadRobot.getPlan(YAML_FILE);
 
         // Instantiate a trajectory envelope coordinator. TODO Velocity and acceleration are hard coded for tec.
         var tec = new TrajectoryEnvelopeCoordinatorSimulation(1000, 1000, MAX_VELOCITY, MAX_ACCELERATION);

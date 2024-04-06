@@ -38,16 +38,16 @@ public class ProductionCyclePathsAutonomousMine {
         final Pose workStation3 = new Pose(17.35, 9.65, -Math.PI / 2);
 
         var drillVehicle = new AutonomousVehicle("drillRig", 1, Color.MAGENTA, 5, 2,
-                30, 0.5, 0.5, mainTunnelLeft, new Pose[]{drawPoint38}, 0, 0);
+                0.5, 0.5, mainTunnelLeft, new Pose[]{drawPoint38}, 0, 0);
         var chargingVehicle = new AutonomousVehicle("chargingVehicle", 1, Color.PINK, 5, 2,
-                30, 0.5, 0.5, drawPoint15, new Pose[] {orePass}, 0 , 0);
+                0.5, 0.5, drawPoint15, new Pose[] {orePass}, 0 , 0);
         var waterVehicle = new AutonomousVehicle("waterVehicle", 1, Color.BLUE, 5, 2,
-                30, 0.5, 0.5, drawPoint17, new Pose[] {drawPoint18}, 0, 0);
+                0.5, 0.5, drawPoint17, new Pose[] {drawPoint18}, 0, 0);
 
         var autonomousVehicle1 = new AutonomousVehicle(drawPoint16, new Pose[] {orePass});
         var autonomousVehicle2 = new AutonomousVehicle(drawPoint23, new Pose[] {orePass});
-        autonomousVehicle1.getPlan(autonomousVehicle1, YAML_FILE, true);
-        autonomousVehicle2.getPlan(autonomousVehicle2, YAML_FILE, true);
+        autonomousVehicle1.getPlan(YAML_FILE);
+        autonomousVehicle2.getPlan(YAML_FILE);
 
         // Instantiate a trajectory envelope coordinator.
         final var tec = new TrajectoryEnvelopeCoordinatorSimulation(2000, 1000, 5, 2);
