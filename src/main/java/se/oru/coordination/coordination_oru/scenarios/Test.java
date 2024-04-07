@@ -30,7 +30,7 @@ public class Test {
         var autonomousVehicle1 = new AutonomousVehicle("A2",1, Color.YELLOW, 10.0, 1.0,
                 0.9, 0.65, orePass, 0, 0);
         autonomousVehicle1.addTask(new Task(new Pose[] {mainTunnelLeft}, 0.25));
-        autonomousVehicle1.addTask(new Task(new Pose[] {orePass}, 0.5));
+        autonomousVehicle1.addTask(new Task(new Pose[] {orePass}, 0.25));
 
         autonomousVehicle.generatePlans(YAML_FILE);
         autonomousVehicle1.generatePlans(YAML_FILE);

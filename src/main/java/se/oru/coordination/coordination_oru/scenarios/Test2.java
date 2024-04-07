@@ -1,27 +1,48 @@
 package se.oru.coordination.coordination_oru.scenarios;
 
 import org.metacsp.multi.spatioTemporal.paths.Pose;
+import se.oru.coordination.coordination_oru.DataStructure.Task;
+import se.oru.coordination.coordination_oru.Mission;
 import se.oru.coordination.coordination_oru.simulation2D.TrajectoryEnvelopeCoordinatorSimulation;
 import se.oru.coordination.coordination_oru.utils.BrowserVisualization;
 import se.oru.coordination.coordination_oru.utils.Heuristics;
 import se.oru.coordination.coordination_oru.utils.Missions;
 import se.oru.coordination.coordination_oru.vehicles.AutonomousVehicle;
+import se.oru.coordination.coordination_oru.vehicles.VehiclesHashMap;
 
 import java.awt.*;
 
 public class Test2 {
     public static void main(String[] args) {
 
-        final Pose mainTunnelLeft = new Pose(4.25,15.35, -Math.PI);
+        final Pose mainTunnelLeft = new Pose(4.25,15.35, Math.PI);
         final Pose mainTunnelRight = new Pose(78.05,24.75, Math.PI);
-        final Pose drawPoint21 = new Pose(52.95,87.75,-Math.PI/2);
-        final Pose orePass = new Pose(54.35,11.25,-Math.PI/2);
+        final Pose drawPoint15 = new Pose(9.75,83.95,Math.PI/2);
+        final Pose drawPoint16 = new Pose(16.85,86.35,Math.PI/2);
+        final Pose drawPoint21 = new Pose(52.95,87.75,Math.PI/2);
+        final Pose drawPoint23 = new Pose(67.55,86.65,Math.PI/2);
+        final Pose orePass = new Pose(54.35,11.25,Math.PI/2);
         final String YAML_FILE = "maps/mine-map-test.yaml";
 
-        var autonomousVehicle = new AutonomousVehicle("A1",1, Color.YELLOW, 10.0, 1.0,
-                0.9, 0.65, drawPoint21, 0, 0);
-        autonomousVehicle.setGoals(new Pose[] {orePass, mainTunnelLeft, mainTunnelRight}); //FIXME: For getPlans 1) set Goal/Goals/Tasks and remove GoalPoses
-        autonomousVehicle.generatePlans(YAML_FILE);
+        var chargingVehicle = new AutonomousVehicle("E",1, Color.BLUE, 5.0, 0.5,
+                0.8, 0.5, mainTunnelLeft, 10, 0);
+//        chargingVehicle.setGoals(new Pose[] {orePass, mainTunnelLeft, mainTunnelRight}); //FIXME: For getPlans 1) set Goal/Goals/Tasks and remove GoalPoses
+        chargingVehicle.addTask(new Task(new Pose[] {drawPoint16}, 0.25));
+        chargingVehicle.addTask(new Task(new Pose[] {drawPoint23}, 0.25));
+        chargingVehicle.addTask(new Task(new Pose[] {mainTunnelLeft}, 0.25));
+        chargingVehicle.generatePlans(YAML_FILE);
+
+        var autonomousVehicle1 = new AutonomousVehicle("A1",2, Color.YELLOW, 5.0, 0.5,
+                0.8, 0.5, drawPoint21, 10, 0);
+        autonomousVehicle1.addTask(new Task(new Pose[] {orePass}, 0.25));
+        autonomousVehicle1.addTask(new Task(new Pose[] {drawPoint21}, 0.25));
+        autonomousVehicle1.generatePlans(YAML_FILE);
+
+        var autonomousVehicle2 = new AutonomousVehicle("A2",2, Color.YELLOW, 5.0, 0.5,
+                0.8, 0.5, drawPoint15, 10, 0);
+        autonomousVehicle2.addTask(new Task(new Pose[] {orePass}, 0.25));
+        autonomousVehicle2.addTask(new Task(new Pose[] {drawPoint15}, 0.25));
+        autonomousVehicle2.generatePlans(YAML_FILE);
 
         // Instantiate a trajectory envelope coordinator.
         var tec = new TrajectoryEnvelopeCoordinatorSimulation(2000, 1000, 5, 2);
@@ -30,7 +51,7 @@ public class Test2 {
         // Start the thread that checks and enforces dependencies at every clock tick
         tec.startInference();
 
-        tec.setDefaultFootprint(autonomousVehicle.getFootprint());
+        tec.setDefaultFootprint(chargingVehicle.getFootprint());
         tec.placeRobotsAtStartPoses();
         tec.addComparator(new Heuristics(Heuristics.HeuristicType.CLOSEST_FIRST).getComparator());
         tec.setUseInternalCriticalPoints(false);
@@ -45,8 +66,38 @@ public class Test2 {
         tec.setVisualization(viz);
 
 //        var lookAheadVehicleInitialPlan = lookAheadVehicle.getLimitedPath(lookAheadVehicle.getID(), predictableDistance, tec);
-        Missions.generateMissions();
+//        Missions.generateMissions();
         Missions.setMap(YAML_FILE);
-        Missions.runMissionsOnce(tec);
+        Missions.generateMissions();
+//        tec.addMissions(mission);
+
+        //Start a mission dispatching thread for each robot, which will run forever
+        for (int i = 1; i <= VehiclesHashMap.getList().size(); i++) {
+            Thread t = runTasksForEachRobot(i, tec);
+            //Start the thread!
+            t.start();
+        }
+
+//        Missions.runMissionsOnce(tec);
     }
+
+    private static Thread runTasksForEachRobot(int i, TrajectoryEnvelopeCoordinatorSimulation tec) {
+        final int robotID = i;
+        return new Thread() {
+            int iteration = 0;
+            @Override
+            public void run() {
+                while (true) {
+                    Mission m = Missions.getMission(robotID, iteration%Missions.getMissions(robotID).size());
+                    synchronized(tec) {
+                        if (tec.addMissions(m)) iteration++;
+                    }
+                    //Sleep for a little (2 sec)
+                    try { Thread.sleep(2000); }
+                    catch (InterruptedException e) { e.printStackTrace(); }
+                }
+            }
+        };
+    }
+
 }

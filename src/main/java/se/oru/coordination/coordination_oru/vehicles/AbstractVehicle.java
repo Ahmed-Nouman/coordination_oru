@@ -93,7 +93,7 @@ public abstract class AbstractVehicle {
     public void generatePlans(String map) {
         if (!tasks.isEmpty()) {
             for (Task task : tasks) {
-                var rsp = configureReedsSheppCarPlanner(map, 0.09, 30, 2.0, 0.1);
+                var rsp = configureReedsSheppCarPlanner(map, 0.09, 60, 2.0, 0.1);
                 generatePath(rsp, initialPose, task.getPoses());
                 initialPose = task.getPoses()[task.getPoses().length - 1];
             }
