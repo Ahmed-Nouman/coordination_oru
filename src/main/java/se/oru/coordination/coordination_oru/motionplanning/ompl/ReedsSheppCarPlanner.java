@@ -29,17 +29,18 @@ public class ReedsSheppCarPlanner extends AbstractMotionPlanner {
 	private double turningRadius = 1.0;
 	private double planningTimeInSecs = 30.0;
 	private Coordinate[] collisionCircleCenters = null;
-	private PLANNING_ALGORITHM algo = PLANNING_ALGORITHM.RRTConnect;
-	
+
+	private PLANNING_ALGORITHM planningAlgorithm = PLANNING_ALGORITHM.RRTConnect;
+
 	public static ReedsSheppCarPlannerLib INSTANCE = null;
+
 	static {
 		NativeLibrary.addSearchPath("simplereedssheppcarplanner", "SimpleReedsSheppCarPlanner");
 		INSTANCE = Native.loadLibrary("simplereedssheppcarplanner", ReedsSheppCarPlannerLib.class);
 	}
-
 	@Override
 	public AbstractMotionPlanner getCopy(boolean copyObstacles) {
-		ReedsSheppCarPlanner ret = new ReedsSheppCarPlanner(this.algo);
+		ReedsSheppCarPlanner ret = new ReedsSheppCarPlanner(this.planningAlgorithm);
 		ret.setRadius(this.robotRadius);
 		ret.setDistanceBetweenPathPoints(this.distanceBetweenPathPoints);
 		ret.setTurningRadius(this.turningRadius);
@@ -48,7 +49,7 @@ public class ReedsSheppCarPlanner extends AbstractMotionPlanner {
 		if (this.om != null) ret.om = new OccupancyMap(this.om, copyObstacles);
 		return ret;
 	}
-	
+
 	@Override
 	public void setFootprint(Coordinate ... coords) {
 		super.setFootprint(coords);
@@ -61,7 +62,7 @@ public class ReedsSheppCarPlanner extends AbstractMotionPlanner {
 		SmootherControl sc = new SmootherControl() {
 	        public double getMinLength() {
 	            return robotRadius;
-	        }	        
+	        }
 	        public int getNumVertices(double length) {
 	            return (int)(length/(2*robotRadius))+2;
 	        }
@@ -70,17 +71,17 @@ public class ReedsSheppCarPlanner extends AbstractMotionPlanner {
 	    Polygon smoothFootprint = gs.smooth(footprint, 1.0);
 		collisionCircleCenters = smoothFootprint.getCoordinates();
 	}
-	
+
 	public Coordinate[] getCollisionCircleCenters() {
 		return collisionCircleCenters;
 	}
-	
+
 	public ReedsSheppCarPlanner() {
-		this.algo = PLANNING_ALGORITHM.RRTConnect;
+		this.planningAlgorithm = PLANNING_ALGORITHM.RRTConnect;
 	}
-	
-	public ReedsSheppCarPlanner(PLANNING_ALGORITHM algo) {
-		this.algo = algo;
+
+	public ReedsSheppCarPlanner(PLANNING_ALGORITHM planningAlgorithm) {
+		this.planningAlgorithm = planningAlgorithm;
 	}
 
 	public void setCirclePositions(Coordinate ... circlePositions) {
@@ -98,26 +99,26 @@ public class ReedsSheppCarPlanner extends AbstractMotionPlanner {
 	public void setTurningRadius(double rad) {
 		this.turningRadius = rad;
 	}
-	
+
 	public void setPlanningTimeInSecs(double planningTimeInSecs) {
 		this.planningTimeInSecs = planningTimeInSecs;
 	}
-	
+
 	public Pose getStart() {
 		return this.start;
 	}
-	
+
 	public Pose[] getGoals() {
 		return this.goal;
 	}
-	
+
 	public double getPlanningTimeInSecs() {
 		return this.planningTimeInSecs;
 	}
-	
+
 	@Override
 	public boolean doPlanning() {
-		ArrayList<PoseSteering> finalPath = new ArrayList<PoseSteering>();  
+		ArrayList<PoseSteering> finalPath = new ArrayList<PoseSteering>();
 		for (int i = 0; i < this.goal.length; i++) {
 			Pose start_ = null;
 			Pose goal_ = this.goal[i];
@@ -140,10 +141,10 @@ public class ReedsSheppCarPlanner extends AbstractMotionPlanner {
 				double res = om.getResolution();
 				double mapOriginX = om.getMapOrigin().x;
 				double mapOriginY = om.getMapOrigin().y;
-				if (!INSTANCE.plan_multiple_circles(occ, w, h, res, mapOriginX, mapOriginY, robotRadius, xCoords, yCoords, numCoords, start_.getX(), start_.getY(), start_.getTheta(), goal_.getX(), goal_.getY(), goal_.getTheta(), path, pathLength, distanceBetweenPathPoints, turningRadius, planningTimeInSecs, algo.ordinal())) return false;
+				if (!INSTANCE.plan_multiple_circles(occ, w, h, res, mapOriginX, mapOriginY, robotRadius, xCoords, yCoords, numCoords, start_.getX(), start_.getY(), start_.getTheta(), goal_.getX(), goal_.getY(), goal_.getTheta(), path, pathLength, distanceBetweenPathPoints, turningRadius, planningTimeInSecs, planningAlgorithm.ordinal())) return false;
 			}
 			else {
-				if (!INSTANCE.plan_multiple_circles_nomap(xCoords, yCoords, numCoords, start_.getX(), start_.getY(), start_.getTheta(), goal_.getX(), goal_.getY(), goal_.getTheta(), path, pathLength, distanceBetweenPathPoints, turningRadius, planningTimeInSecs, algo.ordinal())) return false;					
+				if (!INSTANCE.plan_multiple_circles_nomap(xCoords, yCoords, numCoords, start_.getX(), start_.getY(), start_.getTheta(), goal_.getX(), goal_.getY(), goal_.getTheta(), path, pathLength, distanceBetweenPathPoints, turningRadius, planningTimeInSecs, planningAlgorithm.ordinal())) return false;
 			}
 			final Pointer pathVals = path.getValue();
 			final PathPose valsRef = new PathPose(pathVals);
@@ -157,6 +158,10 @@ public class ReedsSheppCarPlanner extends AbstractMotionPlanner {
 		}
 		this.pathPS = finalPath.toArray(new PoseSteering[finalPath.size()]);
 		return true;
+	}
+
+	public void setPlanningAlgorithm(PLANNING_ALGORITHM planningAlgorithm) {
+		this.planningAlgorithm = planningAlgorithm;
 	}
 
 }

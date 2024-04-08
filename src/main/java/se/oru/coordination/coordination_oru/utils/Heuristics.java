@@ -1,8 +1,8 @@
 package se.oru.coordination.coordination_oru.utils;
 
-import se.oru.coordination.coordination_oru.CriticalSection;
+import se.oru.coordination.coordination_oru.DataStructure.CriticalSection;
 import se.oru.coordination.coordination_oru.RobotAtCriticalSection;
-import se.oru.coordination.coordination_oru.RobotReport;
+import se.oru.coordination.coordination_oru.DataStructure.RobotReport;
 import se.oru.coordination.coordination_oru.vehicles.VehiclesHashMap;
 
 import java.util.*;

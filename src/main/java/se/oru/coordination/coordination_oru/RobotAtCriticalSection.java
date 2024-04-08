@@ -1,5 +1,8 @@
 package se.oru.coordination.coordination_oru;
 
+import se.oru.coordination.coordination_oru.DataStructure.CriticalSection;
+import se.oru.coordination.coordination_oru.DataStructure.RobotReport;
+
 public class RobotAtCriticalSection {
 	
 	private final RobotReport rr;

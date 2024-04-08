@@ -1,7 +1,8 @@
-package se.oru.coordination.coordination_oru;
+package se.oru.coordination.coordination_oru.DataStructure;
 
 import org.metacsp.multi.spatioTemporal.paths.Pose;
 import org.metacsp.utility.logging.MetaCSPLogging;
+import se.oru.coordination.coordination_oru.AbstractTrajectoryEnvelopeTracker;
 
 /**
  * A {@link RobotReport} is issued by an {@link AbstractTrajectoryEnvelopeTracker} when requested via

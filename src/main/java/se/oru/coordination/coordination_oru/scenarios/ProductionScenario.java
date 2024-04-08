@@ -3,13 +3,15 @@ package se.oru.coordination.coordination_oru.scenarios;
 import com.vividsolutions.jts.geom.Coordinate;
 import org.metacsp.multi.spatioTemporal.paths.Pose;
 import se.oru.coordination.coordination_oru.ConstantAccelerationForwardModel;
-import se.oru.coordination.coordination_oru.Mission;
+import se.oru.coordination.coordination_oru.DataStructure.Mission;
 import se.oru.coordination.coordination_oru.simulation2D.TrajectoryEnvelopeCoordinatorSimulation;
 import se.oru.coordination.coordination_oru.utils.BrowserVisualization;
 import se.oru.coordination.coordination_oru.utils.Heuristics;
 import se.oru.coordination.coordination_oru.utils.Missions;
 import se.oru.coordination.coordination_oru.vehicles.AutonomousVehicle;
 import se.oru.coordination.coordination_oru.vehicles.LookAheadVehicle;
+import se.oru.coordination.coordination_oru.motionplanning.VehicleMotionPlanner;
+import se.oru.coordination.coordination_oru.motionplanning.VehiclePlanner;
 
 import java.awt.*;
 import java.io.FileNotFoundException;
@@ -26,6 +28,7 @@ public class ProductionScenario {
         int numOfCallsForLookAheadRobot = 5;
         boolean visualization = true;
         boolean writeRobotReports = false;
+        VehiclePlanner planner = new VehicleMotionPlanner();
 
         final Pose mainTunnelLeft = new Pose(4.05, 42.95, Math.PI);
         final Pose mainTunnelRight = new Pose(120.55, 40.75, Math.PI);

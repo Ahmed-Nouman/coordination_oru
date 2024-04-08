@@ -1,6 +1,9 @@
 package se.oru.coordination.coordination_oru.tests.clean;
 
 import se.oru.coordination.coordination_oru.*;
+import se.oru.coordination.coordination_oru.DataStructure.CriticalSection;
+import se.oru.coordination.coordination_oru.DataStructure.Mission;
+import se.oru.coordination.coordination_oru.DataStructure.RobotReport;
 import se.oru.coordination.coordination_oru.demo.DemoDescription;
 import se.oru.coordination.coordination_oru.motionplanning.ompl.ReedsSheppCarPlanner;
 import se.oru.coordination.coordination_oru.simulation2D.TrajectoryEnvelopeCoordinatorSimulation;

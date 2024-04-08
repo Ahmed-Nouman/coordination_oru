@@ -2,12 +2,14 @@ package se.oru.coordination.coordination_oru.scenarios;
 
 import org.metacsp.multi.spatioTemporal.paths.Pose;
 import se.oru.coordination.coordination_oru.ConstantAccelerationForwardModel;
-import se.oru.coordination.coordination_oru.Mission;
+import se.oru.coordination.coordination_oru.DataStructure.Mission;
 import se.oru.coordination.coordination_oru.simulation2D.TrajectoryEnvelopeCoordinatorSimulation;
 import se.oru.coordination.coordination_oru.utils.BrowserVisualization;
 import se.oru.coordination.coordination_oru.utils.Heuristics;
 import se.oru.coordination.coordination_oru.utils.Missions;
 import se.oru.coordination.coordination_oru.vehicles.AutonomousVehicle;
+import se.oru.coordination.coordination_oru.motionplanning.VehicleMotionPlanner;
+import se.oru.coordination.coordination_oru.motionplanning.VehiclePlanner;
 
 import java.awt.*;
 
@@ -36,6 +38,7 @@ public class ProductionCyclePathsAutonomousMine {
         final Pose workStation1 = new Pose(23.75, 8.95, -Math.PI / 2);
         final Pose workStation2 = new Pose(20.15, 9.05, -Math.PI / 2);
         final Pose workStation3 = new Pose(17.35, 9.65, -Math.PI / 2);
+        VehiclePlanner planner = new VehicleMotionPlanner();
 
         var drillVehicle = new AutonomousVehicle("drillRig", 1, Color.MAGENTA, 5, 2,
                 0.5, 0.5, mainTunnelLeft, 0, 0);

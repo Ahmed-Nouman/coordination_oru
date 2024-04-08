@@ -6,7 +6,9 @@ import org.metacsp.multi.spatioTemporal.paths.Pose;
 import org.metacsp.multi.spatioTemporal.paths.PoseSteering;
 import org.metacsp.multi.spatioTemporal.paths.TrajectoryEnvelope;
 import se.oru.coordination.coordination_oru.*;
-import se.oru.coordination.coordination_oru.utils.Missions;
+import se.oru.coordination.coordination_oru.DataStructure.CriticalSection;
+import se.oru.coordination.coordination_oru.DataStructure.Mission;
+import se.oru.coordination.coordination_oru.DataStructure.RobotReport;
 import se.oru.coordination.coordination_oru.vehicles.AbstractVehicle;
 import se.oru.coordination.coordination_oru.vehicles.AutonomousVehicle;
 import se.oru.coordination.coordination_oru.vehicles.VehiclesHashMap;
@@ -299,7 +301,7 @@ public class TrajectoryEnvelopeCoordinatorSimulation extends TrajectoryEnvelopeC
 			String st = CONNECTOR_BRANCH +	"Robot states ........ ";
 			for (Integer robotID : allRobots) {
 				AbstractTrajectoryEnvelopeTracker tracker = trackers.get(robotID);
-				RobotReport rr = tracker.getRobotReport(); 
+				RobotReport rr = tracker.getRobotReport();
 				int currentPP = rr.getPathIndex();
 				st += tracker.getTrajectoryEnvelope().getComponent();
 				if (tracker instanceof TrajectoryEnvelopeTrackerDummy) st += " (P)";

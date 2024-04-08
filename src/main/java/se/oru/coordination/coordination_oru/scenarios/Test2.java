@@ -2,12 +2,13 @@ package se.oru.coordination.coordination_oru.scenarios;
 
 import org.metacsp.multi.spatioTemporal.paths.Pose;
 import se.oru.coordination.coordination_oru.DataStructure.Task;
-import se.oru.coordination.coordination_oru.Mission;
+import se.oru.coordination.coordination_oru.DataStructure.Mission;
 import se.oru.coordination.coordination_oru.simulation2D.TrajectoryEnvelopeCoordinatorSimulation;
 import se.oru.coordination.coordination_oru.utils.BrowserVisualization;
 import se.oru.coordination.coordination_oru.utils.Heuristics;
 import se.oru.coordination.coordination_oru.utils.Missions;
 import se.oru.coordination.coordination_oru.vehicles.AutonomousVehicle;
+import se.oru.coordination.coordination_oru.motionplanning.VehicleMotionPlanner;
 import se.oru.coordination.coordination_oru.vehicles.VehiclesHashMap;
 
 import java.awt.*;
@@ -23,6 +24,7 @@ public class Test2 {
         final Pose drawPoint23 = new Pose(67.55,86.65,Math.PI/2);
         final Pose orePass = new Pose(54.35,11.25,Math.PI/2);
         final String YAML_FILE = "maps/mine-map-test.yaml";
+        var planner = new VehicleMotionPlanner();
 
         var chargingVehicle = new AutonomousVehicle("E",1, Color.BLUE, 5.0, 0.5,
                 0.8, 0.5, mainTunnelLeft, 10, 0);

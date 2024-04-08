@@ -3,7 +3,7 @@ package se.oru.coordination.coordination_oru.scenarios;
 import org.metacsp.multi.spatioTemporal.paths.Pose;
 import org.metacsp.multi.spatioTemporal.paths.PoseSteering;
 import se.oru.coordination.coordination_oru.ConstantAccelerationForwardModel;
-import se.oru.coordination.coordination_oru.Mission;
+import se.oru.coordination.coordination_oru.DataStructure.Mission;
 import se.oru.coordination.coordination_oru.simulation2D.TrajectoryEnvelopeCoordinatorSimulation;
 import se.oru.coordination.coordination_oru.utils.BrowserVisualization;
 import se.oru.coordination.coordination_oru.utils.Heuristics;
@@ -11,6 +11,8 @@ import se.oru.coordination.coordination_oru.utils.Heuristics.HeuristicType;
 import se.oru.coordination.coordination_oru.utils.Missions;
 import se.oru.coordination.coordination_oru.vehicles.AutonomousVehicle;
 import se.oru.coordination.coordination_oru.vehicles.LookAheadVehicle;
+import se.oru.coordination.coordination_oru.motionplanning.VehicleMotionPlanner;
+import se.oru.coordination.coordination_oru.motionplanning.VehiclePlanner;
 
 import java.awt.*;
 
@@ -29,6 +31,7 @@ public class ProductionCycleMine {
         final Pose drawPoint23 = new Pose(67.75, 86.95, -Math.PI / 2);
         final Pose drawPoint24 = new Pose(75.05, 84.65, -Math.PI / 2);
         final Pose orePass = new Pose(54.35, 11.25, -Math.PI / 2);
+        VehiclePlanner planner = new VehicleMotionPlanner();
 
         var drillVehicle = new LookAheadVehicle("drillRig", predictableDistance, 1, Color.CYAN, 5, 2,
                 0.5, 0.5, drawPoint16, 0, 0);

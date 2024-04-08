@@ -5,6 +5,7 @@ import org.metacsp.multi.spatioTemporal.paths.PoseSteering;
 import org.metacsp.multi.spatioTemporal.paths.Trajectory;
 import org.metacsp.multi.spatioTemporal.paths.TrajectoryEnvelope;
 import se.oru.coordination.coordination_oru.*;
+import se.oru.coordination.coordination_oru.DataStructure.RobotReport;
 import se.oru.coordination.coordination_oru.utils.Missions;
 
 import java.util.*;

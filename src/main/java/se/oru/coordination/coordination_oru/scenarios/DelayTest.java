@@ -3,11 +3,12 @@ package se.oru.coordination.coordination_oru.scenarios;
 import org.metacsp.multi.spatioTemporal.paths.Pose;
 import se.oru.coordination.coordination_oru.ConstantAccelerationForwardModel;
 import se.oru.coordination.coordination_oru.DataStructure.Task;
-import se.oru.coordination.coordination_oru.Mission;
+import se.oru.coordination.coordination_oru.DataStructure.Mission;
 import se.oru.coordination.coordination_oru.simulation2D.TrajectoryEnvelopeCoordinatorSimulation;
 import se.oru.coordination.coordination_oru.utils.*;
 import se.oru.coordination.coordination_oru.vehicles.AutonomousVehicle;
-import se.oru.coordination.coordination_oru.vehicles.LookAheadVehicle;
+import se.oru.coordination.coordination_oru.motionplanning.VehicleMotionPlanner;
+import se.oru.coordination.coordination_oru.motionplanning.VehiclePlanner;
 
 import java.awt.*;
 import java.io.IOException;
@@ -27,6 +28,7 @@ public class DelayTest {
         int numOfCallsForLookAheadRobot = 1;
         boolean visualization = true;
         boolean writeVehicleReports = false;
+        VehiclePlanner planner = new VehicleMotionPlanner();
 
         // Everything including velocity, acceleration, lookahead, length and width should be scaled
         final double MAX_VELOCITY = 100.0 / scaleAdjustment;

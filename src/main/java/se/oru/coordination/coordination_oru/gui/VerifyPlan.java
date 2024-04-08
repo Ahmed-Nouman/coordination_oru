@@ -9,9 +9,9 @@ import javafx.scene.layout.VBox;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import org.metacsp.multi.spatioTemporal.paths.Pose;
-import se.oru.coordination.coordination_oru.vehicles.AbstractVehicle;
-import se.oru.coordination.coordination_oru.vehicles.AutonomousVehicle;
-import se.oru.coordination.coordination_oru.vehicles.LookAheadVehicle;
+import se.oru.coordination.coordination_oru.motionplanning.VehicleMotionPlanner;
+import se.oru.coordination.coordination_oru.motionplanning.VehiclePlanner;
+import se.oru.coordination.coordination_oru.vehicles.*;
 
 public class VerifyPlan {
     private final ControllerNavigation controllerNavigation;
@@ -30,6 +30,7 @@ public class VerifyPlan {
                 var YAML_FILE = controllerNavigation.getMain().getDataStatus().getProjectData().getMap();
                 var mapResolution = controllerNavigation.getMain().getDataStatus().getMapData().getResolution();
                 var scaleAdjustment = 1 / mapResolution;
+                VehiclePlanner planner = new VehicleMotionPlanner();
 
                 for (var vehicle : controllerNavigation.getMain().getDataStatus().getProjectData().getVehicles()) {
                     AbstractVehicle newVehicle;
@@ -55,7 +56,7 @@ public class VerifyPlan {
 //            newVehicle.setMission(vehicle.getMission()); //FIXME Fix Mission, How to handle multiple missions to GoalPoses, handle stoppages
 
                     newVehicle.generatePlans(YAML_FILE);
-                    newVehicle.setPlanningAlgorithm(controllerNavigation.getMain().getDataStatus().getPathPlanner());
+//                    newVehicle.setPlanningAlgorithm(controllerNavigation.getMain().getDataStatus().getPathPlanner()); //FIXME: HARD CODED
 
                     controllerNavigation.getMain().getDataStatus().getVehicles().add(newVehicle);
                 }

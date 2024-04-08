@@ -4,7 +4,7 @@ import com.vividsolutions.jts.geom.Coordinate;
 import org.metacsp.multi.spatioTemporal.paths.Pose;
 import org.metacsp.multi.spatioTemporal.paths.PoseSteering;
 import se.oru.coordination.coordination_oru.DataStructure.Task;
-import se.oru.coordination.coordination_oru.motionplanning.ompl.ReedsSheppCarPlanner;
+import se.oru.coordination.coordination_oru.motionplanning.VehicleMotionPlanner;
 import se.oru.coordination.coordination_oru.utils.Round;
 
 import java.awt.*;
@@ -34,25 +34,24 @@ import java.util.List;
 
 public abstract class AbstractVehicle {
     public static int vehicleNumber = 1;
-    private int ID;
-    private String name;
+    private final int ID;
+    private final String name;
     private final int priority;
     private final String type = this.getClass().getSimpleName();
-    private double maxVelocity;
-    private double maxAcceleration;
+    private final double maxVelocity;
+    private final double maxAcceleration;
     private double length;
     private double width;
     private Coordinate[] footprint;
     private Color color;
     private Pose initialPose;
     private final List<Task> tasks = new ArrayList<>();
-    private int missionRepetition;
-    private double safetyDistance;
+    private final int missionRepetition;
+    private final double safetyDistance;
     private int safetyPathPoints;
     private PoseSteering[] path; //FIXME:should be removed later
-    private List<PoseSteering[]> paths = new ArrayList<>();
+    private final List<PoseSteering[]> paths = new ArrayList<>();
     private double pathLength;
-    private ReedsSheppCarPlanner.PLANNING_ALGORITHM planningAlgorithm;
 
     //FIXME: Move planning methods to a separate class. This class should only contain vehicle properties and methods
     public AbstractVehicle(int ID, String name, int priority, Color color, double maxVelocity, double maxAcceleration,
@@ -69,7 +68,6 @@ public abstract class AbstractVehicle {
         this.safetyDistance = safetyDistance;
         this.missionRepetition = missionRepetition;
         this.footprint = makeFootprint(length, width);
-        this.planningAlgorithm = ReedsSheppCarPlanner.PLANNING_ALGORITHM.RRTConnect;
 
         var existingVehicle = VehiclesHashMap.getVehicle(ID);
         if (existingVehicle != null) throw new IllegalStateException("ID " + ID + " already exists.");
@@ -93,38 +91,11 @@ public abstract class AbstractVehicle {
     public void generatePlans(String map) {
         if (!tasks.isEmpty()) {
             for (Task task : tasks) {
-                var rsp = configureReedsSheppCarPlanner(map, 0.09, 60, 2.0, 0.1);
-                generatePath(rsp, initialPose, task.getPoses());
+                var planner = new VehicleMotionPlanner();
+                paths.add(planner.plan(map, getFootprint(), initialPose, task.getPoses())); // Call to interface for planning.
                 initialPose = task.getPoses()[task.getPoses().length - 1];
             }
         }
-    }
-
-    private ReedsSheppCarPlanner configureReedsSheppCarPlanner(String map, double radius, double planningTime,
-                                                               double turningRadius, double distanceBetweenPathPoints) {
-        var rsp = new ReedsSheppCarPlanner(planningAlgorithm);
-        rsp.setMap(map);
-        rsp.setRadius(radius);
-        rsp.setPlanningTimeInSecs(planningTime);
-        rsp.setFootprint(getFootPrint());
-        rsp.setTurningRadius(turningRadius);
-        rsp.setDistanceBetweenPathPoints(distanceBetweenPathPoints);
-        return rsp;
-    }
-
-    private void generatePath(ReedsSheppCarPlanner rsp, Pose initialPose, Pose[] goalPoses) {
-        rsp.setStart(initialPose);
-        rsp.setGoals(goalPoses);
-        rsp.plan();
-        var path = rsp.getPath();
-
-        if (path == null) {
-            System.err.println("No path found.");
-            System.exit(1); //TODO: Handle this better and throw an exception, not exiting the program
-        }
-
-        this.setPath(path);
-        paths.add(path);
     }
 
     @Override
@@ -226,10 +197,6 @@ public abstract class AbstractVehicle {
         return null;
     }
 
-    public Coordinate[] getFootPrint() {
-        return footprint;
-    }
-
     public void setFootprint(Coordinate[] footprint) {
         this.footprint = footprint;
     }
@@ -250,12 +217,6 @@ public abstract class AbstractVehicle {
         return path;
     }
 
-    public void setPath(PoseSteering[] path) {
-        this.path = path;
-        setPlanLength(path);
-        setSafetyPathPoints();
-    }
-
     public void setLength(double length) {
         this.length = length;
         this.footprint = makeFootprint(length, width);
@@ -274,16 +235,8 @@ public abstract class AbstractVehicle {
         return width;
     }
 
-    public void setMaxVelocity(double maxVelocity) {
-        this.maxVelocity = maxVelocity;
-    }
-
     public double getMaxVelocity() {
         return maxVelocity;
-    }
-
-    public void setMaxAcceleration(double maxAcceleration) {
-        this.maxAcceleration = maxAcceleration;
     }
 
     public double getMaxAcceleration() {
@@ -294,24 +247,8 @@ public abstract class AbstractVehicle {
         return type;
     }
 
-    public double getSafetyDistance() {
-        return safetyDistance;
-    }
-
-    public void setSafetyDistance(double safetyDistance) {
-        this.safetyDistance = safetyDistance;
-    }
-
     public Pose getInitialPose() {
         return initialPose;
-    }
-
-    public void setInitialPose(Pose initialPose) {
-        this.initialPose = initialPose;
-    }
-
-    public void setName(String name) {
-        this.name = name;
     }
 
     public String getName() {
@@ -326,36 +263,12 @@ public abstract class AbstractVehicle {
         return pathLength;
     }
 
-    public void setPathLength(double pathLength) {
-        this.pathLength = pathLength;
-    }
-
-    public void setID(int ID) {
-        this.ID = ID;
-    }
-
-    public void setMissionRepetition(int missionRepetition) {
-        this.missionRepetition = missionRepetition;
-    }
-
     public int getMissionRepetition() {
         return missionRepetition;
     }
 
-    public ReedsSheppCarPlanner.PLANNING_ALGORITHM getPlanningAlgorithm() {
-        return planningAlgorithm;
-    }
-
-    public void setPlanningAlgorithm(ReedsSheppCarPlanner.PLANNING_ALGORITHM planningAlgorithm) {
-        this.planningAlgorithm = planningAlgorithm;
-    }
-
     public int getSafetyPathPoints() {
         return safetyPathPoints;
-    }
-
-    public void setSafetyPathPoints() {
-        if (this.path != null) this.safetyPathPoints = (int) Math.round(path.length / pathLength * safetyDistance);
     }
 
     public List<Task> getTasks() {
@@ -377,7 +290,4 @@ public abstract class AbstractVehicle {
         return paths;
     }
 
-    public void setPaths(List<PoseSteering[]> paths) {
-        this.paths = paths;
-    }
 }

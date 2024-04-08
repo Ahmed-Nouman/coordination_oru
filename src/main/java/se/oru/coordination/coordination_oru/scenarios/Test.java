@@ -7,6 +7,8 @@ import se.oru.coordination.coordination_oru.utils.BrowserVisualization;
 import se.oru.coordination.coordination_oru.utils.Heuristics;
 import se.oru.coordination.coordination_oru.utils.Missions;
 import se.oru.coordination.coordination_oru.vehicles.AutonomousVehicle;
+import se.oru.coordination.coordination_oru.motionplanning.VehicleMotionPlanner;
+import se.oru.coordination.coordination_oru.motionplanning.VehiclePlanner;
 
 import java.awt.*;
 
@@ -18,6 +20,7 @@ public class Test {
         final Pose drawPoint21 = new Pose(52.95,87.75,-Math.PI/2);
         final Pose orePass = new Pose(54.35,11.25,-Math.PI/2);
         final String YAML_FILE = "maps/mine-map-test.yaml";
+        VehiclePlanner planner = new VehicleMotionPlanner();
 
 
         var autonomousVehicle = new AutonomousVehicle("A1",1, Color.YELLOW, 10.0, 1.0,
