@@ -1,13 +1,11 @@
 package se.oru.coordination.coordination_oru.scenarios;
 
 import org.metacsp.multi.spatioTemporal.paths.Pose;
-import se.oru.coordination.coordination_oru.ConstantAccelerationForwardModel;
-import se.oru.coordination.coordination_oru.motionplanning.ompl.ReedsSheppCarPlanner;
+import se.oru.coordination.coordination_oru.kinematicModel.ConstantAccelerationForwardModel;
+import se.oru.coordination.coordination_oru.motionPlanning.ompl.ReedsSheppCarPlanner;
 import se.oru.coordination.coordination_oru.simulation2D.TrajectoryEnvelopeCoordinatorSimulation;
 import se.oru.coordination.coordination_oru.utils.*;
 import se.oru.coordination.coordination_oru.vehicles.AutonomousVehicle;
-import se.oru.coordination.coordination_oru.motionplanning.VehicleMotionPlanner;
-import se.oru.coordination.coordination_oru.motionplanning.VehiclePlanner;
 
 import java.awt.*;
 
@@ -16,7 +14,7 @@ public class HeuristicsPaperScenario {
     public static final String YAML_FILE = "maps/mine-map-heuristic-paper.yaml";
     public static final double MAP_RESOLUTION = new MapResolution().getMapResolution(YAML_FILE);
     public static final double SCALE_ADJUSTMENT = 1 / MAP_RESOLUTION;
-    public static final Heuristics.HeuristicType HEURISTIC_TYPE = Heuristics.HeuristicType.HIGHEST_PRIORITY_AND_CLOSEST_FIRST;
+    public static final Heuristics.HeuristicType HEURISTIC_TYPE = Heuristics.HeuristicType.CLOSEST_FIRST;
     public static final ReedsSheppCarPlanner.PLANNING_ALGORITHM PLANNING_ALGORITHM = ReedsSheppCarPlanner.PLANNING_ALGORITHM.RRTConnect;
     public static final String reportAddress = "/src/main/java/se/oru/coordination/coordination_oru/results/heuristicsPaper_2024";
     public static final String REPORT_ADDRESS = reportAddress;
@@ -47,7 +45,6 @@ public class HeuristicsPaperScenario {
         final var maxAcceleration = MAX_ACCELERATION / SCALE_ADJUSTMENT;
         final var length = LENGTH / SCALE_ADJUSTMENT;
         final var width = WIDTH / SCALE_ADJUSTMENT;
-        VehiclePlanner planner = new VehicleMotionPlanner();
 
         final var mainTunnelLeft = new Pose(3.35, 13.85, UP_RIGHT);
         final var mainTunnelRight = new Pose(80.05, 26.25, UP_RIGHT);
@@ -147,10 +144,10 @@ public class HeuristicsPaperScenario {
 
         Missions.generateMissions();
         Missions.setMap(YAML_FILE);
-        Missions.runMissionsOnce(tec);
+//        Missions.runMissionsOnce(tec);
 //        Missions.runMissionsIndefinitely(tec);
 //        Missions.startMissionDispatchers(tec);
-//        Missions.startMissionDispatcher(tec, WRITE_VEHICLE_REPORTS, REPORTING_TIME, REPORTING_INTERVAL, heuristicName, reportsFolder, SCALE_ADJUSTMENT);
+        Missions.startMissionDispatcher(tec, WRITE_VEHICLE_REPORTS, REPORTING_TIME, REPORTING_INTERVAL, heuristicName, reportsFolder, SCALE_ADJUSTMENT);
     }
 
 }

@@ -1,4 +1,4 @@
-package se.oru.coordination.coordination_oru.motionplanning.ompl;
+package se.oru.coordination.coordination_oru.motionPlanning.ompl;
 
 import com.sun.jna.Native;
 import com.sun.jna.NativeLibrary;
@@ -10,9 +10,9 @@ import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.geom.Polygon;
 import org.metacsp.multi.spatioTemporal.paths.Pose;
 import org.metacsp.multi.spatioTemporal.paths.PoseSteering;
-import se.oru.coordination.coordination_oru.motionplanning.AbstractMotionPlanner;
-import se.oru.coordination.coordination_oru.motionplanning.OccupancyMap;
-import se.oru.coordination.coordination_oru.motionplanning.ompl.ReedsSheppCarPlannerLib.PathPose;
+import se.oru.coordination.coordination_oru.motionPlanning.AbstractMotionPlanner;
+import se.oru.coordination.coordination_oru.motionPlanning.OccupancyMap;
+import se.oru.coordination.coordination_oru.motionPlanning.ompl.ReedsSheppCarPlannerLib.PathPose;
 import se.oru.coordination.coordination_oru.utils.GeometrySmoother;
 import se.oru.coordination.coordination_oru.utils.GeometrySmoother.SmootherControl;
 

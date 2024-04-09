@@ -3,8 +3,8 @@ package se.oru.coordination.coordination_oru.vehicles;
 import com.vividsolutions.jts.geom.Coordinate;
 import org.metacsp.multi.spatioTemporal.paths.Pose;
 import org.metacsp.multi.spatioTemporal.paths.PoseSteering;
-import se.oru.coordination.coordination_oru.DataStructure.Task;
-import se.oru.coordination.coordination_oru.motionplanning.VehicleMotionPlanner;
+import se.oru.coordination.coordination_oru.dataStructue.Task;
+import se.oru.coordination.coordination_oru.motionPlanning.VehicleMotionPlanner;
 import se.oru.coordination.coordination_oru.utils.Round;
 
 import java.awt.*;
@@ -47,13 +47,15 @@ public abstract class AbstractVehicle {
     private Pose initialPose;
     private final List<Task> tasks = new ArrayList<>();
     private final int missionRepetition;
+
     private final double safetyDistance;
+
     private int safetyPathPoints;
     private PoseSteering[] path; //FIXME:should be removed later
     private final List<PoseSteering[]> paths = new ArrayList<>();
     private double pathLength;
-
     //FIXME: Move planning methods to a separate class. This class should only contain vehicle properties and methods
+
     public AbstractVehicle(int ID, String name, int priority, Color color, double maxVelocity, double maxAcceleration,
                            double length, double width, Pose initialPose, double safetyDistance, int missionRepetition) {
         this.ID = ID;
@@ -83,7 +85,6 @@ public abstract class AbstractVehicle {
                 new Coordinate(-length, -width)        //front left
         };
     }
-
     public static double calculateFootprintArea(double length, double width) {
         return length * width;                  //FIXME: Currently allows four sided vehicles only
     }
@@ -204,6 +205,7 @@ public abstract class AbstractVehicle {
     public double getPlanLength() {
         return pathLength;
     }
+
     public void setPlanLength(PoseSteering[] path) {
         for (int i = 0; i < path.length - 1; i++) {
             double deltaS = path[i].getPose().distanceTo(path[i + 1].getPose());
@@ -212,7 +214,6 @@ public abstract class AbstractVehicle {
         pathLength = Round.round(pathLength, 2);
         VehiclesHashMap.getVehicle(this.getID()).pathLength = pathLength;
     }
-
     public PoseSteering[] getPath() {
         return path;
     }
@@ -278,16 +279,20 @@ public abstract class AbstractVehicle {
     public void setGoals(Pose goalPose) {
     this.tasks.add(new Task(new Pose[] {goalPose}, 0.0));
     }
+
     public void setGoals(Pose[] goalPoses) {
         this.tasks.add(new Task(goalPoses, 0.0));
     }
-
     public void addTask(Task task) {
         this.tasks.add(task);
     }
 
     public List<PoseSteering[]> getPaths() {
         return paths;
+    }
+
+    public double getSafetyDistance() {
+        return safetyDistance;
     }
 
 }

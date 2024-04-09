@@ -18,10 +18,11 @@ import org.metacsp.multi.spatioTemporal.paths.Trajectory;
 import org.metacsp.multi.spatioTemporal.paths.TrajectoryEnvelope;
 import org.metacsp.utility.PermutationsWithRepetition;
 import org.metacsp.utility.UI.Callback;
-import se.oru.coordination.coordination_oru.DataStructure.CriticalSection;
-import se.oru.coordination.coordination_oru.DataStructure.Dependency;
-import se.oru.coordination.coordination_oru.DataStructure.RobotReport;
-import se.oru.coordination.coordination_oru.motionplanning.AbstractMotionPlanner;
+import se.oru.coordination.coordination_oru.dataStructue.CriticalSection;
+import se.oru.coordination.coordination_oru.dataStructue.Dependency;
+import se.oru.coordination.coordination_oru.dataStructue.RobotReport;
+import se.oru.coordination.coordination_oru.kinematicModel.ForwardModel;
+import se.oru.coordination.coordination_oru.motionPlanning.AbstractMotionPlanner;
 import se.oru.coordination.coordination_oru.vehicles.LookAheadVehicle;
 import se.oru.coordination.coordination_oru.vehicles.VehiclesHashMap;
 

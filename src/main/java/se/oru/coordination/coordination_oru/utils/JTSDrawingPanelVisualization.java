@@ -6,7 +6,7 @@ import com.vividsolutions.jts.geom.GeometryFactory;
 import org.metacsp.multi.spatial.DE9IM.GeometricShapeDomain;
 import org.metacsp.multi.spatioTemporal.paths.TrajectoryEnvelope;
 import org.metacsp.utility.UI.JTSDrawingPanel;
-import se.oru.coordination.coordination_oru.DataStructure.RobotReport;
+import se.oru.coordination.coordination_oru.dataStructue.RobotReport;
 import se.oru.coordination.coordination_oru.simulation2D.TrajectoryEnvelopeCoordinatorSimulation;
 import se.oru.coordination.coordination_oru.vehicles.VehiclesHashMap;
 

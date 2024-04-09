@@ -1,4 +1,4 @@
-package se.oru.coordination.coordination_oru.DataStructure;
+package se.oru.coordination.coordination_oru.dataStructue;
 
 import org.metacsp.multi.spatioTemporal.paths.Pose;
 import org.metacsp.utility.logging.MetaCSPLogging;

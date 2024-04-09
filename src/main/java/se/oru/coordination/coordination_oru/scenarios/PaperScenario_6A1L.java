@@ -1,14 +1,14 @@
 package se.oru.coordination.coordination_oru.scenarios;
 
 import org.metacsp.multi.spatioTemporal.paths.Pose;
-import se.oru.coordination.coordination_oru.ConstantAccelerationForwardModel;
-import se.oru.coordination.coordination_oru.DataStructure.Mission;
+import se.oru.coordination.coordination_oru.kinematicModel.ConstantAccelerationForwardModel;
+import se.oru.coordination.coordination_oru.dataStructue.Mission;
 import se.oru.coordination.coordination_oru.simulation2D.TrajectoryEnvelopeCoordinatorSimulation;
 import se.oru.coordination.coordination_oru.utils.*;
 import se.oru.coordination.coordination_oru.vehicles.AutonomousVehicle;
 import se.oru.coordination.coordination_oru.vehicles.LookAheadVehicle;
-import se.oru.coordination.coordination_oru.motionplanning.VehicleMotionPlanner;
-import se.oru.coordination.coordination_oru.motionplanning.VehiclePlanner;
+import se.oru.coordination.coordination_oru.motionPlanning.VehicleMotionPlanner;
+import se.oru.coordination.coordination_oru.motionPlanning.VehiclePlanner;
 
 import java.awt.*;
 import java.io.IOException;

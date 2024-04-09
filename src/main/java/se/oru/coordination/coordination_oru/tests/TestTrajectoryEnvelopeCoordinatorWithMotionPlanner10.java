@@ -2,11 +2,12 @@ package se.oru.coordination.coordination_oru.tests;
 
 import com.vividsolutions.jts.geom.Coordinate;
 import se.oru.coordination.coordination_oru.*;
-import se.oru.coordination.coordination_oru.DataStructure.CriticalSection;
-import se.oru.coordination.coordination_oru.DataStructure.Mission;
-import se.oru.coordination.coordination_oru.DataStructure.RobotReport;
+import se.oru.coordination.coordination_oru.dataStructue.CriticalSection;
+import se.oru.coordination.coordination_oru.dataStructue.Mission;
+import se.oru.coordination.coordination_oru.dataStructue.RobotReport;
 import se.oru.coordination.coordination_oru.demo.DemoDescription;
-import se.oru.coordination.coordination_oru.motionplanning.ompl.ReedsSheppCarPlanner;
+import se.oru.coordination.coordination_oru.kinematicModel.ConstantAccelerationForwardModel;
+import se.oru.coordination.coordination_oru.motionPlanning.ompl.ReedsSheppCarPlanner;
 import se.oru.coordination.coordination_oru.simulation2D.TrajectoryEnvelopeCoordinatorSimulation;
 import se.oru.coordination.coordination_oru.utils.JTSDrawingPanelVisualization;
 import se.oru.coordination.coordination_oru.utils.Missions;
@@ -67,7 +68,7 @@ public abstract class TestTrajectoryEnvelopeCoordinatorWithMotionPlanner10 {
 		
 		Integer[] robotIDs = new Integer[] {1,2,3,4};
 		for (Integer robotID : robotIDs) {
-			tec.setForwardModel(robotID, new ConstantAccelerationForwardModel(MAX_ACCEL, MAX_VEL, tec.getTemporalResolution(), tec.getControlPeriod(), tec.getRobotTrackingPeriodInMillis(robotID)));	
+			tec.setForwardModel(robotID, new ConstantAccelerationForwardModel(MAX_ACCEL, MAX_VEL, tec.getTemporalResolution(), tec.getControlPeriod(), tec.getRobotTrackingPeriodInMillis(robotID)));
 			tec.placeRobot(robotID, Missions.getLocation("a"+robotID));
 			
 			//Set up private motion planners.

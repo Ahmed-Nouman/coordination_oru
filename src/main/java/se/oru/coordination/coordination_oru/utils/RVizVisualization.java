@@ -12,7 +12,7 @@ import org.ros.message.Duration;
 import org.ros.namespace.GraphName;
 import org.ros.node.*;
 import org.ros.node.topic.Publisher;
-import se.oru.coordination.coordination_oru.DataStructure.RobotReport;
+import se.oru.coordination.coordination_oru.dataStructue.RobotReport;
 import visualization_msgs.MarkerArray;
 
 import javax.imageio.ImageIO;

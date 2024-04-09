@@ -1,7 +1,7 @@
 package se.oru.coordination.coordination_oru.gui;
 
-import se.oru.coordination.coordination_oru.ConstantAccelerationForwardModel;
-import se.oru.coordination.coordination_oru.DataStructure.Mission;
+import se.oru.coordination.coordination_oru.kinematicModel.ConstantAccelerationForwardModel;
+import se.oru.coordination.coordination_oru.dataStructue.Mission;
 import se.oru.coordination.coordination_oru.simulation2D.TrajectoryEnvelopeCoordinatorSimulation;
 import se.oru.coordination.coordination_oru.utils.BrowserVisualization;
 import se.oru.coordination.coordination_oru.utils.Missions;

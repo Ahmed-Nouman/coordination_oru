@@ -5,8 +5,8 @@ import org.metacsp.multi.spatioTemporal.paths.Pose;
 import org.metacsp.multi.spatioTemporal.paths.TrajectoryEnvelope;
 import org.metacsp.multi.spatioTemporal.paths.TrajectoryEnvelope.SpatialEnvelope;
 import se.oru.coordination.coordination_oru.AbstractTrajectoryEnvelopeCoordinator;
-import se.oru.coordination.coordination_oru.DataStructure.CriticalSection;
-import se.oru.coordination.coordination_oru.motionplanning.ompl.ReedsSheppCarPlanner;
+import se.oru.coordination.coordination_oru.dataStructue.CriticalSection;
+import se.oru.coordination.coordination_oru.motionPlanning.ompl.ReedsSheppCarPlanner;
 
 import java.util.Arrays;
 

@@ -7,7 +7,7 @@ import com.vividsolutions.jts.geom.util.AffineTransformation;
 import org.metacsp.multi.spatioTemporal.paths.Pose;
 import org.metacsp.multi.spatioTemporal.paths.PoseSteering;
 import org.metacsp.utility.UI.JTSDrawingPanel;
-import se.oru.coordination.coordination_oru.motionplanning.ompl.ReedsSheppCarPlanner;
+import se.oru.coordination.coordination_oru.motionPlanning.ompl.ReedsSheppCarPlanner;
 import se.oru.coordination.coordination_oru.utils.splines.Spline3D;
 import se.oru.coordination.coordination_oru.utils.splines.SplineFactory;
 

@@ -1,11 +1,11 @@
-package se.oru.coordination.coordination_oru.motionplanning.tests.ompl;
+package se.oru.coordination.coordination_oru.motionPlanning.tests.ompl;
 
 
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.geom.Polygon;
 import org.metacsp.utility.UI.JTSDrawingPanel;
-import se.oru.coordination.coordination_oru.motionplanning.ompl.ReedsSheppCarPlanner;
+import se.oru.coordination.coordination_oru.motionPlanning.ompl.ReedsSheppCarPlanner;
 
 public class TestReedsSheppCarPlannerSmoothGeometry {
 	

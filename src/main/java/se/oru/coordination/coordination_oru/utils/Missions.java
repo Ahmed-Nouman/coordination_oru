@@ -10,9 +10,9 @@ import org.jgrapht.graph.SimpleDirectedWeightedGraph;
 import org.metacsp.multi.spatioTemporal.paths.Pose;
 import org.metacsp.multi.spatioTemporal.paths.PoseSteering;
 import org.metacsp.utility.logging.MetaCSPLogging;
-import se.oru.coordination.coordination_oru.DataStructure.Mission;
+import se.oru.coordination.coordination_oru.dataStructue.Mission;
 import se.oru.coordination.coordination_oru.TrajectoryEnvelopeCoordinator;
-import se.oru.coordination.coordination_oru.motionplanning.AbstractMotionPlanner;
+import se.oru.coordination.coordination_oru.motionPlanning.AbstractMotionPlanner;
 import se.oru.coordination.coordination_oru.simulation2D.TrajectoryEnvelopeCoordinatorSimulation;
 import se.oru.coordination.coordination_oru.vehicles.AbstractVehicle;
 import se.oru.coordination.coordination_oru.vehicles.AutonomousVehicle;
@@ -28,6 +28,7 @@ import java.nio.file.Paths;
 import java.util.*;
 import java.util.Map.Entry;
 import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Logger;
 import java.util.zip.ZipEntry;
@@ -774,9 +775,8 @@ public class Missions {
 
 	public static void startMissionDispatcher(TrajectoryEnvelopeCoordinator tec, boolean writeReports, double intervalInSeconds,
 											  int terminationInMinutes, String heuristicName, String resultDirectory, double scaleAdjustment) {
-		if (writeReports) {
-			writeReports(tec, writeReports, intervalInSeconds, terminationInMinutes, heuristicName, resultDirectory, scaleAdjustment);
-		}
+		if (writeReports)
+            writeReports(tec, true, intervalInSeconds, terminationInMinutes, heuristicName, resultDirectory, scaleAdjustment);
 		startMissionDispatchLoop(tec);
 	}
 
@@ -877,8 +877,8 @@ public class Missions {
                 while (true) {
 					if (missionNumber >= missions.size()) missionNumber = 0;
 					missionNumber = handleMission(tec, missionNumber, missions);
-					delayBetweenMission(missionNumber, VehiclesHashMap.getVehicle(robotID).getTasks().get(missionNumber).getTime());
-					threadSleep();
+//					delayBetweenMission(missionNumber, (double) VehiclesHashMap.getVehicle(robotID).getTasks().get(missionNumber).getTime());
+					threadSleep(2000);
 				}
 			});
 		}
@@ -903,30 +903,44 @@ public class Missions {
 		}
 	}
 
-	private static void threadSleep() {
+	private static void threadSleep(long time) {
 		try {
-			TimeUnit.MILLISECONDS.sleep(100);
+			TimeUnit.MILLISECONDS.sleep(time);
 		} catch (InterruptedException e) {
 			e.getMessage();
 		}
 	}
 
 	public static void runMissionsOnce(TrajectoryEnvelopeCoordinatorSimulation tec) {
-		var executorService = Executors.newScheduledThreadPool(tec.getAllRobotIDs().size());
-		for (int robotID : convertSetToIntArray(tec.getAllRobotIDs())) {
-			executorService.execute(() -> {
-				var missionNumber = 0;
-				var missions = Missions.getMissions(robotID);
-				for (int i = 0; i < missions.size(); i++) {
-					var nextMission = missions.get(missionNumber);
-					synchronized (tec) {
-						if (tec.addMissions(nextMission)) missionNumber++;
+		final ScheduledExecutorService executorService = Executors.newScheduledThreadPool(VehiclesHashMap.getList().size());
+
+		for (int i = 1; i <= VehiclesHashMap.getList().size(); i++) {
+			final int robotID = i;
+			executorService.schedule(new Runnable() {
+				int iteration = 0;
+
+				@Override
+				public void run() {
+					if (!Thread.currentThread().isInterrupted()) {
+						Mission m = Missions.getMission(robotID, iteration % Missions.getMissions(robotID).size());
+						synchronized (tec) {
+							if (tec.addMissions(m)) {
+								iteration++;
+							}
+						}
+
+						// Calculate delay for the next mission
+						long nextMissionDelay = (long) VehiclesHashMap.getVehicle(robotID).getTasks().get(iteration % VehiclesHashMap.getVehicle(robotID).getTasks().size()).getTime();
+						// Plus a fixed 2-second delay between missions
+						executorService.schedule(this, nextMissionDelay + 2000, TimeUnit.MILLISECONDS);
 					}
-					delayBetweenMission(missionNumber, VehiclesHashMap.getVehicle(robotID).getTasks().get(missionNumber).getTime());
 				}
-			});
+			}, 0, TimeUnit.MILLISECONDS); // Initial delay of 0 to start immediately
 		}
-		executorService.shutdown();
+
+		// Shutdown the executor after a certain period or based on some condition
+		// Remember to handle this based on your application's lifecycle
+		// executorService.shutdown();
 	}
 
 	public static void runMissionsForDuration(TrajectoryEnvelopeCoordinatorSimulation tec, int durationInMinutes) {
@@ -943,8 +957,8 @@ public class Missions {
 					if (missionNumber >= missions.size()) missionNumber = 0;
 					missionNumber = handleMission(tec, missionNumber, missions);
 //					delayBetweenMission(missionNumber, commonStoppageTimes);
-					delayBetweenMission(missionNumber, VehiclesHashMap.getVehicle(robotID).getTasks().get(missionNumber).getTime());
-					threadSleep();
+//					delayBetweenMission(missionNumber, VehiclesHashMap.getVehicle(robotID).getTasks().get(missionNumber).getTime());
+					threadSleep(2000);
 				}
 			});
 		}
@@ -1038,9 +1052,9 @@ public class Missions {
 			}
 		}
 
-		// Generate the filename based on the number of autonomous and lookahead robots
-		String fileName = "A" + autonomousRobotCount + "H" + lookAheadRobotCount +
-				"_" + heuristicName.charAt(0) + "_" + (int) lookAheadDistance + "_";
+		// Generate the filename based on the number of autonomous and lookahead robots //FIXME: The code needs to go in main method
+		String fileName = heuristicName.charAt(0) + "_" + "S" + "_" + VehiclesHashMap.getVehicle(1).getSafetyDistance() + "_"
+				+ "V" + "_" + VehiclesHashMap.getVehicle(1).getMaxVelocity();
 
 		return resultDirectory + "/" + fileName;
 	}

@@ -1,12 +1,12 @@
-package se.oru.coordination.coordination_oru.motionplanning.tests.ompl;
+package se.oru.coordination.coordination_oru.motionPlanning.tests.ompl;
 
 
 import com.vividsolutions.jts.geom.Coordinate;
 import org.metacsp.multi.spatioTemporal.paths.Pose;
 import org.metacsp.multi.spatioTemporal.paths.PoseSteering;
-import se.oru.coordination.coordination_oru.motionplanning.ompl.ReedsSheppCarPlanner;
+import se.oru.coordination.coordination_oru.motionPlanning.ompl.ReedsSheppCarPlanner;
 
-public class TestReedsSheppCarPlannerMulitpleCircles {
+public class TestReedsSheppCarPlanner {
 	
 	public static void main(String[] args) {
 		
@@ -25,9 +25,6 @@ public class TestReedsSheppCarPlannerMulitpleCircles {
 		rsp.setRadius(0.5);
 		rsp.setStart(new Pose(2.0,2.0,0.0));
 		rsp.setGoals(new Pose(2.0,38.0,0.0));
-		rsp.setCirclePositions(new Coordinate(-1.0,0.0),
-                new Coordinate(0.0,0.0),
-                new Coordinate(1.0,0.0));
 		rsp.setDistanceBetweenPathPoints(distanceBetweenPathPoints);
 		rsp.setTurningRadius(2.0);
 		if (rsp.plan()) {

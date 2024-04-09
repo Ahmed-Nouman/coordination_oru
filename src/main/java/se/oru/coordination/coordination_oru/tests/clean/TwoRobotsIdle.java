@@ -2,10 +2,10 @@ package se.oru.coordination.coordination_oru.tests.clean;
 
 import com.vividsolutions.jts.geom.Coordinate;
 import org.metacsp.multi.spatioTemporal.paths.Pose;
-import se.oru.coordination.coordination_oru.ConstantAccelerationForwardModel;
-import se.oru.coordination.coordination_oru.DataStructure.CriticalSection;
+import se.oru.coordination.coordination_oru.kinematicModel.ConstantAccelerationForwardModel;
+import se.oru.coordination.coordination_oru.dataStructue.CriticalSection;
 import se.oru.coordination.coordination_oru.RobotAtCriticalSection;
-import se.oru.coordination.coordination_oru.DataStructure.RobotReport;
+import se.oru.coordination.coordination_oru.dataStructue.RobotReport;
 import se.oru.coordination.coordination_oru.demo.DemoDescription;
 import se.oru.coordination.coordination_oru.simulation2D.TrajectoryEnvelopeCoordinatorSimulation;
 import se.oru.coordination.coordination_oru.utils.BrowserVisualization;

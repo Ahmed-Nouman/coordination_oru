@@ -6,11 +6,10 @@ import javafx.scene.control.ScrollPane;
 import javafx.scene.image.Image;
 import javafx.scene.input.MouseEvent;
 import org.metacsp.multi.spatioTemporal.paths.Pose;
-import se.oru.coordination.coordination_oru.motionplanning.OccupancyMap;
+import se.oru.coordination.coordination_oru.motionPlanning.OccupancyMap;
 import se.oru.coordination.coordination_oru.utils.Round;
 
 import java.awt.*;
-import java.util.Arrays;
 import java.util.List;
 
 public class InteractiveMap {

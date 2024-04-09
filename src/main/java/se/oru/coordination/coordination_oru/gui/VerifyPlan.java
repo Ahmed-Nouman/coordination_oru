@@ -9,8 +9,8 @@ import javafx.scene.layout.VBox;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import org.metacsp.multi.spatioTemporal.paths.Pose;
-import se.oru.coordination.coordination_oru.motionplanning.VehicleMotionPlanner;
-import se.oru.coordination.coordination_oru.motionplanning.VehiclePlanner;
+import se.oru.coordination.coordination_oru.motionPlanning.VehicleMotionPlanner;
+import se.oru.coordination.coordination_oru.motionPlanning.VehiclePlanner;
 import se.oru.coordination.coordination_oru.vehicles.*;
 
 public class VerifyPlan {

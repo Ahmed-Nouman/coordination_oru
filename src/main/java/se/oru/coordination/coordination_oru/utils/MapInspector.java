@@ -1,7 +1,7 @@
 package se.oru.coordination.coordination_oru.utils;
 
 import com.vividsolutions.jts.geom.Coordinate;
-import se.oru.coordination.coordination_oru.motionplanning.OccupancyMap;
+import se.oru.coordination.coordination_oru.motionPlanning.OccupancyMap;
 
 import javax.swing.*;
 import java.awt.*;

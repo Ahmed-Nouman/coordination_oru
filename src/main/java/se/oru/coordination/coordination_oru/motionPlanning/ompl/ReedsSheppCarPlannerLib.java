@@ -1,4 +1,4 @@
-package se.oru.coordination.coordination_oru.motionplanning.ompl;
+package se.oru.coordination.coordination_oru.motionPlanning.ompl;
 
 import com.sun.jna.Library;
 import com.sun.jna.Pointer;

@@ -1,4 +1,4 @@
-package se.oru.coordination.coordination_oru.DataStructure;
+package se.oru.coordination.coordination_oru.dataStructue;
 
 import org.metacsp.multi.spatioTemporal.paths.Pose;
 
@@ -6,9 +6,9 @@ import java.util.Objects;
 
 public class Task {
     private final Pose[] poses;
-    private final Double time;
+    private final double time;
 
-    public Task(Pose[] poses, Double time) {
+    public Task(Pose[] poses, double time) {
         this.poses = poses;
         this.time = time;
     }
@@ -39,7 +39,7 @@ public class Task {
         return poses;
     }
 
-    public Double getTime() {
+    public double getTime() {
         return time;
     }
 }

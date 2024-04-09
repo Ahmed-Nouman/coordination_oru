@@ -1,4 +1,4 @@
-package se.oru.coordination.coordination_oru.motionplanning;
+package se.oru.coordination.coordination_oru.motionPlanning;
 
 import com.vividsolutions.jts.awt.ShapeWriter;
 import com.vividsolutions.jts.geom.Coordinate;

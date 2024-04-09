@@ -7,9 +7,9 @@ import org.metacsp.multi.spatioTemporal.paths.Pose;
 import org.metacsp.multi.spatioTemporal.paths.PoseSteering;
 import org.metacsp.multi.spatioTemporal.paths.TrajectoryEnvelope;
 import org.metacsp.utility.UI.JTSDrawingPanel;
-import se.oru.coordination.coordination_oru.motionplanning.OccupancyMap;
-import se.oru.coordination.coordination_oru.motionplanning.ompl.ReedsSheppCarPlanner;
-import se.oru.coordination.coordination_oru.motionplanning.ompl.ReedsSheppCarPlanner.PLANNING_ALGORITHM;
+import se.oru.coordination.coordination_oru.motionPlanning.OccupancyMap;
+import se.oru.coordination.coordination_oru.motionPlanning.ompl.ReedsSheppCarPlanner;
+import se.oru.coordination.coordination_oru.motionPlanning.ompl.ReedsSheppCarPlanner.PLANNING_ALGORITHM;
 import se.oru.coordination.coordination_oru.utils.splines.BezierSplineFactory;
 
 import javax.swing.*;

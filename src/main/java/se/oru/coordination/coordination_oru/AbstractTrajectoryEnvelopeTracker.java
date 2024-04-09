@@ -11,8 +11,8 @@ import org.metacsp.time.APSPSolver;
 import org.metacsp.time.Bounds;
 import org.metacsp.utility.UI.Callback;
 import org.metacsp.utility.logging.MetaCSPLogging;
-import se.oru.coordination.coordination_oru.DataStructure.Dependency;
-import se.oru.coordination.coordination_oru.DataStructure.RobotReport;
+import se.oru.coordination.coordination_oru.dataStructue.Dependency;
+import se.oru.coordination.coordination_oru.dataStructue.RobotReport;
 import se.oru.coordination.coordination_oru.simulation2D.TrajectoryEnvelopeTrackerRK4;
 
 import java.util.ArrayList;

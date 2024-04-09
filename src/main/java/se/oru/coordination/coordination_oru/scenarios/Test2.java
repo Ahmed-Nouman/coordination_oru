@@ -1,14 +1,14 @@
 package se.oru.coordination.coordination_oru.scenarios;
 
 import org.metacsp.multi.spatioTemporal.paths.Pose;
-import se.oru.coordination.coordination_oru.DataStructure.Task;
-import se.oru.coordination.coordination_oru.DataStructure.Mission;
+import se.oru.coordination.coordination_oru.dataStructue.Task;
+import se.oru.coordination.coordination_oru.dataStructue.Mission;
 import se.oru.coordination.coordination_oru.simulation2D.TrajectoryEnvelopeCoordinatorSimulation;
 import se.oru.coordination.coordination_oru.utils.BrowserVisualization;
 import se.oru.coordination.coordination_oru.utils.Heuristics;
 import se.oru.coordination.coordination_oru.utils.Missions;
 import se.oru.coordination.coordination_oru.vehicles.AutonomousVehicle;
-import se.oru.coordination.coordination_oru.motionplanning.VehicleMotionPlanner;
+import se.oru.coordination.coordination_oru.motionPlanning.VehicleMotionPlanner;
 import se.oru.coordination.coordination_oru.vehicles.VehiclesHashMap;
 
 import java.awt.*;
@@ -74,13 +74,13 @@ public class Test2 {
 //        tec.addMissions(mission);
 
         //Start a mission dispatching thread for each robot, which will run forever
-        for (int i = 1; i <= VehiclesHashMap.getList().size(); i++) {
-            Thread t = runTasksForEachRobot(i, tec);
-            //Start the thread!
-            t.start();
-        }
+//        for (int i = 1; i <= VehiclesHashMap.getList().size(); i++) {
+//            Thread t = runTasksForEachRobot(i, tec);
+//            //Start the thread!
+//            t.start();
+//        }
 
-//        Missions.runMissionsOnce(tec);
+        Missions.runMissionsOnce(tec);
     }
 
     private static Thread runTasksForEachRobot(int i, TrajectoryEnvelopeCoordinatorSimulation tec) {
@@ -92,6 +92,11 @@ public class Test2 {
                 while (true) {
                     Mission m = Missions.getMission(robotID, iteration%Missions.getMissions(robotID).size());
                     synchronized(tec) {
+                        try {
+                            Thread.sleep((long) VehiclesHashMap.getVehicle(i).getTasks().get(iteration).getTime());  //FIXME: This works
+                        } catch (InterruptedException e) {
+                            throw new RuntimeException(e);
+                        }
                         if (tec.addMissions(m)) iteration++;
                     }
                     //Sleep for a little (2 sec)

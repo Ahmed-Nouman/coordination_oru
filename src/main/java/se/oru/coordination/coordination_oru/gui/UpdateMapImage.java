@@ -4,7 +4,7 @@ import com.vividsolutions.jts.geom.Coordinate;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
 import org.metacsp.multi.spatioTemporal.paths.Pose;
-import se.oru.coordination.coordination_oru.motionplanning.OccupancyMap;
+import se.oru.coordination.coordination_oru.motionPlanning.OccupancyMap;
 
 import java.util.ArrayList;
 

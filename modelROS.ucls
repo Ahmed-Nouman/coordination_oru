@@ -23,7 +23,7 @@
       <operations public="true" package="true" protected="true" private="true" static="true"/>    
     </display>  
   </class>  
-  <interface id="3" language="java" name="se.oru.coordination.coordination_oru.ForwardModel" project="coordination_oru" 
+  <interface id="3" language="java" name="se.oru.coordination.coordination_oru.kinematicModel.ForwardModel" project="coordination_oru"
     file="/coordination_oru/src/main/java/se/oru/coordination/coordination_oru/ForwardModel.java" binary="false" 
     corner="BOTTOM_RIGHT">    
     <position height="-1" width="-1" x="579" y="326"/>    
@@ -33,7 +33,7 @@
       <operations public="true" package="true" protected="true" private="true" static="true"/>    
     </display>  
   </interface>  
-  <class id="4" language="java" name="se.oru.coordination.coordination_oru.ConstantAccelerationForwardModel" 
+  <class id="4" language="java" name="se.oru.coordination.coordination_oru.kinematicModel.ConstantAccelerationForwardModel"
     project="coordination_oru" 
     file="/coordination_oru/src/main/java/se/oru/coordination/coordination_oru/ConstantAccelerationForwardModel.java" 
     binary="false" corner="BOTTOM_RIGHT">    

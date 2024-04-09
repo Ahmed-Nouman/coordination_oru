@@ -1,9 +1,9 @@
-package se.oru.coordination.coordination_oru.motionplanning;
+package se.oru.coordination.coordination_oru.motionPlanning;
 
 import com.vividsolutions.jts.geom.Coordinate;
 import org.metacsp.multi.spatioTemporal.paths.Pose;
 import org.metacsp.multi.spatioTemporal.paths.PoseSteering;
-import se.oru.coordination.coordination_oru.motionplanning.ompl.ReedsSheppCarPlanner;
+import se.oru.coordination.coordination_oru.motionPlanning.ompl.ReedsSheppCarPlanner;
 
 public interface VehiclePlanner {
     PoseSteering[] plan(String map, Coordinate[] footprint, Pose initialPose, Pose[] goalPoses);
