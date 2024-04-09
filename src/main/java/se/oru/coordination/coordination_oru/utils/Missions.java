@@ -28,7 +28,6 @@ import java.nio.file.Paths;
 import java.util.*;
 import java.util.Map.Entry;
 import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Logger;
 import java.util.zip.ZipEntry;
@@ -44,6 +43,8 @@ import java.util.zip.ZipOutputStream;
  */
 public class Missions {
 
+	public static final int MINUTES_TO_SECOND = 60;
+	public static final int SECOND_TO_MILLISECOND = 1000;
 	protected static HashMap<String,Pose> locations = new HashMap<>();
 	protected static HashMap<String,PoseSteering[]> paths = new HashMap<>();
 	private static final Logger metaCSPLogger = MetaCSPLogging.getLogger(Missions.class);
@@ -863,108 +864,37 @@ public class Missions {
 		return array;
 	}
 
-	public static void runMissionsIndefinitely(TrajectoryEnvelopeCoordinatorSimulation tec) {
-		// Initialize a common stoppage time map for all robots with Double values
-//		Map<Integer, Double> commonStoppageTimes = new HashMap<>();
-//		commonStoppageTimes.put(0, 0.25); // 0.25 minutes (15 seconds) for mission number 0
-//		commonStoppageTimes.put(1, 0.5);  // 0.5 minutes (30 seconds) for mission number 1
-
-        var executorService = Executors.newScheduledThreadPool(tec.getAllRobotIDs().size());
-		for (int robotID : convertSetToIntArray(tec.getAllRobotIDs())) {
-			executorService.execute(() -> {
-                var missionNumber = 0;
-				var missions = Missions.getMissions(robotID);
-                while (true) {
-					if (missionNumber >= missions.size()) missionNumber = 0;
-					missionNumber = handleMission(tec, missionNumber, missions);
-//					delayBetweenMission(missionNumber, (double) VehiclesHashMap.getVehicle(robotID).getTasks().get(missionNumber).getTime());
-					threadSleep(2000);
-				}
-			});
-		}
-	}
-
-	private static int handleMission(TrajectoryEnvelopeCoordinatorSimulation tec, int missionNumber, List<Mission> missions) {
-		var nextMission = missions.get(missionNumber);
-		synchronized (tec) {
-			if (tec.addMissions(nextMission)) missionNumber++;
-		}
-		return missionNumber;
-	}
-
-	private static void delayBetweenMission(int missionNumber, Double stoppageTimeInMinutes) {
-		if (missionNumber > 0) {
-			long stoppageTimeInMillis = (long) (stoppageTimeInMinutes * 60 * 1000);
-			try {
-				TimeUnit.MILLISECONDS.sleep(stoppageTimeInMillis);
-			} catch (InterruptedException e) {
-				e.getMessage();
-			}
-		}
-	}
-
-	private static void threadSleep(long time) {
-		try {
-			TimeUnit.MILLISECONDS.sleep(time);
-		} catch (InterruptedException e) {
-			e.getMessage();
-		}
-	}
-
-	public static void runMissionsOnce(TrajectoryEnvelopeCoordinatorSimulation tec) {
-		final ScheduledExecutorService executorService = Executors.newScheduledThreadPool(VehiclesHashMap.getList().size());
+	public static void runTasks(TrajectoryEnvelopeCoordinatorSimulation tec, int simulationTime) {
+		final var executorService = Executors.newScheduledThreadPool(VehiclesHashMap.getList().size());
 
 		for (int i = 1; i <= VehiclesHashMap.getList().size(); i++) {
 			final int robotID = i;
+			long initialDelay = VehiclesHashMap.getVehicle(robotID).getTasks().get(0).getTimeInMillisecond();
 			executorService.schedule(new Runnable() {
 				int iteration = 0;
 
 				@Override
 				public void run() {
 					if (!Thread.currentThread().isInterrupted()) {
-						Mission m = Missions.getMission(robotID, iteration % Missions.getMissions(robotID).size());
-						synchronized (tec) {
-							if (tec.addMissions(m)) {
-								iteration++;
+						int totalMissionsToExecute = Missions.getMissions(robotID).size() * VehiclesHashMap.getVehicle(robotID).getMissionRepetition();
+
+						if (iteration < totalMissionsToExecute) {
+							int missionIndex = iteration % Missions.getMissions(robotID).size();
+                            var mission = Missions.getMission(robotID, missionIndex);
+
+							synchronized (tec) {
+								long nextMissionDelay = VehiclesHashMap.getVehicle(robotID).getTasks().get(missionIndex).getTimeInMillisecond();
+								executorService.schedule(this, nextMissionDelay + SECOND_TO_MILLISECOND, TimeUnit.MILLISECONDS);
+								if (tec.addMissions(mission)) iteration++;
 							}
 						}
-
-						// Calculate delay for the next mission
-						long nextMissionDelay = (long) VehiclesHashMap.getVehicle(robotID).getTasks().get(iteration % VehiclesHashMap.getVehicle(robotID).getTasks().size()).getTime();
-						// Plus a fixed 2-second delay between missions
-						executorService.schedule(this, nextMissionDelay + 2000, TimeUnit.MILLISECONDS);
 					}
 				}
-			}, 0, TimeUnit.MILLISECONDS); // Initial delay of 0 to start immediately
+
+			}, initialDelay, TimeUnit.MILLISECONDS);
 		}
-
-		// Shutdown the executor after a certain period or based on some condition
-		// Remember to handle this based on your application's lifecycle
-		// executorService.shutdown();
-	}
-
-	public static void runMissionsForDuration(TrajectoryEnvelopeCoordinatorSimulation tec, int durationInMinutes) {
-		Map<Integer, Double> commonStoppageTimes = new HashMap<>();
-		commonStoppageTimes.put(0, 0.25); // 15 seconds for mission number 0
-		commonStoppageTimes.put(1, 0.5);  // 30 seconds for mission number 1
-
-		var executorService = Executors.newScheduledThreadPool(tec.getAllRobotIDs().size());
-		for (int robotID : convertSetToIntArray(tec.getAllRobotIDs())) {
-			executorService.execute(() -> {
-				var missionNumber = 0;
-				var missions = Missions.getMissions(robotID);
-				while (!Thread.currentThread().isInterrupted()) {
-					if (missionNumber >= missions.size()) missionNumber = 0;
-					missionNumber = handleMission(tec, missionNumber, missions);
-//					delayBetweenMission(missionNumber, commonStoppageTimes);
-//					delayBetweenMission(missionNumber, VehiclesHashMap.getVehicle(robotID).getTasks().get(missionNumber).getTime());
-					threadSleep(2000);
-				}
-			});
-		}
-		executorService.schedule(() -> {
-			executorService.shutdownNow();
-		}, durationInMinutes, TimeUnit.MINUTES);
+		if (simulationTime < 0) executorService.schedule(executorService::shutdown, 1, TimeUnit.DAYS);
+        else executorService.schedule(executorService::shutdownNow, simulationTime, TimeUnit.MINUTES);
 	}
 
 	/**
@@ -1007,7 +937,7 @@ public class Missions {
 
 			String filePath = Missions.createFile(distance * scaleAdjustment, heuristicName, resultDirectory);
 			var reportCollector = new RobotReportCollector();
-			reportCollector.handleRobotReports(tec, filePath, (long) (1000 * intervalInSeconds),
+			reportCollector.handleRobotReports(tec, filePath, (long) (SECOND_TO_MILLISECOND * intervalInSeconds),
 					terminationInMinutes, scaleAdjustment);
 		} else {
 			System.out.println("Not writing robot reports.");

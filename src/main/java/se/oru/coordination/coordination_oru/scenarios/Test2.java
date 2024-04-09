@@ -27,24 +27,24 @@ public class Test2 {
         var planner = new VehicleMotionPlanner();
 
         var chargingVehicle = new AutonomousVehicle("E",1, Color.BLUE, 5.0, 0.5,
-                0.8, 0.5, mainTunnelLeft, 10, 0);
+                0.8, 0.5, mainTunnelLeft, 10, 2);
 //        chargingVehicle.setGoals(new Pose[] {orePass, mainTunnelLeft, mainTunnelRight}); //FIXME: For getPlans 1) set Goal/Goals/Tasks and remove GoalPoses
-        chargingVehicle.addTask(new Task(new Pose[] {drawPoint16}, 0.25));
-        chargingVehicle.addTask(new Task(new Pose[] {drawPoint23}, 0.25));
-        chargingVehicle.addTask(new Task(new Pose[] {mainTunnelLeft}, 0.25));
+        chargingVehicle.addTask(new Task(0.25, new Pose[] {drawPoint16}));
+        chargingVehicle.addTask(new Task(0.25, new Pose[] {drawPoint23}));
+        chargingVehicle.addTask(new Task(0.25, new Pose[] {mainTunnelLeft}));
         chargingVehicle.generatePlans(YAML_FILE);
 
         var autonomousVehicle1 = new AutonomousVehicle("A1",2, Color.YELLOW, 5.0, 0.5,
-                0.8, 0.5, drawPoint21, 10, 0);
-        autonomousVehicle1.addTask(new Task(new Pose[] {orePass}, 0.25));
-        autonomousVehicle1.addTask(new Task(new Pose[] {drawPoint21}, 0.25));
+                0.8, 0.5, drawPoint21, 10, 3);
+        autonomousVehicle1.addTask(new Task(0.10, new Pose[] {orePass}));
+        autonomousVehicle1.addTask(new Task(0.10, new Pose[] {drawPoint21}));
         autonomousVehicle1.generatePlans(YAML_FILE);
 
-        var autonomousVehicle2 = new AutonomousVehicle("A2",2, Color.YELLOW, 5.0, 0.5,
-                0.8, 0.5, drawPoint15, 10, 0);
-        autonomousVehicle2.addTask(new Task(new Pose[] {orePass}, 0.25));
-        autonomousVehicle2.addTask(new Task(new Pose[] {drawPoint15}, 0.25));
-        autonomousVehicle2.generatePlans(YAML_FILE);
+//        var autonomousVehicle2 = new AutonomousVehicle("A2",2, Color.YELLOW, 5.0, 0.5,
+//                0.8, 0.5, drawPoint15, 10, 0);
+//        autonomousVehicle2.addTask(new Task(new Pose[] {orePass}, 3000));
+//        autonomousVehicle2.addTask(new Task(new Pose[] {drawPoint15}, 6000));
+//        autonomousVehicle2.generatePlans(YAML_FILE);
 
         // Instantiate a trajectory envelope coordinator.
         var tec = new TrajectoryEnvelopeCoordinatorSimulation(2000, 1000, 5, 2);
@@ -80,7 +80,7 @@ public class Test2 {
 //            t.start();
 //        }
 
-        Missions.runMissionsOnce(tec);
+        Missions.runTasks(tec, -1);
     }
 
     private static Thread runTasksForEachRobot(int i, TrajectoryEnvelopeCoordinatorSimulation tec) {
@@ -93,7 +93,7 @@ public class Test2 {
                     Mission m = Missions.getMission(robotID, iteration%Missions.getMissions(robotID).size());
                     synchronized(tec) {
                         try {
-                            Thread.sleep((long) VehiclesHashMap.getVehicle(i).getTasks().get(iteration).getTime());  //FIXME: This works
+                            Thread.sleep((long) VehiclesHashMap.getVehicle(i).getTasks().get(iteration).getTimeInMinutes());  //FIXME: This works
                         } catch (InterruptedException e) {
                             throw new RuntimeException(e);
                         }

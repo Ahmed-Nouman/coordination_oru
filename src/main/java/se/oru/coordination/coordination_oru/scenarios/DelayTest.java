@@ -66,7 +66,7 @@ public class DelayTest {
 
         var chargingRobot = new AutonomousVehicle("E", 1, Color.RED, MAX_VELOCITY, MAX_ACCELERATION,
                 LENGTH, WIDTH, drawPoint34, 0, 0);
-        chargingRobot.addTask(new Task(new Pose[] {orePass3}, 0.25));
+        chargingRobot.addTask(new Task(0.25, new Pose[] {orePass3}));
 //        autonomousRobot3.addTask(new Task(new Pose[] {mainTunnelRight}, 0.25));
 
         autonomousRobot1.generatePlans(YAML_FILE);
