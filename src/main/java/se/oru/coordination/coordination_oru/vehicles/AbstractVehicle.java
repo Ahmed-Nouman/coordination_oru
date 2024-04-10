@@ -5,7 +5,7 @@ import org.metacsp.multi.spatioTemporal.paths.Pose;
 import org.metacsp.multi.spatioTemporal.paths.PoseSteering;
 import se.oru.coordination.coordination_oru.dataStructue.Task;
 import se.oru.coordination.coordination_oru.forwardModel.ForwardModel;
-import se.oru.coordination.coordination_oru.motionPlanning.VehicleMotionPlanner;
+import se.oru.coordination.coordination_oru.motionPlanning.PathPlanner;
 import se.oru.coordination.coordination_oru.utils.Round;
 
 import java.awt.*;
@@ -89,17 +89,17 @@ public abstract class AbstractVehicle {
     public static double calculateFootprintArea(double length, double width) {
         return length * width;
     }
-    public void generatePlans(String map) {
+
+    public void generatePlans(PathPlanner planner) {
         if (!tasks.isEmpty()) {
             for (Task task : tasks) {
-                var planner = new VehicleMotionPlanner();
-                paths.add(planner.plan(map, getFootprint(), initialPose, task.getPoses())); // Call to interface for planning.
-//                paths.add(planner.plan(map, getFootprint(), initialPose, task.getPoses(), ReedsSheppCarPlanner.PLANNING_ALGORITHM.RRTstar,
-//                        0.09, 60, 2.0, 0.1)); // Call to interface for planning.
+                paths.add(planner.plan(getFootprint(), initialPose, task.getPoses()));
                 initialPose = task.getPoses()[task.getPoses().length - 1];
             }
         }
     }
+
+
 
     @Override
     public String toString() {

@@ -4,8 +4,8 @@ import org.metacsp.multi.spatioTemporal.paths.Pose;
 import se.oru.coordination.coordination_oru.dataStructue.Mission;
 import se.oru.coordination.coordination_oru.forwardModel.ConstantAccelerationForwardModel;
 import se.oru.coordination.coordination_oru.forwardModel.ForwardModel;
-import se.oru.coordination.coordination_oru.motionPlanning.VehicleMotionPlanner;
-import se.oru.coordination.coordination_oru.motionPlanning.VehiclePlanner;
+import se.oru.coordination.coordination_oru.motionPlanning.VehiclePathPlanner;
+import se.oru.coordination.coordination_oru.motionPlanning.ompl.ReedsSheppCarPlanner;
 import se.oru.coordination.coordination_oru.simulation2D.TrajectoryEnvelopeCoordinatorSimulation;
 import se.oru.coordination.coordination_oru.utils.BrowserVisualization;
 import se.oru.coordination.coordination_oru.utils.Heuristics;
@@ -22,7 +22,7 @@ public class PaperScenario_3A1L {
 
         String absolutePath = System.getProperty("user.dir");
         String resultsDirectory = absolutePath + "/src/main/java/se/oru/coordination/coordination_oru/results/lookAheadPaper_2023";
-        final String YAML_FILE = "maps/mine-map-paper-2023.yaml";
+        final String map = "maps/mine-map-paper-2023.yaml";
         double lookAheadDistance = 6;
         double timeIntervalInSeconds = 0.25;
         int updateCycleTime = 100;
@@ -30,9 +30,9 @@ public class PaperScenario_3A1L {
         int numOfCallsForLookAheadRobot = 5;
         boolean visualization = true;
         boolean writeRobotReports = false;
-        VehiclePlanner planner = new VehicleMotionPlanner();
         final ForwardModel model = new ConstantAccelerationForwardModel(10.0, 1.0, 1000, 1000, 30);
-
+        final var planner = new VehiclePathPlanner(map, ReedsSheppCarPlanner.PLANNING_ALGORITHM.RRTConnect,
+                0.09, 60, 2.0, 0.1);
 
         final Pose mainTunnelLeft = new Pose(14.25, 22.15, Math.PI);
         final Pose mainTunnelRight = new Pose(114.15, 40.05, Math.PI);
@@ -64,10 +64,10 @@ public class PaperScenario_3A1L {
         var lookAheadVehicle = new LookAheadVehicle("H1", lookAheadDistance,1,  Color.GREEN, 14, 3,
                 0.9, 0.5, entrance, 0, 0, model);
 
-        autonomousRobot1.generatePlans(YAML_FILE);
-        autonomousRobot2.generatePlans(YAML_FILE);
-        autonomousRobot3.generatePlans(YAML_FILE);
-        lookAheadVehicle.generatePlans(YAML_FILE);
+        autonomousRobot1.generatePlans(planner);
+        autonomousRobot2.generatePlans(planner);
+        autonomousRobot3.generatePlans(planner);
+        lookAheadVehicle.generatePlans(planner);
 
         // Instantiate a trajectory envelope coordinator.
         var tec = new TrajectoryEnvelopeCoordinatorSimulation(1000, 10000, 14, 3);
@@ -104,7 +104,7 @@ public class PaperScenario_3A1L {
         // Set up a simple GUI (null means an empty map, otherwise provide yaml file)
         if (visualization) {
             var viz = new BrowserVisualization();
-            viz.setMap(YAML_FILE);
+            viz.setMap(map);
             viz.setFontScale(2.5);
             viz.setInitialTransform(8.6, 30.2, -0.73);
             tec.setVisualization(viz);
@@ -123,7 +123,7 @@ public class PaperScenario_3A1L {
         Missions.enqueueMission(m2);
         Missions.enqueueMission(m3);
 //        Missions.enqueueMission(m4);
-        Missions.setMap(YAML_FILE);
+        Missions.setMap(map);
 
 //        Missions.startMissionDispatchers(tec, true, 1, 2, 3, 4);
         Missions.startMissionDispatcher(tec, writeRobotReports, timeIntervalInSeconds,

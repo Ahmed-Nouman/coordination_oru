@@ -11,8 +11,8 @@ import javafx.stage.Stage;
 import org.metacsp.multi.spatioTemporal.paths.Pose;
 import se.oru.coordination.coordination_oru.forwardModel.ConstantAccelerationForwardModel;
 import se.oru.coordination.coordination_oru.forwardModel.ForwardModel;
-import se.oru.coordination.coordination_oru.motionPlanning.VehicleMotionPlanner;
-import se.oru.coordination.coordination_oru.motionPlanning.VehiclePlanner;
+import se.oru.coordination.coordination_oru.motionPlanning.VehiclePathPlanner;
+import se.oru.coordination.coordination_oru.motionPlanning.ompl.ReedsSheppCarPlanner;
 import se.oru.coordination.coordination_oru.vehicles.AbstractVehicle;
 import se.oru.coordination.coordination_oru.vehicles.AutonomousVehicle;
 import se.oru.coordination.coordination_oru.vehicles.LookAheadVehicle;
@@ -34,8 +34,9 @@ public class VerifyPlan {
                 var YAML_FILE = controllerNavigation.getMain().getDataStatus().getProjectData().getMap();
                 var mapResolution = controllerNavigation.getMain().getDataStatus().getMapData().getResolution();
                 var scaleAdjustment = 1 / mapResolution;
-                VehiclePlanner planner = new VehicleMotionPlanner();
                 final ForwardModel model = new ConstantAccelerationForwardModel(10.0, 1.0, 1000, 1000, 30);
+                final var planner = new VehiclePathPlanner(YAML_FILE, ReedsSheppCarPlanner.PLANNING_ALGORITHM.RRTConnect,
+                        0.09, 60, 2.0, 0.1);
 
                 for (var vehicle : controllerNavigation.getMain().getDataStatus().getProjectData().getVehicles()) {
                     AbstractVehicle newVehicle;
@@ -60,7 +61,7 @@ public class VerifyPlan {
                             .toArray(Pose[]::new));
 //            newVehicle.setMission(vehicle.getMission()); //FIXME Fix Mission, How to handle multiple missions to GoalPoses, handle stoppages
 
-                    newVehicle.generatePlans(YAML_FILE);
+                    newVehicle.generatePlans(planner);
 //                    newVehicle.setPlanningAlgorithm(controllerNavigation.getMain().getDataStatus().getPathPlanner()); //FIXME: HARD CODED
 
                     controllerNavigation.getMain().getDataStatus().getVehicles().add(newVehicle);

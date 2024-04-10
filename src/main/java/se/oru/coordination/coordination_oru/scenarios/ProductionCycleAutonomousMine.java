@@ -4,8 +4,8 @@ import org.metacsp.multi.spatioTemporal.paths.Pose;
 import se.oru.coordination.coordination_oru.dataStructue.Mission;
 import se.oru.coordination.coordination_oru.forwardModel.ConstantAccelerationForwardModel;
 import se.oru.coordination.coordination_oru.forwardModel.ForwardModel;
-import se.oru.coordination.coordination_oru.motionPlanning.VehicleMotionPlanner;
-import se.oru.coordination.coordination_oru.motionPlanning.VehiclePlanner;
+import se.oru.coordination.coordination_oru.motionPlanning.VehiclePathPlanner;
+import se.oru.coordination.coordination_oru.motionPlanning.ompl.ReedsSheppCarPlanner;
 import se.oru.coordination.coordination_oru.simulation2D.TrajectoryEnvelopeCoordinatorSimulation;
 import se.oru.coordination.coordination_oru.utils.BrowserVisualization;
 import se.oru.coordination.coordination_oru.utils.Heuristics;
@@ -19,7 +19,7 @@ public class ProductionCycleAutonomousMine {
 
         final int loopMinutes = 5;
         final long loopTime = System.currentTimeMillis() + (loopMinutes * 60 * 1000);
-        final String YAML_FILE = "maps/mine-map-new.yaml";
+        final String map = "maps/mine-map-new.yaml";
         final Pose mainTunnelLeft = new Pose(4.25, 15.35, -Math.PI);
         final Pose mainTunnelRight = new Pose(80.05, 24.75, Math.PI);
         final Pose drawPoint15 = new Pose(9.65, 84.35, -Math.PI / 2);
@@ -39,9 +39,9 @@ public class ProductionCycleAutonomousMine {
         final Pose workStation1 = new Pose(23.75, 8.95, -Math.PI / 2);
         final Pose workStation2 = new Pose(20.15, 9.05, -Math.PI / 2);
         final Pose workStation3 = new Pose(17.35, 9.65, -Math.PI / 2);
-        VehiclePlanner planner = new VehicleMotionPlanner();
         ForwardModel model = new ConstantAccelerationForwardModel(10.0, 1.0, 1000, 1000, 30);
-
+        final var planner = new VehiclePathPlanner(map, ReedsSheppCarPlanner.PLANNING_ALGORITHM.RRTConnect,
+                0.09, 60, 2.0, 0.1);
 
         // FIXME Maybe try smaller motion plans
         final Pose[] drillRigGoal = {drawPoint38, drawPoint18, drawPoint24, workStation1};
@@ -63,8 +63,7 @@ public class ProductionCycleAutonomousMine {
         var autonomousVehicle2 = new AutonomousVehicle("A2", 1, Color.YELLOW, 10.0, 1.0, 9.0, 6.0,
                 drawPoint23, 0, 0, model);
         autonomousVehicle2.setGoals(orePass);
-        autonomousVehicle1.generatePlans(YAML_FILE);
-        autonomousVehicle2.generatePlans(YAML_FILE);
+        autonomousVehicle2.generatePlans(planner);
 
         // Instantiate a trajectory envelope coordinator.
         final var tec = new TrajectoryEnvelopeCoordinatorSimulation(2000, 1000, 5, 2);
@@ -86,7 +85,7 @@ public class ProductionCycleAutonomousMine {
 
         // Set up a simple GUI (null means empty map, otherwise provide yaml file)
         var viz = new BrowserVisualization();
-        viz.setMap(YAML_FILE);
+        viz.setMap(map);
 //        viz.setFontScale(4);
         viz.setInitialTransform(11, 45, -3.5);
         tec.setVisualization(viz);
@@ -98,7 +97,7 @@ public class ProductionCycleAutonomousMine {
 
         Missions.enqueueMission(m1);
         Missions.enqueueMission(m2);
-        Missions.setMap(YAML_FILE);
+        Missions.setMap(map);
         Missions.startMissionDispatcher(tec);
 
         tec.setForwardModel(drillVehicle.getID(), new ConstantAccelerationForwardModel(drillVehicle.getMaxAcceleration(), drillVehicle.getMaxVelocity(), tec.getTemporalResolution(),
@@ -108,9 +107,9 @@ public class ProductionCycleAutonomousMine {
         tec.setForwardModel(waterVehicle.getID(), new ConstantAccelerationForwardModel(waterVehicle.getMaxAcceleration(), waterVehicle.getMaxVelocity(), tec.getTemporalResolution(),
                 tec.getControlPeriod(), tec.getRobotTrackingPeriodInMillis(waterVehicle.getID())));
 
-        drillVehicle.generatePlans(YAML_FILE);
-        chargingVehicle.generatePlans(YAML_FILE);
-        waterVehicle.generatePlans(YAML_FILE);
+        drillVehicle.generatePlans(planner);
+        chargingVehicle.generatePlans(planner);
+        waterVehicle.generatePlans(planner);
 
         Thread.sleep(5000);
         tec.placeRobot(drillVehicle.getID(), mainTunnelLeft);

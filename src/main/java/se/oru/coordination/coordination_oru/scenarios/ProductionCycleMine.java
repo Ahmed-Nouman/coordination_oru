@@ -5,8 +5,8 @@ import org.metacsp.multi.spatioTemporal.paths.PoseSteering;
 import se.oru.coordination.coordination_oru.dataStructue.Mission;
 import se.oru.coordination.coordination_oru.forwardModel.ConstantAccelerationForwardModel;
 import se.oru.coordination.coordination_oru.forwardModel.ForwardModel;
-import se.oru.coordination.coordination_oru.motionPlanning.VehicleMotionPlanner;
-import se.oru.coordination.coordination_oru.motionPlanning.VehiclePlanner;
+import se.oru.coordination.coordination_oru.motionPlanning.VehiclePathPlanner;
+import se.oru.coordination.coordination_oru.motionPlanning.ompl.ReedsSheppCarPlanner;
 import se.oru.coordination.coordination_oru.simulation2D.TrajectoryEnvelopeCoordinatorSimulation;
 import se.oru.coordination.coordination_oru.utils.BrowserVisualization;
 import se.oru.coordination.coordination_oru.utils.Heuristics;
@@ -23,7 +23,7 @@ public class ProductionCycleMine {
         final int loopMinutes = 5;
         final long loopTime = System.currentTimeMillis() + (loopMinutes * 60 * 1000);
         final double predictableDistance = 25.0;
-        final String YAML_FILE = "maps/mine-map-test.yaml";
+        final String map = "maps/mine-map-test.yaml";
         final Pose mainTunnelLeft = new Pose(4.25, 15.35, -Math.PI);
         final Pose mainTunnelRight = new Pose(80.05, 24.75, Math.PI);
         final Pose drawPoint16 = new Pose(16.75, 87.15, -Math.PI / 2);
@@ -32,9 +32,9 @@ public class ProductionCycleMine {
         final Pose drawPoint23 = new Pose(67.75, 86.95, -Math.PI / 2);
         final Pose drawPoint24 = new Pose(75.05, 84.65, -Math.PI / 2);
         final Pose orePass = new Pose(54.35, 11.25, -Math.PI / 2);
-        VehiclePlanner planner = new VehicleMotionPlanner();
         final ForwardModel model = new ConstantAccelerationForwardModel(10.0, 1.0, 1000, 1000, 30);
-
+        final var planner = new VehiclePathPlanner(map, ReedsSheppCarPlanner.PLANNING_ALGORITHM.RRTConnect,
+                0.09, 60, 2.0, 0.1);
 
         var drillVehicle = new LookAheadVehicle("drillRig", predictableDistance, 1, Color.CYAN, 5, 2,
                 0.5, 0.5, drawPoint16, 0, 0, model);
@@ -47,8 +47,8 @@ public class ProductionCycleMine {
         var autonomousVehicle2 = new AutonomousVehicle("A2", 1, Color.YELLOW, 10.0, 1.0, 9.0, 6.0,
                 drawPoint23, 0, 0, model);
         autonomousVehicle2.setGoals(orePass);
-        autonomousVehicle1.generatePlans(YAML_FILE);
-        autonomousVehicle2.generatePlans(YAML_FILE);
+        autonomousVehicle1.generatePlans(planner);
+        autonomousVehicle2.generatePlans(planner);
 
         // Instantiate a trajectory envelope coordinator.
         final var tec = new TrajectoryEnvelopeCoordinatorSimulation(2000, 1000, 5, 2);
@@ -71,7 +71,7 @@ public class ProductionCycleMine {
         tec.setBreakDeadlocks(true, false, false);
 
         // Set up a simple GUI (null means an empty map, otherwise provide yaml file)
-        var viz = new BrowserVisualization(YAML_FILE);
+        var viz = new BrowserVisualization(map);
         viz.setFontScale(4);
         viz.setInitialTransform(11, 45, -3.5);
         tec.setVisualization(viz);
@@ -82,7 +82,7 @@ public class ProductionCycleMine {
 
         Missions.enqueueMission(m1);
         Missions.enqueueMission(m2);
-        Missions.setMap(YAML_FILE);
+        Missions.setMap(map);
         Missions.startMissionDispatcher(tec);
 
         long missionTime = 5000;
@@ -94,8 +94,8 @@ public class ProductionCycleMine {
         final Pose[] drillRigGoal = {drawPoint38, drawPoint18, drawPoint24, mainTunnelRight};
         final Pose[] chargingVehicleGoal = {drawPoint24, drawPoint23, drawPoint18, drawPoint16, drawPoint38, mainTunnelLeft};
 
-        drillVehicle.generatePlans(YAML_FILE);
-        chargingVehicle.generatePlans(YAML_FILE);
+        drillVehicle.generatePlans(planner);
+        chargingVehicle.generatePlans(planner);
         Thread.sleep(5000);
         tec.placeRobot(drillVehicle.getID(), mainTunnelLeft);
         PoseSteering[] drillInitialPath = drillVehicle.getLimitedPath(drillVehicle.getID(), drillVehicle.getLookAheadDistance(), tec);

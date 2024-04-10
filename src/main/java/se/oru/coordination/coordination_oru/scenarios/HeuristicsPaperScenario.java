@@ -3,6 +3,7 @@ package se.oru.coordination.coordination_oru.scenarios;
 import org.metacsp.multi.spatioTemporal.paths.Pose;
 import se.oru.coordination.coordination_oru.forwardModel.ConstantAccelerationForwardModel;
 import se.oru.coordination.coordination_oru.forwardModel.ForwardModel;
+import se.oru.coordination.coordination_oru.motionPlanning.VehiclePathPlanner;
 import se.oru.coordination.coordination_oru.motionPlanning.ompl.ReedsSheppCarPlanner;
 import se.oru.coordination.coordination_oru.simulation2D.TrajectoryEnvelopeCoordinatorSimulation;
 import se.oru.coordination.coordination_oru.utils.BrowserVisualization;
@@ -15,8 +16,8 @@ import java.awt.*;
 
 public class HeuristicsPaperScenario {
 
-    public static final String YAML_FILE = "maps/mine-map-heuristic-paper.yaml";
-    public static final double MAP_RESOLUTION = new MapResolution().getMapResolution(YAML_FILE);
+    public static final String map = "maps/mine-map-heuristic-paper.yaml";
+    public static final double MAP_RESOLUTION = new MapResolution().getMapResolution(map);
     public static final double SCALE_ADJUSTMENT = 1 / MAP_RESOLUTION;
     public static final Heuristics.HeuristicType HEURISTIC_TYPE = Heuristics.HeuristicType.CLOSEST_FIRST;
     public static final ReedsSheppCarPlanner.PLANNING_ALGORITHM PLANNING_ALGORITHM = ReedsSheppCarPlanner.PLANNING_ALGORITHM.RRTConnect;
@@ -50,6 +51,8 @@ public class HeuristicsPaperScenario {
         final var length = LENGTH / SCALE_ADJUSTMENT;
         final var width = WIDTH / SCALE_ADJUSTMENT;
         final ForwardModel model = new ConstantAccelerationForwardModel(maxVelocity, maxAcceleration, 1000, 1000, 30);
+        final var planner = new VehiclePathPlanner(map, ReedsSheppCarPlanner.PLANNING_ALGORITHM.RRTConnect,
+                0.09, 60, 2.0, 0.1);
 
         final var mainTunnelLeft = new Pose(3.35, 13.85, UP_RIGHT);
         final var mainTunnelRight = new Pose(80.05, 26.25, UP_RIGHT);
@@ -87,15 +90,15 @@ public class HeuristicsPaperScenario {
                 length, width, mainTunnelLeft, SERVICE_SAFETY_DISTANCE, 0, model);
         serviceVehicle.setGoals(new Pose[] {mainTunnelLeft, mainTunnelRight});
 
-        productionVehicle1.generatePlans(YAML_FILE);
+        productionVehicle1.generatePlans(planner);
 //        productionVehicle2.getPlan(productionVehicle2, YAML_FILE, false);
-        productionVehicle3.generatePlans(YAML_FILE);
+        productionVehicle3.generatePlans(planner);
 //        productionVehicle4.getPlan(productionVehicle4, YAML_FILE, false);
-        productionVehicle5.generatePlans(YAML_FILE);
+        productionVehicle5.generatePlans(planner);
 //        productionVehicle6.getPlan(productionVehicle6, YAML_FILE, false);
-        productionVehicle7.generatePlans(YAML_FILE);
+        productionVehicle7.generatePlans(planner);
 //        productionVehicle8.getPlan(productionVehicle8, YAML_FILE, false);
-        serviceVehicle.generatePlans(YAML_FILE);
+        serviceVehicle.generatePlans(planner);
 
         // Instantiate a trajectory envelope coordinator. TODO Velocity and acceleration are hard coded for tec.
         var tec = new TrajectoryEnvelopeCoordinatorSimulation(1000, 1000, maxVelocity, maxAcceleration);
@@ -115,14 +118,14 @@ public class HeuristicsPaperScenario {
 
         if (VISUALIZATION) {
             var viz = new BrowserVisualization();
-            viz.setMap(YAML_FILE);
+            viz.setMap(map);
             viz.setFontScale(2.75);
             viz.setInitialTransform(11.0, 16.18, 22.50);
             tec.setVisualization(viz);
         }
 
         Missions.generateMissions();
-        Missions.setMap(YAML_FILE);
+        Missions.setMap(map);
 //        Missions.runMissionsOnce(tec);
 //        Missions.runMissionsIndefinitely(tec);
 //        Missions.startMissionDispatchers(tec);

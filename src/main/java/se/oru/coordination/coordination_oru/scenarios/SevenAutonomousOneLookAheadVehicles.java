@@ -4,8 +4,8 @@ import org.metacsp.multi.spatioTemporal.paths.Pose;
 import se.oru.coordination.coordination_oru.dataStructue.Mission;
 import se.oru.coordination.coordination_oru.forwardModel.ConstantAccelerationForwardModel;
 import se.oru.coordination.coordination_oru.forwardModel.ForwardModel;
-import se.oru.coordination.coordination_oru.motionPlanning.VehicleMotionPlanner;
-import se.oru.coordination.coordination_oru.motionPlanning.VehiclePlanner;
+import se.oru.coordination.coordination_oru.motionPlanning.VehiclePathPlanner;
+import se.oru.coordination.coordination_oru.motionPlanning.ompl.ReedsSheppCarPlanner;
 import se.oru.coordination.coordination_oru.simulation2D.TrajectoryEnvelopeCoordinatorSimulation;
 import se.oru.coordination.coordination_oru.utils.BrowserVisualization;
 import se.oru.coordination.coordination_oru.utils.Heuristics;
@@ -21,7 +21,7 @@ public class SevenAutonomousOneLookAheadVehicles {
         final int simulationTimeMinutes = 10;
         final long simulationTime = System.currentTimeMillis() + (simulationTimeMinutes * 60 * 1000);
         double predictableDistance = 10.0 ;
-        final String YAML_FILE = "maps/mine-map-test.yaml";
+        final String map = "maps/mine-map-test.yaml";
         final Pose mainTunnelLeft = new Pose(4.25,15.35, -Math.PI);
         final Pose mainTunnelRight = new Pose(80.05,24.75, Math.PI);
         final Pose drawPoint17 = new Pose(24.15,85.55,-Math.PI/2);
@@ -32,9 +32,9 @@ public class SevenAutonomousOneLookAheadVehicles {
         final Pose drawPoint23 = new Pose(67.75,86.95,-Math.PI/2);
         final Pose drawPoint24 = new Pose(74.85,84.45,-Math.PI/2);
         final Pose orePass = new Pose(54.35,11.25,-Math.PI/2);
-        VehiclePlanner planner = new VehicleMotionPlanner();
         final ForwardModel model = new ConstantAccelerationForwardModel(10.0, 1.0, 1000, 1000, 30);
-
+        final var planner = new VehiclePathPlanner(map, ReedsSheppCarPlanner.PLANNING_ALGORITHM.RRTConnect,
+                0.09, 60, 2.0, 0.1);
 
         var lookAheadVehicle = new LookAheadVehicle("H1",predictableDistance,1,  Color.CYAN, 5, 2,
                 0.5, 0.5, mainTunnelLeft, 0, 0, model);
@@ -60,14 +60,14 @@ public class SevenAutonomousOneLookAheadVehicles {
         var autonomousVehicle7 = new AutonomousVehicle("A7", 1, Color.YELLOW, 10.0, 1.0, 9.0, 6.0,
                 drawPoint24, 0, 0, model);
         autonomousVehicle7.setGoals(orePass);
-        lookAheadVehicle.generatePlans(YAML_FILE);
-        autonomousVehicle1.generatePlans(YAML_FILE);
-        autonomousVehicle2.generatePlans(YAML_FILE);
-        autonomousVehicle3.generatePlans(YAML_FILE);
-        autonomousVehicle4.generatePlans(YAML_FILE);
-        autonomousVehicle5.generatePlans(YAML_FILE);
-        autonomousVehicle6.generatePlans(YAML_FILE);
-        autonomousVehicle7.generatePlans(YAML_FILE);
+        lookAheadVehicle.generatePlans(planner);
+        autonomousVehicle1.generatePlans(planner);
+        autonomousVehicle2.generatePlans(planner);
+        autonomousVehicle3.generatePlans(planner);
+        autonomousVehicle4.generatePlans(planner);
+        autonomousVehicle5.generatePlans(planner);
+        autonomousVehicle6.generatePlans(planner);
+        autonomousVehicle7.generatePlans(planner);
 
         // Instantiate a trajectory envelope coordinator.
         final var tec = new TrajectoryEnvelopeCoordinatorSimulation(2000, 1000,
@@ -93,7 +93,7 @@ public class SevenAutonomousOneLookAheadVehicles {
 
         // Set up a simple GUI (null means an empty map, otherwise provide yaml file)
         var viz = new BrowserVisualization();
-        viz.setMap(YAML_FILE);
+        viz.setMap(map);
         viz.setFontScale(0);
         viz.setInitialTransform(11, 45, -3.5);
         tec.setVisualization(viz);
@@ -115,7 +115,7 @@ public class SevenAutonomousOneLookAheadVehicles {
         Missions.enqueueMission(m6);
         Missions.enqueueMission(m7);
         Missions.enqueueMission(m8);
-        Missions.setMap(YAML_FILE);
+        Missions.setMap(map);
         Missions.startMissionDispatcher(tec);
 
     }

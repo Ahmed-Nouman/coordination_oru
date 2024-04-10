@@ -4,6 +4,9 @@ import org.metacsp.multi.spatioTemporal.paths.Pose;
 import se.oru.coordination.coordination_oru.dataStructue.Task;
 import se.oru.coordination.coordination_oru.forwardModel.ConstantAccelerationForwardModel;
 import se.oru.coordination.coordination_oru.forwardModel.ForwardModel;
+import se.oru.coordination.coordination_oru.motionPlanning.VehiclePathPlanner;
+import se.oru.coordination.coordination_oru.motionPlanning.PathPlanner;
+import se.oru.coordination.coordination_oru.motionPlanning.ompl.ReedsSheppCarPlanner;
 import se.oru.coordination.coordination_oru.simulation2D.TrajectoryEnvelopeCoordinatorSimulation;
 import se.oru.coordination.coordination_oru.utils.BrowserVisualization;
 import se.oru.coordination.coordination_oru.utils.Heuristics;
@@ -15,8 +18,8 @@ import java.awt.*;
 
 public class PlannedInterruptions {
 
-    private static final String YAML_FILE = "maps/mine-map-scenario.yaml";
-    private static final double MAP_RESOLUTION = new MapResolution().getMapResolution(YAML_FILE);
+    private static final String map = "maps/mine-map-scenario.yaml";
+    private static final double MAP_RESOLUTION = new MapResolution().getMapResolution(map);
     private static final double SCALE_ADJUSTMENT = 1.0 / MAP_RESOLUTION;
     private static final double LENGTH = 8.0 / SCALE_ADJUSTMENT;
     private static final double WIDTH = 5.0 / SCALE_ADJUSTMENT;
@@ -28,7 +31,8 @@ public class PlannedInterruptions {
     private static final double PLANTING_TIME = 0.25;
     private static final double CLEANING_TIME = 2.0;
     private static final ForwardModel model = new ConstantAccelerationForwardModel(MAX_ACCELERATION, MAX_VELOCITY, 1000, 1000, 30);
-
+    private static final PathPlanner planner = new VehiclePathPlanner(map, ReedsSheppCarPlanner.PLANNING_ALGORITHM.RRTConnect,
+            0.09, 60, 2.0, 0.1);
     public static void main(String[] args) {
 
         final Pose mainTunnelLeft = new Pose(14.25, 22.15, -Math.PI);
@@ -57,32 +61,32 @@ public class PlannedInterruptions {
         explosivesVehicle.addTask(new Task(PLANTING_TIME, new Pose[] {drawPoint34}));
         explosivesVehicle.addTask(new Task(PLANTING_TIME, new Pose[] {drawPoint28}));
         explosivesVehicle.addTask(new Task(PLANTING_TIME, new Pose[] {entrance}));
-        explosivesVehicle.generatePlans(YAML_FILE);
+        explosivesVehicle.generatePlans(planner);
 
         var cleaningVehicle = new AutonomousVehicle("C",1, Color.BLUE, MAX_VELOCITY, MAX_ACCELERATION,
                 LENGTH, WIDTH, mainTunnelLeft, SAFETY_DISTANCE, 1, model);
         cleaningVehicle.addTask(new Task(CLEANING_TIME, new Pose[] {drawPoint28}));
         cleaningVehicle.addTask(new Task(CLEANING_TIME, new Pose[] {drawPoint34}));
         cleaningVehicle.addTask(new Task(CLEANING_TIME, new Pose[] {mainTunnelLeft}));
-        cleaningVehicle.generatePlans(YAML_FILE);
+        cleaningVehicle.generatePlans(planner);
 
         var autonomousVehicle1 = new AutonomousVehicle("A1",10, Color.YELLOW, MAX_VELOCITY, MAX_ACCELERATION,
                 LENGTH, WIDTH, drawPoint29, SAFETY_DISTANCE, 10, model);
         autonomousVehicle1.addTask(new Task(ORE_LOADING_TIME, new Pose[] {orePass1}));
         autonomousVehicle1.addTask(new Task(ORE_UNLOADING_TIME, new Pose[] {drawPoint29}));
-        autonomousVehicle1.generatePlans(YAML_FILE);
+        autonomousVehicle1.generatePlans(planner);
 
         var autonomousVehicle2 = new AutonomousVehicle("A2",10, Color.YELLOW, MAX_VELOCITY, MAX_ACCELERATION,
                 LENGTH, WIDTH, drawPoint33, SAFETY_DISTANCE, 10, model);
         autonomousVehicle2.addTask(new Task(ORE_LOADING_TIME, new Pose[] {orePass2}));
         autonomousVehicle2.addTask(new Task(ORE_UNLOADING_TIME, new Pose[] {drawPoint33}));
-        autonomousVehicle2.generatePlans(YAML_FILE);
+        autonomousVehicle2.generatePlans(planner);
 
         var autonomousVehicle3 = new AutonomousVehicle("A3",10, Color.YELLOW, MAX_VELOCITY, MAX_ACCELERATION,
                 LENGTH, WIDTH, drawPoint12, SAFETY_DISTANCE, 10, model);
         autonomousVehicle3.addTask(new Task(ORE_LOADING_TIME, new Pose[] {orePass3}));
         autonomousVehicle3.addTask(new Task(ORE_UNLOADING_TIME, new Pose[] {drawPoint12}));
-        autonomousVehicle3.generatePlans(YAML_FILE);
+        autonomousVehicle3.generatePlans(planner);
 
         var tec = new TrajectoryEnvelopeCoordinatorSimulation(2000, 1000, 5, 2);
         tec.setupSolver(0, 100000000);
@@ -97,12 +101,12 @@ public class PlannedInterruptions {
         tec.setBreakDeadlocks(true, false, false);
 
         var viz = new BrowserVisualization();
-        viz.setMap(YAML_FILE);
+        viz.setMap(map);
         viz.setFontScale(4);
         viz.setInitialTransform(8.6, 30.2, -0.73);
         tec.setVisualization(viz);
 
-        Missions.setMap(YAML_FILE);
+        Missions.setMap(map);
         Missions.generateMissions();
 
         Missions.runTasks(tec, -1);

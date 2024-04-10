@@ -5,8 +5,8 @@ import org.metacsp.multi.spatioTemporal.paths.Pose;
 import se.oru.coordination.coordination_oru.dataStructue.Mission;
 import se.oru.coordination.coordination_oru.forwardModel.ConstantAccelerationForwardModel;
 import se.oru.coordination.coordination_oru.forwardModel.ForwardModel;
-import se.oru.coordination.coordination_oru.motionPlanning.VehicleMotionPlanner;
-import se.oru.coordination.coordination_oru.motionPlanning.VehiclePlanner;
+import se.oru.coordination.coordination_oru.motionPlanning.VehiclePathPlanner;
+import se.oru.coordination.coordination_oru.motionPlanning.ompl.ReedsSheppCarPlanner;
 import se.oru.coordination.coordination_oru.simulation2D.TrajectoryEnvelopeCoordinatorSimulation;
 import se.oru.coordination.coordination_oru.utils.BrowserVisualization;
 import se.oru.coordination.coordination_oru.utils.Heuristics;
@@ -22,16 +22,16 @@ public class ProductionScenario {
 
         String absolutePath = System.getProperty("user.dir");
         String resultsDirectory = absolutePath + "/src/main/java/se/oru/coordination/coordination_oru/results/lookAheadPaper_2023";
-        final String YAML_FILE = "maps/map_production_scenario.yaml";
+        final String map = "maps/map_production_scenario.yaml";
         double drillLookAheadDistance = 30;
         int intervalInSeconds = 1;
         int terminationInMinutes = 15;
         int numOfCallsForLookAheadRobot = 5;
         boolean visualization = true;
         boolean writeRobotReports = false;
-        VehiclePlanner planner = new VehicleMotionPlanner();
         final ForwardModel model = new ConstantAccelerationForwardModel(10.0, 1.0, 1000, 1000, 30);
-
+        final var planner = new VehiclePathPlanner(map, ReedsSheppCarPlanner.PLANNING_ALGORITHM.RRTConnect,
+                0.09, 60, 2.0, 0.1);
 
         final Pose mainTunnelLeft = new Pose(4.05, 42.95, Math.PI);
         final Pose mainTunnelRight = new Pose(120.55, 40.75, Math.PI);
@@ -59,12 +59,12 @@ public class ProductionScenario {
         var drillRig = new LookAheadVehicle("drillRig", drillLookAheadDistance, 2, Color.GREEN, 5,
                 2, 2, 1, drillPoint, 0, 0, model);
 
-        autonomousRobot1.generatePlans(YAML_FILE);
-        autonomousRobot2.generatePlans(YAML_FILE);
-        autonomousRobot3.generatePlans(YAML_FILE);
-        autonomousRobot4.generatePlans(YAML_FILE);
-        autonomousRobot5.generatePlans(YAML_FILE);
-        drillRig.generatePlans(YAML_FILE);
+        autonomousRobot1.generatePlans(planner);
+        autonomousRobot2.generatePlans(planner);
+        autonomousRobot3.generatePlans(planner);
+        autonomousRobot4.generatePlans(planner);
+        autonomousRobot5.generatePlans(planner);
+        drillRig.generatePlans(planner);
 
         // Instantiate a trajectory envelope coordinator.
         var tec = new TrajectoryEnvelopeCoordinatorSimulation(2000, 1000, 5, 2);
@@ -112,7 +112,7 @@ public class ProductionScenario {
 
         // Set up a simple GUI (null means an empty map, otherwise provide yaml file)
         var viz = new BrowserVisualization();
-        viz.setMap(YAML_FILE);
+        viz.setMap(map);
         viz.setFontScale(0.5);
         viz.setInitialTransform(9.6, 30.2, -0.73);
         tec.setVisualization(viz);
@@ -134,14 +134,14 @@ public class ProductionScenario {
         Missions.enqueueMission(m4);
         Missions.enqueueMission(m5);
         Missions.enqueueMission(m6);
-        Missions.setMap(YAML_FILE);
+        Missions.setMap(map);
 
 //        Missions.startMissionDispatchers(tec, drillLookAheadDistance, writeRobotReports,
 //                intervalInSeconds, terminationInMinutes, heuristicName, resultsDirectory);
 
 //        Thread.sleep(10000);
 //        tec.placeRobot(drillRig.getID(), mainTunnelLeft);
-//        drillRig.getPlan(mainTunnelLeft, drillRigGoal, YAML_FILE, false);
+//        drillRig.getPlan(mainTunnelLeft, drillRigGoal, map, false);
 //        PoseSteering[] drillInitialPath = drillRig.getLimitedPath(drillRig.getID(), drillRig.getLookAheadDistance(), tec);
 //        var m6 = new Mission(drillRig.getID(), drillInitialPath);
 //        tec.addMissions(m6);
