@@ -1,7 +1,7 @@
 import csv
+import math
 import os
 from pathlib import Path
-import math
 
 base_directory = '../results/heuristicsPaper_2024/'
 

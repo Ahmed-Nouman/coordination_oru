@@ -1,14 +1,13 @@
 package se.oru.coordination.coordination_oru.scenarios;
 
 import org.metacsp.multi.spatioTemporal.paths.Pose;
-import se.oru.coordination.coordination_oru.kinematicModel.ConstantAccelerationForwardModel;
 import se.oru.coordination.coordination_oru.dataStructue.Mission;
+import se.oru.coordination.coordination_oru.forwardModel.ConstantAccelerationForwardModel;
+import se.oru.coordination.coordination_oru.forwardModel.ForwardModel;
 import se.oru.coordination.coordination_oru.simulation2D.TrajectoryEnvelopeCoordinatorSimulation;
 import se.oru.coordination.coordination_oru.utils.*;
 import se.oru.coordination.coordination_oru.vehicles.AutonomousVehicle;
 import se.oru.coordination.coordination_oru.vehicles.LookAheadVehicle;
-import se.oru.coordination.coordination_oru.motionPlanning.VehicleMotionPlanner;
-import se.oru.coordination.coordination_oru.motionPlanning.VehiclePlanner;
 
 import java.awt.*;
 import java.io.IOException;
@@ -28,14 +27,13 @@ public class PaperScenario_6A1L {
         int numOfCallsForLookAheadRobot = 1;
         boolean visualization = true;
         boolean writeVehicleReports = true;
-        VehiclePlanner planner = new VehicleMotionPlanner();
 
         // Everything including velocity, acceleration, lookahead, length and width should be scaled
         final double MAX_VELOCITY = 10.0 / scaleAdjustment;
         final double MAX_ACCELERATION = 1.0 / scaleAdjustment;
-        final int TRACKING_PERIOD = 30;
-        final double X_LENGTH = 9.0 / scaleAdjustment;
-        final double Y_LENGTH = 6.0 / scaleAdjustment;
+        final double LENGTH = 9.0 / scaleAdjustment;
+        final double WIDTH = 6.0 / scaleAdjustment;
+        final ForwardModel model = new ConstantAccelerationForwardModel(MAX_ACCELERATION, MAX_VELOCITY, 1000, 1000, 30);
 
         final Pose mainTunnelLeft = new Pose(14.25, 22.15, Math.PI);
         final Pose mainTunnelRight = new Pose(113.25, 40.85, Math.PI);
@@ -59,19 +57,19 @@ public class PaperScenario_6A1L {
         final Pose orePass3 = new Pose(92.65, 33.15, -Math.PI / 2);
 
         var autonomousRobot1 = new AutonomousVehicle("A1",1, Color.YELLOW, MAX_VELOCITY, MAX_ACCELERATION,
-                X_LENGTH, Y_LENGTH, drawPoint28, 0, 0);
+                LENGTH, WIDTH, drawPoint28, 0, 0, model);
         var autonomousRobot2 = new AutonomousVehicle("A2", 1, Color.YELLOW, MAX_VELOCITY, MAX_ACCELERATION,
-                X_LENGTH, Y_LENGTH, drawPoint30, 0, 0);
+                LENGTH, WIDTH, drawPoint30, 0, 0, model);
         var autonomousRobot3 = new AutonomousVehicle("A3", 1, Color.YELLOW, MAX_VELOCITY, MAX_ACCELERATION,
-                X_LENGTH, Y_LENGTH, drawPoint32A, 0, 0);
+                LENGTH, WIDTH, drawPoint32A, 0, 0, model);
         var autonomousRobot4 = new AutonomousVehicle("A4", 1, Color.YELLOW, MAX_VELOCITY, MAX_ACCELERATION,
-                X_LENGTH, Y_LENGTH, drawPoint34, 0, 0);
+                LENGTH, WIDTH, drawPoint34, 0, 0, model);
         var autonomousRobot5 = new AutonomousVehicle("A5", 1, Color.YELLOW, MAX_VELOCITY, MAX_ACCELERATION,
-                X_LENGTH, Y_LENGTH, drawPoint35, 0, 0);
+                LENGTH, WIDTH, drawPoint35, 0, 0, model);
         var autonomousRobot6 = new AutonomousVehicle("A6", 1, Color.YELLOW, MAX_VELOCITY, MAX_ACCELERATION,
-                X_LENGTH, Y_LENGTH, drawPoint12, 0, 0);
+                LENGTH, WIDTH, drawPoint12, 0, 0, model);
         var lookAheadRobot = new LookAheadVehicle("H1", lookAheadDistance, 1,  Color.GREEN, MAX_VELOCITY, MAX_ACCELERATION,
-                X_LENGTH, Y_LENGTH, entrance, 0, 0);
+                LENGTH, WIDTH, entrance, 0, 0, model);
 
         autonomousRobot1.generatePlans(YAML_FILE);
         autonomousRobot2.generatePlans(YAML_FILE);
@@ -86,28 +84,6 @@ public class PaperScenario_6A1L {
         tec.setupSolver(0, 100000000);
         tec.startInference();
         tec.setInferenceSleepingTime(inferenceCycleTime);
-
-        tec.setForwardModel(autonomousRobot1.getID(), new ConstantAccelerationForwardModel(autonomousRobot1.getMaxAcceleration(),
-                autonomousRobot1.getMaxVelocity(), tec.getTemporalResolution(), tec.getControlPeriod(),
-                tec.getRobotTrackingPeriodInMillis(autonomousRobot1.getID())));
-        tec.setForwardModel(autonomousRobot2.getID(), new ConstantAccelerationForwardModel(autonomousRobot2.getMaxAcceleration(),
-                autonomousRobot2.getMaxVelocity(), tec.getTemporalResolution(), tec.getControlPeriod(),
-                tec.getRobotTrackingPeriodInMillis(autonomousRobot2.getID())));
-        tec.setForwardModel(autonomousRobot3.getID(), new ConstantAccelerationForwardModel(autonomousRobot3.getMaxAcceleration(),
-                autonomousRobot3.getMaxVelocity(), tec.getTemporalResolution(), tec.getControlPeriod(),
-                tec.getRobotTrackingPeriodInMillis(autonomousRobot3.getID())));
-        tec.setForwardModel(autonomousRobot4.getID(), new ConstantAccelerationForwardModel(autonomousRobot4.getMaxAcceleration(),
-                autonomousRobot4.getMaxVelocity(), tec.getTemporalResolution(), tec.getControlPeriod(),
-                tec.getRobotTrackingPeriodInMillis(autonomousRobot4.getID())));
-        tec.setForwardModel(autonomousRobot5.getID(), new ConstantAccelerationForwardModel(autonomousRobot5.getMaxAcceleration(),
-                autonomousRobot5.getMaxVelocity(), tec.getTemporalResolution(), tec.getControlPeriod(),
-                tec.getRobotTrackingPeriodInMillis(autonomousRobot5.getID())));
-        tec.setForwardModel(autonomousRobot6.getID(), new ConstantAccelerationForwardModel(autonomousRobot6.getMaxAcceleration(),
-                autonomousRobot6.getMaxVelocity(), tec.getTemporalResolution(), tec.getControlPeriod(),
-                tec.getRobotTrackingPeriodInMillis(autonomousRobot6.getID())));
-        tec.setForwardModel(lookAheadRobot.getID(), new ConstantAccelerationForwardModel(lookAheadRobot.getMaxAcceleration(),
-                lookAheadRobot.getMaxVelocity(), tec.getTemporalResolution(), tec.getControlPeriod(),
-                tec.getRobotTrackingPeriodInMillis(lookAheadRobot.getID())));
 
         tec.setDefaultFootprint(lookAheadRobot.getFootprint());
         tec.placeRobot(autonomousRobot1.getID(), autonomousRobot1.getInitialPose());

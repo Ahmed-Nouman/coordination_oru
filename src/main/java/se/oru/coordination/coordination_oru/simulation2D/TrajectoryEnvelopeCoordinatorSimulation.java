@@ -436,10 +436,28 @@ public class TrajectoryEnvelopeCoordinatorSimulation extends TrajectoryEnvelopeC
 		if (VehiclesHashMap.getInstance() == null || VehiclesHashMap.getList().isEmpty()) throw new Error("No vehicles available to place at locations.");
 		for (AbstractVehicle vehicle : VehiclesHashMap.getList().values()) {
 			if (vehicle instanceof AutonomousVehicle) {
-                var autonomousVehicle = (AutonomousVehicle)vehicle;
-				autonomousVehicle.getPaths().get(0)[0].getPose();
-				this.placeRobot(autonomousVehicle.getID(), autonomousVehicle.getPaths().get(0)[0].getPose());
+				var autonomousVehicle = (AutonomousVehicle) vehicle;
+				if (autonomousVehicle.getPaths().isEmpty())
+					throw new Error("No paths available for vehicle " + autonomousVehicle.getID());
+				else {
+					autonomousVehicle.getPaths().get(0)[0].getPose();
+					this.placeRobot(autonomousVehicle.getID(), autonomousVehicle.getPaths().get(0)[0].getPose());
+					}
+				}
+			}
+		}
+
+	public void setForwardModelsForRobots() {
+		if (VehiclesHashMap.getInstance() == null || VehiclesHashMap.getList().isEmpty()) throw new Error("No vehicles available to place at locations.");
+		for (AbstractVehicle vehicle : VehiclesHashMap.getList().values()) {
+			if (vehicle instanceof AutonomousVehicle) {
+				var autonomousVehicle = (AutonomousVehicle) vehicle;
+				if (autonomousVehicle.getForwardModel() == null)
+					throw new Error("No forward model available for vehicle " + autonomousVehicle.getID());
+				else {
+					this.setForwardModel(autonomousVehicle.getID(), autonomousVehicle.getForwardModel());
 				}
 			}
 		}
 	}
+}

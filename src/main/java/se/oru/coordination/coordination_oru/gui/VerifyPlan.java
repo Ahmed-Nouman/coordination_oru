@@ -9,9 +9,13 @@ import javafx.scene.layout.VBox;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import org.metacsp.multi.spatioTemporal.paths.Pose;
+import se.oru.coordination.coordination_oru.forwardModel.ConstantAccelerationForwardModel;
+import se.oru.coordination.coordination_oru.forwardModel.ForwardModel;
 import se.oru.coordination.coordination_oru.motionPlanning.VehicleMotionPlanner;
 import se.oru.coordination.coordination_oru.motionPlanning.VehiclePlanner;
-import se.oru.coordination.coordination_oru.vehicles.*;
+import se.oru.coordination.coordination_oru.vehicles.AbstractVehicle;
+import se.oru.coordination.coordination_oru.vehicles.AutonomousVehicle;
+import se.oru.coordination.coordination_oru.vehicles.LookAheadVehicle;
 
 public class VerifyPlan {
     private final ControllerNavigation controllerNavigation;
@@ -31,11 +35,12 @@ public class VerifyPlan {
                 var mapResolution = controllerNavigation.getMain().getDataStatus().getMapData().getResolution();
                 var scaleAdjustment = 1 / mapResolution;
                 VehiclePlanner planner = new VehicleMotionPlanner();
+                final ForwardModel model = new ConstantAccelerationForwardModel(10.0, 1.0, 1000, 1000, 30);
 
                 for (var vehicle : controllerNavigation.getMain().getDataStatus().getProjectData().getVehicles()) {
                     AbstractVehicle newVehicle;
                     if ("Human".equals(vehicle.getType()))
-                        newVehicle = new LookAheadVehicle(vehicle.getLookAheadDistance() / scaleAdjustment);
+                        newVehicle = new LookAheadVehicle(vehicle.getLookAheadDistance() / scaleAdjustment, model);
                     else newVehicle = new AutonomousVehicle(vehicle.getID(),
                             vehicle.getName(),
                             vehicle.getPriority(),
@@ -46,7 +51,7 @@ public class VerifyPlan {
                             vehicle.getWidth() / scaleAdjustment,
                             controllerNavigation.getMain().getDataStatus().getProjectData().getPose(vehicle.getInitialPose()),
                             vehicle.getSafetyDistance() / scaleAdjustment,
-                            vehicle.getMissionRepetition());
+                            vehicle.getMissionRepetition(), model);
 
                     newVehicle.setGoals(vehicle.getMission()
                             .stream()

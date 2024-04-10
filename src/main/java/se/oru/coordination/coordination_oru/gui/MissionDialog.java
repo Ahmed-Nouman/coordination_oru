@@ -3,7 +3,9 @@ package se.oru.coordination.coordination_oru.gui;
 import javafx.scene.control.*;
 import javafx.scene.layout.GridPane;
 import javafx.scene.text.Text;
+
 import java.util.Optional;
+
 import static se.oru.coordination.coordination_oru.gui.ProjectData.MissionStep;
 import static se.oru.coordination.coordination_oru.gui.Utils.validateDouble;
 

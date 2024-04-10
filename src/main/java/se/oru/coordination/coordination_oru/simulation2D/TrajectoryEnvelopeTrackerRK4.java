@@ -4,9 +4,13 @@ import org.metacsp.multi.spatioTemporal.paths.Pose;
 import org.metacsp.multi.spatioTemporal.paths.PoseSteering;
 import org.metacsp.multi.spatioTemporal.paths.Trajectory;
 import org.metacsp.multi.spatioTemporal.paths.TrajectoryEnvelope;
-import se.oru.coordination.coordination_oru.*;
+import se.oru.coordination.coordination_oru.AbstractTrajectoryEnvelopeTracker;
+import se.oru.coordination.coordination_oru.NetworkConfiguration;
+import se.oru.coordination.coordination_oru.TrackingCallback;
+import se.oru.coordination.coordination_oru.TrajectoryEnvelopeCoordinator;
 import se.oru.coordination.coordination_oru.dataStructue.RobotReport;
 import se.oru.coordination.coordination_oru.utils.Missions;
+import se.oru.coordination.coordination_oru.utils.RK4;
 
 import java.util.*;
 
@@ -181,9 +185,9 @@ public abstract class TrajectoryEnvelopeTrackerRK4 extends AbstractTrajectoryEnv
 			}
 			if (received) {		
 				//Delete old messages that, due to the communication delay, will arrive after this one.			
-				ArrayList<Long> reportTimeToRemove = new ArrayList<Long>();
-				ArrayList<RobotReport> reportToRemove = new ArrayList<RobotReport>();
-				
+				ArrayList<Long> reportTimeToRemove = new ArrayList<>();
+				ArrayList<RobotReport> reportToRemove = new ArrayList<>();
+
 				for (int index = 0; index < reportTimeLists.size(); index++) {
 					if (reportTimeLists.get(index) < timeOfArrival) break;
 					if (reportTimeLists.get(index) >= timeOfArrival) {
@@ -283,7 +287,7 @@ public abstract class TrajectoryEnvelopeTrackerRK4 extends AbstractTrajectoryEnv
 		while (tempStateBW.getVelocity() < MAX_VELOCITY*1.1) {
 			double dampeningBW = getCurvatureDampening(getRobotReport(tempStateBW).getPathIndex(), true);
 			//Use slightly conservative max deceleration (which is positive acceleration since we simulate FW dynamics)
-			integrateRK4(tempStateBW, time, deltaTime, false, MAX_VELOCITY*1.1, dampeningBW, MAX_ACCELERATION);
+			RK4.integrate(tempStateBW, time, deltaTime, false, MAX_VELOCITY*1.1, dampeningBW, MAX_ACCELERATION);
 			time += deltaTime;
 			ret.put(tempStateBW.getVelocity(), tempStateBW.getPosition());
 		}
@@ -319,28 +323,12 @@ public abstract class TrajectoryEnvelopeTrackerRK4 extends AbstractTrajectoryEnv
 			}
 			
 			double dampeningFW = getCurvatureDampening(getRobotReport(tempStateFW).getPathIndex(), true);
-			integrateRK4(tempStateFW, time, deltaTime, false, MAX_VELOCITY, dampeningFW, MAX_ACCELERATION);
+			RK4.integrate(tempStateFW, time, deltaTime, false, MAX_VELOCITY, dampeningFW, MAX_ACCELERATION);
 
 			time += deltaTime;
 		}
 		return -this.totalDistance;
 	}
-	
-	public static void integrateRK4(State state, double time, double deltaTime, boolean slowDown, double MAX_VELOCITY, double MAX_VELOCITY_DAMPENING_FACTOR, double MAX_ACCELERATION) {
-		synchronized(state) {
-			Derivative a = Derivative.evaluate(state, time, 0.0, new Derivative(), slowDown, MAX_VELOCITY, MAX_VELOCITY_DAMPENING_FACTOR, MAX_ACCELERATION);
-			Derivative b = Derivative.evaluate(state, time, deltaTime/2.0, a, slowDown, MAX_VELOCITY, MAX_VELOCITY_DAMPENING_FACTOR, MAX_ACCELERATION);
-			Derivative c = Derivative.evaluate(state, time, deltaTime/2.0, b, slowDown, MAX_VELOCITY, MAX_VELOCITY_DAMPENING_FACTOR,MAX_ACCELERATION);
-			Derivative d = Derivative.evaluate(state, time, deltaTime, c, slowDown, MAX_VELOCITY, MAX_VELOCITY_DAMPENING_FACTOR, MAX_ACCELERATION);
-	
-			double dxdt = (1.0f / 6.0f) * ( a.getVelocity() + 2.0f*(b.getVelocity() + c.getVelocity()) + d.getVelocity() ); 
-		    double dvdt = (1.0f / 6.0f) * ( a.getAcceleration() + 2.0f*(b.getAcceleration() + c.getAcceleration()) + d.getAcceleration() );
-			
-		    state.setPosition(state.getPosition()+dxdt*deltaTime);
-		    state.setVelocity(state.getVelocity()+dvdt*deltaTime);
-		}
-	}
-	
 
 	@Override
 	public void setCriticalPoint(int criticalPointToSet, int extCPCounter) {
@@ -589,7 +577,7 @@ public abstract class TrajectoryEnvelopeTrackerRK4 extends AbstractTrajectoryEnv
 				}
                 slowingDown = state.getPosition() >= positionToSlowDown;
 				double dampening = getCurvatureDampening(getRobotReport().getPathIndex(), false);
-				integrateRK4(state, elapsedTrackingTime, deltaTime, slowingDown, MAX_VELOCITY, dampening, MAX_ACCELERATION);
+				RK4.integrate(state, elapsedTrackingTime, deltaTime, slowingDown, MAX_VELOCITY, dampening, MAX_ACCELERATION);
 
 			}
 			
@@ -640,7 +628,7 @@ public abstract class TrajectoryEnvelopeTrackerRK4 extends AbstractTrajectoryEnv
 		
 		//First compute time to stop (can do FW here...)
 		while (state.getPosition() < distance/2.0 && state.getVelocity() < maxVel) {
-			integrateRK4(state, time, deltaTime, false, maxVel, 1.0, maxAccel);
+			RK4.integrate(state, time, deltaTime, false, maxVel, 1.0, maxAccel);
 			time += deltaTime;
 		}
 		double positionToSlowDown = distance-state.getPosition();
@@ -650,7 +638,7 @@ public abstract class TrajectoryEnvelopeTrackerRK4 extends AbstractTrajectoryEnv
 		time = 0.0;
 		while (true) {
 			if (state.getPosition() >= distance/2.0 && state.getVelocity() < 0.0) break;
-            integrateRK4(state, time, deltaTime, state.getPosition() >= positionToSlowDown, maxVel, 1.0, maxAccel);
+            RK4.integrate(state, time, deltaTime, state.getPosition() >= positionToSlowDown, maxVel, 1.0, maxAccel);
 			//System.out.println("Time: " + time + " " + rr);
 			//System.out.println("Time: " + MetaCSPLogging.printDouble(time,4) + "\tpos: " + MetaCSPLogging.printDouble(state.getPosition(),4) + "\tvel: " + MetaCSPLogging.printDouble(state.getVelocity(),4));
 			time += deltaTime;

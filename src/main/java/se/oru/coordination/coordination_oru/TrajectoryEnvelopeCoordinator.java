@@ -21,7 +21,7 @@ import org.metacsp.utility.UI.Callback;
 import se.oru.coordination.coordination_oru.dataStructue.CriticalSection;
 import se.oru.coordination.coordination_oru.dataStructue.Dependency;
 import se.oru.coordination.coordination_oru.dataStructue.RobotReport;
-import se.oru.coordination.coordination_oru.kinematicModel.ForwardModel;
+import se.oru.coordination.coordination_oru.forwardModel.ForwardModel;
 import se.oru.coordination.coordination_oru.motionPlanning.AbstractMotionPlanner;
 import se.oru.coordination.coordination_oru.vehicles.LookAheadVehicle;
 import se.oru.coordination.coordination_oru.vehicles.VehiclesHashMap;

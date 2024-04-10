@@ -2,13 +2,15 @@ package se.oru.coordination.coordination_oru.scenarios;
 
 import org.metacsp.multi.spatioTemporal.paths.Pose;
 import se.oru.coordination.coordination_oru.dataStructue.Mission;
+import se.oru.coordination.coordination_oru.forwardModel.ConstantAccelerationForwardModel;
+import se.oru.coordination.coordination_oru.forwardModel.ForwardModel;
+import se.oru.coordination.coordination_oru.motionPlanning.VehicleMotionPlanner;
+import se.oru.coordination.coordination_oru.motionPlanning.VehiclePlanner;
 import se.oru.coordination.coordination_oru.simulation2D.TrajectoryEnvelopeCoordinatorSimulation;
 import se.oru.coordination.coordination_oru.utils.BrowserVisualization;
 import se.oru.coordination.coordination_oru.utils.Heuristics;
 import se.oru.coordination.coordination_oru.utils.Missions;
 import se.oru.coordination.coordination_oru.vehicles.AutonomousVehicle;
-import se.oru.coordination.coordination_oru.motionPlanning.VehicleMotionPlanner;
-import se.oru.coordination.coordination_oru.motionPlanning.VehiclePlanner;
 
 import java.awt.*;
 
@@ -22,11 +24,13 @@ public class OneAutonomousOneLookAheadVehicles {
         final Pose orePass = new Pose(54.35,11.25,-Math.PI/2);
         final String YAML_FILE = "maps/mine-map-test.yaml";
         VehiclePlanner planner = new VehicleMotionPlanner();
+        ForwardModel model = new ConstantAccelerationForwardModel(10.0, 1.0, 1000, 1000, 30);
+
 
         var autonomousVehicle = new AutonomousVehicle("A1",1, Color.YELLOW, 10.0, 1.0,
-                0.9, 0.65, drawPoint21, 0, 0);
+                0.9, 0.65, drawPoint21, 0, 0, model);
         var lookAheadVehicle = new AutonomousVehicle("H1", 1, Color.BLUE, 10.0, 1.0,
-                0.9, 0.65, mainTunnelLeft, 0, 0);
+                0.9, 0.65, mainTunnelLeft, 0, 0, model);
         autonomousVehicle.generatePlans(YAML_FILE);
         lookAheadVehicle.generatePlans(YAML_FILE);
 

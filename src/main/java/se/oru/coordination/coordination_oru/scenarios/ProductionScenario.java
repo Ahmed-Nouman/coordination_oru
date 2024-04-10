@@ -2,16 +2,17 @@ package se.oru.coordination.coordination_oru.scenarios;
 
 import com.vividsolutions.jts.geom.Coordinate;
 import org.metacsp.multi.spatioTemporal.paths.Pose;
-import se.oru.coordination.coordination_oru.kinematicModel.ConstantAccelerationForwardModel;
 import se.oru.coordination.coordination_oru.dataStructue.Mission;
+import se.oru.coordination.coordination_oru.forwardModel.ConstantAccelerationForwardModel;
+import se.oru.coordination.coordination_oru.forwardModel.ForwardModel;
+import se.oru.coordination.coordination_oru.motionPlanning.VehicleMotionPlanner;
+import se.oru.coordination.coordination_oru.motionPlanning.VehiclePlanner;
 import se.oru.coordination.coordination_oru.simulation2D.TrajectoryEnvelopeCoordinatorSimulation;
 import se.oru.coordination.coordination_oru.utils.BrowserVisualization;
 import se.oru.coordination.coordination_oru.utils.Heuristics;
 import se.oru.coordination.coordination_oru.utils.Missions;
 import se.oru.coordination.coordination_oru.vehicles.AutonomousVehicle;
 import se.oru.coordination.coordination_oru.vehicles.LookAheadVehicle;
-import se.oru.coordination.coordination_oru.motionPlanning.VehicleMotionPlanner;
-import se.oru.coordination.coordination_oru.motionPlanning.VehiclePlanner;
 
 import java.awt.*;
 import java.io.FileNotFoundException;
@@ -29,6 +30,8 @@ public class ProductionScenario {
         boolean visualization = true;
         boolean writeRobotReports = false;
         VehiclePlanner planner = new VehicleMotionPlanner();
+        final ForwardModel model = new ConstantAccelerationForwardModel(10.0, 1.0, 1000, 1000, 30);
+
 
         final Pose mainTunnelLeft = new Pose(4.05, 42.95, Math.PI);
         final Pose mainTunnelRight = new Pose(120.55, 40.75, Math.PI);
@@ -44,17 +47,17 @@ public class ProductionScenario {
         final Pose orePass4 = new Pose(69.15, 53.15, -Math.PI / 2);
 
         var autonomousRobot1 = new AutonomousVehicle("A1", 2, Color.YELLOW, 5, 2, 2,
-                1, drawPoint1, 0, 0);
+                1, drawPoint1, 0, 0, model);
         var autonomousRobot2 = new AutonomousVehicle("A2",2, Color.YELLOW, 5, 2, 2,
-                1, drawPoint2, 0, 0);
+                1, drawPoint2, 0, 0, model);
         var autonomousRobot3 = new AutonomousVehicle("A3", 2, Color.YELLOW, 5, 2, 2,
-                1, drawPoint3, 0, 0);
+                1, drawPoint3, 0, 0, model);
         var autonomousRobot4 = new AutonomousVehicle("A4", 2, Color.YELLOW, 5, 2, 2,
-                1, drawPoint4, 0, 0);
+                1, drawPoint4, 0, 0, model);
         var autonomousRobot5 = new AutonomousVehicle("A5", 1, Color.RED, 0.05, 0.02,
-                3.5, 3.5, mainTunnelLeft, 0, 0);
+                3.5, 3.5, mainTunnelLeft, 0, 0, model);
         var drillRig = new LookAheadVehicle("drillRig", drillLookAheadDistance, 2, Color.GREEN, 5,
-                2, 2, 1, drillPoint, 0, 0);
+                2, 2, 1, drillPoint, 0, 0, model);
 
         autonomousRobot1.generatePlans(YAML_FILE);
         autonomousRobot2.generatePlans(YAML_FILE);

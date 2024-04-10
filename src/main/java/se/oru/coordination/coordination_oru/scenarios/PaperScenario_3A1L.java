@@ -1,8 +1,11 @@
 package se.oru.coordination.coordination_oru.scenarios;
 
 import org.metacsp.multi.spatioTemporal.paths.Pose;
-import se.oru.coordination.coordination_oru.kinematicModel.ConstantAccelerationForwardModel;
 import se.oru.coordination.coordination_oru.dataStructue.Mission;
+import se.oru.coordination.coordination_oru.forwardModel.ConstantAccelerationForwardModel;
+import se.oru.coordination.coordination_oru.forwardModel.ForwardModel;
+import se.oru.coordination.coordination_oru.motionPlanning.VehicleMotionPlanner;
+import se.oru.coordination.coordination_oru.motionPlanning.VehiclePlanner;
 import se.oru.coordination.coordination_oru.simulation2D.TrajectoryEnvelopeCoordinatorSimulation;
 import se.oru.coordination.coordination_oru.utils.BrowserVisualization;
 import se.oru.coordination.coordination_oru.utils.Heuristics;
@@ -10,8 +13,6 @@ import se.oru.coordination.coordination_oru.utils.Missions;
 import se.oru.coordination.coordination_oru.utils.RandomRobotCaller;
 import se.oru.coordination.coordination_oru.vehicles.AutonomousVehicle;
 import se.oru.coordination.coordination_oru.vehicles.LookAheadVehicle;
-import se.oru.coordination.coordination_oru.motionPlanning.VehicleMotionPlanner;
-import se.oru.coordination.coordination_oru.motionPlanning.VehiclePlanner;
 
 import java.awt.*;
 import java.io.FileNotFoundException;
@@ -30,6 +31,8 @@ public class PaperScenario_3A1L {
         boolean visualization = true;
         boolean writeRobotReports = false;
         VehiclePlanner planner = new VehicleMotionPlanner();
+        final ForwardModel model = new ConstantAccelerationForwardModel(10.0, 1.0, 1000, 1000, 30);
+
 
         final Pose mainTunnelLeft = new Pose(14.25, 22.15, Math.PI);
         final Pose mainTunnelRight = new Pose(114.15, 40.05, Math.PI);
@@ -53,13 +56,13 @@ public class PaperScenario_3A1L {
         final Pose orePass3 = new Pose(92.65, 33.15, -Math.PI / 2);
 
         var autonomousRobot1 = new AutonomousVehicle("A1", 1, Color.YELLOW, 100, 3,
-                0.9, 0.5, drawPoint28, 0, 0);
+                0.9, 0.5, drawPoint28, 0, 0, model);
         var autonomousRobot2 = new AutonomousVehicle("A2", 1, Color.YELLOW, 14, 3,
-                0.9, 0.5, drawPoint32A, 0, 0);
+                0.9, 0.5, drawPoint32A, 0, 0, model);
         var autonomousRobot3 = new AutonomousVehicle("A3", 1, Color.YELLOW, 14, 3,
-                0.9, 0.5, drawPoint35, 0, 0);
+                0.9, 0.5, drawPoint35, 0, 0, model);
         var lookAheadVehicle = new LookAheadVehicle("H1", lookAheadDistance,1,  Color.GREEN, 14, 3,
-                0.9, 0.5, entrance, 0, 0);
+                0.9, 0.5, entrance, 0, 0, model);
 
         autonomousRobot1.generatePlans(YAML_FILE);
         autonomousRobot2.generatePlans(YAML_FILE);

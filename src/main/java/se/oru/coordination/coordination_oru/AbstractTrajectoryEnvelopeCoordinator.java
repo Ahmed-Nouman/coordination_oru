@@ -20,7 +20,7 @@ import se.oru.coordination.coordination_oru.dataStructue.CriticalSection;
 import se.oru.coordination.coordination_oru.dataStructue.Dependency;
 import se.oru.coordination.coordination_oru.dataStructue.Mission;
 import se.oru.coordination.coordination_oru.dataStructue.RobotReport;
-import se.oru.coordination.coordination_oru.kinematicModel.ForwardModel;
+import se.oru.coordination.coordination_oru.forwardModel.ForwardModel;
 import se.oru.coordination.coordination_oru.motionPlanning.AbstractMotionPlanner;
 import se.oru.coordination.coordination_oru.utils.FleetVisualization;
 import se.oru.coordination.coordination_oru.utils.StringUtils;

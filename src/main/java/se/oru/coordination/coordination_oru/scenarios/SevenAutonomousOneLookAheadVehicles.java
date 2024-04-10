@@ -2,14 +2,16 @@ package se.oru.coordination.coordination_oru.scenarios;
 
 import org.metacsp.multi.spatioTemporal.paths.Pose;
 import se.oru.coordination.coordination_oru.dataStructue.Mission;
+import se.oru.coordination.coordination_oru.forwardModel.ConstantAccelerationForwardModel;
+import se.oru.coordination.coordination_oru.forwardModel.ForwardModel;
+import se.oru.coordination.coordination_oru.motionPlanning.VehicleMotionPlanner;
+import se.oru.coordination.coordination_oru.motionPlanning.VehiclePlanner;
 import se.oru.coordination.coordination_oru.simulation2D.TrajectoryEnvelopeCoordinatorSimulation;
 import se.oru.coordination.coordination_oru.utils.BrowserVisualization;
 import se.oru.coordination.coordination_oru.utils.Heuristics;
 import se.oru.coordination.coordination_oru.utils.Missions;
 import se.oru.coordination.coordination_oru.vehicles.AutonomousVehicle;
 import se.oru.coordination.coordination_oru.vehicles.LookAheadVehicle;
-import se.oru.coordination.coordination_oru.motionPlanning.VehicleMotionPlanner;
-import se.oru.coordination.coordination_oru.motionPlanning.VehiclePlanner;
 
 import java.awt.*;
 
@@ -31,30 +33,32 @@ public class SevenAutonomousOneLookAheadVehicles {
         final Pose drawPoint24 = new Pose(74.85,84.45,-Math.PI/2);
         final Pose orePass = new Pose(54.35,11.25,-Math.PI/2);
         VehiclePlanner planner = new VehicleMotionPlanner();
+        final ForwardModel model = new ConstantAccelerationForwardModel(10.0, 1.0, 1000, 1000, 30);
+
 
         var lookAheadVehicle = new LookAheadVehicle("H1",predictableDistance,1,  Color.CYAN, 5, 2,
-                0.5, 0.5, mainTunnelLeft, 0, 0);
+                0.5, 0.5, mainTunnelLeft, 0, 0, model);
         lookAheadVehicle.setGoals(mainTunnelRight);
         var autonomousVehicle1 = new AutonomousVehicle("A1", 1, Color.YELLOW, 10.0, 1.0, 9.0, 6.0,
-                drawPoint17, 0, 0);
+                drawPoint17, 0, 0, model);
         autonomousVehicle1.setGoals(orePass);
         var autonomousVehicle2 = new AutonomousVehicle("A2", 1, Color.YELLOW, 10.0, 1.0, 9.0, 6.0,
-                drawPoint19, 0, 0);
+                drawPoint19, 0, 0, model);
         autonomousVehicle2.setGoals(orePass);
         var autonomousVehicle3 = new AutonomousVehicle("A3", 1, Color.YELLOW, 10.0, 1.0, 9.0, 6.0,
-                drawPoint20, 0, 0);
+                drawPoint20, 0, 0, model);
         autonomousVehicle3.setGoals(orePass);
         var autonomousVehicle4 = new AutonomousVehicle("A4", 1, Color.YELLOW, 10.0, 1.0, 9.0, 6.0,
-                drawPoint21, 0, 0);
+                drawPoint21, 0, 0, model);
         autonomousVehicle4.setGoals(orePass);
         var autonomousVehicle5 = new AutonomousVehicle("A5", 1, Color.YELLOW, 10.0, 1.0, 9.0, 6.0,
-                drawPoint22, 0, 0);
+                drawPoint22, 0, 0, model);
         autonomousVehicle5.setGoals(orePass);
         var autonomousVehicle6 = new AutonomousVehicle("A6", 1, Color.YELLOW, 10.0, 1.0, 9.0, 6.0,
-                drawPoint23, 0, 0);
+                drawPoint23, 0, 0, model);
         autonomousVehicle6.setGoals(orePass);
         var autonomousVehicle7 = new AutonomousVehicle("A7", 1, Color.YELLOW, 10.0, 1.0, 9.0, 6.0,
-                drawPoint24, 0, 0);
+                drawPoint24, 0, 0, model);
         autonomousVehicle7.setGoals(orePass);
         lookAheadVehicle.generatePlans(YAML_FILE);
         autonomousVehicle1.generatePlans(YAML_FILE);

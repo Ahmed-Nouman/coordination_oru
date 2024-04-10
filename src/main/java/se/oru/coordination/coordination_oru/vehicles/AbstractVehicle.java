@@ -4,6 +4,7 @@ import com.vividsolutions.jts.geom.Coordinate;
 import org.metacsp.multi.spatioTemporal.paths.Pose;
 import org.metacsp.multi.spatioTemporal.paths.PoseSteering;
 import se.oru.coordination.coordination_oru.dataStructue.Task;
+import se.oru.coordination.coordination_oru.forwardModel.ForwardModel;
 import se.oru.coordination.coordination_oru.motionPlanning.VehicleMotionPlanner;
 import se.oru.coordination.coordination_oru.utils.Round;
 
@@ -47,17 +48,15 @@ public abstract class AbstractVehicle {
     private Pose initialPose;
     private final List<Task> tasks = new ArrayList<>();
     private final int missionRepetition;
-
     private final double safetyDistance;
-
     private int safetyPathPoints;
     private PoseSteering[] path; //FIXME:should be removed later
     private final List<PoseSteering[]> paths = new ArrayList<>();
     private double pathLength;
-    //FIXME: Move planning methods to a separate class. This class should only contain vehicle properties and methods
+    private final ForwardModel forwardModel;
 
     public AbstractVehicle(int ID, String name, int priority, Color color, double maxVelocity, double maxAcceleration,
-                           double length, double width, Pose initialPose, double safetyDistance, int missionRepetition) {
+                           double length, double width, Pose initialPose, double safetyDistance, int missionRepetition, ForwardModel model) {
         this.ID = ID;
         this.name = name;
         this.priority = priority;
@@ -70,6 +69,7 @@ public abstract class AbstractVehicle {
         this.safetyDistance = safetyDistance;
         this.missionRepetition = missionRepetition;
         this.footprint = makeFootprint(length, width);
+        this.forwardModel = model;
 
         var existingVehicle = VehiclesHashMap.getVehicle(ID);
         if (existingVehicle != null) throw new IllegalStateException("ID " + ID + " already exists.");
@@ -77,23 +77,25 @@ public abstract class AbstractVehicle {
         VehiclesHashMap.getList().put(this.ID, this);
         vehicleNumber++;
     }
+
     public static Coordinate[] makeFootprint(double length, double width) {
-        return new Coordinate[]{               //FIXME: Currently allows four sided vehicles only
-                new Coordinate(-length, width),        //back left
-                new Coordinate(length, width),         //back right
-                new Coordinate(length, -width),        //front right
-                new Coordinate(-length, -width)        //front left
+        return new Coordinate[]{
+                new Coordinate(-length, width),
+                new Coordinate(length, width),
+                new Coordinate(length, -width),
+                new Coordinate(-length, -width)
         };
     }
     public static double calculateFootprintArea(double length, double width) {
-        return length * width;                  //FIXME: Currently allows four sided vehicles only
+        return length * width;
     }
-
     public void generatePlans(String map) {
         if (!tasks.isEmpty()) {
             for (Task task : tasks) {
                 var planner = new VehicleMotionPlanner();
                 paths.add(planner.plan(map, getFootprint(), initialPose, task.getPoses())); // Call to interface for planning.
+//                paths.add(planner.plan(map, getFootprint(), initialPose, task.getPoses(), ReedsSheppCarPlanner.PLANNING_ALGORITHM.RRTstar,
+//                        0.09, 60, 2.0, 0.1)); // Call to interface for planning.
                 initialPose = task.getPoses()[task.getPoses().length - 1];
             }
         }
@@ -214,10 +216,10 @@ public abstract class AbstractVehicle {
         pathLength = Round.round(pathLength, 2);
         VehiclesHashMap.getVehicle(this.getID()).pathLength = pathLength;
     }
+
     public PoseSteering[] getPath() {
         return path;
     }
-
     public void setLength(double length) {
         this.length = length;
         this.footprint = makeFootprint(length, width);
@@ -283,16 +285,20 @@ public abstract class AbstractVehicle {
     public void setGoals(Pose[] goalPoses) {
         this.tasks.add(new Task(0.0, goalPoses));
     }
+
     public void addTask(Task task) {
         this.tasks.add(task);
     }
-
     public List<PoseSteering[]> getPaths() {
         return paths;
     }
 
     public double getSafetyDistance() {
         return safetyDistance;
+    }
+
+    public ForwardModel getForwardModel() {
+        return forwardModel;
     }
 
 }

@@ -5,6 +5,8 @@ import org.metacsp.multi.spatioTemporal.paths.Pose;
 import org.metacsp.multi.spatioTemporal.paths.PoseSteering;
 import se.oru.coordination.coordination_oru.motionPlanning.ompl.ReedsSheppCarPlanner;
 
+import java.util.Arrays;
+
 public class VehicleMotionPlanner implements VehiclePlanner {
     @Override
     public PoseSteering[] plan(String map, Coordinate[] footprint, Pose initialPose, Pose[] goalPoses) {
@@ -28,14 +30,13 @@ public class VehicleMotionPlanner implements VehiclePlanner {
         planner.setTurningRadius(turningRadius);
         planner.setDistanceBetweenPathPoints(distanceBetweenPathPoints);
 
-        planner.plan();
-        var path = planner.getPath();
-
-        if (path == null) {
-            System.err.println("No path found.");
-            System.exit(1); //TODO: Handle this better and throw an exception, not exiting the program
+        try {
+            planner.plan();
+            return planner.getPath();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        } finally {
+            System.out.println("Plan not found! for the vehicle: " + initialPose + " to the goal: " + Arrays.toString(goalPoses));
         }
-
-        return path;
     }
 }

@@ -1,4 +1,4 @@
-package se.oru.coordination.coordination_oru.kinematicModel;
+package se.oru.coordination.coordination_oru.forwardModel;
 
 import org.metacsp.multi.spatioTemporal.paths.TrajectoryEnvelope;
 import se.oru.coordination.coordination_oru.dataStructue.RobotReport;

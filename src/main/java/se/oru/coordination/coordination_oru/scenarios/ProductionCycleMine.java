@@ -2,8 +2,11 @@ package se.oru.coordination.coordination_oru.scenarios;
 
 import org.metacsp.multi.spatioTemporal.paths.Pose;
 import org.metacsp.multi.spatioTemporal.paths.PoseSteering;
-import se.oru.coordination.coordination_oru.kinematicModel.ConstantAccelerationForwardModel;
 import se.oru.coordination.coordination_oru.dataStructue.Mission;
+import se.oru.coordination.coordination_oru.forwardModel.ConstantAccelerationForwardModel;
+import se.oru.coordination.coordination_oru.forwardModel.ForwardModel;
+import se.oru.coordination.coordination_oru.motionPlanning.VehicleMotionPlanner;
+import se.oru.coordination.coordination_oru.motionPlanning.VehiclePlanner;
 import se.oru.coordination.coordination_oru.simulation2D.TrajectoryEnvelopeCoordinatorSimulation;
 import se.oru.coordination.coordination_oru.utils.BrowserVisualization;
 import se.oru.coordination.coordination_oru.utils.Heuristics;
@@ -11,8 +14,6 @@ import se.oru.coordination.coordination_oru.utils.Heuristics.HeuristicType;
 import se.oru.coordination.coordination_oru.utils.Missions;
 import se.oru.coordination.coordination_oru.vehicles.AutonomousVehicle;
 import se.oru.coordination.coordination_oru.vehicles.LookAheadVehicle;
-import se.oru.coordination.coordination_oru.motionPlanning.VehicleMotionPlanner;
-import se.oru.coordination.coordination_oru.motionPlanning.VehiclePlanner;
 
 import java.awt.*;
 
@@ -32,17 +33,19 @@ public class ProductionCycleMine {
         final Pose drawPoint24 = new Pose(75.05, 84.65, -Math.PI / 2);
         final Pose orePass = new Pose(54.35, 11.25, -Math.PI / 2);
         VehiclePlanner planner = new VehicleMotionPlanner();
+        final ForwardModel model = new ConstantAccelerationForwardModel(10.0, 1.0, 1000, 1000, 30);
+
 
         var drillVehicle = new LookAheadVehicle("drillRig", predictableDistance, 1, Color.CYAN, 5, 2,
-                0.5, 0.5, drawPoint16, 0, 0);
+                0.5, 0.5, drawPoint16, 0, 0, model);
         var chargingVehicle = new LookAheadVehicle("chargingVehicle", 6 * predictableDistance, 1, Color.WHITE,
-                5, 2, 0.5, 0.5, drawPoint24, 0, 0);
+                5, 2, 0.5, 0.5, drawPoint24, 0, 0, model);
 
         var autonomousVehicle1 = new AutonomousVehicle("A1", 1, Color.YELLOW, 10.0, 1.0, 9.0, 6.0,
-                drawPoint16, 0, 0);
+                drawPoint16, 0, 0, model);
         autonomousVehicle1.setGoals(orePass);
         var autonomousVehicle2 = new AutonomousVehicle("A2", 1, Color.YELLOW, 10.0, 1.0, 9.0, 6.0,
-                drawPoint23, 0, 0);
+                drawPoint23, 0, 0, model);
         autonomousVehicle2.setGoals(orePass);
         autonomousVehicle1.generatePlans(YAML_FILE);
         autonomousVehicle2.generatePlans(YAML_FILE);

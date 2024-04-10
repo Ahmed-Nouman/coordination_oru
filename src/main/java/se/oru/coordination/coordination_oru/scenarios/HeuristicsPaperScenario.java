@@ -1,10 +1,14 @@
 package se.oru.coordination.coordination_oru.scenarios;
 
 import org.metacsp.multi.spatioTemporal.paths.Pose;
-import se.oru.coordination.coordination_oru.kinematicModel.ConstantAccelerationForwardModel;
+import se.oru.coordination.coordination_oru.forwardModel.ConstantAccelerationForwardModel;
+import se.oru.coordination.coordination_oru.forwardModel.ForwardModel;
 import se.oru.coordination.coordination_oru.motionPlanning.ompl.ReedsSheppCarPlanner;
 import se.oru.coordination.coordination_oru.simulation2D.TrajectoryEnvelopeCoordinatorSimulation;
-import se.oru.coordination.coordination_oru.utils.*;
+import se.oru.coordination.coordination_oru.utils.BrowserVisualization;
+import se.oru.coordination.coordination_oru.utils.Heuristics;
+import se.oru.coordination.coordination_oru.utils.MapResolution;
+import se.oru.coordination.coordination_oru.utils.Missions;
 import se.oru.coordination.coordination_oru.vehicles.AutonomousVehicle;
 
 import java.awt.*;
@@ -45,6 +49,7 @@ public class HeuristicsPaperScenario {
         final var maxAcceleration = MAX_ACCELERATION / SCALE_ADJUSTMENT;
         final var length = LENGTH / SCALE_ADJUSTMENT;
         final var width = WIDTH / SCALE_ADJUSTMENT;
+        final ForwardModel model = new ConstantAccelerationForwardModel(maxVelocity, maxAcceleration, 1000, 1000, 30);
 
         final var mainTunnelLeft = new Pose(3.35, 13.85, UP_RIGHT);
         final var mainTunnelRight = new Pose(80.05, 26.25, UP_RIGHT);
@@ -59,27 +64,27 @@ public class HeuristicsPaperScenario {
         final var orePass = new Pose(39.95, 9.15, DOWN);
 
         var productionVehicle1 = new AutonomousVehicle("P1",0, Color.YELLOW, maxVelocity, maxAcceleration,
-                length, width, drawPoint1, PRODUCTION_SAFETY_DISTANCE, 0);
+                length, width, drawPoint1, PRODUCTION_SAFETY_DISTANCE, 0, model);
         productionVehicle1.setGoals(new Pose[] {orePass, drawPoint1});
 //        var productionVehicle2 = new AutonomousVehicle("P2", 0, Color.YELLOW, maxVelocity, maxAcceleration, TRACKING_PERIOD,
 //                length, width, drawPoint2, new Pose[] {orePass}, 0, 0);
         var productionVehicle3 = new AutonomousVehicle("P3", 0, Color.YELLOW, maxVelocity, maxAcceleration,
-                length, width, drawPoint3, PRODUCTION_SAFETY_DISTANCE, 0);
+                length, width, drawPoint3, PRODUCTION_SAFETY_DISTANCE, 0, model);
         productionVehicle3.setGoals(new Pose[] {orePass, drawPoint3});
 //        var productionVehicle4 = new AutonomousVehicle("P4", 0, Color.YELLOW, maxVelocity, maxAcceleration, TRACKING_PERIOD,
 //                length, width, drawPoint4, new Pose[] {orePass}, 0, 0);
         var productionVehicle5 = new AutonomousVehicle("P5", 0, Color.YELLOW, maxVelocity, maxAcceleration,
-                length, width, drawPoint5, PRODUCTION_SAFETY_DISTANCE, 0);
+                length, width, drawPoint5, PRODUCTION_SAFETY_DISTANCE, 0, model);
         productionVehicle5.setGoals(new Pose[] {orePass, drawPoint5});
 //        var productionVehicle6 = new AutonomousVehicle("P6", 0, Color.YELLOW, maxVelocity, maxAcceleration, TRACKING_PERIOD,
 //                length, width, drawPoint6, new Pose[] {orePass}, 0, 0);
         var productionVehicle7 = new AutonomousVehicle("P7", 0, Color.YELLOW, maxVelocity, maxAcceleration,
-                length, width, drawPoint7, PRODUCTION_SAFETY_DISTANCE, 0);
+                length, width, drawPoint7, PRODUCTION_SAFETY_DISTANCE, 0, model);
         productionVehicle7.setGoals(new Pose[] {orePass, drawPoint7});
 //        var productionVehicle8 = new AutonomousVehicle("P8", 0, Color.YELLOW, maxVelocity, maxAcceleration, TRACKING_PERIOD,
 //                length, width, drawPoint8, new Pose[] {orePass}, 0, 0);
         var serviceVehicle = new AutonomousVehicle("S1", 1,  Color.GREEN, maxVelocity, maxAcceleration,
-                length, width, mainTunnelLeft, SERVICE_SAFETY_DISTANCE, 0);
+                length, width, mainTunnelLeft, SERVICE_SAFETY_DISTANCE, 0, model);
         serviceVehicle.setGoals(new Pose[] {mainTunnelLeft, mainTunnelRight});
 
         productionVehicle1.generatePlans(YAML_FILE);
@@ -97,33 +102,7 @@ public class HeuristicsPaperScenario {
         tec.setupSolver(0, 100000000);
         tec.startInference();
 
-        tec.setForwardModel(productionVehicle1.getID(), new ConstantAccelerationForwardModel(productionVehicle1.getMaxAcceleration(),
-                productionVehicle1.getMaxVelocity(), tec.getTemporalResolution(), tec.getControlPeriod(),
-                tec.getRobotTrackingPeriodInMillis(productionVehicle1.getID())));
-//        tec.setForwardModel(productionVehicle2.getID(), new ConstantAccelerationForwardModel(productionVehicle2.getMaxAcceleration(),
-//                productionVehicle2.getMaxVelocity(), tec.getTemporalResolution(), tec.getControlPeriod(),
-//                tec.getRobotTrackingPeriodInMillis(productionVehicle2.getID())));
-        tec.setForwardModel(productionVehicle3.getID(), new ConstantAccelerationForwardModel(productionVehicle3.getMaxAcceleration(),
-                productionVehicle3.getMaxVelocity(), tec.getTemporalResolution(), tec.getControlPeriod(),
-                tec.getRobotTrackingPeriodInMillis(productionVehicle3.getID())));
-//        tec.setForwardModel(productionVehicle4.getID(), new ConstantAccelerationForwardModel(productionVehicle4.getMaxAcceleration(),
-//                productionVehicle4.getMaxVelocity(), tec.getTemporalResolution(), tec.getControlPeriod(),
-//                tec.getRobotTrackingPeriodInMillis(productionVehicle4.getID())));
-        tec.setForwardModel(productionVehicle5.getID(), new ConstantAccelerationForwardModel(productionVehicle5.getMaxAcceleration(),
-                productionVehicle5.getMaxVelocity(), tec.getTemporalResolution(), tec.getControlPeriod(),
-                tec.getRobotTrackingPeriodInMillis(productionVehicle5.getID())));
-//        tec.setForwardModel(productionVehicle6.getID(), new ConstantAccelerationForwardModel(productionVehicle6.getMaxAcceleration(),
-//                productionVehicle6.getMaxVelocity(), tec.getTemporalResolution(), tec.getControlPeriod(),
-//                tec.getRobotTrackingPeriodInMillis(productionVehicle6.getID())));
-        tec.setForwardModel(productionVehicle7.getID(), new ConstantAccelerationForwardModel(productionVehicle7.getMaxAcceleration(),
-                productionVehicle7.getMaxVelocity(), tec.getTemporalResolution(), tec.getControlPeriod(),
-                tec.getRobotTrackingPeriodInMillis(productionVehicle7.getID())));
-//        tec.setForwardModel(productionVehicle8.getID(), new ConstantAccelerationForwardModel(productionVehicle8.getMaxAcceleration(),
-//                productionVehicle8.getMaxVelocity(), tec.getTemporalResolution(), tec.getControlPeriod(),
-//                tec.getRobotTrackingPeriodInMillis(productionVehicle8.getID())));
-        tec.setForwardModel(serviceVehicle.getID(), new ConstantAccelerationForwardModel(serviceVehicle.getMaxAcceleration(),
-                serviceVehicle.getMaxVelocity(), tec.getTemporalResolution(), tec.getControlPeriod(),
-                tec.getRobotTrackingPeriodInMillis(serviceVehicle.getID())));
+        tec.setForwardModelsForRobots();
 
         tec.setDefaultFootprint(productionVehicle1.getFootprint());
         tec.placeRobotsAtStartPoses();

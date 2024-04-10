@@ -3,6 +3,7 @@ package se.oru.coordination.coordination_oru.vehicles;
 import org.metacsp.multi.spatioTemporal.paths.Pose;
 import org.metacsp.multi.spatioTemporal.paths.PoseSteering;
 import se.oru.coordination.coordination_oru.TrajectoryEnvelopeCoordinator;
+import se.oru.coordination.coordination_oru.forwardModel.ForwardModel;
 
 import java.awt.*;
 import java.util.Arrays;
@@ -41,24 +42,25 @@ public class LookAheadVehicle extends AutonomousVehicle {
      * @param width             Physical width of the vehicle.
      * @param initialPose       Initial pose of the vehicle in the environment.
      * @param safetyDistance    Minimum safe distance to be maintained from other objects.
+     * @param model             Forward model for the vehicle.
      */
     public LookAheadVehicle(int ID, String name, double lookAheadDistance, int priorityID, Color color, double maxVelocity, double maxAcceleration,
-                            double length, double width, Pose initialPose, double safetyDistance, int missionRepetition) {
+                            double length, double width, Pose initialPose, double safetyDistance, int missionRepetition, ForwardModel model) {
         super(ID, name, priorityID, color, maxVelocity, maxAcceleration, length, width, initialPose, safetyDistance,
-                missionRepetition);
+                missionRepetition, model);
         this.lookAheadDistance = lookAheadDistance;
     }
 
     public LookAheadVehicle(String name, double lookAheadDistance, int priorityID, Color color, double maxVelocity, double maxAcceleration,
-                            double length, double width, Pose initialPose, double safetyDistance, int missionRepetition) {
+                            double length, double width, Pose initialPose, double safetyDistance, int missionRepetition, ForwardModel model) {
         this(vehicleNumber, name, lookAheadDistance, priorityID, color, maxVelocity, maxAcceleration, length, width, initialPose, safetyDistance,
-                missionRepetition);
+                missionRepetition, model);
     }
 
     //FIXME: Remove as a constructor
-    public LookAheadVehicle(double lookAheadDistance) {
+    public LookAheadVehicle(double lookAheadDistance, ForwardModel model) {
         this(vehicleNumber, null,  lookAheadDistance,  1, Color.YELLOW, 5.0, 1.0,
-                0.5, 0.5, null, 0, 0);
+                0.5, 0.5, null, 0, 0, model);
     }
 
     /**
