@@ -58,7 +58,7 @@ public class DemoLauncher {
 	public static void main(String[] args) throws ClassNotFoundException {
 		
 		//Forces to loads the class so that license and (c) are printed even if no demo is invoked
-		Class.forName("se.oru.coordination.coordination_oru.TrajectoryEnvelopeCoordinator");
+		Class.forName("se.oru.coordination.coordination_oru.coordinator.TrajectoryEnvelopeCoordinator");
 		
 		if (args.length != 1) printUsage();
 		else {

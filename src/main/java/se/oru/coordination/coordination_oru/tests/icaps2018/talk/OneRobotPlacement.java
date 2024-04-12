@@ -3,13 +3,13 @@ package se.oru.coordination.coordination_oru.tests.icaps2018.talk;
 import com.vividsolutions.jts.geom.Coordinate;
 import org.metacsp.multi.spatioTemporal.paths.Pose;
 import org.metacsp.multi.spatioTemporal.paths.PoseSteering;
-import se.oru.coordination.coordination_oru.dataStructue.Mission;
+import se.oru.coordination.coordination_oru.coordinator.TrajectoryEnvelopeCoordinatorSimulation;
 import se.oru.coordination.coordination_oru.demo.DemoDescription;
-import se.oru.coordination.coordination_oru.forwardModel.ConstantAccelerationForwardModel;
+import se.oru.coordination.coordination_oru.forwardModel.ConstantAcceleration;
 import se.oru.coordination.coordination_oru.motionPlanning.ompl.ReedsSheppCarPlanner;
 import se.oru.coordination.coordination_oru.motionPlanning.ompl.ReedsSheppCarPlanner.PLANNING_ALGORITHM;
-import se.oru.coordination.coordination_oru.simulation2D.TrajectoryEnvelopeCoordinatorSimulation;
-import se.oru.coordination.coordination_oru.utils.BrowserVisualization;
+import se.oru.coordination.coordination_oru.simulation.BrowserVisualization;
+import se.oru.coordination.coordination_oru.utils.Mission;
 import se.oru.coordination.coordination_oru.utils.Missions;
 
 @DemoDescription(desc = "One-shot navigation of 3 robots with different footprints coordinating on paths obtained with the ReedsSheppCarPlanner.")
@@ -59,7 +59,7 @@ public class OneRobotPlacement {
 
 		//You probably also want to provide a non-trivial forward model
 		//(the default assumes that robots can always stop)
-		tec.setForwardModel(1, new ConstantAccelerationForwardModel(MAX_ACCEL, MAX_VEL, tec.getTemporalResolution(), tec.getControlPeriod(), tec.getRobotTrackingPeriodInMillis(1)));
+		tec.setForwardModel(1, new ConstantAcceleration(MAX_ACCEL, MAX_VEL, tec.getTemporalResolution(), tec.getControlPeriod(), tec.getRobotTrackingPeriodInMillis(1)));
 
 		//Need to setup infrastructure that maintains the representation
 		tec.setupSolver(0, 100000000);

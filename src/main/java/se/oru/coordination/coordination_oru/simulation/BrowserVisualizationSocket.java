@@ -1,4 +1,4 @@
-package se.oru.coordination.coordination_oru.utils;
+package se.oru.coordination.coordination_oru.simulation;
 
 
 import com.vividsolutions.jts.geom.Coordinate;

@@ -1,7 +1,7 @@
-package se.oru.coordination.coordination_oru.utils;
+package se.oru.coordination.coordination_oru.simulation;
 
 import org.metacsp.multi.spatioTemporal.paths.TrajectoryEnvelope;
-import se.oru.coordination.coordination_oru.dataStructue.RobotReport;
+import se.oru.coordination.coordination_oru.utils.RobotReport;
 
 public interface FleetVisualization {
 	

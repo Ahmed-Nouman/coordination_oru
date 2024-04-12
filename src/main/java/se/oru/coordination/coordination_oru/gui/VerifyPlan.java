@@ -9,7 +9,7 @@ import javafx.scene.layout.VBox;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import org.metacsp.multi.spatioTemporal.paths.Pose;
-import se.oru.coordination.coordination_oru.forwardModel.ConstantAccelerationForwardModel;
+import se.oru.coordination.coordination_oru.forwardModel.ConstantAcceleration;
 import se.oru.coordination.coordination_oru.forwardModel.ForwardModel;
 import se.oru.coordination.coordination_oru.motionPlanning.VehiclePathPlanner;
 import se.oru.coordination.coordination_oru.motionPlanning.ompl.ReedsSheppCarPlanner;
@@ -34,7 +34,7 @@ public class VerifyPlan {
                 var YAML_FILE = controllerNavigation.getMain().getDataStatus().getProjectData().getMap();
                 var mapResolution = controllerNavigation.getMain().getDataStatus().getMapData().getResolution();
                 var scaleAdjustment = 1 / mapResolution;
-                final ForwardModel model = new ConstantAccelerationForwardModel(10.0, 1.0, 1000, 1000, 30);
+                final ForwardModel model = new ConstantAcceleration(10.0, 1.0, 1000, 1000, 30);
                 final var planner = new VehiclePathPlanner(YAML_FILE, ReedsSheppCarPlanner.PLANNING_ALGORITHM.RRTConnect,
                         0.09, 60, 2.0, 0.1);
 

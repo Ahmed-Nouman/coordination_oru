@@ -1,12 +1,12 @@
 package se.oru.coordination.coordination_oru.scenarios;
 
 import org.metacsp.multi.spatioTemporal.paths.Pose;
-import se.oru.coordination.coordination_oru.forwardModel.ConstantAccelerationForwardModel;
+import se.oru.coordination.coordination_oru.forwardModel.ConstantAcceleration;
 import se.oru.coordination.coordination_oru.forwardModel.ForwardModel;
 import se.oru.coordination.coordination_oru.motionPlanning.VehiclePathPlanner;
 import se.oru.coordination.coordination_oru.motionPlanning.ompl.ReedsSheppCarPlanner;
-import se.oru.coordination.coordination_oru.simulation2D.TrajectoryEnvelopeCoordinatorSimulation;
-import se.oru.coordination.coordination_oru.utils.BrowserVisualization;
+import se.oru.coordination.coordination_oru.coordinator.TrajectoryEnvelopeCoordinatorSimulation;
+import se.oru.coordination.coordination_oru.simulation.BrowserVisualization;
 import se.oru.coordination.coordination_oru.utils.Heuristics;
 import se.oru.coordination.coordination_oru.utils.MapResolution;
 import se.oru.coordination.coordination_oru.utils.Missions;
@@ -50,7 +50,7 @@ public class HeuristicsPaperScenario {
         final var maxAcceleration = MAX_ACCELERATION / SCALE_ADJUSTMENT;
         final var length = LENGTH / SCALE_ADJUSTMENT;
         final var width = WIDTH / SCALE_ADJUSTMENT;
-        final ForwardModel model = new ConstantAccelerationForwardModel(maxVelocity, maxAcceleration, 1000, 1000, 30);
+        final ForwardModel model = new ConstantAcceleration(maxVelocity, maxAcceleration, 1000, 1000, 30);
         final var planner = new VehiclePathPlanner(map, ReedsSheppCarPlanner.PLANNING_ALGORITHM.RRTConnect,
                 0.09, 60, 2.0, 0.1);
 

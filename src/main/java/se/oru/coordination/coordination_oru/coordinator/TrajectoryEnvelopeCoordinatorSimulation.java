@@ -1,4 +1,4 @@
-package se.oru.coordination.coordination_oru.simulation2D;
+package se.oru.coordination.coordination_oru.coordinator;
 
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Geometry;
@@ -6,9 +6,12 @@ import org.metacsp.multi.spatioTemporal.paths.Pose;
 import org.metacsp.multi.spatioTemporal.paths.PoseSteering;
 import org.metacsp.multi.spatioTemporal.paths.TrajectoryEnvelope;
 import se.oru.coordination.coordination_oru.*;
-import se.oru.coordination.coordination_oru.dataStructue.CriticalSection;
-import se.oru.coordination.coordination_oru.dataStructue.Mission;
-import se.oru.coordination.coordination_oru.dataStructue.RobotReport;
+import se.oru.coordination.coordination_oru.utils.CriticalSection;
+import se.oru.coordination.coordination_oru.utils.Mission;
+import se.oru.coordination.coordination_oru.utils.RobotReport;
+import se.oru.coordination.coordination_oru.tracker.AbstractTrajectoryEnvelopeTracker;
+import se.oru.coordination.coordination_oru.tracker.TrajectoryEnvelopeTrackerDummy;
+import se.oru.coordination.coordination_oru.tracker.TrajectoryEnvelopeTrackerRK4;
 import se.oru.coordination.coordination_oru.vehicles.AbstractVehicle;
 import se.oru.coordination.coordination_oru.vehicles.AutonomousVehicle;
 import se.oru.coordination.coordination_oru.vehicles.VehiclesHashMap;

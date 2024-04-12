@@ -3,7 +3,7 @@ package se.oru.coordination.coordination_oru.vehicles;
 import com.vividsolutions.jts.geom.Coordinate;
 import org.metacsp.multi.spatioTemporal.paths.Pose;
 import org.metacsp.multi.spatioTemporal.paths.PoseSteering;
-import se.oru.coordination.coordination_oru.dataStructue.Task;
+import se.oru.coordination.coordination_oru.utils.Task;
 import se.oru.coordination.coordination_oru.forwardModel.ForwardModel;
 import se.oru.coordination.coordination_oru.motionPlanning.PathPlanner;
 import se.oru.coordination.coordination_oru.utils.Round;

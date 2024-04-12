@@ -2,13 +2,13 @@ package se.oru.coordination.coordination_oru.scenarios;
 
 import org.metacsp.multi.spatioTemporal.paths.Pose;
 import org.metacsp.multi.spatioTemporal.paths.PoseSteering;
-import se.oru.coordination.coordination_oru.dataStructue.Mission;
-import se.oru.coordination.coordination_oru.forwardModel.ConstantAccelerationForwardModel;
+import se.oru.coordination.coordination_oru.utils.Mission;
+import se.oru.coordination.coordination_oru.forwardModel.ConstantAcceleration;
 import se.oru.coordination.coordination_oru.forwardModel.ForwardModel;
 import se.oru.coordination.coordination_oru.motionPlanning.VehiclePathPlanner;
 import se.oru.coordination.coordination_oru.motionPlanning.ompl.ReedsSheppCarPlanner;
-import se.oru.coordination.coordination_oru.simulation2D.TrajectoryEnvelopeCoordinatorSimulation;
-import se.oru.coordination.coordination_oru.utils.BrowserVisualization;
+import se.oru.coordination.coordination_oru.coordinator.TrajectoryEnvelopeCoordinatorSimulation;
+import se.oru.coordination.coordination_oru.simulation.BrowserVisualization;
 import se.oru.coordination.coordination_oru.utils.Heuristics;
 import se.oru.coordination.coordination_oru.utils.Heuristics.HeuristicType;
 import se.oru.coordination.coordination_oru.utils.Missions;
@@ -32,7 +32,7 @@ public class ProductionCycleMine {
         final Pose drawPoint23 = new Pose(67.75, 86.95, -Math.PI / 2);
         final Pose drawPoint24 = new Pose(75.05, 84.65, -Math.PI / 2);
         final Pose orePass = new Pose(54.35, 11.25, -Math.PI / 2);
-        final ForwardModel model = new ConstantAccelerationForwardModel(10.0, 1.0, 1000, 1000, 30);
+        final ForwardModel model = new ConstantAcceleration(10.0, 1.0, 1000, 1000, 30);
         final var planner = new VehiclePathPlanner(map, ReedsSheppCarPlanner.PLANNING_ALGORITHM.RRTConnect,
                 0.09, 60, 2.0, 0.1);
 
@@ -60,9 +60,9 @@ public class ProductionCycleMine {
         tec.setDefaultFootprint(autonomousVehicle1.getFootprint());
         tec.placeRobot(autonomousVehicle1.getID(), drawPoint16);
         tec.placeRobot(autonomousVehicle2.getID(), drawPoint23);
-        tec.setForwardModel(autonomousVehicle1.getID(), new ConstantAccelerationForwardModel(autonomousVehicle1.getMaxAcceleration(), autonomousVehicle1.getMaxVelocity(), tec.getTemporalResolution(),
+        tec.setForwardModel(autonomousVehicle1.getID(), new ConstantAcceleration(autonomousVehicle1.getMaxAcceleration(), autonomousVehicle1.getMaxVelocity(), tec.getTemporalResolution(),
                 tec.getControlPeriod(), tec.getRobotTrackingPeriodInMillis(autonomousVehicle1.getID())));
-        tec.setForwardModel(autonomousVehicle2.getID(), new ConstantAccelerationForwardModel(autonomousVehicle2.getMaxAcceleration(), autonomousVehicle2.getMaxVelocity(), tec.getTemporalResolution(),
+        tec.setForwardModel(autonomousVehicle2.getID(), new ConstantAcceleration(autonomousVehicle2.getMaxAcceleration(), autonomousVehicle2.getMaxVelocity(), tec.getTemporalResolution(),
                 tec.getControlPeriod(), tec.getRobotTrackingPeriodInMillis(autonomousVehicle2.getID())));
 
         tec.addComparator(new Heuristics(HeuristicType.CLOSEST_FIRST).getComparator());
@@ -86,9 +86,9 @@ public class ProductionCycleMine {
         Missions.startMissionDispatcher(tec);
 
         long missionTime = 5000;
-        tec.setForwardModel(drillVehicle.getID(), new ConstantAccelerationForwardModel(drillVehicle.getMaxAcceleration(), drillVehicle.getMaxVelocity(), tec.getTemporalResolution(),
+        tec.setForwardModel(drillVehicle.getID(), new ConstantAcceleration(drillVehicle.getMaxAcceleration(), drillVehicle.getMaxVelocity(), tec.getTemporalResolution(),
                 tec.getControlPeriod(), tec.getRobotTrackingPeriodInMillis(drillVehicle.getID())));
-        tec.setForwardModel(chargingVehicle.getID(), new ConstantAccelerationForwardModel(chargingVehicle.getMaxAcceleration(), chargingVehicle.getMaxVelocity(), tec.getTemporalResolution(),
+        tec.setForwardModel(chargingVehicle.getID(), new ConstantAcceleration(chargingVehicle.getMaxAcceleration(), chargingVehicle.getMaxVelocity(), tec.getTemporalResolution(),
                 tec.getControlPeriod(), tec.getRobotTrackingPeriodInMillis(chargingVehicle.getID())));
 
         final Pose[] drillRigGoal = {drawPoint38, drawPoint18, drawPoint24, mainTunnelRight};

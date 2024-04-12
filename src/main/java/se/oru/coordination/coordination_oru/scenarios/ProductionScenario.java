@@ -2,13 +2,13 @@ package se.oru.coordination.coordination_oru.scenarios;
 
 import com.vividsolutions.jts.geom.Coordinate;
 import org.metacsp.multi.spatioTemporal.paths.Pose;
-import se.oru.coordination.coordination_oru.dataStructue.Mission;
-import se.oru.coordination.coordination_oru.forwardModel.ConstantAccelerationForwardModel;
+import se.oru.coordination.coordination_oru.utils.Mission;
+import se.oru.coordination.coordination_oru.forwardModel.ConstantAcceleration;
 import se.oru.coordination.coordination_oru.forwardModel.ForwardModel;
 import se.oru.coordination.coordination_oru.motionPlanning.VehiclePathPlanner;
 import se.oru.coordination.coordination_oru.motionPlanning.ompl.ReedsSheppCarPlanner;
-import se.oru.coordination.coordination_oru.simulation2D.TrajectoryEnvelopeCoordinatorSimulation;
-import se.oru.coordination.coordination_oru.utils.BrowserVisualization;
+import se.oru.coordination.coordination_oru.coordinator.TrajectoryEnvelopeCoordinatorSimulation;
+import se.oru.coordination.coordination_oru.simulation.BrowserVisualization;
 import se.oru.coordination.coordination_oru.utils.Heuristics;
 import se.oru.coordination.coordination_oru.utils.Missions;
 import se.oru.coordination.coordination_oru.vehicles.AutonomousVehicle;
@@ -29,7 +29,7 @@ public class ProductionScenario {
         int numOfCallsForLookAheadRobot = 5;
         boolean visualization = true;
         boolean writeRobotReports = false;
-        final ForwardModel model = new ConstantAccelerationForwardModel(10.0, 1.0, 1000, 1000, 30);
+        final ForwardModel model = new ConstantAcceleration(10.0, 1.0, 1000, 1000, 30);
         final var planner = new VehiclePathPlanner(map, ReedsSheppCarPlanner.PLANNING_ALGORITHM.RRTConnect,
                 0.09, 60, 2.0, 0.1);
 
@@ -71,19 +71,19 @@ public class ProductionScenario {
         tec.setupSolver(0, 100000000);
         tec.startInference();
 
-        tec.setForwardModel(autonomousRobot1.getID(), new ConstantAccelerationForwardModel(autonomousRobot1.getMaxAcceleration(),
+        tec.setForwardModel(autonomousRobot1.getID(), new ConstantAcceleration(autonomousRobot1.getMaxAcceleration(),
                 autonomousRobot1.getMaxVelocity(), tec.getTemporalResolution(), tec.getControlPeriod(),
                 tec.getRobotTrackingPeriodInMillis(autonomousRobot1.getID())));
-        tec.setForwardModel(autonomousRobot2.getID(), new ConstantAccelerationForwardModel(autonomousRobot2.getMaxAcceleration(),
+        tec.setForwardModel(autonomousRobot2.getID(), new ConstantAcceleration(autonomousRobot2.getMaxAcceleration(),
                 autonomousRobot2.getMaxVelocity(), tec.getTemporalResolution(), tec.getControlPeriod(),
                 tec.getRobotTrackingPeriodInMillis(autonomousRobot2.getID())));
-        tec.setForwardModel(autonomousRobot3.getID(), new ConstantAccelerationForwardModel(autonomousRobot3.getMaxAcceleration(),
+        tec.setForwardModel(autonomousRobot3.getID(), new ConstantAcceleration(autonomousRobot3.getMaxAcceleration(),
                 autonomousRobot3.getMaxVelocity(), tec.getTemporalResolution(), tec.getControlPeriod(),
                 tec.getRobotTrackingPeriodInMillis(autonomousRobot3.getID())));
-        tec.setForwardModel(autonomousRobot4.getID(), new ConstantAccelerationForwardModel(autonomousRobot4.getMaxAcceleration(),
+        tec.setForwardModel(autonomousRobot4.getID(), new ConstantAcceleration(autonomousRobot4.getMaxAcceleration(),
                 autonomousRobot4.getMaxVelocity(), tec.getTemporalResolution(), tec.getControlPeriod(),
                 tec.getRobotTrackingPeriodInMillis(autonomousRobot4.getID())));
-        tec.setForwardModel(autonomousRobot5.getID(), new ConstantAccelerationForwardModel(autonomousRobot5.getMaxAcceleration(),
+        tec.setForwardModel(autonomousRobot5.getID(), new ConstantAcceleration(autonomousRobot5.getMaxAcceleration(),
                 autonomousRobot5.getMaxVelocity(), tec.getTemporalResolution(), tec.getControlPeriod(),
                 tec.getRobotTrackingPeriodInMillis(autonomousRobot5.getID())));
 

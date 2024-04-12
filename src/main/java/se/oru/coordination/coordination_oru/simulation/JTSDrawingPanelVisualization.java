@@ -1,4 +1,4 @@
-package se.oru.coordination.coordination_oru.utils;
+package se.oru.coordination.coordination_oru.simulation;
 
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Geometry;
@@ -6,8 +6,8 @@ import com.vividsolutions.jts.geom.GeometryFactory;
 import org.metacsp.multi.spatial.DE9IM.GeometricShapeDomain;
 import org.metacsp.multi.spatioTemporal.paths.TrajectoryEnvelope;
 import org.metacsp.utility.UI.JTSDrawingPanel;
-import se.oru.coordination.coordination_oru.dataStructue.RobotReport;
-import se.oru.coordination.coordination_oru.simulation2D.TrajectoryEnvelopeCoordinatorSimulation;
+import se.oru.coordination.coordination_oru.coordinator.TrajectoryEnvelopeCoordinatorSimulation;
+import se.oru.coordination.coordination_oru.utils.RobotReport;
 import se.oru.coordination.coordination_oru.vehicles.VehiclesHashMap;
 
 import javax.swing.*;

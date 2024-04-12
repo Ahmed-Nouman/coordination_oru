@@ -2,7 +2,7 @@ package se.oru.coordination.coordination_oru.vehicles;
 
 import org.metacsp.multi.spatioTemporal.paths.Pose;
 import org.metacsp.multi.spatioTemporal.paths.PoseSteering;
-import se.oru.coordination.coordination_oru.TrajectoryEnvelopeCoordinator;
+import se.oru.coordination.coordination_oru.coordinator.TrajectoryEnvelopeCoordinator;
 import se.oru.coordination.coordination_oru.forwardModel.ForwardModel;
 
 import java.awt.*;

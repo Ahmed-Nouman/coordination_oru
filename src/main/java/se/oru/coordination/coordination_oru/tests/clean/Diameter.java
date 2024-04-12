@@ -3,14 +3,14 @@ package se.oru.coordination.coordination_oru.tests.clean;
 import com.vividsolutions.jts.geom.Coordinate;
 import org.metacsp.multi.spatioTemporal.paths.Pose;
 import se.oru.coordination.coordination_oru.RobotAtCriticalSection;
-import se.oru.coordination.coordination_oru.dataStructue.CriticalSection;
-import se.oru.coordination.coordination_oru.dataStructue.Mission;
-import se.oru.coordination.coordination_oru.dataStructue.RobotReport;
-import se.oru.coordination.coordination_oru.forwardModel.ConstantAccelerationForwardModel;
+import se.oru.coordination.coordination_oru.coordinator.TrajectoryEnvelopeCoordinatorSimulation;
+import se.oru.coordination.coordination_oru.forwardModel.ConstantAcceleration;
 import se.oru.coordination.coordination_oru.motionPlanning.ompl.ReedsSheppCarPlanner;
-import se.oru.coordination.coordination_oru.simulation2D.TrajectoryEnvelopeCoordinatorSimulation;
-import se.oru.coordination.coordination_oru.utils.BrowserVisualization;
+import se.oru.coordination.coordination_oru.simulation.BrowserVisualization;
+import se.oru.coordination.coordination_oru.utils.CriticalSection;
+import se.oru.coordination.coordination_oru.utils.Mission;
 import se.oru.coordination.coordination_oru.utils.Missions;
+import se.oru.coordination.coordination_oru.utils.RobotReport;
 
 import java.util.Comparator;
 import java.util.HashMap;
@@ -42,7 +42,7 @@ public class Diameter {
 		int[] robotIDs =  new int[NUMBER_ROBOTS];
 		for (int i = 0; i < NUMBER_ROBOTS; i++) {
 			robotIDs[i] = i+1;
-			tec.setForwardModel(i+1, new ConstantAccelerationForwardModel(MAX_ACCEL, MAX_VEL, tec.getTemporalResolution(), tec.getControlPeriod(), tec.getRobotTrackingPeriodInMillis(i+1)));
+			tec.setForwardModel(i+1, new ConstantAcceleration(MAX_ACCEL, MAX_VEL, tec.getTemporalResolution(), tec.getControlPeriod(), tec.getRobotTrackingPeriodInMillis(i+1)));
 		}
 
 		//Define the footprints of the robots (here they are all the same)

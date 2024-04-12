@@ -1,4 +1,4 @@
-package se.oru.coordination.coordination_oru.utils;
+package se.oru.coordination.coordination_oru.simulation;
 
 import com.vividsolutions.jts.geom.Coordinate;
 import nav_msgs.OccupancyGrid;
@@ -12,7 +12,8 @@ import org.ros.message.Duration;
 import org.ros.namespace.GraphName;
 import org.ros.node.*;
 import org.ros.node.topic.Publisher;
-import se.oru.coordination.coordination_oru.dataStructue.RobotReport;
+import se.oru.coordination.coordination_oru.utils.Missions;
+import se.oru.coordination.coordination_oru.utils.RobotReport;
 import visualization_msgs.MarkerArray;
 
 import javax.imageio.ImageIO;

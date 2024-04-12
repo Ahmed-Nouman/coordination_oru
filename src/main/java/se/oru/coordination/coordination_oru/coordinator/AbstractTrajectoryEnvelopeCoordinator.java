@@ -1,4 +1,4 @@
-package se.oru.coordination.coordination_oru;
+package se.oru.coordination.coordination_oru.coordinator;
 
 import aima.core.util.datastructure.Pair;
 import com.vividsolutions.jts.geom.Coordinate;
@@ -16,13 +16,18 @@ import org.metacsp.multi.spatioTemporal.paths.TrajectoryEnvelopeSolver;
 import org.metacsp.time.Bounds;
 import org.metacsp.utility.UI.Callback;
 import org.metacsp.utility.logging.MetaCSPLogging;
-import se.oru.coordination.coordination_oru.dataStructue.CriticalSection;
-import se.oru.coordination.coordination_oru.dataStructue.Dependency;
-import se.oru.coordination.coordination_oru.dataStructue.Mission;
-import se.oru.coordination.coordination_oru.dataStructue.RobotReport;
+import se.oru.coordination.coordination_oru.NetworkConfiguration;
+import se.oru.coordination.coordination_oru.RobotAtCriticalSection;
+import se.oru.coordination.coordination_oru.TrackingCallback;
+import se.oru.coordination.coordination_oru.utils.CriticalSection;
+import se.oru.coordination.coordination_oru.utils.Dependency;
+import se.oru.coordination.coordination_oru.utils.Mission;
+import se.oru.coordination.coordination_oru.utils.RobotReport;
 import se.oru.coordination.coordination_oru.forwardModel.ForwardModel;
 import se.oru.coordination.coordination_oru.motionPlanning.AbstractMotionPlanner;
-import se.oru.coordination.coordination_oru.utils.FleetVisualization;
+import se.oru.coordination.coordination_oru.tracker.AbstractTrajectoryEnvelopeTracker;
+import se.oru.coordination.coordination_oru.tracker.TrajectoryEnvelopeTrackerDummy;
+import se.oru.coordination.coordination_oru.simulation.FleetVisualization;
 import se.oru.coordination.coordination_oru.utils.StringUtils;
 import se.oru.coordination.coordination_oru.vehicles.VehiclesHashMap;
 
@@ -104,7 +109,7 @@ public abstract class AbstractTrajectoryEnvelopeCoordinator {
 
 	protected HashMap<Integer,ArrayList<Integer>> stoppingTimes = new HashMap<Integer,ArrayList<Integer>>();
 	protected HashMap<Integer,Thread> stoppingPointTimers = new HashMap<Integer,Thread>();
-	protected HashMap<Integer,AbstractTrajectoryEnvelopeTracker> trackers = new HashMap<Integer, AbstractTrajectoryEnvelopeTracker>();
+	public HashMap<Integer,AbstractTrajectoryEnvelopeTracker> trackers = new HashMap<Integer, AbstractTrajectoryEnvelopeTracker>();
 
 	protected HashMap<Integer, Dependency> currentDependencies = new HashMap<Integer, Dependency>();
 	protected static Logger metaCSPLogger = MetaCSPLogging.getLogger(TrajectoryEnvelopeCoordinator.class);
@@ -128,7 +133,7 @@ public abstract class AbstractTrajectoryEnvelopeCoordinator {
 	protected boolean yieldIfParking = true;
 
 	protected boolean checkEscapePoses = true;
-	protected HashMap<Integer,TrackingCallback> trackingCallbacks = new HashMap<Integer, TrackingCallback>();
+	protected HashMap<Integer, TrackingCallback> trackingCallbacks = new HashMap<Integer, TrackingCallback>();
 
 	protected Callback inferenceCallback = null;
 	protected HashMap<Integer,AbstractMotionPlanner> motionPlanners = new HashMap<Integer, AbstractMotionPlanner>();
@@ -396,10 +401,10 @@ public abstract class AbstractTrajectoryEnvelopeCoordinator {
 		if (forwardModels.containsKey(robotID)) return forwardModels.get(robotID);
 		System.out.println("Returning default FM for " + robotID);
 		return new ForwardModel() {
-			@Override
-			public boolean canStop(TrajectoryEnvelope te, RobotReport currentState, int targetPathIndex, boolean useVelocity) {
-				return true;
-			}
+//			@Override
+//			public boolean canStop(TrajectoryEnvelope te, RobotReport currentState, int targetPathIndex, boolean useVelocity) {
+//				return true;
+//			}
 			@Override
 			public int getEarliestStoppingPathIndex(TrajectoryEnvelope te, RobotReport currentState) {
 				// TODO Auto-generated method stub

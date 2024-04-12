@@ -4,15 +4,15 @@ import com.vividsolutions.jts.geom.Coordinate;
 import org.metacsp.multi.spatioTemporal.paths.Pose;
 import org.metacsp.multi.spatioTemporal.paths.PoseSteering;
 import se.oru.coordination.coordination_oru.RobotAtCriticalSection;
-import se.oru.coordination.coordination_oru.dataStructue.CriticalSection;
-import se.oru.coordination.coordination_oru.dataStructue.Mission;
-import se.oru.coordination.coordination_oru.dataStructue.RobotReport;
+import se.oru.coordination.coordination_oru.coordinator.TrajectoryEnvelopeCoordinatorSimulation;
 import se.oru.coordination.coordination_oru.demo.DemoDescription;
-import se.oru.coordination.coordination_oru.forwardModel.ConstantAccelerationForwardModel;
+import se.oru.coordination.coordination_oru.forwardModel.ConstantAcceleration;
 import se.oru.coordination.coordination_oru.motionPlanning.ompl.ReedsSheppCarPlanner;
-import se.oru.coordination.coordination_oru.simulation2D.TrajectoryEnvelopeCoordinatorSimulation;
+import se.oru.coordination.coordination_oru.simulation.RVizVisualization;
+import se.oru.coordination.coordination_oru.utils.CriticalSection;
+import se.oru.coordination.coordination_oru.utils.Mission;
 import se.oru.coordination.coordination_oru.utils.Missions;
-import se.oru.coordination.coordination_oru.utils.RVizVisualization;
+import se.oru.coordination.coordination_oru.utils.RobotReport;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -137,7 +137,7 @@ public class Experiment2 {
 		//int[] robotIDs = new int[] {1,2};
 		for (int robotID : robotIDs) {
 			tec.setMotionPlanner(robotID, rsp.getCopy(false));
-			tec.setForwardModel(robotID, new ConstantAccelerationForwardModel(MAX_ACCEL, MAX_VEL, tec.getTemporalResolution(), tec.getControlPeriod(), tec.getRobotTrackingPeriodInMillis(robotID)));
+			tec.setForwardModel(robotID, new ConstantAcceleration(MAX_ACCEL, MAX_VEL, tec.getTemporalResolution(), tec.getControlPeriod(), tec.getRobotTrackingPeriodInMillis(robotID)));
             String startLocName = "L_"+locationCounter;
 			Pose startLoc = Missions.getLocation(startLocName);
 			String endLocName = "R_"+locationCounter;

@@ -2,15 +2,15 @@ package se.oru.coordination.coordination_oru.tests;
 
 import com.vividsolutions.jts.geom.Coordinate;
 import se.oru.coordination.coordination_oru.RobotAtCriticalSection;
-import se.oru.coordination.coordination_oru.dataStructue.CriticalSection;
-import se.oru.coordination.coordination_oru.dataStructue.Mission;
-import se.oru.coordination.coordination_oru.dataStructue.RobotReport;
+import se.oru.coordination.coordination_oru.coordinator.TrajectoryEnvelopeCoordinatorSimulation;
 import se.oru.coordination.coordination_oru.demo.DemoDescription;
-import se.oru.coordination.coordination_oru.forwardModel.ConstantAccelerationForwardModel;
+import se.oru.coordination.coordination_oru.forwardModel.ConstantAcceleration;
 import se.oru.coordination.coordination_oru.motionPlanning.ompl.ReedsSheppCarPlanner;
-import se.oru.coordination.coordination_oru.simulation2D.TrajectoryEnvelopeCoordinatorSimulation;
-import se.oru.coordination.coordination_oru.utils.JTSDrawingPanelVisualization;
+import se.oru.coordination.coordination_oru.simulation.JTSDrawingPanelVisualization;
+import se.oru.coordination.coordination_oru.utils.CriticalSection;
+import se.oru.coordination.coordination_oru.utils.Mission;
 import se.oru.coordination.coordination_oru.utils.Missions;
+import se.oru.coordination.coordination_oru.utils.RobotReport;
 
 import java.util.Comparator;
 
@@ -68,7 +68,7 @@ public abstract class TestTrajectoryEnvelopeCoordinatorWithMotionPlanner10 {
 		
 		Integer[] robotIDs = new Integer[] {1,2,3,4};
 		for (Integer robotID : robotIDs) {
-			tec.setForwardModel(robotID, new ConstantAccelerationForwardModel(MAX_ACCEL, MAX_VEL, tec.getTemporalResolution(), tec.getControlPeriod(), tec.getRobotTrackingPeriodInMillis(robotID)));
+			tec.setForwardModel(robotID, new ConstantAcceleration(MAX_ACCEL, MAX_VEL, tec.getTemporalResolution(), tec.getControlPeriod(), tec.getRobotTrackingPeriodInMillis(robotID)));
 			tec.placeRobot(robotID, Missions.getLocation("a"+robotID));
 			
 			//Set up private motion planners.

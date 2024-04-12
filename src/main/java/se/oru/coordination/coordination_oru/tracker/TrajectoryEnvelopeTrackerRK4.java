@@ -1,16 +1,17 @@
-package se.oru.coordination.coordination_oru.simulation2D;
+package se.oru.coordination.coordination_oru.tracker;
 
 import org.metacsp.multi.spatioTemporal.paths.Pose;
 import org.metacsp.multi.spatioTemporal.paths.PoseSteering;
 import org.metacsp.multi.spatioTemporal.paths.Trajectory;
 import org.metacsp.multi.spatioTemporal.paths.TrajectoryEnvelope;
-import se.oru.coordination.coordination_oru.AbstractTrajectoryEnvelopeTracker;
 import se.oru.coordination.coordination_oru.NetworkConfiguration;
 import se.oru.coordination.coordination_oru.TrackingCallback;
-import se.oru.coordination.coordination_oru.TrajectoryEnvelopeCoordinator;
-import se.oru.coordination.coordination_oru.dataStructue.RobotReport;
+import se.oru.coordination.coordination_oru.coordinator.TrajectoryEnvelopeCoordinator;
+import se.oru.coordination.coordination_oru.coordinator.TrajectoryEnvelopeCoordinatorSimulation;
 import se.oru.coordination.coordination_oru.utils.Missions;
-import se.oru.coordination.coordination_oru.utils.RK4;
+import se.oru.coordination.coordination_oru.utils.RungeKutta4;
+import se.oru.coordination.coordination_oru.utils.RobotReport;
+import se.oru.coordination.coordination_oru.utils.State;
 
 import java.util.*;
 
@@ -287,7 +288,7 @@ public abstract class TrajectoryEnvelopeTrackerRK4 extends AbstractTrajectoryEnv
 		while (tempStateBW.getVelocity() < MAX_VELOCITY*1.1) {
 			double dampeningBW = getCurvatureDampening(getRobotReport(tempStateBW).getPathIndex(), true);
 			//Use slightly conservative max deceleration (which is positive acceleration since we simulate FW dynamics)
-			RK4.integrate(tempStateBW, time, deltaTime, false, MAX_VELOCITY*1.1, dampeningBW, MAX_ACCELERATION);
+			RungeKutta4.integrate(tempStateBW, time, deltaTime, false, MAX_VELOCITY*1.1, dampeningBW, MAX_ACCELERATION);
 			time += deltaTime;
 			ret.put(tempStateBW.getVelocity(), tempStateBW.getPosition());
 		}
@@ -323,7 +324,7 @@ public abstract class TrajectoryEnvelopeTrackerRK4 extends AbstractTrajectoryEnv
 			}
 			
 			double dampeningFW = getCurvatureDampening(getRobotReport(tempStateFW).getPathIndex(), true);
-			RK4.integrate(tempStateFW, time, deltaTime, false, MAX_VELOCITY, dampeningFW, MAX_ACCELERATION);
+			RungeKutta4.integrate(tempStateFW, time, deltaTime, false, MAX_VELOCITY, dampeningFW, MAX_ACCELERATION);
 
 			time += deltaTime;
 		}
@@ -577,7 +578,7 @@ public abstract class TrajectoryEnvelopeTrackerRK4 extends AbstractTrajectoryEnv
 				}
                 slowingDown = state.getPosition() >= positionToSlowDown;
 				double dampening = getCurvatureDampening(getRobotReport().getPathIndex(), false);
-				RK4.integrate(state, elapsedTrackingTime, deltaTime, slowingDown, MAX_VELOCITY, dampening, MAX_ACCELERATION);
+				RungeKutta4.integrate(state, elapsedTrackingTime, deltaTime, slowingDown, MAX_VELOCITY, dampening, MAX_ACCELERATION);
 
 			}
 			
@@ -628,7 +629,7 @@ public abstract class TrajectoryEnvelopeTrackerRK4 extends AbstractTrajectoryEnv
 		
 		//First compute time to stop (can do FW here...)
 		while (state.getPosition() < distance/2.0 && state.getVelocity() < maxVel) {
-			RK4.integrate(state, time, deltaTime, false, maxVel, 1.0, maxAccel);
+			RungeKutta4.integrate(state, time, deltaTime, false, maxVel, 1.0, maxAccel);
 			time += deltaTime;
 		}
 		double positionToSlowDown = distance-state.getPosition();
@@ -638,7 +639,7 @@ public abstract class TrajectoryEnvelopeTrackerRK4 extends AbstractTrajectoryEnv
 		time = 0.0;
 		while (true) {
 			if (state.getPosition() >= distance/2.0 && state.getVelocity() < 0.0) break;
-            RK4.integrate(state, time, deltaTime, state.getPosition() >= positionToSlowDown, maxVel, 1.0, maxAccel);
+            RungeKutta4.integrate(state, time, deltaTime, state.getPosition() >= positionToSlowDown, maxVel, 1.0, maxAccel);
 			//System.out.println("Time: " + time + " " + rr);
 			//System.out.println("Time: " + MetaCSPLogging.printDouble(time,4) + "\tpos: " + MetaCSPLogging.printDouble(state.getPosition(),4) + "\tvel: " + MetaCSPLogging.printDouble(state.getVelocity(),4));
 			time += deltaTime;

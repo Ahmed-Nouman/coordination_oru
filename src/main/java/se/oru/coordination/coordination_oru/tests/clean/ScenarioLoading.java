@@ -3,12 +3,12 @@ package se.oru.coordination.coordination_oru.tests.clean;
 import com.vividsolutions.jts.geom.Coordinate;
 import org.metacsp.multi.spatioTemporal.paths.Pose;
 import se.oru.coordination.coordination_oru.RobotAtCriticalSection;
-import se.oru.coordination.coordination_oru.dataStructue.CriticalSection;
-import se.oru.coordination.coordination_oru.dataStructue.RobotReport;
-import se.oru.coordination.coordination_oru.forwardModel.ConstantAccelerationForwardModel;
-import se.oru.coordination.coordination_oru.simulation2D.TrajectoryEnvelopeCoordinatorSimulation;
-import se.oru.coordination.coordination_oru.utils.BrowserVisualization;
+import se.oru.coordination.coordination_oru.coordinator.TrajectoryEnvelopeCoordinatorSimulation;
+import se.oru.coordination.coordination_oru.forwardModel.ConstantAcceleration;
+import se.oru.coordination.coordination_oru.simulation.BrowserVisualization;
+import se.oru.coordination.coordination_oru.utils.CriticalSection;
 import se.oru.coordination.coordination_oru.utils.Missions;
+import se.oru.coordination.coordination_oru.utils.RobotReport;
 
 import java.util.Comparator;
 import java.util.Map.Entry;
@@ -61,7 +61,7 @@ public class ScenarioLoading {
 		for (Entry<Integer,Pose> e : Missions.getInitialPoses().entrySet()) {
 			int robotID = e.getKey();
 			tec.setFootprint(robotID, footprint1, footprint2, footprint3, footprint4);
-			tec.setForwardModel(robotID, new ConstantAccelerationForwardModel(MAX_ACCEL, MAX_VEL, tec.getTemporalResolution(), tec.getControlPeriod(), tec.getRobotTrackingPeriodInMillis(robotID)));
+			tec.setForwardModel(robotID, new ConstantAcceleration(MAX_ACCEL, MAX_VEL, tec.getTemporalResolution(), tec.getControlPeriod(), tec.getRobotTrackingPeriodInMillis(robotID)));
 			tec.placeRobot(robotID, e.getValue());
 		}
 		

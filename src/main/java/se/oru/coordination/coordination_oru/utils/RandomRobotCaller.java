@@ -1,7 +1,5 @@
 package se.oru.coordination.coordination_oru.utils;
 
-import se.oru.coordination.coordination_oru.dataStructue.Mission;
-
 import java.util.Random;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;

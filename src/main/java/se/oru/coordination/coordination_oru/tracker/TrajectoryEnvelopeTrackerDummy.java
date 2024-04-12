@@ -1,8 +1,10 @@
-package se.oru.coordination.coordination_oru;
+package se.oru.coordination.coordination_oru.tracker;
 
 import org.metacsp.multi.spatioTemporal.paths.TrajectoryEnvelope;
 import org.metacsp.multi.spatioTemporal.paths.TrajectoryEnvelopeSolver;
-import se.oru.coordination.coordination_oru.dataStructue.RobotReport;
+import se.oru.coordination.coordination_oru.coordinator.AbstractTrajectoryEnvelopeCoordinator;
+import se.oru.coordination.coordination_oru.TrackingCallback;
+import se.oru.coordination.coordination_oru.utils.RobotReport;
 
 /**
  * This {@link AbstractTrajectoryEnvelopeTracker} is used to represent static robots, that is, robots

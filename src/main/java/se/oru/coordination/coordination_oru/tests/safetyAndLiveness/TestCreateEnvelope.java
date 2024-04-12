@@ -4,9 +4,9 @@ import com.vividsolutions.jts.geom.Coordinate;
 import org.metacsp.multi.spatioTemporal.paths.Pose;
 import org.metacsp.multi.spatioTemporal.paths.TrajectoryEnvelope;
 import org.metacsp.multi.spatioTemporal.paths.TrajectoryEnvelope.SpatialEnvelope;
-import se.oru.coordination.coordination_oru.AbstractTrajectoryEnvelopeCoordinator;
-import se.oru.coordination.coordination_oru.dataStructue.CriticalSection;
+import se.oru.coordination.coordination_oru.coordinator.AbstractTrajectoryEnvelopeCoordinator;
 import se.oru.coordination.coordination_oru.motionPlanning.ompl.ReedsSheppCarPlanner;
+import se.oru.coordination.coordination_oru.utils.CriticalSection;
 
 import java.util.Arrays;
 

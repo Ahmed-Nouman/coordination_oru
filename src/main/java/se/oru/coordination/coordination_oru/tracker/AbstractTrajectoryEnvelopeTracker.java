@@ -1,4 +1,4 @@
-package se.oru.coordination.coordination_oru;
+package se.oru.coordination.coordination_oru.tracker;
 
 import org.metacsp.framework.Constraint;
 import org.metacsp.framework.Variable;
@@ -11,9 +11,11 @@ import org.metacsp.time.APSPSolver;
 import org.metacsp.time.Bounds;
 import org.metacsp.utility.UI.Callback;
 import org.metacsp.utility.logging.MetaCSPLogging;
-import se.oru.coordination.coordination_oru.dataStructue.Dependency;
-import se.oru.coordination.coordination_oru.dataStructue.RobotReport;
-import se.oru.coordination.coordination_oru.simulation2D.TrajectoryEnvelopeTrackerRK4;
+import se.oru.coordination.coordination_oru.coordinator.AbstractTrajectoryEnvelopeCoordinator;
+import se.oru.coordination.coordination_oru.TrackingCallback;
+import se.oru.coordination.coordination_oru.coordinator.TrajectoryEnvelopeCoordinator;
+import se.oru.coordination.coordination_oru.utils.Dependency;
+import se.oru.coordination.coordination_oru.utils.RobotReport;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -32,7 +34,7 @@ import java.util.logging.Logger;
 public abstract class AbstractTrajectoryEnvelopeTracker {
 
 	protected AbstractTrajectoryEnvelopeCoordinator tec = null;
-	protected TrajectoryEnvelope te = null;
+	public TrajectoryEnvelope te = null;
 	protected Trajectory traj = null;
 	protected double temporalResolution = 0.0;
 	protected Integer externalCPCounter = -1;

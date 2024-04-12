@@ -1,13 +1,13 @@
 package se.oru.coordination.coordination_oru.scenarios;
 
 import org.metacsp.multi.spatioTemporal.paths.Pose;
-import se.oru.coordination.coordination_oru.dataStructue.Mission;
-import se.oru.coordination.coordination_oru.forwardModel.ConstantAccelerationForwardModel;
+import se.oru.coordination.coordination_oru.utils.Mission;
+import se.oru.coordination.coordination_oru.forwardModel.ConstantAcceleration;
 import se.oru.coordination.coordination_oru.forwardModel.ForwardModel;
 import se.oru.coordination.coordination_oru.motionPlanning.VehiclePathPlanner;
 import se.oru.coordination.coordination_oru.motionPlanning.ompl.ReedsSheppCarPlanner;
-import se.oru.coordination.coordination_oru.simulation2D.TrajectoryEnvelopeCoordinatorSimulation;
-import se.oru.coordination.coordination_oru.utils.BrowserVisualization;
+import se.oru.coordination.coordination_oru.coordinator.TrajectoryEnvelopeCoordinatorSimulation;
+import se.oru.coordination.coordination_oru.simulation.BrowserVisualization;
 import se.oru.coordination.coordination_oru.utils.Heuristics;
 import se.oru.coordination.coordination_oru.utils.Missions;
 import se.oru.coordination.coordination_oru.vehicles.AutonomousVehicle;
@@ -39,7 +39,7 @@ public class ProductionCyclePathsAutonomousMine {
         final Pose workStation1 = new Pose(23.75, 8.95, -Math.PI / 2);
         final Pose workStation2 = new Pose(20.15, 9.05, -Math.PI / 2);
         final Pose workStation3 = new Pose(17.35, 9.65, -Math.PI / 2);
-        final ForwardModel model = new ConstantAccelerationForwardModel(10.0, 1.0, 1000, 1000, 30);
+        final ForwardModel model = new ConstantAcceleration(10.0, 1.0, 1000, 1000, 30);
         final var planner = new VehiclePathPlanner(map, ReedsSheppCarPlanner.PLANNING_ALGORITHM.RRTConnect,
                 0.09, 60, 2.0, 0.1);
 
@@ -69,9 +69,9 @@ public class ProductionCyclePathsAutonomousMine {
         tec.setDefaultFootprint(autonomousVehicle1.getFootprint());
         tec.placeRobot(autonomousVehicle1.getID(), drawPoint16);
         tec.placeRobot(autonomousVehicle2.getID(), drawPoint23);
-        tec.setForwardModel(autonomousVehicle1.getID(), new ConstantAccelerationForwardModel(autonomousVehicle1.getMaxAcceleration(), autonomousVehicle1.getMaxVelocity(), tec.getTemporalResolution(),
+        tec.setForwardModel(autonomousVehicle1.getID(), new ConstantAcceleration(autonomousVehicle1.getMaxAcceleration(), autonomousVehicle1.getMaxVelocity(), tec.getTemporalResolution(),
                 tec.getControlPeriod(), tec.getRobotTrackingPeriodInMillis(autonomousVehicle1.getID())));
-        tec.setForwardModel(autonomousVehicle2.getID(), new ConstantAccelerationForwardModel(autonomousVehicle2.getMaxAcceleration(), autonomousVehicle2.getMaxVelocity(), tec.getTemporalResolution(),
+        tec.setForwardModel(autonomousVehicle2.getID(), new ConstantAcceleration(autonomousVehicle2.getMaxAcceleration(), autonomousVehicle2.getMaxVelocity(), tec.getTemporalResolution(),
                 tec.getControlPeriod(), tec.getRobotTrackingPeriodInMillis(autonomousVehicle2.getID())));
 
         tec.addComparator(new Heuristics(Heuristics.HeuristicType.CLOSEST_FIRST).getComparator());
@@ -96,11 +96,11 @@ public class ProductionCyclePathsAutonomousMine {
         Missions.setMap(map);
         Missions.startMissionDispatcher(tec);
 
-        tec.setForwardModel(drillVehicle.getID(), new ConstantAccelerationForwardModel(drillVehicle.getMaxAcceleration(), drillVehicle.getMaxVelocity(), tec.getTemporalResolution(),
+        tec.setForwardModel(drillVehicle.getID(), new ConstantAcceleration(drillVehicle.getMaxAcceleration(), drillVehicle.getMaxVelocity(), tec.getTemporalResolution(),
                 tec.getControlPeriod(), tec.getRobotTrackingPeriodInMillis(drillVehicle.getID())));
-        tec.setForwardModel(chargingVehicle.getID(), new ConstantAccelerationForwardModel(chargingVehicle.getMaxAcceleration(), chargingVehicle.getMaxVelocity(), tec.getTemporalResolution(),
+        tec.setForwardModel(chargingVehicle.getID(), new ConstantAcceleration(chargingVehicle.getMaxAcceleration(), chargingVehicle.getMaxVelocity(), tec.getTemporalResolution(),
                 tec.getControlPeriod(), tec.getRobotTrackingPeriodInMillis(chargingVehicle.getID())));
-        tec.setForwardModel(waterVehicle.getID(), new ConstantAccelerationForwardModel(waterVehicle.getMaxAcceleration(), waterVehicle.getMaxVelocity(), tec.getTemporalResolution(),
+        tec.setForwardModel(waterVehicle.getID(), new ConstantAcceleration(waterVehicle.getMaxAcceleration(), waterVehicle.getMaxVelocity(), tec.getTemporalResolution(),
                 tec.getControlPeriod(), tec.getRobotTrackingPeriodInMillis(waterVehicle.getID())));
 
         // FIXME Maybe try smaller motion plans

@@ -1,4 +1,4 @@
-package se.oru.coordination.coordination_oru.dataStructue;
+package se.oru.coordination.coordination_oru.utils;
 
 import org.metacsp.multi.spatioTemporal.paths.TrajectoryEnvelope;
 

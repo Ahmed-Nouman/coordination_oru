@@ -1,14 +1,14 @@
 package se.oru.coordination.coordination_oru.scenarios;
 
 import org.metacsp.multi.spatioTemporal.paths.Pose;
-import se.oru.coordination.coordination_oru.dataStructue.Task;
-import se.oru.coordination.coordination_oru.forwardModel.ConstantAccelerationForwardModel;
+import se.oru.coordination.coordination_oru.utils.Task;
+import se.oru.coordination.coordination_oru.forwardModel.ConstantAcceleration;
 import se.oru.coordination.coordination_oru.forwardModel.ForwardModel;
 import se.oru.coordination.coordination_oru.motionPlanning.VehiclePathPlanner;
 import se.oru.coordination.coordination_oru.motionPlanning.PathPlanner;
 import se.oru.coordination.coordination_oru.motionPlanning.ompl.ReedsSheppCarPlanner;
-import se.oru.coordination.coordination_oru.simulation2D.TrajectoryEnvelopeCoordinatorSimulation;
-import se.oru.coordination.coordination_oru.utils.BrowserVisualization;
+import se.oru.coordination.coordination_oru.coordinator.TrajectoryEnvelopeCoordinatorSimulation;
+import se.oru.coordination.coordination_oru.simulation.BrowserVisualization;
 import se.oru.coordination.coordination_oru.utils.Heuristics;
 import se.oru.coordination.coordination_oru.utils.MapResolution;
 import se.oru.coordination.coordination_oru.utils.Missions;
@@ -30,7 +30,7 @@ public class PlannedInterruptions {
     private static final double ORE_UNLOADING_TIME = 0.25;
     private static final double PLANTING_TIME = 0.25;
     private static final double CLEANING_TIME = 2.0;
-    private static final ForwardModel model = new ConstantAccelerationForwardModel(MAX_ACCELERATION, MAX_VELOCITY, 1000, 1000, 30);
+    private static final ForwardModel model = new ConstantAcceleration(MAX_ACCELERATION, MAX_VELOCITY, 1000, 1000, 30);
     private static final PathPlanner planner = new VehiclePathPlanner(map, ReedsSheppCarPlanner.PLANNING_ALGORITHM.RRTConnect,
             0.09, 60, 2.0, 0.1);
     public static void main(String[] args) {

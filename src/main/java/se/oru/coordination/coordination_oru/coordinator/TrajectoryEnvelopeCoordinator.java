@@ -1,4 +1,4 @@
-package se.oru.coordination.coordination_oru;
+package se.oru.coordination.coordination_oru.coordinator;
 
 import aima.core.util.datastructure.Pair;
 import com.vividsolutions.jts.geom.Geometry;
@@ -18,11 +18,14 @@ import org.metacsp.multi.spatioTemporal.paths.Trajectory;
 import org.metacsp.multi.spatioTemporal.paths.TrajectoryEnvelope;
 import org.metacsp.utility.PermutationsWithRepetition;
 import org.metacsp.utility.UI.Callback;
-import se.oru.coordination.coordination_oru.dataStructue.CriticalSection;
-import se.oru.coordination.coordination_oru.dataStructue.Dependency;
-import se.oru.coordination.coordination_oru.dataStructue.RobotReport;
+import se.oru.coordination.coordination_oru.RobotAtCriticalSection;
+import se.oru.coordination.coordination_oru.utils.CriticalSection;
+import se.oru.coordination.coordination_oru.utils.Dependency;
+import se.oru.coordination.coordination_oru.utils.RobotReport;
 import se.oru.coordination.coordination_oru.forwardModel.ForwardModel;
 import se.oru.coordination.coordination_oru.motionPlanning.AbstractMotionPlanner;
+import se.oru.coordination.coordination_oru.tracker.AbstractTrajectoryEnvelopeTracker;
+import se.oru.coordination.coordination_oru.tracker.TrajectoryEnvelopeTrackerDummy;
 import se.oru.coordination.coordination_oru.vehicles.LookAheadVehicle;
 import se.oru.coordination.coordination_oru.vehicles.VehiclesHashMap;
 
@@ -31,7 +34,7 @@ import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import static se.oru.coordination.coordination_oru.simulation2D.TrajectoryEnvelopeCoordinatorSimulation.tec;
+import static se.oru.coordination.coordination_oru.coordinator.TrajectoryEnvelopeCoordinatorSimulation.tec;
 
 
 /**

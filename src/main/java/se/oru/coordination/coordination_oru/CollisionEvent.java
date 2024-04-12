@@ -1,6 +1,6 @@
 package se.oru.coordination.coordination_oru;
 
-import se.oru.coordination.coordination_oru.dataStructue.RobotReport;
+import se.oru.coordination.coordination_oru.utils.RobotReport;
 
 public class CollisionEvent {
 	protected long time = 0;

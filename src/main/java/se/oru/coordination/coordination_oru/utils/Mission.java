@@ -1,9 +1,8 @@
-package se.oru.coordination.coordination_oru.dataStructue;
+package se.oru.coordination.coordination_oru.utils;
 
 import org.metacsp.multi.spatioTemporal.paths.Pose;
 import org.metacsp.multi.spatioTemporal.paths.PoseSteering;
-import se.oru.coordination.coordination_oru.TrajectoryEnvelopeCoordinator;
-import se.oru.coordination.coordination_oru.utils.Missions;
+import se.oru.coordination.coordination_oru.coordinator.TrajectoryEnvelopeCoordinator;
 
 import java.util.ArrayList;
 import java.util.HashMap;

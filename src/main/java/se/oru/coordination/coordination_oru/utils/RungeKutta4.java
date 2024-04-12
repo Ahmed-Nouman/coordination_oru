@@ -1,9 +1,6 @@
 package se.oru.coordination.coordination_oru.utils;
 
-import se.oru.coordination.coordination_oru.simulation2D.Derivative;
-import se.oru.coordination.coordination_oru.simulation2D.State;
-
-public class RK4 {
+public class RungeKutta4 {
     public static void integrate(State state, double time, double deltaTime, boolean slowDown, double MAX_VELOCITY, double MAX_VELOCITY_DAMPENING_FACTOR, double MAX_ACCELERATION) {
         synchronized (state) {
             Derivative a = Derivative.evaluate(state, time, 0.0, new Derivative(), slowDown, MAX_VELOCITY, MAX_VELOCITY_DAMPENING_FACTOR, MAX_ACCELERATION);

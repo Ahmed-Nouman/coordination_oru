@@ -1,6 +1,6 @@
 package se.oru.coordination.coordination_oru.utils;
 
-import se.oru.coordination.coordination_oru.TrajectoryEnvelopeCoordinator;
+import se.oru.coordination.coordination_oru.coordinator.TrajectoryEnvelopeCoordinator;
 
 import java.io.BufferedWriter;
 import java.io.IOException;

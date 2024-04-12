@@ -1,9 +1,9 @@
 package se.oru.coordination.coordination_oru.gui;
 
-import se.oru.coordination.coordination_oru.dataStructue.Mission;
-import se.oru.coordination.coordination_oru.forwardModel.ConstantAccelerationForwardModel;
-import se.oru.coordination.coordination_oru.simulation2D.TrajectoryEnvelopeCoordinatorSimulation;
-import se.oru.coordination.coordination_oru.utils.BrowserVisualization;
+import se.oru.coordination.coordination_oru.coordinator.TrajectoryEnvelopeCoordinatorSimulation;
+import se.oru.coordination.coordination_oru.forwardModel.ConstantAcceleration;
+import se.oru.coordination.coordination_oru.simulation.BrowserVisualization;
+import se.oru.coordination.coordination_oru.utils.Mission;
 import se.oru.coordination.coordination_oru.utils.Missions;
 
 import java.util.concurrent.Executors;
@@ -47,7 +47,7 @@ public class RunProject {
         tec.setBreakDeadlocks(true, false, false);
 
         controllerNavigation.getMain().getDataStatus().getVehicles().forEach((vehicle) -> {
-            tec.setForwardModel(vehicle.getID(), new ConstantAccelerationForwardModel(vehicle.getMaxAcceleration(),
+            tec.setForwardModel(vehicle.getID(), new ConstantAcceleration(vehicle.getMaxAcceleration(),
                     vehicle.getMaxVelocity(), tec.getTemporalResolution(), tec.getControlPeriod(),
                     tec.getRobotTrackingPeriodInMillis(vehicle.getID())));
             tec.setDefaultFootprint(vehicle.getFootprint());
