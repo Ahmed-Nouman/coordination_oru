@@ -96,10 +96,9 @@ public abstract class AbstractVehicle {
                 paths.add(planner.plan(getFootprint(), initialPose, task.getPoses()));
                 initialPose = task.getPoses()[task.getPoses().length - 1];
             }
+            setSafetyPathPoints();
         }
     }
-
-
 
     @Override
     public String toString() {
@@ -126,7 +125,7 @@ public abstract class AbstractVehicle {
 
     public Coordinate[] getFootprint() {
         return footprint;
-    } //TODO: Each vehicle should be able to have a separate footprint in tec not the default one. Also, allow non-rectangular footprints
+    }
 
     public void setColor(Object color) {
         if (color instanceof String) {
@@ -272,6 +271,15 @@ public abstract class AbstractVehicle {
 
     public int getSafetyPathPoints() {
         return safetyPathPoints;
+    }
+
+    public void setSafetyPathPoints() {
+        for (int i = 0; i < paths.get(0).length - 1; i++) {
+            double deltaS = paths.get(0)[i].getPose().distanceTo(paths.get(0)[i + 1].getPose());
+            pathLength += deltaS;
+        }
+        pathLength = Round.round(pathLength, 2);
+        safetyPathPoints = (int) Math.round((double) paths.get(0).length / pathLength * safetyDistance);
     }
 
     public List<Task> getTasks() {

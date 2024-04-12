@@ -448,7 +448,7 @@ public abstract class TrajectoryEnvelopeTrackerRK4 extends AbstractTrajectoryEnv
 	}
 	
 	@Override
-	public RobotReport getRobotReport() {
+	public RobotReport getRobotReport() { //TODO: TrackerRK4 creates robot reports
 		if (state == null) return null;
 		if (!this.th.isAlive()) return new RobotReport(te.getRobotID(), traj.getPose()[0], -1, 0.0, 0.0, -1);
 		synchronized(state) {

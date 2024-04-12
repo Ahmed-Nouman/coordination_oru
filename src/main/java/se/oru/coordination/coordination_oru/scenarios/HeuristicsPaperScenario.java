@@ -67,27 +67,27 @@ public class HeuristicsPaperScenario {
         final var orePass = new Pose(39.95, 9.15, DOWN);
 
         var productionVehicle1 = new AutonomousVehicle("P1",0, Color.YELLOW, maxVelocity, maxAcceleration,
-                length, width, drawPoint1, PRODUCTION_SAFETY_DISTANCE, 0, model);
+                length, width, drawPoint1, PRODUCTION_SAFETY_DISTANCE, 5, model);
         productionVehicle1.setGoals(new Pose[] {orePass, drawPoint1});
 //        var productionVehicle2 = new AutonomousVehicle("P2", 0, Color.YELLOW, maxVelocity, maxAcceleration, TRACKING_PERIOD,
 //                length, width, drawPoint2, new Pose[] {orePass}, 0, 0);
         var productionVehicle3 = new AutonomousVehicle("P3", 0, Color.YELLOW, maxVelocity, maxAcceleration,
-                length, width, drawPoint3, PRODUCTION_SAFETY_DISTANCE, 0, model);
+                length, width, drawPoint3, PRODUCTION_SAFETY_DISTANCE, 5, model);
         productionVehicle3.setGoals(new Pose[] {orePass, drawPoint3});
 //        var productionVehicle4 = new AutonomousVehicle("P4", 0, Color.YELLOW, maxVelocity, maxAcceleration, TRACKING_PERIOD,
 //                length, width, drawPoint4, new Pose[] {orePass}, 0, 0);
         var productionVehicle5 = new AutonomousVehicle("P5", 0, Color.YELLOW, maxVelocity, maxAcceleration,
-                length, width, drawPoint5, PRODUCTION_SAFETY_DISTANCE, 0, model);
+                length, width, drawPoint5, PRODUCTION_SAFETY_DISTANCE, 5, model);
         productionVehicle5.setGoals(new Pose[] {orePass, drawPoint5});
 //        var productionVehicle6 = new AutonomousVehicle("P6", 0, Color.YELLOW, maxVelocity, maxAcceleration, TRACKING_PERIOD,
 //                length, width, drawPoint6, new Pose[] {orePass}, 0, 0);
         var productionVehicle7 = new AutonomousVehicle("P7", 0, Color.YELLOW, maxVelocity, maxAcceleration,
-                length, width, drawPoint7, PRODUCTION_SAFETY_DISTANCE, 0, model);
+                length, width, drawPoint7, PRODUCTION_SAFETY_DISTANCE, 5, model);
         productionVehicle7.setGoals(new Pose[] {orePass, drawPoint7});
 //        var productionVehicle8 = new AutonomousVehicle("P8", 0, Color.YELLOW, maxVelocity, maxAcceleration, TRACKING_PERIOD,
 //                length, width, drawPoint8, new Pose[] {orePass}, 0, 0);
         var serviceVehicle = new AutonomousVehicle("S1", 1,  Color.GREEN, maxVelocity, maxAcceleration,
-                length, width, mainTunnelLeft, SERVICE_SAFETY_DISTANCE, 0, model);
+                length, width, mainTunnelLeft, SERVICE_SAFETY_DISTANCE, 5, model);
         serviceVehicle.setGoals(new Pose[] {mainTunnelLeft, mainTunnelRight});
 
         productionVehicle1.generatePlans(planner);
