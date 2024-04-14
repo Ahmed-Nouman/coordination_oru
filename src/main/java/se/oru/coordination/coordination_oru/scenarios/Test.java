@@ -4,7 +4,6 @@ import org.metacsp.multi.spatioTemporal.paths.Pose;
 import se.oru.coordination.coordination_oru.forwardModel.ConstantAcceleration;
 import se.oru.coordination.coordination_oru.utils.Task;
 import se.oru.coordination.coordination_oru.forwardModel.ForwardModel;
-import se.oru.coordination.coordination_oru.forwardModel.GaussianAcceleration;
 import se.oru.coordination.coordination_oru.motionPlanning.VehiclePathPlanner;
 import se.oru.coordination.coordination_oru.motionPlanning.ompl.ReedsSheppCarPlanner;
 import se.oru.coordination.coordination_oru.coordinator.TrajectoryEnvelopeCoordinatorSimulation;
@@ -16,8 +15,10 @@ import se.oru.coordination.coordination_oru.vehicles.AutonomousVehicle;
 import java.awt.*;
 
 public class Test {
-    public static void main(String[] args) {
 
+    public static void main(String[] args) {
+        String className = Thread.currentThread().getStackTrace()[Thread.currentThread().getStackTrace().length-1].getFileName().split("\\.")[0];
+        String folderName = "paths/" + className + "/";
         final Pose mainTunnelLeft = new Pose(4.25,15.35, -Math.PI);
         final Pose mainTunnelRight = new Pose(78.05,24.75, Math.PI);
         final Pose drawPoint21 = new Pose(52.95,87.75,-Math.PI/2);
@@ -25,7 +26,7 @@ public class Test {
         final String map = "maps/mine-map-test.yaml";
         final ForwardModel model = new ConstantAcceleration(10.0, 100.0, 1000, 1000, 30);
         final var planner = new VehiclePathPlanner(map, ReedsSheppCarPlanner.PLANNING_ALGORITHM.RRTConnect,
-                0.09, 60, 2.0, 0.1);
+                0.09, 30, 2.0, 0.1);
 
         var autonomousVehicle = new AutonomousVehicle("A1",1, Color.YELLOW, 10.0, 1.0,
                 0.9, 0.65, drawPoint21, 2.4, 10, model);
@@ -41,6 +42,10 @@ public class Test {
 
         autonomousVehicle.generatePlans(planner);
         autonomousVehicle1.generatePlans(planner);
+        autonomousVehicle.savePathsToFile(className);
+        autonomousVehicle1.savePathsToFile(className);
+//        autonomousVehicle.loadPathsFromFile(folderName + "A1.path");
+//        autonomousVehicle1.loadPathsFromFile(folderName + "A2.path");
 
         // Instantiate a trajectory envelope coordinator.
         var tec = new TrajectoryEnvelopeCoordinatorSimulation(2000, 1000, 5, 2);

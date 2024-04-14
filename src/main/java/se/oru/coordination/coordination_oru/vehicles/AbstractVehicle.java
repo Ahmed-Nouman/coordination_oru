@@ -9,8 +9,13 @@ import se.oru.coordination.coordination_oru.motionPlanning.PathPlanner;
 import se.oru.coordination.coordination_oru.utils.Round;
 
 import java.awt.*;
-import java.util.ArrayList;
-import java.util.Arrays;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.util.*;
 import java.util.List;
 
 /**
@@ -51,7 +56,7 @@ public abstract class AbstractVehicle {
     private final double safetyDistance;
     private int safetyPathPoints;
     private PoseSteering[] path; //FIXME:should be removed later
-    private final List<PoseSteering[]> paths = new ArrayList<>();
+    public List<PoseSteering[]> paths = new ArrayList<>();
     private double pathLength;
     private final ForwardModel forwardModel;
 
@@ -99,6 +104,78 @@ public abstract class AbstractVehicle {
             setSafetyPathPoints();
         }
     }
+
+    public String serializePoseSteering(PoseSteering poseSteering) {
+        return String.format("%f %f %f %f", poseSteering.getPose().getX(), poseSteering.getPose().getY(), poseSteering.getPose().getTheta(), poseSteering.getSteering());
+    }
+
+    public void savePathsToFile(String folderName) {
+        String folderPath = "./paths/" + folderName + "/";
+
+        try {
+            Files.createDirectories(Paths.get(folderPath));
+        } catch (IOException e) {
+            System.err.println("Failed to create directory: " + e.getMessage());
+            e.printStackTrace();
+            return;
+        }
+
+        String baseFilename = folderPath + this.getName();
+        String filename = baseFilename + ".path";
+        File file = new File(filename);
+
+        // Check if the file already exists and find a new filename if necessary
+        int fileCounter = 1;
+        while (file.exists()) {
+            filename = baseFilename + "(" + fileCounter++ + ").path";
+            file = new File(filename);
+        }
+
+        try (var out = new PrintWriter(filename)) {
+            this.getPaths().forEach(path -> {
+                Arrays.stream(path).map(this::serializePoseSteering).forEach(out::println);
+                out.println("---");
+            });
+        } catch (FileNotFoundException e) {
+            System.err.println("File not found: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+
+
+    public PoseSteering deserializePoseSteering(String line) {
+        String[] parts = line.split(" ");
+        double x = Double.parseDouble(parts[0]);
+        double y = Double.parseDouble(parts[1]);
+        double theta = Double.parseDouble(parts[2]);
+        double steering = Double.parseDouble(parts[3]);
+        Pose pose = new Pose(x, y, theta);
+        return new PoseSteering(pose, steering);
+    }
+
+    public void loadPathsFromFile(String filename) {
+        List<PoseSteering[]> paths = new ArrayList<>();
+        List<PoseSteering> currentPath = new ArrayList<>();
+
+        try (var scanner = new Scanner(new File(filename))) {
+            while (scanner.hasNextLine()) {
+                String line = scanner.nextLine();
+                if (line.equals("---")) {
+                    paths.add(currentPath.toArray(new PoseSteering[0]));
+                    currentPath = new ArrayList<>();
+                } else {
+                    currentPath.add(deserializePoseSteering(line));
+                }
+            }
+            if (!currentPath.isEmpty()) {
+                paths.add(currentPath.toArray(new PoseSteering[0]));
+            }
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
+        this.paths = paths;
+    }
+
 
     @Override
     public String toString() {
