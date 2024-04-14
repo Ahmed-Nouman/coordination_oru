@@ -772,9 +772,9 @@ public class Missions {
 	}
 
 	public static void startMissionDispatcher(TrajectoryEnvelopeCoordinator tec, boolean writeReports, double intervalInSeconds,
-											  int terminationInMinutes, String heuristicName, String resultDirectory, double scaleAdjustment) {
+											  int terminationInMinutes, String heuristicName, String resultDirectory, String fileName, double scaleAdjustment) {
 		if (writeReports)
-            RobotReportWriter.writeReports(tec, intervalInSeconds, terminationInMinutes, heuristicName, resultDirectory, scaleAdjustment);
+            RobotReportWriter.writeReports(tec, intervalInSeconds, terminationInMinutes, heuristicName, resultDirectory, fileName, scaleAdjustment);
 		startMissionDispatchLoop(tec);
 	}
 
@@ -862,9 +862,9 @@ public class Missions {
 	}
 
 	public static void runTasks(TrajectoryEnvelopeCoordinatorSimulation tec, int simulationTime, boolean writeReports, double intervalInSeconds,
-								String heuristicName, String resultDirectory, double scaleAdjustment) {
+								String heuristicName, String resultDirectory, String fileName, double scaleAdjustment) {
 		if (writeReports)
-			RobotReportWriter.writeReports(tec, intervalInSeconds, simulationTime, heuristicName, resultDirectory, scaleAdjustment);
+			RobotReportWriter.writeReports(tec, intervalInSeconds, simulationTime, heuristicName, resultDirectory, fileName, scaleAdjustment);
 		runTasks(tec, simulationTime);
 	}
 

@@ -11,6 +11,7 @@ import se.oru.coordination.coordination_oru.coordinator.TrajectoryEnvelopeCoordi
 import se.oru.coordination.coordination_oru.utils.*;
 import se.oru.coordination.coordination_oru.vehicles.AutonomousVehicle;
 import se.oru.coordination.coordination_oru.vehicles.LookAheadVehicle;
+import se.oru.coordination.coordination_oru.vehicles.VehiclesHashMap;
 
 import java.awt.*;
 import java.io.IOException;
@@ -135,8 +136,11 @@ public class PaperScenario_6A1L {
         Missions.enqueueMission(m6);
         Missions.setMap(map);
 
+        String fileName = heuristicName.charAt(0) + "_" + "S" + "_" + VehiclesHashMap.getVehicle(1).getSafetyDistance() + "_"
+                + "V" + "_" + VehiclesHashMap.getVehicle(1).getMaxVelocity();
+
         Missions.startMissionDispatcher(tec, writeVehicleReports,
                 timeIntervalInSeconds, terminationInMinutes, heuristicName,
-                reportsFolder, scaleAdjustment);
+                reportsFolder, fileName, scaleAdjustment);
     }
 }

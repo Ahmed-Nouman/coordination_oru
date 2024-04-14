@@ -124,7 +124,6 @@ public abstract class AbstractVehicle {
         String filename = baseFilename + ".path";
         File file = new File(filename);
 
-        // Check if the file already exists and find a new filename if necessary
         int fileCounter = 1;
         while (file.exists()) {
             filename = baseFilename + "(" + fileCounter++ + ").path";
@@ -174,6 +173,7 @@ public abstract class AbstractVehicle {
             e.printStackTrace();
         }
         this.paths = paths;
+        setSafetyPathPoints();
     }
 
 

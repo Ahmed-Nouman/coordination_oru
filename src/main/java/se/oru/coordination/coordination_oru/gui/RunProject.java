@@ -5,6 +5,7 @@ import se.oru.coordination.coordination_oru.forwardModel.ConstantAcceleration;
 import se.oru.coordination.coordination_oru.simulation.BrowserVisualization;
 import se.oru.coordination.coordination_oru.utils.Mission;
 import se.oru.coordination.coordination_oru.utils.Missions;
+import se.oru.coordination.coordination_oru.vehicles.VehiclesHashMap;
 
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
@@ -67,8 +68,9 @@ public class RunProject {
         tec.setVisualization(viz);
 
         Missions.setMap(YAML_FILE);
+        String fileName = "HEHE"; //FIXME:
         Missions.startMissionDispatcher(tec, controllerNavigation.getMain().getDataStatus().getWriteVehicleReports(), reportsTimeIntervalInSeconds,
                 controllerNavigation.getMain().getDataStatus().getSimulationTime(), controllerNavigation.getMain().getDataStatus().getHeuristics().getName(),
-                controllerNavigation.getMain().getDataStatus().getReportsFolder(), scaleAdjustment);
+                controllerNavigation.getMain().getDataStatus().getReportsFolder(), fileName, scaleAdjustment);
     }
 }

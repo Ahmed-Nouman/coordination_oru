@@ -13,6 +13,7 @@ import se.oru.coordination.coordination_oru.utils.Missions;
 import se.oru.coordination.coordination_oru.utils.RandomRobotCaller;
 import se.oru.coordination.coordination_oru.vehicles.AutonomousVehicle;
 import se.oru.coordination.coordination_oru.vehicles.LookAheadVehicle;
+import se.oru.coordination.coordination_oru.vehicles.VehiclesHashMap;
 
 import java.awt.*;
 import java.io.FileNotFoundException;
@@ -126,7 +127,9 @@ public class PaperScenario_3A1L {
         Missions.setMap(map);
 
 //        Missions.startMissionDispatchers(tec, true, 1, 2, 3, 4);
+        String fileName = heuristicName.charAt(0) + "_" + "S" + "_" + VehiclesHashMap.getVehicle(1).getSafetyDistance() + "_"
+                + "V" + "_" + VehiclesHashMap.getVehicle(1).getMaxVelocity();
         Missions.startMissionDispatcher(tec, writeRobotReports, timeIntervalInSeconds,
-                terminationInMinutes, heuristicName, resultsDirectory, 1);
+                terminationInMinutes, heuristicName, resultsDirectory, fileName, 1);
     }
 }
