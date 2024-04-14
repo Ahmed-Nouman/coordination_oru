@@ -17,7 +17,7 @@ import se.oru.coordination.coordination_oru.vehicles.VehiclesHashMap;
 import java.awt.*;
 
 public class Test2 {
-    public static void main(String[] args) {
+    public static void main(String[] args) throws Exception {
 
         final Pose mainTunnelLeft = new Pose(4.25,15.35, Math.PI);
         final Pose mainTunnelRight = new Pose(78.05,24.75, Math.PI);

@@ -17,7 +17,7 @@ public class SceneVehicle {
     private static final int PADDING = 10;
     private static final int MAP_WIDTH = 680;
     private static final int MAP_HEIGHT = 538;
-    private static final int TEXT_WIDTH = 180;
+    private static final int TEXT_WIDTH = 300;
     private TextField nameField;
     private TextField priorityField;
     private TextField lengthField;
@@ -37,6 +37,7 @@ public class SceneVehicle {
     private final Button delete = new Button("Delete");
     private final Button down = new Button("↑");
     private final Button up = new Button("↓");
+    private final Button load = new Button("Load Plans");
     private ListView<String> missions = new ListView<>();
     private final Button addVehicle = new Button("Add Vehicle");
     private final Button deleteVehicle = new Button("Delete Vehicle");
@@ -176,7 +177,7 @@ public class SceneVehicle {
         var missionButtons = new HBox();
         missionButtons.setSpacing(5);
         missionButtons.setAlignment(Pos.CENTER);
-        missionButtons.getChildren().addAll(add, delete, down, up);
+        missionButtons.getChildren().addAll(add, delete, down, up, load);
         missionField.setMaxWidth(TEXT_WIDTH);
         missionField.getChildren().addAll(missions, missionButtons);
         missionController();
@@ -236,9 +237,9 @@ public class SceneVehicle {
         var maxAcceleration = text("Max. Acceleration (m/s^2): ", 5);
         var safetyDistance = text("Safety Distance (m): ", 6);
         var color = text("Color: ", 7);
-        var initialPose = text("Start Location: ", 8);
-        var mission = text("Mission: ", 9);
-        var missionRepetition = text("Mission Repetition: ", 10);
+        var initialPose = text("Start Pose (m, m, deg): ", 8);
+        var task = text("Tasks (min, task):", 9);
+        var taskRepetition = text("Tasks Repetition: ", 10);
         var isHuman = text("Human Operated: ", 11);
         lookAheadDistance = text("Look Ahead Distance (m): ", 12);
         lookAheadDistance.setVisible(false);
@@ -254,8 +255,8 @@ public class SceneVehicle {
                 safetyDistance, safetyDistanceField,
                 color, colorField,
                 initialPose, initialPoseField,
-                mission, missionField,
-                missionRepetition, missionRepetitionField,
+                task, missionField,
+                taskRepetition, missionRepetitionField,
                 isHuman, isHumanField,
                 lookAheadDistance, lookAheadDistanceField);
     }

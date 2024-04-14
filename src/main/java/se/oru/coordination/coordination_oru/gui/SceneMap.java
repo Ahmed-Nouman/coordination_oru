@@ -72,7 +72,6 @@ public class SceneMap {
         pane.setCenter(centerPane);
         centerPane.setSpacing(30);
         centerPane.setPadding(new Insets(30, 10, 30, 10));
-//        BorderPane.setMargin(centerPane, new Insets(20, 0, 20, 0));
         return centerPane;
     }
 
@@ -98,7 +97,6 @@ public class SceneMap {
         var rightPane = new VBox();
         rightPane.setSpacing(SPACING);
         rightPane.setAlignment(Pos.CENTER);
-//        BorderPane.setMargin(rightPane, new Insets(10, 10, 10, 0));
         rightPane.setPadding(new Insets(10, 20, 10, 20));
         return rightPane;
     }
@@ -149,10 +147,6 @@ public class SceneMap {
 
     public BorderPane getPane() {
         return pane;
-    }
-
-    public Button getBrowse() {
-        return browse;
     }
 
     public Button getAddLocation() {

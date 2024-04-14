@@ -109,7 +109,7 @@ public abstract class AbstractVehicle {
         return String.format("%f %f %f %f", poseSteering.getPose().getX(), poseSteering.getPose().getY(), poseSteering.getPose().getTheta(), poseSteering.getSteering());
     }
 
-    public void savePathsToFile(String folderName) {
+    public void savePlans(String folderName) {
         String folderPath = "./paths/" + folderName + "/";
 
         try {
@@ -153,7 +153,7 @@ public abstract class AbstractVehicle {
         return new PoseSteering(pose, steering);
     }
 
-    public void loadPathsFromFile(String filename) {
+    public void loadPlans(String filename) {
         List<PoseSteering[]> paths = new ArrayList<>();
         List<PoseSteering> currentPath = new ArrayList<>();
 

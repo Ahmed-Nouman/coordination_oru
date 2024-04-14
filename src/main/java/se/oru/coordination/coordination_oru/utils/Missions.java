@@ -15,7 +15,6 @@ import se.oru.coordination.coordination_oru.coordinator.TrajectoryEnvelopeCoordi
 import se.oru.coordination.coordination_oru.motionPlanning.AbstractMotionPlanner;
 import se.oru.coordination.coordination_oru.vehicles.AbstractVehicle;
 import se.oru.coordination.coordination_oru.vehicles.AutonomousVehicle;
-import se.oru.coordination.coordination_oru.vehicles.LookAheadVehicle;
 import se.oru.coordination.coordination_oru.vehicles.VehiclesHashMap;
 
 import javax.imageio.ImageIO;
@@ -23,7 +22,6 @@ import java.awt.image.BufferedImage;
 import java.io.*;
 import java.lang.reflect.Type;
 import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.util.*;
 import java.util.Map.Entry;
 import java.util.concurrent.Executors;
@@ -776,7 +774,7 @@ public class Missions {
 	public static void startMissionDispatcher(TrajectoryEnvelopeCoordinator tec, boolean writeReports, double intervalInSeconds,
 											  int terminationInMinutes, String heuristicName, String resultDirectory, double scaleAdjustment) {
 		if (writeReports)
-            writeReports(tec, true, intervalInSeconds, terminationInMinutes, heuristicName, resultDirectory, scaleAdjustment);
+            RobotReportWriter.writeReports(tec, intervalInSeconds, terminationInMinutes, heuristicName, resultDirectory, scaleAdjustment);
 		startMissionDispatchLoop(tec);
 	}
 
@@ -863,6 +861,13 @@ public class Missions {
 		return array;
 	}
 
+	public static void runTasks(TrajectoryEnvelopeCoordinatorSimulation tec, int simulationTime, boolean writeReports, double intervalInSeconds,
+								String heuristicName, String resultDirectory, double scaleAdjustment) {
+		if (writeReports)
+			RobotReportWriter.writeReports(tec, intervalInSeconds, simulationTime, heuristicName, resultDirectory, scaleAdjustment);
+		runTasks(tec, simulationTime);
+	}
+
 	public static void runTasks(TrajectoryEnvelopeCoordinatorSimulation tec, int simulationTime) {
 		final var executorService = Executors.newScheduledThreadPool(VehiclesHashMap.getList().size());
 
@@ -894,98 +899,6 @@ public class Missions {
 		}
 		if (simulationTime < 0) executorService.schedule(executorService::shutdown, 1, TimeUnit.DAYS);
         else executorService.schedule(executorService::shutdownNow, simulationTime, TimeUnit.MINUTES);
-	}
-
-	/**
-	 * Writes robot reports to the specified directory based on the provided conditions.
-	 * Robot reports are generated at an interval and for a duration defined by the user.
-	 * The method also incorporates the heuristic information used for the simulation.
-	 * The reported values, including the robot's pose and speed, can be scaled using the {@code scaleAdjustment} parameter.
-	 *
-	 * @param tec                  The {@link TrajectoryEnvelopeCoordinator} managing the missions.
-	 * @param writeReports         If {@code true}, the method will write reports, otherwise, it won't.
-	 * @param intervalInSeconds    The time interval (in seconds) between consecutive report generations.
-	 * @param terminationInMinutes The maximum duration (in minutes) for which reports should be written.
-	 * @param heuristicName        The name of the heuristic used during the simulation.
-	 * @param resultDirectory      The directory path where the robot reports will be saved.
-	 * @param scaleAdjustment      A scaling factor to adjust the reported values of robot pose and speed.
-	 */
-	public static void writeReports(TrajectoryEnvelopeCoordinator tec,
-									boolean writeReports, double intervalInSeconds, int terminationInMinutes,
-									String heuristicName, String resultDirectory,
-									double scaleAdjustment) {
-		double updatedLookAheadDistance = 0.0;
-		double lookAheadDistance = 0.0;
-
-		// For fully predictable path of the robot
-		for (int robotID : Missions.convertSetToIntArray(tec.getAllRobotIDs())) {
-			var robot = VehiclesHashMap.getVehicle(robotID);
-			if (robot instanceof LookAheadVehicle) {
-				var lookAheadRobot = (LookAheadVehicle) robot;
-				lookAheadDistance = lookAheadRobot.getLookAheadDistance();
-				if (lookAheadDistance < 0) {
-					updatedLookAheadDistance = lookAheadRobot.getPlanLength();
-				}
-			}
-		}
-
-		// Write robot reports to ../results/... folder in .csv format
-		if (writeReports) {
-			System.out.println("Writing robot reports.");
-			double distance = lookAheadDistance > 0 ? lookAheadDistance : updatedLookAheadDistance;
-
-			String filePath = Missions.createFile(distance * scaleAdjustment, heuristicName, resultDirectory);
-			var reportCollector = new RobotReportCollector();
-			reportCollector.handleRobotReports(tec, filePath, (long) (SECOND_TO_MILLISECOND * intervalInSeconds),
-					terminationInMinutes, scaleAdjustment);
-		} else {
-			System.out.println("Not writing robot reports.");
-		}
-	}
-
-	/**
-	 * Constructs a file path for saving robot reports. The method also creates the directory
-	 * if it doesn't exist. The filename is derived from the count of autonomous and lookahead robots,
-	 * the heuristic applied, and the lookahead distance.
-	 *
-	 * @param lookAheadDistance The distance for which the robot plans its path ahead of its current position.
-	 *                          Should be a positive number.
-	 * @param heuristicName     The heuristic's name used in the simulation. Expected to be non-null.
-	 * @param resultDirectory   The directory path where the robot report files will be saved.
-	 *                          If the path doesn't exist, the method attempts to create it.
-	 * @return The full path, including directory and filename, where the report will be saved.
-	 */
-
-	public static String createFile(double lookAheadDistance, String heuristicName,
-									String resultDirectory) {
-
-        var directoryPath = Paths.get(resultDirectory);
-
-		// Try creating the directory if it doesn't exist
-		try {
-			Files.createDirectories(directoryPath);
-			System.out.println("Directory created successfully.");
-		} catch (IOException e) {
-			System.err.println("Error while creating directory: " + e.getMessage());
-		}
-
-		// Get the number of autonomous and lookahead robots
-		int autonomousRobotCount = 0;
-		int lookAheadRobotCount = 0;
-
-		for (AbstractVehicle robot : VehiclesHashMap.getList().values()) {
-			if (robot instanceof AutonomousVehicle) {
-				autonomousRobotCount++;
-			} else if (robot instanceof LookAheadVehicle) {
-				lookAheadRobotCount++;
-			}
-		}
-
-		// Generate the filename based on the number of autonomous and lookahead robots //FIXME: The code needs to go in main method
-		String fileName = heuristicName.charAt(0) + "_" + "S" + "_" + VehiclesHashMap.getVehicle(1).getSafetyDistance() + "_"
-				+ "V" + "_" + VehiclesHashMap.getVehicle(1).getMaxVelocity();
-
-		return resultDirectory + "/" + fileName;
 	}
 
 	/**

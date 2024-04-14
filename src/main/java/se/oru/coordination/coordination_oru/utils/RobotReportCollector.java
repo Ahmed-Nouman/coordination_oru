@@ -37,8 +37,8 @@ public class RobotReportCollector {
      */
     public void handleRobotReports(TrajectoryEnvelopeCoordinator tec, String folderName, long intervalInMillis,
                                    long terminationInMinutes, double scaleAdjustment) {
-        ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
-        AtomicLong startTime = new AtomicLong(System.currentTimeMillis());
+        var executor = Executors.newSingleThreadScheduledExecutor();
+        var startTime = new AtomicLong(System.currentTimeMillis());
 
         // Convert termination times to milliseconds
         long terminationInMillis = TimeUnit.MINUTES.toMillis(terminationInMinutes);
@@ -84,7 +84,7 @@ public class RobotReportCollector {
                     Path filePath = directoryPath.resolve(fileName);
 
                     // Create and/or open the file in appended mode
-                    try (BufferedWriter writer = Files.newBufferedWriter(filePath, StandardOpenOption.CREATE, StandardOpenOption.APPEND)) {
+                    try (var writer = Files.newBufferedWriter(filePath, StandardOpenOption.CREATE, StandardOpenOption.APPEND)) {
                         // Write the header if it's a new file
                         if (Files.size(filePath) == 0) {
                             writer.write("Timestamp;RobotID;Pose_X;Pose_Y;Pose_Theta;PathIndex;Velocity;DistanceTraveled;CriticalPoint\n");

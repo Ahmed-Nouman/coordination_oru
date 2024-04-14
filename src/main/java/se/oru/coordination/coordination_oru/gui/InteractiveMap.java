@@ -45,7 +45,6 @@ public class InteractiveMap {
 
     private void setupCanvasEventHandlers() {
         canvas.setOnMouseReleased(this::handleMouseReleased);
-        // Additional event handlers can be set up here
     }
 
     private void handleMouseReleased(MouseEvent event) {
@@ -55,7 +54,7 @@ public class InteractiveMap {
         position.y = Round.round(position.y, DECIMAL_PLACES);
         boolean occupancy = !map.isOccupied(point.x, point.y);
 
-        if (occupancy) { //FIXME: Simplify this if statement. Maybe?
+        if (occupancy) {
             var annotatedPose = LocationDialog.add(position.x, position.y);
             if (annotatedPose != null) {
                 var poseName = annotatedPose.get(0);

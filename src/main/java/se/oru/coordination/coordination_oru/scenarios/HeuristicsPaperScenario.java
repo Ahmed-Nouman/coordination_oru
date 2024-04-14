@@ -1,39 +1,42 @@
 package se.oru.coordination.coordination_oru.scenarios;
 
 import org.metacsp.multi.spatioTemporal.paths.Pose;
+import se.oru.coordination.coordination_oru.forwardModel.AlternatingAccelerationModel;
 import se.oru.coordination.coordination_oru.forwardModel.ConstantAcceleration;
 import se.oru.coordination.coordination_oru.forwardModel.ForwardModel;
 import se.oru.coordination.coordination_oru.motionPlanning.VehiclePathPlanner;
 import se.oru.coordination.coordination_oru.motionPlanning.ompl.ReedsSheppCarPlanner;
 import se.oru.coordination.coordination_oru.coordinator.TrajectoryEnvelopeCoordinatorSimulation;
 import se.oru.coordination.coordination_oru.simulation.BrowserVisualization;
-import se.oru.coordination.coordination_oru.utils.Heuristics;
-import se.oru.coordination.coordination_oru.utils.MapResolution;
-import se.oru.coordination.coordination_oru.utils.Missions;
+import se.oru.coordination.coordination_oru.utils.*;
 import se.oru.coordination.coordination_oru.vehicles.AutonomousVehicle;
 
 import java.awt.*;
 
 public class HeuristicsPaperScenario {
 
-    public static final String map = "maps/mine-map-heuristic-paper.yaml";
-    public static final double MAP_RESOLUTION = new MapResolution().getMapResolution(map);
+    public static final String MAP = "maps/mine-map-heuristic-paper.yaml";
+    public static final double MAP_RESOLUTION = new MapResolution().getMapResolution(MAP);
     public static final double SCALE_ADJUSTMENT = 1 / MAP_RESOLUTION;
     public static final Heuristics.HeuristicType HEURISTIC_TYPE = Heuristics.HeuristicType.CLOSEST_FIRST;
-    public static final ReedsSheppCarPlanner.PLANNING_ALGORITHM PLANNING_ALGORITHM = ReedsSheppCarPlanner.PLANNING_ALGORITHM.RRTConnect;
-    public static final String reportAddress = "/src/main/java/se/oru/coordination/coordination_oru/results/heuristicsPaper_2024";
-    public static final String REPORT_ADDRESS = reportAddress;
+    public static final String REPORT_ADDRESS = System.getProperty("user.dir") +
+            "/src/main/java/se/oru/coordination/coordination_oru/results/HeuristicsPaperScenario";
     public static final double LENGTH = 9.0;
     public static final double WIDTH = 7.0;
     public static final double MAX_VELOCITY = 30.0;
-    public static final double PRODUCTION_SAFETY_DISTANCE = 10.0;
-    public static final double SERVICE_SAFETY_DISTANCE = 1.0;
+    public static final double PRODUCTION_SAFETY_DISTANCE = 50.0;
+    public static final double SERVICE_SAFETY_DISTANCE = 10.0;
     public static final double MAX_ACCELERATION = 5.0;
     public static final boolean VISUALIZATION = true;
     public static final boolean WRITE_VEHICLE_REPORTS = false;
     public static final double REPORTING_TIME = 0.1;
-    public static final int REPORTING_INTERVAL = 30;
-    public static final int TRACKING_PERIOD = 30;
+    public static final int SIMULATION_INTERVAL = 30;
+    public static final String CLASS_NAME = Thread.currentThread().getStackTrace()[Thread.currentThread().getStackTrace().length-1].getFileName().split("\\.")[0];
+    public static final String PLANS_FOLDER_NAME = "paths/" + CLASS_NAME + "/";
+    public static final ForwardModel model = new AlternatingAccelerationModel(10.0, 100.0, 1000, 1000, 30);
+    public static final VehiclePathPlanner planner = new VehiclePathPlanner(MAP, ReedsSheppCarPlanner.PLANNING_ALGORITHM.RRTConnect,
+            0.09, 30, 2.0, 0.1);
+
     public static final double UP = Math.PI / 2;
     public static final double UP_RIGHT = Math.PI / 6;
     public static final double DOWN = 3 * Math.PI / 2;
@@ -41,18 +44,12 @@ public class HeuristicsPaperScenario {
     public static final double DOWN_RIGHT = 7 * Math.PI / 4;
     public static final double RIGHT = 0;
     public static final double LEFT = Math.PI;;
-    public static void main(String[] args) {
-
-        var absolutePath = System.getProperty("user.dir");
-        var reportsFolder = absolutePath + REPORT_ADDRESS;
+    public static void main(String[] args) throws Exception {
 
         final var maxVelocity = MAX_VELOCITY / SCALE_ADJUSTMENT;
         final var maxAcceleration = MAX_ACCELERATION / SCALE_ADJUSTMENT;
         final var length = LENGTH / SCALE_ADJUSTMENT;
         final var width = WIDTH / SCALE_ADJUSTMENT;
-        final ForwardModel model = new ConstantAcceleration(maxVelocity, maxAcceleration, 1000, 1000, 30);
-        final var planner = new VehiclePathPlanner(map, ReedsSheppCarPlanner.PLANNING_ALGORITHM.RRTConnect,
-                0.09, 60, 2.0, 0.1);
 
         final var mainTunnelLeft = new Pose(3.35, 13.85, UP_RIGHT);
         final var mainTunnelRight = new Pose(80.05, 26.25, UP_RIGHT);
@@ -69,67 +66,57 @@ public class HeuristicsPaperScenario {
         var productionVehicle1 = new AutonomousVehicle("P1",0, Color.YELLOW, maxVelocity, maxAcceleration,
                 length, width, drawPoint1, PRODUCTION_SAFETY_DISTANCE, 5, model);
         productionVehicle1.setGoals(new Pose[] {orePass, drawPoint1});
-//        var productionVehicle2 = new AutonomousVehicle("P2", 0, Color.YELLOW, maxVelocity, maxAcceleration, TRACKING_PERIOD,
-//                length, width, drawPoint2, new Pose[] {orePass}, 0, 0);
-        var productionVehicle3 = new AutonomousVehicle("P3", 0, Color.YELLOW, maxVelocity, maxAcceleration,
+        var productionVehicle2 = new AutonomousVehicle("P2", 0, Color.YELLOW, maxVelocity, maxAcceleration,
                 length, width, drawPoint3, PRODUCTION_SAFETY_DISTANCE, 5, model);
-        productionVehicle3.setGoals(new Pose[] {orePass, drawPoint3});
-//        var productionVehicle4 = new AutonomousVehicle("P4", 0, Color.YELLOW, maxVelocity, maxAcceleration, TRACKING_PERIOD,
-//                length, width, drawPoint4, new Pose[] {orePass}, 0, 0);
-        var productionVehicle5 = new AutonomousVehicle("P5", 0, Color.YELLOW, maxVelocity, maxAcceleration,
+        productionVehicle2.setGoals(new Pose[] {orePass, drawPoint3});
+        var productionVehicle3 = new AutonomousVehicle("P3", 0, Color.YELLOW, maxVelocity, maxAcceleration,
                 length, width, drawPoint5, PRODUCTION_SAFETY_DISTANCE, 5, model);
-        productionVehicle5.setGoals(new Pose[] {orePass, drawPoint5});
-//        var productionVehicle6 = new AutonomousVehicle("P6", 0, Color.YELLOW, maxVelocity, maxAcceleration, TRACKING_PERIOD,
-//                length, width, drawPoint6, new Pose[] {orePass}, 0, 0);
-        var productionVehicle7 = new AutonomousVehicle("P7", 0, Color.YELLOW, maxVelocity, maxAcceleration,
+        productionVehicle3.setGoals(new Pose[] {orePass, drawPoint5});
+        var productionVehicle4 = new AutonomousVehicle("P4", 0, Color.YELLOW, maxVelocity, maxAcceleration,
                 length, width, drawPoint7, PRODUCTION_SAFETY_DISTANCE, 5, model);
-        productionVehicle7.setGoals(new Pose[] {orePass, drawPoint7});
-//        var productionVehicle8 = new AutonomousVehicle("P8", 0, Color.YELLOW, maxVelocity, maxAcceleration, TRACKING_PERIOD,
-//                length, width, drawPoint8, new Pose[] {orePass}, 0, 0);
-        var serviceVehicle = new AutonomousVehicle("S1", 1,  Color.GREEN, maxVelocity, maxAcceleration,
+        productionVehicle4.setGoals(new Pose[] {orePass, drawPoint7});
+        var serviceVehicle = new AutonomousVehicle("S", 0,  Color.GREEN, maxVelocity, maxAcceleration,
                 length, width, mainTunnelLeft, SERVICE_SAFETY_DISTANCE, 5, model);
-        serviceVehicle.setGoals(new Pose[] {mainTunnelLeft, mainTunnelRight});
+        serviceVehicle.addTask(new Task(0.25, new Pose[] {mainTunnelLeft}));
+        serviceVehicle.addTask(new Task(0.25, new Pose[] {mainTunnelRight}));
 
-        productionVehicle1.generatePlans(planner);
-//        productionVehicle2.getPlan(productionVehicle2, YAML_FILE, false);
-        productionVehicle3.generatePlans(planner);
-//        productionVehicle4.getPlan(productionVehicle4, YAML_FILE, false);
-        productionVehicle5.generatePlans(planner);
-//        productionVehicle6.getPlan(productionVehicle6, YAML_FILE, false);
-        productionVehicle7.generatePlans(planner);
-//        productionVehicle8.getPlan(productionVehicle8, YAML_FILE, false);
-        serviceVehicle.generatePlans(planner);
+//        productionVehicle1.generatePlans(planner);
+//        productionVehicle4.savePlans(className);
+        productionVehicle1.loadPlans(PLANS_FOLDER_NAME + "P1.path");
+        productionVehicle2.loadPlans(PLANS_FOLDER_NAME + "P2.path");
+        productionVehicle3.loadPlans(PLANS_FOLDER_NAME + "P3.path");
+        productionVehicle4.loadPlans(PLANS_FOLDER_NAME + "P4.path");
+        serviceVehicle.loadPlans(PLANS_FOLDER_NAME + "S.path");
 
-        // Instantiate a trajectory envelope coordinator. TODO Velocity and acceleration are hard coded for tec.
         var tec = new TrajectoryEnvelopeCoordinatorSimulation(1000, 1000, maxVelocity, maxAcceleration);
         tec.setupSolver(0, 100000000);
         tec.startInference();
-
         tec.setForwardModelsForRobots();
-
         tec.setDefaultFootprint(productionVehicle1.getFootprint());
         tec.placeRobotsAtStartPoses();
+        tec.setUseInternalCriticalPoints(false);
+        tec.setYieldIfParking(true);
+        tec.setBreakDeadlocks(true, false, false);
 
         var heuristic = new Heuristics(HEURISTIC_TYPE);
         tec.addComparator(heuristic.getComparator());
         var heuristicName = heuristic.getName();
 
-        tec.setBreakDeadlocks(true, false, false);
-
         if (VISUALIZATION) {
             var viz = new BrowserVisualization();
-            viz.setMap(map);
+            viz.setMap(MAP);
             viz.setFontScale(2.75);
-            viz.setInitialTransform(11.0, 16.18, 22.50);
+            viz.setInitialTransform(11.0, 46.94, 11.27);
             tec.setVisualization(viz);
         }
 
         Missions.generateMissions();
-        Missions.setMap(map);
-//        Missions.runMissionsOnce(tec);
-//        Missions.runMissionsIndefinitely(tec);
-//        Missions.startMissionDispatchers(tec);
-        Missions.startMissionDispatcher(tec, WRITE_VEHICLE_REPORTS, REPORTING_TIME, REPORTING_INTERVAL, heuristicName, reportsFolder, SCALE_ADJUSTMENT);
+        Missions.setMap(MAP);
+
+        Missions.startMissionDispatcher(tec, false, REPORTING_TIME, SIMULATION_INTERVAL, heuristicName, REPORT_ADDRESS, SCALE_ADJUSTMENT);
+//        if (WRITE_VEHICLE_REPORTS)
+//            RobotReportWriter.writeReports(tec, REPORTING_TIME, SIMULATION_INTERVAL, heuristicName, REPORT_ADDRESS, SCALE_ADJUSTMENT);
+//        Missions.runTasks(tec, SIMULATION_INTERVAL);
     }
 
 }

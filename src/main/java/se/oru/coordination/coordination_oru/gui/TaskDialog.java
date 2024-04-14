@@ -9,17 +9,18 @@ import java.util.Optional;
 import static se.oru.coordination.coordination_oru.gui.ProjectData.MissionStep;
 import static se.oru.coordination.coordination_oru.gui.Utils.validateDouble;
 
-public class MissionDialog {
+public class TaskDialog {
     private static final int WIDTH = 150;
     private static final int GAP = 10;
     private static boolean isEdit = false;
+    private static TextField nameField = new TextField();
     private static ChoiceBox<String> locationField = new ChoiceBox<>();
     private static TextField durationField = new TextField();
     private static Button ok = new Button();
 
     public static void add(SceneVehicle scene) {
         isEdit = false;
-        var missionStep = missionStep(scene);
+        var missionStep = taskStep(scene);
         missionStep.ifPresent(step -> {
             var vehicle = getVehicle(scene);
             var missionSteps = vehicle.getMission();
@@ -29,8 +30,8 @@ public class MissionDialog {
 
     public static void edit(SceneVehicle scene) {
         isEdit = true;
-        var missionStep = missionStep(scene);
-        missionStep.ifPresent(step -> {
+        var taskStep = taskStep(scene);
+        taskStep.ifPresent(step -> {
             var vehicle = getVehicle(scene);
             var missionSteps = vehicle.getMission();
             missionSteps.add(step);
@@ -44,9 +45,9 @@ public class MissionDialog {
                         scene.getMain().getDataStatus().getProjectData().getVehicles()));
     }
 
-    private static Optional<MissionStep> missionStep(SceneVehicle scene) {
+    private static Optional<MissionStep> taskStep(SceneVehicle scene) {
         var dialog = new Dialog<MissionStep>();
-        dialog.setTitle(isEdit ? "Edit a mission step" : "Add a mission step");
+        dialog.setTitle(isEdit ? "Edit the tasks" : "Add the tasks");
         var buttonType = new ButtonType("OK", ButtonBar.ButtonData.OK_DONE);
         dialog.getDialogPane().getButtonTypes().add(buttonType);
         pane(scene, dialog);
@@ -78,10 +79,13 @@ public class MissionDialog {
             durationField.setText(selectedMission.replaceAll("[()]", "").split(", ")[1]);
         }
 
-        pane.add(new Text("Location: "), 0, 0);
-        pane.add(locationField, 1, 0);
+        pane.add(new Text("Name: "), 0, 0);
+        pane.add(nameField, 1, 0);
+        nameField.setPrefWidth(WIDTH);
         pane.add(new Text("Duration (min): "), 0, 1);
         pane.add(durationField, 1, 1);
+        pane.add(new Text("Pose: "), 0, 2);
+        pane.add(locationField, 1, 2);
 
         dialog.getDialogPane().setContent(pane);
     }
