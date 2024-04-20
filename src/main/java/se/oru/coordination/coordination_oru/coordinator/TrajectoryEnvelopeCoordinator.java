@@ -34,7 +34,7 @@ import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import static se.oru.coordination.coordination_oru.coordinator.TrajectoryEnvelopeCoordinatorSimulation.tec;
+import static se.oru.coordination.coordination_oru.coordinator.TrajectoryEnvelopeCoordinatorSimulation.trajectoryEnvelopeCoordinatorSimulation;
 
 
 /**
@@ -1134,7 +1134,7 @@ public abstract class TrajectoryEnvelopeCoordinator extends AbstractTrajectoryEn
 								if (vehicle != null && "LookAheadVehicle".equals(vehicle.getType())) {
 									try {
                                         var lookAheadVehicle = (LookAheadVehicle) vehicle;
-										lookAheadVehicle.updateLookAheadRobotPath(tec, lookAheadVehicle);
+										lookAheadVehicle.updateLookAheadRobotPath(trajectoryEnvelopeCoordinatorSimulation, lookAheadVehicle);
 									} catch (ClassCastException e) {
 										e.printStackTrace();
 									}

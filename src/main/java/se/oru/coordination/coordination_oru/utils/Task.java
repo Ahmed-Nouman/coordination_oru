@@ -2,6 +2,7 @@ package se.oru.coordination.coordination_oru.utils;
 
 import org.metacsp.multi.spatioTemporal.paths.Pose;
 
+import java.util.Arrays;
 import java.util.Objects;
 
 public class Task {
@@ -9,17 +10,20 @@ public class Task {
     public static final int SECOND_TO_MILLISECOND = 1000;
     private final Pose[] poses;
     private final double time;
+    private final boolean priority;
 
-    public Task(double time, Pose[] poses) {
+    public Task(double time, Pose[] poses, boolean priority) {
         this.poses = poses;
         this.time = time;
+        this.priority = priority;
     }
 
     @Override
     public String toString() {
         return "Task{" +
-                "poses=" + poses +
+                "poses=" + Arrays.toString(poses) +
                 ", time=" + time +
+                ", priority=" + priority +
                 '}';
     }
 
@@ -28,13 +32,13 @@ public class Task {
         if (this == o) return true;
         if (!(o instanceof Task)) return false;
         Task task = (Task) o;
-        return Objects.equals(poses, task.poses) &&
+        return Arrays.equals(poses, task.poses) &&
                 Objects.equals(time, task.time);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(poses, time);
+        return Objects.hash(Arrays.hashCode(poses), time);
     }
 
     public Pose[] getPoses() {
@@ -47,5 +51,9 @@ public class Task {
 
     public long getTimeInMillisecond() {
         return (long) (time * MINUTE_TO_SECOND * SECOND_TO_MILLISECOND);
+    }
+
+    public boolean isPrioritized() {
+        return priority;
     }
 }

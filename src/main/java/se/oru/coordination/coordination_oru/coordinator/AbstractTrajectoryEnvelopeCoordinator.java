@@ -80,7 +80,7 @@ public abstract class AbstractTrajectoryEnvelopeCoordinator {
 	public static int EFFECTIVE_CONTROL_PERIOD = 0;
 
 	protected boolean overlay = false;
-	protected boolean quiet = false;
+	protected boolean quiet = true;
 
 	//For statistics
 	protected AtomicInteger totalMsgsSent = new AtomicInteger(0);
@@ -571,13 +571,13 @@ public abstract class AbstractTrajectoryEnvelopeCoordinator {
 	}
 
 	/**
-	 * Call this method to setup the solvers that manage the {@link TrajectoryEnvelope} representation
+	 * Call this method to set up the solvers that manage the {@link TrajectoryEnvelope} representation
 	 * underlying the coordinator.
 	 * @param origin The origin of time (milliseconds).
 	 * @param horizon The maximum time (milliseconds).
 	 */
 	public void setupSolver(long origin, long horizon) {
-		//Create meta solver and solver
+		//Create meta solver
 		solver = new TrajectoryEnvelopeSolver(origin, horizon);
 	}
 
@@ -897,7 +897,7 @@ public abstract class AbstractTrajectoryEnvelopeCoordinator {
 
 	protected Geometry[] getObstaclesFromWaitingRobots(int robotID) {
 		//Compute one obstacle per robot that is waiting for this robot, placed in the waiting robot's waiting pose
-		ArrayList<Geometry> ret = new ArrayList<Geometry>();
+		ArrayList<Geometry> ret = new ArrayList<>();
 		HashMap<Integer, Dependency> currentDeps = getCurrentDependencies();
 		Dependency dep = currentDeps.containsKey(robotID) ? currentDeps.get(robotID) : null;
 		if (dep != null) {
@@ -967,7 +967,7 @@ public abstract class AbstractTrajectoryEnvelopeCoordinator {
 
 	/**
 	 * Return if a robot, which is starting from a critical sections,
-	 * is able to exit safetly from it.
+	 * is able to exit safely from it.
 	 */
 	protected boolean canExitCriticalSection(int drivingCurrentIndex, int waitingCurrentIndex, TrajectoryEnvelope drivingTE, TrajectoryEnvelope waitingTE, int lastIndexOfCSDriving) {
 		drivingCurrentIndex = Math.max(drivingCurrentIndex,0);
@@ -1025,12 +1025,12 @@ public abstract class AbstractTrajectoryEnvelopeCoordinator {
 			synchronized (trackers) {
 
 				//Update the coordinator view
-				HashMap<Integer,RobotReport> currentReports = new HashMap<Integer,RobotReport>();
+				HashMap<Integer,RobotReport> currentReports = new HashMap<>();
 				for (int robotID : trackers.keySet()) currentReports.put(robotID, this.getRobotReport(robotID));
 				//metaCSPLogger.info("Current reports: " + currentReports.toString());
 
 				//Collect all driving envelopes and current pose indices
-				ArrayList<TrajectoryEnvelope> drivingEnvelopes = new ArrayList<TrajectoryEnvelope>();
+				ArrayList<TrajectoryEnvelope> drivingEnvelopes = new ArrayList<>();
 				for (AbstractTrajectoryEnvelopeTracker atet : trackers.values()) {
 					if (!(atet instanceof TrajectoryEnvelopeTrackerDummy)) {
 						drivingEnvelopes.add(atet.getTrajectoryEnvelope());
@@ -1113,8 +1113,8 @@ public abstract class AbstractTrajectoryEnvelopeCoordinator {
 	protected void onCriticalSectionUpdate() {}
 
     protected void filterCriticalSections() {
-		ArrayList<CriticalSection> toRemove = new ArrayList<CriticalSection>();
-		ArrayList<CriticalSection> allCriticalSectionsList = new ArrayList<CriticalSection>();
+		ArrayList<CriticalSection> toRemove = new ArrayList<>();
+		ArrayList<CriticalSection> allCriticalSectionsList = new ArrayList<>();
 		for (CriticalSection cs : this.allCriticalSections) allCriticalSectionsList.add(cs);
 
 		for (int i = 0; i < allCriticalSectionsList.size(); i++) {
@@ -1743,7 +1743,7 @@ public abstract class AbstractTrajectoryEnvelopeCoordinator {
 					synchronized (solver) {
 						if (!missionsPool.isEmpty()) {
 							while (!missionsPool.isEmpty() && numberNewAddedMissions < MAX_ADDED_MISSIONS) {
-								Pair<TrajectoryEnvelope,Long> te = missionsPool.pollFirst();
+								Pair<TrajectoryEnvelope, Long> te = missionsPool.pollFirst();
 								envelopesToTrack.add(te.getFirst());
 								onNewMissionDispatched(te.getFirst().getRobotID());
 								numberNewAddedMissions++;

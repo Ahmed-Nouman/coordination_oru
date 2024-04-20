@@ -25,6 +25,7 @@ import java.nio.file.Files;
 import java.util.*;
 import java.util.Map.Entry;
 import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Logger;
 import java.util.zip.ZipEntry;
@@ -861,13 +862,6 @@ public class Missions {
 		return array;
 	}
 
-	public static void runTasks(TrajectoryEnvelopeCoordinatorSimulation tec, int simulationTime, boolean writeReports, double intervalInSeconds,
-								String heuristicName, String resultDirectory, String fileName, double scaleAdjustment) {
-		if (writeReports)
-			RobotReportWriter.writeReports(tec, intervalInSeconds, simulationTime, heuristicName, resultDirectory, fileName, scaleAdjustment);
-		runTasks(tec, simulationTime);
-	}
-
 	public static void runTasks(TrajectoryEnvelopeCoordinatorSimulation tec, int simulationTime) {
 		final var executorService = Executors.newScheduledThreadPool(VehiclesHashMap.getList().size());
 
@@ -884,12 +878,15 @@ public class Missions {
 
 						if (iteration < totalMissionsToExecute) {
 							int missionIndex = iteration % Missions.getMissions(robotID).size();
-                            var mission = Missions.getMission(robotID, missionIndex);
+							var mission = Missions.getMission(robotID, missionIndex);
 
 							synchronized (tec) {
 								long nextMissionDelay = VehiclesHashMap.getVehicle(robotID).getTasks().get(missionIndex).getTimeInMillisecond();
 								executorService.schedule(this, nextMissionDelay + SECOND_TO_MILLISECOND, TimeUnit.MILLISECONDS);
-								if (tec.addMissions(mission)) iteration++;
+								if (tec.addMissions(mission)) {
+									iteration++;
+//									System.out.println("Mission " + missionIndex + " for robot " + robotID + " added to the queue.");
+								}
 							}
 						}
 					}
@@ -930,7 +927,7 @@ public class Missions {
 									Double.parseDouble(oneline[0]),
 									Double.parseDouble(oneline[1]),
 									Double.parseDouble(oneline[2]),
-									0.0);					
+									0.0);
 						}
 						ret.add(ps);
 					}

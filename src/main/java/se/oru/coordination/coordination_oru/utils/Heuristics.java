@@ -61,12 +61,7 @@ public class Heuristics {
         for (HeuristicType type : types) names.add(type.name());
         return names;
     }
-
-    /**
-     * Returns a comparator for determining the order based on the robot closest to a critical section.
-     *
-     * @return The comparator for the closest heuristic.
-     */
+    
     public Comparator<RobotAtCriticalSection> closestFirst() {
         heuristicName = "CLOSEST_FIRST";
         return (robot1, robot2) -> {
@@ -77,21 +72,11 @@ public class Heuristics {
         };
     }
 
-    /**
-     * Returns a comparator for determining the order based on the robot with more distance traveled so far.
-     *
-     * @return The comparator for mostDistanceTravelled heuristic.
-     */
     public Comparator<RobotAtCriticalSection> mostDistanceTravelled() {
         heuristicName = "MOST_DISTANCE_TRAVELLED";
         return (robot1, robot2) -> (int) Math.signum(robot1.getRobotReport().getDistanceTraveled() - robot2.getRobotReport().getDistanceTraveled());
     }
 
-    /**
-     * Returns a comparator for determining the order based on the robot with more distance to travel.
-     *
-     * @return The comparator for mostDistanceToTravel heuristic.
-     */
     public Comparator<RobotAtCriticalSection> mostDistanceToTravel() {
         heuristicName = "MOST_DISTANCE_TO_TRAVEL";
         return (robot1, robot2) -> {
@@ -101,27 +86,12 @@ public class Heuristics {
         };
     }
 
-    /**
-     * Returns a comparator for determining the order randomly.
-     *
-     * @return The comparator for random heuristic.
-     */
-    /**
-     * Returns a comparator for determining the order randomly.
-     *
-     * @return The comparator for random heuristic.
-     */
     public Comparator<RobotAtCriticalSection> random() {
         heuristicName = "RANDOM";
         return (_robot1, _robot2) -> 0;
     }
 
-    /**
-     * Returns a comparator for determining the order based on their priorities.
-     * Priority is set in ascending order, so the highest priority is the lowest number.
-     *
-     * @return The comparator for highest priority heuristic.
-     */
+
     public Comparator<RobotAtCriticalSection> highestPriorityFirst() {
         heuristicName = "HIGHEST_PRIORITY_FIRST";
         return (robot1, robot2) -> {
@@ -141,13 +111,6 @@ public class Heuristics {
         };
     }
 
-    /**
-     * Returns a comparator for determining the order based on whether the robot is a look-ahead robot.
-     * Humans are given priority over other robots.
-     * If two robots are both look-ahead or both not look-ahead, they are considered equal.
-     *
-     * @return The comparator for humanFirst heuristic.
-     */
     public Comparator<RobotAtCriticalSection> humanFirst() {
         heuristicName = "HUMAN_FIRST";
         return (robot1, robot2) -> {
@@ -180,13 +143,6 @@ public class Heuristics {
         };
     }
 
-    /**
-     * Returns a comparator for determining the order based on whether the robot is an autonomous robot.
-     * Autonomous robots are given priority over other robots.
-     * If two robots are both look-ahead or both not look-ahead, they are considered equal.
-     *
-     * @return The comparator for autonomous heuristic.
-     */
     public Comparator<RobotAtCriticalSection> autonomousFirst() {
         heuristicName = "AUTONOMOUS_FIRST";
         return (robot1, robot2) -> {

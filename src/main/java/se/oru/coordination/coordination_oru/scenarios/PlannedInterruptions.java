@@ -61,35 +61,35 @@ public class PlannedInterruptions {
 
         var explosivesVehicle = new AutonomousVehicle("E",10, Color.RED, MAX_VELOCITY, MAX_ACCELERATION,
                 LENGTH, WIDTH, drawPoint34, SAFETY_DISTANCE, 1, model);
-        explosivesVehicle.addTask(new Task(PLANTING_TIME, new Pose[] {drawPoint34}));
-        explosivesVehicle.addTask(new Task(PLANTING_TIME, new Pose[] {drawPoint30}));
-        explosivesVehicle.addTask(new Task(PLANTING_TIME, new Pose[] {entrance}));
+        explosivesVehicle.addTask(new Task(PLANTING_TIME, new Pose[] {drawPoint34}, ));
+        explosivesVehicle.addTask(new Task(PLANTING_TIME, new Pose[] {drawPoint30}, ));
+        explosivesVehicle.addTask(new Task(PLANTING_TIME, new Pose[] {entrance}, ));
         explosivesVehicle.savePlans(folderName + "E.path");
         explosivesVehicle.loadPlans(folderName + "E.path");
 
         var cleaningVehicle = new AutonomousVehicle("C",10, Color.BLUE, MAX_VELOCITY, MAX_ACCELERATION,
                 LENGTH, WIDTH, drawPoint30, SAFETY_DISTANCE, 1, model);
-        cleaningVehicle.addTask(new Task(CLEANING_TIME, new Pose[] {drawPoint30}));
-        cleaningVehicle.addTask(new Task(CLEANING_TIME, new Pose[] {drawPoint34}));
-        cleaningVehicle.addTask(new Task(CLEANING_TIME, new Pose[] {mainTunnelLeft}));
+        cleaningVehicle.addTask(new Task(CLEANING_TIME, new Pose[] {drawPoint30}, ));
+        cleaningVehicle.addTask(new Task(CLEANING_TIME, new Pose[] {drawPoint34}, ));
+        cleaningVehicle.addTask(new Task(CLEANING_TIME, new Pose[] {mainTunnelLeft}, ));
         cleaningVehicle.loadPlans(folderName + "C.path");
 
         var autonomousVehicle1 = new AutonomousVehicle("A1",1, Color.YELLOW, MAX_VELOCITY, MAX_ACCELERATION,
                 LENGTH, WIDTH, drawPoint29, SAFETY_DISTANCE, 10, model);
-        autonomousVehicle1.addTask(new Task(ORE_LOADING_TIME, new Pose[] {orePass1}));
-        autonomousVehicle1.addTask(new Task(ORE_UNLOADING_TIME, new Pose[] {drawPoint29}));
+        autonomousVehicle1.addTask(new Task(ORE_LOADING_TIME, new Pose[] {orePass1}, ));
+        autonomousVehicle1.addTask(new Task(ORE_UNLOADING_TIME, new Pose[] {drawPoint29}, ));
         autonomousVehicle1.loadPlans(folderName + "A1.path");
 
         var autonomousVehicle2 = new AutonomousVehicle("A2",1, Color.YELLOW, MAX_VELOCITY, MAX_ACCELERATION,
                 LENGTH, WIDTH, drawPoint33, SAFETY_DISTANCE, 10, model);
-        autonomousVehicle2.addTask(new Task(ORE_LOADING_TIME, new Pose[] {orePass2}));
-        autonomousVehicle2.addTask(new Task(ORE_UNLOADING_TIME, new Pose[] {drawPoint33}));
+        autonomousVehicle2.addTask(new Task(ORE_LOADING_TIME, new Pose[] {orePass2}, ));
+        autonomousVehicle2.addTask(new Task(ORE_UNLOADING_TIME, new Pose[] {drawPoint33}, ));
         autonomousVehicle2.loadPlans(folderName + "A2.path");
 
         var autonomousVehicle3 = new AutonomousVehicle("A3",1, Color.YELLOW, MAX_VELOCITY, MAX_ACCELERATION,
                 LENGTH, WIDTH, drawPoint12, SAFETY_DISTANCE, 10, model);
-        autonomousVehicle3.addTask(new Task(ORE_LOADING_TIME, new Pose[] {orePass3}));
-        autonomousVehicle3.addTask(new Task(ORE_UNLOADING_TIME, new Pose[] {drawPoint12}));
+        autonomousVehicle3.addTask(new Task(ORE_LOADING_TIME, new Pose[] {orePass3}, ));
+        autonomousVehicle3.addTask(new Task(ORE_UNLOADING_TIME, new Pose[] {drawPoint12}, ));
         autonomousVehicle3.loadPlans(folderName + "A3.path");
 
         var tec = new TrajectoryEnvelopeCoordinatorSimulation(2000, 1000, 5, 2);

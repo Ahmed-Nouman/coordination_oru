@@ -3,7 +3,7 @@ import math
 import os
 from pathlib import Path
 
-base_directory = '../results/heuristicsPaper_2024/'
+base_directory = '../results/HeuristicsPaperScenario/'
 
 def compute_distance(x1, y1, x2, y2):
     return math.sqrt((x2 - x1)**2 + (y2 - y1)**2)
@@ -51,16 +51,17 @@ for subdir, _, files in os.walk(base_directory):
                     })
                     robot_positions[robot_num].append((float(row['Pose_X']), float(row['Pose_Y'])))
 
-        # Calculate DH_i for each row
+        # Calculate DS_i for each row
         for idx, row in enumerate(all_rows):
+            position_last = robot_positions[highest_robot_num][idx] if idx < len(robot_positions[highest_robot_num]) else None
             for i in range(1, highest_robot_num):
-                if idx >= len(robot_positions[i]) or idx >= len(robot_positions[highest_robot_num]):
-                    continue  # Skip the calculation if the index is out of range for either robot.
+                if position_last is None or idx >= len(robot_positions[i]):
+                    continue  # Skip the calculation if the index is out of range for the last robot or any other robot.
                 position_i = robot_positions[i][idx]
-                position_x = robot_positions[highest_robot_num][idx]
-                distance = compute_distance(position_i[0], position_i[1], position_x[0], position_x[1])
+                distance = compute_distance(position_i[0], position_i[1], position_last[0], position_last[1])
                 row[f'DS_{i}(m)'] = round(10 * distance, 1)
 
         writer.writerows(all_rows)
 
     print(f"All data in {subdir} combined. Output saved to {output_path}.")
+

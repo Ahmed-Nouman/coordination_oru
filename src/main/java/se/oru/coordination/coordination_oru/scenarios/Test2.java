@@ -34,15 +34,15 @@ public class Test2 {
         var chargingVehicle = new AutonomousVehicle("E",1, Color.BLUE, 5.0, 0.5,
                 0.8, 0.5, mainTunnelLeft, 10, 2, model);
 //        chargingVehicle.setGoals(new Pose[] {orePass, mainTunnelLeft, mainTunnelRight}); //FIXME: For getPlans 1) set Goal/Goals/Tasks and remove GoalPoses
-        chargingVehicle.addTask(new Task(0.25, new Pose[] {drawPoint16}));
-        chargingVehicle.addTask(new Task(0.25, new Pose[] {drawPoint23}));
-        chargingVehicle.addTask(new Task(0.25, new Pose[] {mainTunnelLeft}));
+        chargingVehicle.addTask(new Task(0.25, new Pose[] {drawPoint16}, ));
+        chargingVehicle.addTask(new Task(0.25, new Pose[] {drawPoint23}, ));
+        chargingVehicle.addTask(new Task(0.25, new Pose[] {mainTunnelLeft}, ));
         chargingVehicle.generatePlans(planner);
 
         var autonomousVehicle1 = new AutonomousVehicle("A1",2, Color.YELLOW, 5.0, 0.5,
                 0.8, 0.5, drawPoint21, 10, 3, model);
-        autonomousVehicle1.addTask(new Task(0.10, new Pose[] {orePass}));
-        autonomousVehicle1.addTask(new Task(0.10, new Pose[] {drawPoint21}));
+        autonomousVehicle1.addTask(new Task(0.10, new Pose[] {orePass}, ));
+        autonomousVehicle1.addTask(new Task(0.10, new Pose[] {drawPoint21}, ));
         autonomousVehicle1.generatePlans(planner);
 
 //        var autonomousVehicle2 = new AutonomousVehicle("A2",2, Color.YELLOW, 5.0, 0.5,

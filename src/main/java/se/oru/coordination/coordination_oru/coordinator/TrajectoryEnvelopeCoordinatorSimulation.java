@@ -24,7 +24,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 public class TrajectoryEnvelopeCoordinatorSimulation extends TrajectoryEnvelopeCoordinator {
 
-	public static TrajectoryEnvelopeCoordinatorSimulation tec = null;
+	public static TrajectoryEnvelopeCoordinatorSimulation trajectoryEnvelopeCoordinatorSimulation = null;
 	protected static final long START_TIME = Calendar.getInstance().getTimeInMillis();
 	protected boolean useInternalCPs = true;
 	protected boolean checkCollisions = false; // TODO Check if it works
@@ -35,21 +35,6 @@ public class TrajectoryEnvelopeCoordinatorSimulation extends TrajectoryEnvelopeC
 	protected double DEFAULT_MAX_VELOCITY;
 	protected double DEFAULT_MAX_ACCELERATION;
 	protected int DEFAULT_ROBOT_TRACKING_PERIOD;
-
-	/**
-	 * The default footprint used for robots if none is specified.
-	 * NOTE: coordinates in footprints must be given in CCW or CW order.
-	 */
-	public static Coordinate[] DEFAULT_FOOTPRINT = new Coordinate[] {
-			new Coordinate(-1.7, 0.7),	//back left
-			new Coordinate(-1.7, -0.7),	//back right
-			new Coordinate(2.7, -0.7),	//front right
-			new Coordinate(2.7, 0.7)	//front left
-	};
-
-	/**
-	 * Dimension of the default footprint.
-	 */
 	public static double MAX_DEFAULT_FOOTPRINT_DIMENSION = 4.4;
 
 	/**
@@ -65,49 +50,26 @@ public class TrajectoryEnvelopeCoordinatorSimulation extends TrajectoryEnvelopeC
 		this.DEFAULT_MAX_VELOCITY = MAX_VELOCITY;
 		this.DEFAULT_MAX_ACCELERATION = MAX_ACCELERATION;
 		this.DEFAULT_ROBOT_TRACKING_PERIOD = DEFAULT_ROBOT_TRACKING_PERIOD;
-		tec = this;
+		trajectoryEnvelopeCoordinatorSimulation = this;
 	}
 
-	/**
-	 * Create a new {@link TrajectoryEnvelopeCoordinatorSimulation} with the following default values:
-	 * <ul>
-	 * <li><code>CONTROL_PERIOD</code> = 1000</li>
-	 * <li><code>TEMPORAL_RESOLUTION</code> = 1000</li>
-	 * <li><code>DEFAULT_ROBOT_TRACKING_PERIOD</code> = 30</li>
-	 * <li><code>PARKING_DURATION</code> = 3000</li>
-	 * </ul>
-	 */
 	public TrajectoryEnvelopeCoordinatorSimulation(int CONTROL_PERIOD, double TEMPORAL_RESOLUTION, double MAX_VELOCITY, double MAX_ACCELERATION) {
 		this(CONTROL_PERIOD, TEMPORAL_RESOLUTION, MAX_VELOCITY, MAX_ACCELERATION, 30);
 	}
 
-	/**
-	 * Create a new {@link TrajectoryEnvelopeCoordinatorSimulation} with the following default values:
-	 * <ul>
-	 * <li><code>CONTROL_PERIOD</code> = 1000</li>
-	 * <li><code>TEMPORAL_RESOLUTION</code> = 1000</li>
-	 * <li><code>DEFAULT_ROBOT_TRACKING_PERIOD</code> = 30</li>
-	 * <li><code>PARKING_DURATION</code> = 3000</li>
-	 * </ul>
-	 */
 	public TrajectoryEnvelopeCoordinatorSimulation(double MAX_VELOCITY, double MAX_ACCELERATION) {
 		this(1000, 1000, MAX_VELOCITY, MAX_ACCELERATION, 30);
 	}
-
 	/**
-	 * Create a new {@link TrajectoryEnvelopeCoordinatorSimulation} with the following default values:
-	 * <ul>
-	 * <li><code>CONTROL_PERIOD</code> = 1000</li>
-	 * <li><code>TEMPORAL_RESOLUTION</code> = 1000</li>
-	 * <li><code>MAX_VELOCITY</code> = 10.0</li>
-	 * <li><code>MAX_ACCELERATION</code> = 1.0</li>
-	 * <li><code>DEFAULT_ROBOT_TRACKING_PERIOD</code> = 30</li>
-	 * <li><code>PARKING_DURATION</code> = 3000</li>
-	 * </ul>
+	 * The default footprint used for robots if none is specified.
+	 * NOTE: coordinates in footprints must be given in CCW or CW order.
 	 */
-	public TrajectoryEnvelopeCoordinatorSimulation() {
-		this(1000, 1000, 5.0, 1.0, 30);
-	}
+	public static Coordinate[] DEFAULT_FOOTPRINT = new Coordinate[] {
+			new Coordinate(-1.7, 0.7),	//back left
+			new Coordinate(-1.7, -0.7),	//back right
+			new Coordinate(2.7, -0.7),	//front right
+			new Coordinate(2.7, 0.7)	//front left
+	};
 
 	/**
 	 * Enable the collision checking thread.
@@ -343,7 +305,6 @@ public class TrajectoryEnvelopeCoordinatorSimulation extends TrajectoryEnvelopeC
 					ret.add(" " + CONNECTOR_LEAF + " " + ce.toString());
 				}
 			}
-			
 		}
 		ret.add(CONNECTOR_BRANCH + 			"Obsolete critical sections .. " + criticalSectionCounter.get() + ".");
 		ret.add(CONNECTOR_BRANCH + 			"Messages sent ....... " + totalMsgsSent.get() + ", lost: " + totalMessagesLost.get() + ", retransmitted: " + totalMsgsReTx.get() + ". Packets lost: " + totalPacketsLost.get() + ", number of replicas: " + numberOfReplicas + ".");
@@ -363,8 +324,8 @@ public class TrajectoryEnvelopeCoordinatorSimulation extends TrajectoryEnvelopeC
 				@Override
 				public void run() {
 					metaCSPLogger.info("Starting the collision checking thread.");
-					ArrayList<CriticalSection> previousCollidingCS = new ArrayList<CriticalSection>();
-					ArrayList<CriticalSection> newCollidingCS = new ArrayList<CriticalSection>();
+					ArrayList<CriticalSection> previousCollidingCS = new ArrayList<>();
+					ArrayList<CriticalSection> newCollidingCS = new ArrayList<>();
 					
 					while(true) {
 						newCollidingCS.clear();

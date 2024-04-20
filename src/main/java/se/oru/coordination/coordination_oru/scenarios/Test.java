@@ -1,7 +1,7 @@
 package se.oru.coordination.coordination_oru.scenarios;
 
 import org.metacsp.multi.spatioTemporal.paths.Pose;
-import se.oru.coordination.coordination_oru.forwardModel.AlternatingAccelerationModel;
+import se.oru.coordination.coordination_oru.forwardModel.ConstantAcceleration;
 import se.oru.coordination.coordination_oru.utils.Task;
 import se.oru.coordination.coordination_oru.forwardModel.ForwardModel;
 import se.oru.coordination.coordination_oru.motionPlanning.VehiclePathPlanner;
@@ -24,7 +24,7 @@ public class Test {
         final Pose drawPoint21 = new Pose(52.95,87.75,-Math.PI/2);
         final Pose orePass = new Pose(54.35,11.25,-Math.PI/2);
         final String map = "maps/mine-map-test.yaml";
-        final ForwardModel model = new AlternatingAccelerationModel(10.0, 100.0, 1000, 1000, 30);
+        final ForwardModel model = new ConstantAcceleration(10.0, 100.0, 1000, 1000, 30);
         final var planner = new VehiclePathPlanner(map, ReedsSheppCarPlanner.PLANNING_ALGORITHM.RRTConnect,
                 0.09, 30, 2.0, 0.1);
 
@@ -37,8 +37,8 @@ public class Test {
 
         var autonomousVehicle1 = new AutonomousVehicle("A2",1, Color.YELLOW, 10.0, 1.0,
                 0.9, 0.65, orePass, 2.4, 10, model);
-        autonomousVehicle1.addTask(new Task(0.25, new Pose[] {mainTunnelLeft}));
-        autonomousVehicle1.addTask(new Task(0.25, new Pose[] {orePass}));
+        autonomousVehicle1.addTask(new Task(0.25, new Pose[] {mainTunnelLeft}, ));
+        autonomousVehicle1.addTask(new Task(0.25, new Pose[] {orePass}, ));
 
         autonomousVehicle.generatePlans(planner);
         autonomousVehicle1.generatePlans(planner);

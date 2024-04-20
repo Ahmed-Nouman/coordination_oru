@@ -237,7 +237,7 @@ public class SceneVehicle {
         var maxAcceleration = text("Max. Acceleration (m/s^2): ", 5);
         var safetyDistance = text("Safety Distance (m): ", 6);
         var color = text("Color: ", 7);
-        var initialPose = text("Start Pose (m, m, deg): ", 8);
+        var initialPose = text("Start Pose: ", 8);
         var task = text("Tasks (min, task):", 9);
         var taskRepetition = text("Tasks Repetition: ", 10);
         var isHuman = text("Human Operated: ", 11);

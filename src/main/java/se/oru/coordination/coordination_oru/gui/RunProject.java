@@ -41,7 +41,7 @@ public class RunProject {
         var scaleAdjustment = 1 / mapResolution;
         var reportsTimeIntervalInSeconds = 0.1;
 
-        var tec = new TrajectoryEnvelopeCoordinatorSimulation();
+        var tec = new TrajectoryEnvelopeCoordinatorSimulation(1000, 1000, 5.0, 1.0, 30);
         tec.setupSolver(0, 100000000);
         tec.startInference();
         tec.addComparator(controllerNavigation.getMain().getDataStatus().getHeuristics().getComparator());

@@ -9,7 +9,6 @@ import org.metacsp.multi.spatioTemporal.paths.TrajectoryEnvelope;
 import org.metacsp.multi.spatioTemporal.paths.TrajectoryEnvelopeSolver;
 import org.metacsp.time.APSPSolver;
 import org.metacsp.time.Bounds;
-import org.metacsp.utility.UI.Callback;
 import org.metacsp.utility.logging.MetaCSPLogging;
 import se.oru.coordination.coordination_oru.coordinator.AbstractTrajectoryEnvelopeCoordinator;
 import se.oru.coordination.coordination_oru.TrackingCallback;
@@ -33,24 +32,23 @@ import java.util.logging.Logger;
  */
 public abstract class AbstractTrajectoryEnvelopeTracker {
 
-	protected AbstractTrajectoryEnvelopeCoordinator tec = null;
-	public TrajectoryEnvelope te = null;
-	protected Trajectory traj = null;
-	protected double temporalResolution = 0.0;
-	protected Integer externalCPCounter = -1;
+	protected AbstractTrajectoryEnvelopeCoordinator tec;
+	public TrajectoryEnvelope te;
+	protected Trajectory trajectory;
+	protected double temporalResolution;
+	protected Integer externalCPCounter;
 	protected Integer reportCounter = -1;
-	protected int criticalPoint = -1;
-	protected HashSet<TrajectoryEnvelope> startedGroundEnvelopes = new HashSet<TrajectoryEnvelope>();
-	protected HashSet<TrajectoryEnvelope> finishedGroundEnvelopes = new HashSet<TrajectoryEnvelope>();
-	protected HashMap<TrajectoryEnvelope,AllenIntervalConstraint> deadlines = new HashMap<TrajectoryEnvelope, AllenIntervalConstraint>();
-	protected int trackingPeriodInMillis = 0;
-	protected TrackingCallback cb = null;
+	protected int criticalPoint;
+	protected HashSet<TrajectoryEnvelope> startedGroundEnvelopes = new HashSet<>();
+	protected HashSet<TrajectoryEnvelope> finishedGroundEnvelopes = new HashSet<>();
+	protected HashMap<TrajectoryEnvelope,AllenIntervalConstraint> deadlines = new HashMap<>();
+	protected int trackingPeriodInMillis;
+	protected TrackingCallback cb;
 	protected Map mapMetaConstraint = null; 
 	protected boolean calledOnTrackingStart = false;
 	protected boolean calledStartTracking = false;
-	protected Callback extraStatusCallback = null;
 	protected boolean canStartTracking = false;
-	protected long startingTimeInMillis = -1;
+	protected long startingTimeInMillis;
 	
 	protected Logger metaCSPLogger = MetaCSPLogging.getLogger(AbstractTrajectoryEnvelopeTracker.class);
 
@@ -67,7 +65,7 @@ public abstract class AbstractTrajectoryEnvelopeTracker {
 	 */
 	public AbstractTrajectoryEnvelopeTracker(TrajectoryEnvelope te, double temporalResolution, AbstractTrajectoryEnvelopeCoordinator tec, int trackingPeriodInMillis, TrackingCallback cb) {
 		this.te = te;
-		this.traj = te.getTrajectory();
+		this.trajectory = te.getTrajectory();
 		this.externalCPCounter = -1;
 		this.criticalPoint = -1;
 		this.temporalResolution = temporalResolution;
@@ -117,7 +115,7 @@ public abstract class AbstractTrajectoryEnvelopeTracker {
 				metaCSPLogger.info("Updating trajectory Robot" +this.te.getRobotID()+". TEID: " + this.te.getID() + "--> TEID: " + te.getID()+ ".");
 				this.te = te;
 				this.cb.updateTrajectoryEnvelope(te);
-				this.traj = te.getTrajectory();
+				this.trajectory = te.getTrajectory();
 				this.onTrajectoryEnvelopeUpdate();
 			}
 		}

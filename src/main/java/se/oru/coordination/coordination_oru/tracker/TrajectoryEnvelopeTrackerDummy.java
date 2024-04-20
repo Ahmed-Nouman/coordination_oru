@@ -32,7 +32,7 @@ public abstract class TrajectoryEnvelopeTrackerDummy extends AbstractTrajectoryE
 	public TrajectoryEnvelopeTrackerDummy(TrajectoryEnvelope te, int timeStep, double temporalResolution, AbstractTrajectoryEnvelopeCoordinator tec, TrackingCallback cb) {
 		super(te, temporalResolution, tec, timeStep, cb);
 		this.te = te;
-		this.traj = te.getTrajectory();
+		this.trajectory = te.getTrajectory();
 		this.temporalResolution = temporalResolution;
 		this.th = new Thread(this, "Parking tracker " + te.getComponent());
 		this.th.start();
@@ -49,7 +49,7 @@ public abstract class TrajectoryEnvelopeTrackerDummy extends AbstractTrajectoryE
 		
 	@Override
 	public RobotReport getRobotReport() {
-		return new RobotReport(te.getRobotID(), traj.getPose()[0], currentIndex, 0.0, 0.0, -1);
+		return new RobotReport(te.getRobotID(), trajectory.getPose()[0], currentIndex, 0.0, 0.0, -1);
 	}
 
 	

@@ -47,7 +47,7 @@ public abstract class TrajectoryEnvelopeTrackerRK4 extends AbstractTrajectoryEnv
 		this.MAX_VELOCITY = maxVelocity;
 		this.MAX_ACCELERATION = maxAcceleration;
 		this.state = new State(0.0, 0.0);
-		this.totalDistance = this.computeDistance(0, traj.getPose().length-1);
+		this.totalDistance = this.computeDistance(0, trajectory.getPose().length-1);
 		this.overallDistance = totalDistance;
 		this.computeInternalCriticalPoints();
 		this.slowDownProfile = this.getSlowdownProfile();
@@ -64,7 +64,7 @@ public abstract class TrajectoryEnvelopeTrackerRK4 extends AbstractTrajectoryEnv
 	private void computeInternalCriticalPoints() {
 		this.curvatureDampening = new double[te.getTrajectory().getPose().length];
 		this.curvatureDampening[0] = 1.0;
-		Pose[] poses = this.traj.getPose();
+		Pose[] poses = this.trajectory.getPose();
 		double prevTheta = poses[0].getTheta();
 		if (poses.length > 1) prevTheta = Math.atan2(poses[1].getY() - poses[0].getY(), poses[1].getX() - poses[0].getX());
 		for (int i = 0; i < poses.length-1; i++) {
@@ -96,7 +96,7 @@ public abstract class TrajectoryEnvelopeTrackerRK4 extends AbstractTrajectoryEnv
 	}
 
 	private void computeCurvatureDampening() {
-		PoseSteering[] path = this.traj.getPoseSteering();
+		PoseSteering[] path = this.trajectory.getPoseSteering();
 		double deltaSinTheta = 0;
 		double sinThetaPrev = Math.sin(Missions.wrapAngle180b(path[0].getTheta()));
 		for (int i = 1; i < path.length; i++) {
@@ -113,13 +113,13 @@ public abstract class TrajectoryEnvelopeTrackerRK4 extends AbstractTrajectoryEnv
 
 	public double getCurvatureDampening(int index, boolean backwards) {
 		if (!backwards) return curvatureDampening[index];
-		return curvatureDampening[this.traj.getPose().length-1-index];
+		return curvatureDampening[this.trajectory.getPose().length-1-index];
 	}
 
 	@Override
 	protected void onTrajectoryEnvelopeUpdate() {
 		synchronized(reportsList) { //FIXME not ok, all the mutex should be changed
-			this.totalDistance = this.computeDistance(0, traj.getPose().length-1);
+			this.totalDistance = this.computeDistance(0, trajectory.getPose().length-1);
 			this.overallDistance = totalDistance;
 			this.internalCriticalPoints.clear();
 			this.computeInternalCriticalPoints();
@@ -149,7 +149,7 @@ public abstract class TrajectoryEnvelopeTrackerRK4 extends AbstractTrajectoryEnv
 	}
 
 	private double computeDistance(int startIndex, int endIndex) {
-		return computeDistance(this.traj, startIndex, endIndex);
+		return computeDistance(this.trajectory, startIndex, endIndex);
 	}
 		
 	private void enqueueOneReport() {
@@ -434,7 +434,7 @@ public abstract class TrajectoryEnvelopeTrackerRK4 extends AbstractTrajectoryEnv
 			//The critical point has been reset, go to the end
 			else if (criticalPointToSet == -1) {
 				this.criticalPoint = criticalPointToSet;
-				this.totalDistance = computeDistance(0, traj.getPose().length-1);
+				this.totalDistance = computeDistance(0, trajectory.getPose().length-1);
 				this.positionToSlowDown = computePositionToSlowDown();
 				metaCSPLogger.finest("Set critical point (" + te.getComponent() + "): " + criticalPointToSet);
 			}
@@ -450,12 +450,12 @@ public abstract class TrajectoryEnvelopeTrackerRK4 extends AbstractTrajectoryEnv
 	@Override
 	public RobotReport getRobotReport() { //TODO: TrackerRK4 creates robot reports
 		if (state == null) return null;
-		if (!this.th.isAlive()) return new RobotReport(te.getRobotID(), traj.getPose()[0], -1, 0.0, 0.0, -1);
+		if (!this.th.isAlive()) return new RobotReport(te.getRobotID(), trajectory.getPose()[0], -1, 0.0, 0.0, -1);
 		synchronized(state) {
 			Pose pose = null;
 			int currentPathIndex = -1;
 			double accumulatedDist = 0.0;
-			Pose[] poses = traj.getPose();
+			Pose[] poses = trajectory.getPose();
 			for (int i = 0; i < poses.length-1; i++) {
 				double deltaS = poses[i].distanceTo(poses[i+1]);
 				accumulatedDist += deltaS;
@@ -503,7 +503,7 @@ public abstract class TrajectoryEnvelopeTrackerRK4 extends AbstractTrajectoryEnv
 		Pose pose = null;
 		int currentPathIndex = -1;
 		double accumulatedDist = 0.0;
-		Pose[] poses = traj.getPose();
+		Pose[] poses = trajectory.getPose();
 		for (int i = 0; i < poses.length-1; i++) {
 			double deltaS = poses[i].distanceTo(poses[i+1]);
 			accumulatedDist += deltaS;
@@ -655,13 +655,8 @@ public abstract class TrajectoryEnvelopeTrackerRK4 extends AbstractTrajectoryEnv
 		}
 		
 		//System.out.println("Time: " + MetaCSPLogging.printDouble(time,4) + "\tpos: " + MetaCSPLogging.printDouble(state.getPosition(),4) + "\tvel: " + MetaCSPLogging.printDouble(state.getVelocity(),4));
-		
 		double[] ret = new double[dts.size()];
 		for (int i = 0; i < dts.size(); i++) ret[i] = dts.get(i);
 		return ret;
-
 	}
-
-	
-
 }
