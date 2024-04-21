@@ -29,23 +29,23 @@ public class Test {
                 0.09, 30, 2.0, 0.1);
 
         var autonomousVehicle = new AutonomousVehicle("A1",1, Color.YELLOW, 10.0, 1.0,
-                0.9, 0.65, drawPoint21, 2.4, 10, model);
-        autonomousVehicle.setGoals(new Pose[] {mainTunnelRight, drawPoint21});
+                0.9, 0.65, drawPoint21, 2.4, 2, model);
 //        autonomousVehicle.setGoals(new Pose[] {mainTunnelRight, drawPoint21});
-//        autonomousVehicle.addTask(new Task(new Pose[] {mainTunnelRight}, 0.25));
-//        autonomousVehicle.addTask(new Task(new Pose[] {mainTunnelLeft}, 0.5));
+//        autonomousVehicle.setGoals(new Pose[] {mainTunnelRight, drawPoint21});
+        autonomousVehicle.addTask(new Task(0, new Pose[] {mainTunnelRight}, true));
+        autonomousVehicle.addTask(new Task(0.1, new Pose[] {drawPoint21}, false));
 
         var autonomousVehicle1 = new AutonomousVehicle("A2",1, Color.YELLOW, 10.0, 1.0,
-                0.9, 0.65, orePass, 2.4, 10, model);
-        autonomousVehicle1.addTask(new Task(0.25, new Pose[] {mainTunnelLeft}, ));
-        autonomousVehicle1.addTask(new Task(0.25, new Pose[] {orePass}, ));
+                0.9, 0.65, orePass, 2.4, 2, model);
+        autonomousVehicle1.addTask(new Task(0, new Pose[] {mainTunnelLeft}, false));
+        autonomousVehicle1.addTask(new Task(0.1, new Pose[] {orePass}, true));
 
         autonomousVehicle.generatePlans(planner);
         autonomousVehicle1.generatePlans(planner);
         autonomousVehicle.savePlans(className);
         autonomousVehicle1.savePlans(className);
-//        autonomousVehicle.loadPathsFromFile(folderName + "A1.path");
-//        autonomousVehicle1.loadPathsFromFile(folderName + "A2.path");
+//        autonomousVehicle.loadPlans(folderName + "A1.path");
+//        autonomousVehicle1.loadPlans(folderName + "A2.path");
 
         // Instantiate a trajectory envelope coordinator.
         var tec = new TrajectoryEnvelopeCoordinatorSimulation(2000, 1000, 5, 2);
@@ -58,7 +58,7 @@ public class Test {
         tec.placeRobotsAtStartPoses();
 //        tec.placeRobot(autonomousVehicle.getID(), autonomousVehicle.getPaths().get(0)[0].getPose()); //FIXME: DO Automatic placing of vehicles
 //        tec.placeRobot(autonomousVehicle1.getID(), autonomousVehicle1.getPaths().get(0)[0].getPose());
-        tec.addComparator(new Heuristics(Heuristics.HeuristicType.CLOSEST_FIRST).getComparator());
+        tec.addComparator(new Heuristics(Heuristics.HeuristicType.MISSION_PRIORITY_FIRST).getComparator());
         tec.setUseInternalCriticalPoints(false);
         tec.setYieldIfParking(true);
         tec.setBreakDeadlocks(true, false, false);

@@ -103,7 +103,7 @@ public class ProductionScenario {
         tec.placeRobot(drillRig.getID(), drillRig.getInitialPose());
 
         // Set Heuristics
-        var heuristic = new Heuristics(Heuristics.HeuristicType.MOST_DISTANCE_TO_TRAVEL);
+        var heuristic = new Heuristics(Heuristics.HeuristicType.MOST_DISTANCE_TO_TRAVEL_FIRST);
         tec.addComparator(heuristic.getComparator());
         String heuristicName = heuristic.getName();
 

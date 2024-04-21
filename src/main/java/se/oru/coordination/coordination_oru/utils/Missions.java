@@ -25,7 +25,6 @@ import java.nio.file.Files;
 import java.util.*;
 import java.util.Map.Entry;
 import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Logger;
 import java.util.zip.ZipEntry;
@@ -885,7 +884,7 @@ public class Missions {
 								executorService.schedule(this, nextMissionDelay + SECOND_TO_MILLISECOND, TimeUnit.MILLISECONDS);
 								if (tec.addMissions(mission)) {
 									iteration++;
-//									System.out.println("Mission " + missionIndex + " for robot " + robotID + " added to the queue.");
+									VehiclesHashMap.getVehicle(robotID).setCurrentTaskIndex(missionIndex);
 								}
 							}
 						}

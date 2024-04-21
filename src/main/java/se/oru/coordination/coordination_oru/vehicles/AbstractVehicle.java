@@ -58,6 +58,7 @@ public abstract class AbstractVehicle {
     private PoseSteering[] path; //FIXME:should be removed later
     public List<PoseSteering[]> paths = new ArrayList<>();
     private double pathLength;
+    private int currentTaskIndex = -1;
     private final ForwardModel forwardModel;
 
     public AbstractVehicle(int ID, String name, int priority, Color color, double maxVelocity, double maxAcceleration,
@@ -91,10 +92,10 @@ public abstract class AbstractVehicle {
                 new Coordinate(-length, -width)
         };
     }
+
     public static double calculateFootprintArea(double length, double width) {
         return length * width;
     }
-
     public void generatePlans(PathPlanner planner) {
         if (!tasks.isEmpty()) {
             for (Task task : tasks) {
@@ -296,11 +297,11 @@ public abstract class AbstractVehicle {
     public PoseSteering[] getPath() {
         return path;
     }
+
     public void setLength(double length) {
         this.length = length;
         this.footprint = makeFootprint(length, width);
     }
-
     public double getLength() {
         return length;
     }
@@ -364,26 +365,33 @@ public abstract class AbstractVehicle {
     }
 
     public void setGoals(Pose goalPose) {
-    this.tasks.add(new Task(0.0, new Pose[] {goalPose}, ));
+    this.tasks.add(new Task(0.0, new Pose[] {goalPose}, false));
     }
 
     public void setGoals(Pose[] goalPoses) {
-        this.tasks.add(new Task(0.0, goalPoses, ));
+        this.tasks.add(new Task(0.0, goalPoses, false));
     }
 
     public void addTask(Task task) {
         this.tasks.add(task);
     }
+
     public List<PoseSteering[]> getPaths() {
         return paths;
     }
-
     public double getSafetyDistance() {
         return safetyDistance;
     }
 
     public ForwardModel getForwardModel() {
         return forwardModel;
+    }
+
+    public int getCurrentTaskIndex() {
+        return currentTaskIndex;
+    }
+    public void setCurrentTaskIndex(int currentTaskIndex) {
+        this.currentTaskIndex = currentTaskIndex;
     }
 
 }
