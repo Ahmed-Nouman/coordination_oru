@@ -94,7 +94,7 @@ public class TrajectoryEnvelopeCoordinatorSimulation extends TrajectoryEnvelopeC
 	}
 
 	private ArrayList<Integer> computeStoppingPoints(PoseSteering[] poses) {
-		ArrayList<Integer> ret = new ArrayList<Integer>();
+		ArrayList<Integer> ret = new ArrayList<>();
 		double prevTheta = poses[0].getTheta();
 		if (poses.length > 1) prevTheta = Math.atan2(poses[1].getY() - poses[0].getY(), poses[1].getX() - poses[0].getX());
 		for (int i = 0; i < poses.length-1; i++) {

@@ -1,14 +1,12 @@
 package se.oru.coordination.coordination_oru.tracker;
 
 import org.metacsp.multi.spatioTemporal.paths.Pose;
-import org.metacsp.multi.spatioTemporal.paths.PoseSteering;
 import org.metacsp.multi.spatioTemporal.paths.Trajectory;
 import org.metacsp.multi.spatioTemporal.paths.TrajectoryEnvelope;
 import se.oru.coordination.coordination_oru.NetworkConfiguration;
 import se.oru.coordination.coordination_oru.TrackingCallback;
 import se.oru.coordination.coordination_oru.coordinator.TrajectoryEnvelopeCoordinator;
 import se.oru.coordination.coordination_oru.coordinator.TrajectoryEnvelopeCoordinatorSimulation;
-import se.oru.coordination.coordination_oru.utils.Missions;
 import se.oru.coordination.coordination_oru.utils.RungeKutta4;
 import se.oru.coordination.coordination_oru.utils.RobotReport;
 import se.oru.coordination.coordination_oru.utils.State;
@@ -18,7 +16,6 @@ import java.util.*;
 public abstract class TrajectoryEnvelopeTrackerRK4 extends AbstractTrajectoryEnvelopeTracker implements Runnable {
 
 	protected static final long WAIT_AMOUNT_AT_END = 3000;
-	protected static final double EPSILON = 0.01;
 	protected final double MAX_VELOCITY;
 	protected final double MAX_ACCELERATION;
 	protected double overallDistance = 0.0;
@@ -56,11 +53,6 @@ public abstract class TrajectoryEnvelopeTrackerRK4 extends AbstractTrajectoryEnv
 		this.th.setPriority(Thread.MAX_PRIORITY);
 	}
 
-	public TrajectoryEnvelopeTrackerRK4(TrajectoryEnvelope te, int timeStep, double temporalResolution, TrajectoryEnvelopeCoordinatorSimulation tec, TrackingCallback cb) {
-		this(te, timeStep, temporalResolution, 1.0, 0.1, tec, cb);
-		setNumberOfReplicas(tec.getNumberOfReplicas(), tec.getControlPeriod());
-	}
-
 	private void computeInternalCriticalPoints() {
 		this.curvatureDampening = new double[te.getTrajectory().getPose().length];
 		this.curvatureDampening[0] = 1.0;
@@ -76,38 +68,6 @@ public abstract class TrajectoryEnvelopeTrackerRK4 extends AbstractTrajectoryEnv
 				metaCSPLogger.info("Found internal critical point (" + te.getComponent() + "): " + (i));
 			}
 			this.curvatureDampening[i+1] = 1.0;
-		}
-	}
-
-	public void setCurvatureDampening(int index, double dampening) {
-		this.curvatureDampening[index] = dampening;
-	}
-
-	public void setCurvatureDampening(int indexFrom, int indexTo, double dampening) {
-		for (int i = indexFrom; i < indexTo; i++) curvatureDampening[i] = dampening;
-	}
-
-	public void resetCurvatureDampening() {
-		for (int i  = 0; i < curvatureDampening.length; i++) curvatureDampening[i] = 1.0;
-	}
-
-	public double[] getCurvatureDampening() {
-		return this.curvatureDampening;
-	}
-
-	private void computeCurvatureDampening() {
-		PoseSteering[] path = this.trajectory.getPoseSteering();
-		double deltaSinTheta = 0;
-		double sinThetaPrev = Math.sin(Missions.wrapAngle180b(path[0].getTheta()));
-		for (int i = 1; i < path.length; i++) {
-			double sinTheta = Math.sin(Missions.wrapAngle180b(path[i].getTheta()));
-			double deltaSinThetaNew = sinTheta-sinThetaPrev;
-			if (deltaSinThetaNew*deltaSinTheta < 0 && i != 1) {
-				System.out.println("Direction change for Robot" + this.te.getRobotID() + " in " + i);
-				this.curvatureDampening[i] = 0.2;
-			}
-			deltaSinTheta = deltaSinThetaNew;
-			sinThetaPrev = deltaSinThetaNew;
 		}
 	}
 
@@ -475,29 +435,6 @@ public abstract class TrajectoryEnvelopeTrackerRK4 extends AbstractTrajectoryEnv
 		}
 	}
 
-	private static RobotReport getRobotReport(Trajectory traj, State auxState) {
-		if (auxState == null) return null;
-		Pose pose = null;
-		int currentPathIndex = -1;
-		double accumulatedDist = 0.0;
-		Pose[] poses = traj.getPose();
-		for (int i = 0; i < poses.length-1; i++) {
-			double deltaS = poses[i].distanceTo(poses[i+1]);
-			accumulatedDist += deltaS;
-			if (accumulatedDist > auxState.getPosition()) {
-				double ratio = 1.0-(accumulatedDist-auxState.getPosition())/deltaS;
-				pose = poses[i].interpolate(poses[i+1], ratio);
-				currentPathIndex = i;
-				break;
-			}
-		}
-		if (currentPathIndex == -1) {
-			currentPathIndex = poses.length-1;
-			pose = poses[currentPathIndex];
-		}
-		return new RobotReport(-1, pose, currentPathIndex, auxState.getVelocity(), auxState.getPosition(), -1);
-	}
-
 	public RobotReport getRobotReport(State auxState) {
 		if (auxState == null) return null;
 		Pose pose = null;
@@ -521,18 +458,6 @@ public abstract class TrajectoryEnvelopeTrackerRK4 extends AbstractTrajectoryEnv
 		return new RobotReport(te.getRobotID(), pose, currentPathIndex, auxState.getVelocity(), auxState.getPosition(), -1);
 	}
 
-	public void setNumberOfReplicas(int numberOfReplicas) {
-		if (numberOfReplicas < 1) {
-			metaCSPLogger.warning("Set number of replicas failed: invalid argument.");
-			return;
-		}
-		this.numberOfReplicas = numberOfReplicas;
-	}
-	
-	public void setNumberOfReplicas(int coordinationNumberOfReplicas, int coordinationPeriodInMillis) {
-		this.numberOfReplicas = Math.max(1, (int)Math.ceil(coordinationNumberOfReplicas*(double)trackingPeriodInMillis/coordinationPeriodInMillis));
-	}
-	
 	@Override
 	public void run() {
 		this.elapsedTrackingTime = 0.0;
@@ -616,47 +541,4 @@ public abstract class TrajectoryEnvelopeTrackerRK4 extends AbstractTrajectoryEnv
 		metaCSPLogger.info("RK4 tracking thread terminates (Robot " + myRobotID + ", TrajectoryEnvelope " + myTEID + ")");
 	}
 
-	public static double[] computeDTs(Trajectory traj, double maxVel, double maxAccel) {
-		double distance = computeDistance(traj, 0, traj.getPose().length-1);
-		State state = new State(0.0, 0.0);
-		double time = 0.0;
-		double deltaTime = 0.0001;
-		
-		ArrayList<Double> dts = new ArrayList<Double>();
-		HashMap<Integer,Double> times = new HashMap<Integer, Double>();
-		dts.add(0.0);
-		times.put(0, 0.0);
-		
-		//First compute time to stop (can do FW here...)
-		while (state.getPosition() < distance/2.0 && state.getVelocity() < maxVel) {
-			RungeKutta4.integrate(state, time, deltaTime, false, maxVel, 1.0, maxAccel);
-			time += deltaTime;
-		}
-		double positionToSlowDown = distance-state.getPosition();
-		//System.out.println("Position to slow down is: " + MetaCSPLogging.printDouble(positionToSlowDown,4));
-
-		state = new State(0.0, 0.0);
-		time = 0.0;
-		while (true) {
-			if (state.getPosition() >= distance/2.0 && state.getVelocity() < 0.0) break;
-            RungeKutta4.integrate(state, time, deltaTime, state.getPosition() >= positionToSlowDown, maxVel, 1.0, maxAccel);
-			//System.out.println("Time: " + time + " " + rr);
-			//System.out.println("Time: " + MetaCSPLogging.printDouble(time,4) + "\tpos: " + MetaCSPLogging.printDouble(state.getPosition(),4) + "\tvel: " + MetaCSPLogging.printDouble(state.getVelocity(),4));
-			time += deltaTime;
-			RobotReport rr = getRobotReport(traj, state);
-			if (!times.containsKey(rr.getPathIndex())) {
-				times.put(rr.getPathIndex(), time);
-				dts.add(time-times.get(rr.getPathIndex()-1));
-			}
-		}
-		if (dts.size() < traj.getPose().length) {
-			times.put(traj.getPose().length-1, time);		
-			dts.add(time-times.get(traj.getPose().length-2));
-		}
-		
-		//System.out.println("Time: " + MetaCSPLogging.printDouble(time,4) + "\tpos: " + MetaCSPLogging.printDouble(state.getPosition(),4) + "\tvel: " + MetaCSPLogging.printDouble(state.getVelocity(),4));
-		double[] ret = new double[dts.size()];
-		for (int i = 0; i < dts.size(); i++) ret[i] = dts.get(i);
-		return ret;
-	}
 }

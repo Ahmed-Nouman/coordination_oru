@@ -32,20 +32,20 @@ public class Test {
                 0.9, 0.65, drawPoint21, 2.4, 2, model);
 //        autonomousVehicle.setGoals(new Pose[] {mainTunnelRight, drawPoint21});
 //        autonomousVehicle.setGoals(new Pose[] {mainTunnelRight, drawPoint21});
-        autonomousVehicle.addTask(new Task(0, new Pose[] {mainTunnelRight}, true));
-        autonomousVehicle.addTask(new Task(0.1, new Pose[] {drawPoint21}, false));
+        autonomousVehicle.addTask(new Task(0, new Pose[] {mainTunnelRight}, 1));
+        autonomousVehicle.addTask(new Task(0.1, new Pose[] {drawPoint21}, 0));
 
         var autonomousVehicle1 = new AutonomousVehicle("A2",1, Color.YELLOW, 10.0, 1.0,
                 0.9, 0.65, orePass, 2.4, 2, model);
-        autonomousVehicle1.addTask(new Task(0, new Pose[] {mainTunnelLeft}, false));
-        autonomousVehicle1.addTask(new Task(0.1, new Pose[] {orePass}, true));
+        autonomousVehicle1.addTask(new Task(0, new Pose[] {mainTunnelLeft}, 0));
+        autonomousVehicle1.addTask(new Task(0.1, new Pose[] {orePass}, 1));
 
-        autonomousVehicle.generatePlans(planner);
-        autonomousVehicle1.generatePlans(planner);
-        autonomousVehicle.savePlans(className);
-        autonomousVehicle1.savePlans(className);
-//        autonomousVehicle.loadPlans(folderName + "A1.path");
-//        autonomousVehicle1.loadPlans(folderName + "A2.path");
+//        autonomousVehicle.generatePlans(planner);
+//        autonomousVehicle1.generatePlans(planner);
+//        autonomousVehicle.savePlans(className);
+//        autonomousVehicle1.savePlans(className);
+        autonomousVehicle.loadPlans(folderName + "A1.path");
+        autonomousVehicle1.loadPlans(folderName + "A2.path");
 
         // Instantiate a trajectory envelope coordinator.
         var tec = new TrajectoryEnvelopeCoordinatorSimulation(2000, 1000, 5, 2);

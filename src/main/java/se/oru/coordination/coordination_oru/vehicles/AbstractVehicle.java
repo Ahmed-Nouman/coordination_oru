@@ -365,11 +365,11 @@ public abstract class AbstractVehicle {
     }
 
     public void setGoals(Pose goalPose) {
-    this.tasks.add(new Task(0.0, new Pose[] {goalPose}, false));
+    this.tasks.add(new Task(0.0, new Pose[] {goalPose}, 0));
     }
 
     public void setGoals(Pose[] goalPoses) {
-        this.tasks.add(new Task(0.0, goalPoses, false));
+        this.tasks.add(new Task(0.0, goalPoses, 0));
     }
 
     public void addTask(Task task) {

@@ -10,9 +10,9 @@ public class Task {
     public static final int SECOND_TO_MILLISECOND = 1000;
     private final Pose[] poses;
     private final double time;
-    private final boolean priority;
+    private final int priority;
 
-    public Task(double time, Pose[] poses, boolean priority) {
+    public Task(double time, Pose[] poses, int priority) {
         this.poses = poses;
         this.time = time;
         this.priority = priority;
@@ -53,7 +53,7 @@ public class Task {
         return (long) (time * MINUTE_TO_SECOND * SECOND_TO_MILLISECOND);
     }
 
-    public boolean isPrioritized() {
+    public int getPriority() {
         return priority;
     }
 }

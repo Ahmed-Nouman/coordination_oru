@@ -85,7 +85,7 @@ public class Heuristics {
 
     public Comparator<RobotAtCriticalSection> random() {
         var random = new Random();
-        return (robot1, robot2) -> random.nextInt(3) - 1;  // Returns -1, 0, or 1 randomly
+        return (robot1, robot2) -> random.nextInt(2) * 2 - 1;
     }
 
     public Comparator<RobotAtCriticalSection> highestPriorityFirst() {
@@ -103,10 +103,10 @@ public class Heuristics {
         return (robot1, robot2) -> {
             int currentMissionPriority1 = VehiclesHashMap.getVehicle(robot1.getRobotReport().getRobotID()).getCurrentTaskIndex();
             int currentMissionPriority2 = VehiclesHashMap.getVehicle(robot2.getRobotReport().getRobotID()).getCurrentTaskIndex();
-            boolean priority1 = VehiclesHashMap.getVehicle(robot1.getRobotReport().getRobotID()).getTasks().get(currentMissionPriority1).isPrioritized();
-            boolean priority2 = VehiclesHashMap.getVehicle(robot2.getRobotReport().getRobotID()).getTasks().get(currentMissionPriority2).isPrioritized();
+            int priority1 = VehiclesHashMap.getVehicle(robot1.getRobotReport().getRobotID()).getTasks().get(currentMissionPriority1).getPriority();
+            int priority2 = VehiclesHashMap.getVehicle(robot2.getRobotReport().getRobotID()).getTasks().get(currentMissionPriority2).getPriority();
             if (priority1 == priority2) return closestFirst().compare(robot1, robot2);
-            else if (priority1) return -1;
+            else if (priority1 > priority2) return -1;
             else return 1;
         };
     }
