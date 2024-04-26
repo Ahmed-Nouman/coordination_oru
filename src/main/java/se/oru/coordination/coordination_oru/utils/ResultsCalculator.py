@@ -56,7 +56,7 @@ for main_name, folders in folder_groups.items():
     # Generate fieldnames for mean and standard deviation
     numeric_keys = {key for key in fieldnames_set if key != 'Robot Name'}
     stat_fieldnames = [f"{key}_{stat}" for key in numeric_keys for stat in ['mean', 'stddev']]
-    fieldnames = sorted(fieldnames_set, reverse=True) + stat_fieldnames
+    fieldnames = sorted(fieldnames_set, reverse=True) + sorted(stat_fieldnames, reverse=False)
 
     # Write combined data to output file
     with open(output_path, 'w', newline='') as outfile:

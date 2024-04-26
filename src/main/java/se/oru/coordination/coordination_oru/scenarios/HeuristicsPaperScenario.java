@@ -17,17 +17,17 @@ public class HeuristicsPaperScenario {
     public static final String MAP = "maps/mine-map-heuristic-paper.yaml";
     public static final double MAP_RESOLUTION = new MapResolution().getMapResolution(MAP);
     public static final double SCALE_ADJUSTMENT = 1 / MAP_RESOLUTION;
-    public static final Heuristics.HeuristicType HEURISTIC_TYPE = Heuristics.HeuristicType.MISSION_PRIORITY_FIRST;
+    public static final Heuristics.HeuristicType HEURISTIC_TYPE = Heuristics.HeuristicType.RANDOM;
     public static final String REPORT_ADDRESS = System.getProperty("user.dir") +
             "/src/main/java/se/oru/coordination/coordination_oru/results/HeuristicsPaperScenario";
     public static final double LENGTH = 9.0;
     public static final double WIDTH = 7.0;
-    public static final double MAX_VELOCITY = 15.0;
+    public static final double MAX_VELOCITY = 10.0;
     public static final double MAX_ACCELERATION = 1.0;
-    public static final double PRODUCTION_SAFETY_DISTANCE = 50.0;
+    public static final double PRODUCTION_SAFETY_DISTANCE = 10.0;
     public static final double SERVICE_SAFETY_DISTANCE = 10.0;
     public static final boolean VISUALIZATION = true;
-    public static final boolean WRITE_VEHICLE_REPORTS = false;
+    public static final boolean WRITE_VEHICLE_REPORTS = true;
     public static final double REPORTING_TIME = 0.1;
     public static final int SIMULATION_INTERVAL = 30;
     public static final String CLASS_NAME = Thread.currentThread().getStackTrace()[Thread.currentThread().getStackTrace().length-1].getFileName().split("\\.")[0];
@@ -84,7 +84,7 @@ public class HeuristicsPaperScenario {
 //        productionVehicle4.setGoals(new Pose[] {orePass, drawPoint7});
         productionVehicle4.addTask(new Task(0, new Pose[] {orePass}, 1));
         productionVehicle4.addTask(new Task(0, new Pose[] {drawPoint7}, 0));
-        var serviceVehicle = new AutonomousVehicle("S", 1,  Color.GREEN, maxVelocity, maxAcceleration,
+        var serviceVehicle = new AutonomousVehicle("S", 0,  Color.GREEN, maxVelocity, maxAcceleration,
                 length, width, mainTunnelLeft, serviceSafetyDistance, 100, model);
         serviceVehicle.addTask(new Task(0.25, new Pose[] {mainTunnelRight}, 0));
         serviceVehicle.addTask(new Task(0.25, new Pose[] {mainTunnelLeft}, 0));
@@ -98,12 +98,13 @@ public class HeuristicsPaperScenario {
         var tec = new TrajectoryEnvelopeCoordinatorSimulation(1000, 1000, maxVelocity, maxAcceleration);
         tec.setupSolver(0, 100000000);
         tec.startInference();
+//        tec.setCheckCollisions(true);
         tec.setForwardModelsForRobots();
         tec.setDefaultFootprint(productionVehicle1.getFootprint());
         tec.placeRobotsAtStartPoses();
-//        tec.setUseInternalCriticalPoints(false);
-//        tec.setYieldIfParking(true);
-        tec.setBreakDeadlocks(false, false, false);
+        tec.setUseInternalCriticalPoints(false);
+        tec.setYieldIfParking(true);
+        tec.setBreakDeadlocks(true, false, false);
 
         var heuristic = new Heuristics(HEURISTIC_TYPE);
         tec.addComparator(heuristic.getComparator());
@@ -120,11 +121,10 @@ public class HeuristicsPaperScenario {
         Missions.generateMissions();
         Missions.setMap(MAP);
 
-        String fileName = "M" + "_" + "S" + "_" + productionVehicle1.getSafetyDistance() * SCALE_ADJUSTMENT + "_"
+        String fileName = "R" + "_" + "S" + "_" + productionVehicle1.getSafetyDistance() * SCALE_ADJUSTMENT + "_"
                 + "V" + "_" + productionVehicle1.getMaxVelocity() * SCALE_ADJUSTMENT + "_";
         if (WRITE_VEHICLE_REPORTS)
             RobotReportWriter.writeReports(tec, REPORTING_TIME, SIMULATION_INTERVAL, heuristicName, REPORT_ADDRESS, fileName, SCALE_ADJUSTMENT);
         Missions.runTasks(tec, SIMULATION_INTERVAL);
     }
-
 }

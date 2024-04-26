@@ -116,7 +116,7 @@ public class TrajectoryEnvelopeCoordinatorSimulation extends TrajectoryEnvelopeC
 				PoseSteering[] path = m.getPath();
 				ArrayList<Integer> sps = computeStoppingPoints(path);
 				userStoppingPoints.put(m, m.getStoppingPoints());
-				for (Integer i : sps) m.setStoppingPoint(path[i-1].getPose(), 100);				
+				for (Integer i : sps) m.setStoppingPoint(path[i-1].getPose(), 100);
 			}
 		}
 		if (!super.addMissions(missions)) {
@@ -126,7 +126,7 @@ public class TrajectoryEnvelopeCoordinatorSimulation extends TrajectoryEnvelopeC
 					for (Pose p : userStoppingPoints.get(m).keySet()) {
 						m.setStoppingPoint(p, userStoppingPoints.get(m).get(p));
 					}
-				}			
+				}
 			}
 			return false;
 		}
@@ -140,7 +140,7 @@ public class TrajectoryEnvelopeCoordinatorSimulation extends TrajectoryEnvelopeC
 	public void setUseInternalCriticalPoints(boolean value) {
 		this.useInternalCPs = value;
 	}
-		
+
 	/**
 	 * Get the maximum velocity of a given robot (m/s).
 	 * @param robotID The ID of the robot.
@@ -149,11 +149,11 @@ public class TrajectoryEnvelopeCoordinatorSimulation extends TrajectoryEnvelopeC
 	@Override
 	public Double getRobotMaxVelocity(int robotID) {
 		robotMaxVelocity = VehiclesHashMap.getVehicleMaxVelocities();
-		if (this.robotMaxVelocity.containsKey(robotID)) 
+		if (this.robotMaxVelocity.containsKey(robotID))
 			return this.robotMaxVelocity.get(robotID);
 		return DEFAULT_MAX_VELOCITY;
 	}
-	
+
 	/**
 	 * Get the maximum acceleration of a given robot (m/s^2).
 	 * @param robotID The ID of the robot.
@@ -162,7 +162,7 @@ public class TrajectoryEnvelopeCoordinatorSimulation extends TrajectoryEnvelopeC
 	@Override
 	public Double getRobotMaxAcceleration(int robotID) {
 		robotMaxAcceleration = VehiclesHashMap.getVehicleMaxAccelerations();
-		if (this.robotMaxAcceleration.containsKey(robotID)) 
+		if (this.robotMaxAcceleration.containsKey(robotID))
 			return this.robotMaxAcceleration.get(robotID);
 		return DEFAULT_MAX_ACCELERATION;
 	}
@@ -179,7 +179,7 @@ public class TrajectoryEnvelopeCoordinatorSimulation extends TrajectoryEnvelopeC
 			return this.robotTrackingPeriodInMillis.get(robotID);
 		return DEFAULT_ROBOT_TRACKING_PERIOD;
 	}
-	
+
 	@Override
 	protected Double getMaxFootprintDimension(int robotID) {
 		if (this.footprints.containsKey(robotID)) return maxFootprintDimensions.get(robotID);
@@ -204,7 +204,7 @@ public class TrajectoryEnvelopeCoordinatorSimulation extends TrajectoryEnvelopeC
 		if (this.footprints.containsKey(robotID)) return this.footprints.get(robotID);
 		return DEFAULT_FOOTPRINT;
 	}
-	
+
 	/**
 	 * Get a {@link Geometry} representing the default footprint of robots.
 	 * @return A {@link Geometry} representing the default footprint of robots.
@@ -212,7 +212,7 @@ public class TrajectoryEnvelopeCoordinatorSimulation extends TrajectoryEnvelopeC
 	public Geometry getDefaultFootprintPolygon() {
         return TrajectoryEnvelope.createFootprintPolygon(DEFAULT_FOOTPRINT);
 	}
-	
+
 	/**
 	 * Set the default footprint of robots, which is used for computing spatial envelopes.
 	 * Provide the bounding polygon of the machine assuming its reference point is in (0,0), and its
@@ -245,16 +245,16 @@ public class TrajectoryEnvelopeCoordinatorSimulation extends TrajectoryEnvelopeC
 	public long getCurrentTimeInMillis() {
 		return Calendar.getInstance().getTimeInMillis()-START_TIME;
 	}
-	
+
 	@Override
 	protected String[] getStatistics() {
-		
+
 		String CONNECTOR_BRANCH = (char)0x251C + "" + (char)0x2500 + " ";
 		String CONNECTOR_LEAF = (char)0x2514 + "" + (char)0x2500 + " ";
 		ArrayList<String> ret = new ArrayList<String>();
 		int numVar = solver.getConstraintNetwork().getVariables().length;
 		int numCon = solver.getConstraintNetwork().getConstraints().length;
-		
+
 		synchronized (trackers) {
 			ret.add("Status @ "  + getCurrentTimeInMillis() + " ms");
 			ret.add(CONNECTOR_BRANCH + 		"Eff period .......... " + EFFECTIVE_CONTROL_PERIOD + " ms");
@@ -277,7 +277,7 @@ public class TrajectoryEnvelopeCoordinatorSimulation extends TrajectoryEnvelopeC
 			st = CONNECTOR_BRANCH + 		"Robots' view ........ ";
 			for (Integer robotID : allRobots) {
 				AbstractTrajectoryEnvelopeTracker tracker = trackers.get(robotID);
-				RobotReport rr = getRobotReport(robotID); 
+				RobotReport rr = getRobotReport(robotID);
 				if (rr != null ) {
 					int currentPP = rr.getPathIndex();
 					st += tracker.getTrajectoryEnvelope().getComponent();
@@ -294,7 +294,7 @@ public class TrajectoryEnvelopeCoordinatorSimulation extends TrajectoryEnvelopeC
 		if (checkCollisions) {
 			int numberOfCollisions = 0;
 			synchronized (collisionsList) {
-				numberOfCollisions = collisionsList.size();		
+				numberOfCollisions = collisionsList.size();
 				ret.add(CONNECTOR_BRANCH + 	"Collisions .......... " + numberOfCollisions + ".");
 				if (numberOfCollisions>0) {
 					for (int cindex = 0; cindex < collisionsList.size()-1; cindex++) {
@@ -312,13 +312,13 @@ public class TrajectoryEnvelopeCoordinatorSimulation extends TrajectoryEnvelopeC
 		ret.add(CONNECTOR_LEAF + 			"Re-planned paths .... " + replanningTrialsCounter.get() + ", successful: " + successfulReplanningTrialsCounter.get() + ".");
 		return ret.toArray(new String[ret.size()]);
 	}
-	
+
 	@Override
 	public void onCriticalSectionUpdate() {
-		
+
 		if (checkCollisions && (collisionThread == null) && (!this.allCriticalSections.isEmpty())) {
-			// Start the collision checking thread. 
-			// The tread will be alive until there will be almost one critical section.
+			// Start the collision checking thread.
+			// The thread will be alive until there will be almost one critical section.
 			collisionThread = new Thread("Collision checking thread.") {
 
 				@Override
@@ -326,18 +326,18 @@ public class TrajectoryEnvelopeCoordinatorSimulation extends TrajectoryEnvelopeC
 					metaCSPLogger.info("Starting the collision checking thread.");
 					ArrayList<CriticalSection> previousCollidingCS = new ArrayList<>();
 					ArrayList<CriticalSection> newCollidingCS = new ArrayList<>();
-					
+
 					while(true) {
 						newCollidingCS.clear();
-						
-						//collisions can happen only in critical sections						
+
+						//collisions can happen only in critical sections
 						synchronized (allCriticalSections) {
 							if (allCriticalSections.isEmpty())
 								break; //break the thread if there are no critical sections to control
-							
+
 							for (CriticalSection cs : allCriticalSections) {
 								//check if both the robots are inside the critical section
-								
+
 								//FIXME sample the real pose of the robots (ok in simulation, but not otherwise)
 								RobotReport robotReport1, robotReport2;
 								AbstractTrajectoryEnvelopeTracker tracker1, tracker2;
@@ -352,7 +352,7 @@ public class TrajectoryEnvelopeCoordinatorSimulation extends TrajectoryEnvelopeC
 								catch (NullPointerException e) {
 									continue; //skip this cycle
 								}
-								
+
 								if ( robotReport1 != null && robotReport2 != null &&
 								(robotReport1.getPathIndex() <= cs.getTrajectoryEnvelopeEnd1()) && (robotReport1.getPathIndex() >= cs.getTrajectoryEnvelopeStart1()) && //robot1 is inside
 								(robotReport2.getPathIndex() <= cs.getTrajectoryEnvelopeEnd2()) && (robotReport2.getPathIndex() >= cs.getTrajectoryEnvelopeStart2())  	//robot2 is inside
@@ -360,10 +360,10 @@ public class TrajectoryEnvelopeCoordinatorSimulation extends TrajectoryEnvelopeC
 									//place robot  in pose and get geometry
 									PoseSteering[] path1 = cs.getTrajectoryEnvelope1().getTrajectory().getPoseSteering();
 									Geometry placement1 = cs.getTrajectoryEnvelope1().makeFootprint(path1[robotReport1.getPathIndex()]);
-									
+
 									PoseSteering[] path2 = cs.getTrajectoryEnvelope2().getTrajectory().getPoseSteering();
 									Geometry placement2 = cs.getTrajectoryEnvelope2().makeFootprint(path2[robotReport2.getPathIndex()]);
-									
+
 									//check intersection
 									if (placement1.intersects(placement2)) {
 										if (!previousCollidingCS.contains(cs)) {
@@ -371,7 +371,7 @@ public class TrajectoryEnvelopeCoordinatorSimulation extends TrajectoryEnvelopeC
 											CollisionEvent ce = new CollisionEvent(Calendar.getInstance().getTimeInMillis(),robotReport1,robotReport2);
 											synchronized (collisionsList) {
 												collisionsList.add(ce);
-											}		
+											}
 											newCollidingCS.add(cs);
 										}
 									}
@@ -380,13 +380,13 @@ public class TrajectoryEnvelopeCoordinatorSimulation extends TrajectoryEnvelopeC
 							}
 						}
 						previousCollidingCS.addAll(newCollidingCS);
-						
+
 						try { Thread.sleep((long)(1000.0/30.0)); }
 						catch (InterruptedException e) { e.printStackTrace(); }
 					}
 					metaCSPLogger.info("Ending the collision checking thread.");
 				}
-					
+
 			};
 			collisionThread.start();
 		}
