@@ -22,9 +22,9 @@ public class HeuristicsPaperScenario {
             "/src/main/java/se/oru/coordination/coordination_oru/results/HeuristicsPaperScenario";
     public static final double LENGTH = 9.0;
     public static final double WIDTH = 7.0;
-    public static final double MAX_VELOCITY = 10.0;
+    public static final double MAX_VELOCITY = 15.0;
     public static final double MAX_ACCELERATION = 1.0;
-    public static final double PRODUCTION_SAFETY_DISTANCE = 10.0;
+    public static final double PRODUCTION_SAFETY_DISTANCE = 50.0;
     public static final double SERVICE_SAFETY_DISTANCE = 10.0;
     public static final boolean VISUALIZATION = true;
     public static final boolean WRITE_VEHICLE_REPORTS = true;

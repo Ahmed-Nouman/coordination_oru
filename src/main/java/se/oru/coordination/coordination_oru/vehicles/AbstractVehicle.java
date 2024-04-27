@@ -142,7 +142,6 @@ public abstract class AbstractVehicle {
         }
     }
 
-
     public PoseSteering deserializePoseSteering(String line) {
         String[] parts = line.split(" ");
         double x = Double.parseDouble(parts[0]);

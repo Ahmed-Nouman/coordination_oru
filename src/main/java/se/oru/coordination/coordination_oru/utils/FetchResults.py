@@ -9,7 +9,7 @@ scripts = [
 ]
 
 # Time in seconds to wait between each script
-delay_between_scripts = 2  # Delay of 2 seconds
+delay_between_scripts = 1  # Delay of 1 seconds
 
 # Loop through each script and run them one by one
 for script in scripts:

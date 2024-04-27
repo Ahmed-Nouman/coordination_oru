@@ -95,7 +95,7 @@ public abstract class AbstractTrajectoryEnvelopeCoordinator {
 	protected TreeSet<Pair<TrajectoryEnvelope,Long>> missionsPool = new TreeSet<>((te1, te2) -> te1.getSecond() < te2.getSecond() ? 1 : -1);
 	protected ArrayList<TrajectoryEnvelope> envelopesToTrack = new ArrayList<>();
 	protected ArrayList<TrajectoryEnvelope> currentParkingEnvelopes = new ArrayList<TrajectoryEnvelope>();
-	protected final HashSet<CriticalSection> allCriticalSections = new HashSet<>();
+	public final HashSet<CriticalSection> allCriticalSections = new HashSet<>();
 	protected HashMap<CriticalSection,Pair<Integer,Integer>> CSToDepsOrder = new HashMap<CriticalSection,Pair<Integer,Integer>>(); 
 	HashMap<Dependency,CriticalSection> depsToCS = new HashMap<Dependency, CriticalSection>();
 	protected HashMap<CriticalSection,Pair<Integer,Integer>> escapingCSToWaitingRobotIDandCP = new HashMap<CriticalSection, Pair<Integer,Integer>>();

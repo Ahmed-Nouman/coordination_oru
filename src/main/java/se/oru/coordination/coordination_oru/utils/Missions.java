@@ -57,7 +57,7 @@ public class Missions {
 	protected static double minPathDistance = -1;
 	protected static Thread missionDispatchThread = null;
 	protected static HashSet<Integer> dispatchableRobots = new HashSet<>();
-	protected static HashMap<Integer,Boolean> loopMissions = new HashMap<>();
+	public static HashMap<Integer,Boolean> loopMissions = new HashMap<>();
 
 	/**
 	 * Re-sample a given path so that the minimum distance between path poses is the value
