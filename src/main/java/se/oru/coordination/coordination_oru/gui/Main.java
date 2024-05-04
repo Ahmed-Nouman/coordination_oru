@@ -9,7 +9,7 @@ public class Main extends Application {
     private final DataStatus dataStatus = new DataStatus();
     private final SceneHome sceneHome = new SceneHome(this);
     private final SceneMap sceneMap = new SceneMap(this);
-    private final SceneVehicle sceneVehicle = new SceneVehicle(this);
+    private final VehicleScene vehicleScene = new VehicleScene(this);
     private final SceneSetup sceneSetup = new SceneSetup(this);
     final ControllerNavigation controllerNavigation = new ControllerNavigation(this);
 
@@ -51,8 +51,8 @@ public class Main extends Application {
         return sceneMap;
     }
 
-    public SceneVehicle getVehicleScene() {
-        return sceneVehicle;
+    public VehicleScene getVehicleScene() {
+        return vehicleScene;
     }
 
     public SceneSetup getSetupScene() {

@@ -25,15 +25,17 @@ public abstract class TrajectoryEnvelopeTrackerRK4 extends AbstractTrajectoryEnv
 	private Thread th = null;
 	protected State state = null;
 	protected double[] curvatureDampening = null;
-	private final ArrayList<Integer> internalCriticalPoints = new ArrayList<Integer>();
+	private final ArrayList<Integer> internalCriticalPoints = new ArrayList<>();
 	private int numberOfReplicas = 1;
 	private final Random rand = new Random(Calendar.getInstance().getTimeInMillis());
 	private TreeMap<Double,Double> slowDownProfile = null;
 	private boolean slowingDown = false;
 	private boolean useInternalCPs = true;
-	protected ArrayList<RobotReport> reportsList = new ArrayList<RobotReport>();
-	protected ArrayList<Long> reportTimeLists = new ArrayList<Long>();
+	protected ArrayList<RobotReport> reportsList = new ArrayList<>();
+	protected ArrayList<Long> reportTimeLists = new ArrayList<>();
 	private HashMap<Integer,Integer> userCPReplacements = null;
+
+	private volatile boolean isPaused = false;  // Flag to control the paused state
 
 	public void setUseInternalCriticalPoints(boolean value) {
 		this.useInternalCPs = value;
@@ -205,10 +207,10 @@ public abstract class TrajectoryEnvelopeTrackerRK4 extends AbstractTrajectoryEnv
 		Thread t = new Thread() {
 			@Override
 			public void run() {
-				userCPReplacements = new HashMap<Integer, Integer>();
+				userCPReplacements = new HashMap<>();
 				
 				while (th.isAlive()) {
-					ArrayList<Integer> toRemove = new ArrayList<Integer>();
+					ArrayList<Integer> toRemove = new ArrayList<>();
 					for (Integer i : internalCriticalPoints) {
 						if (getRobotReport().getPathIndex() >= i) {
 							toRemove.add(i);
@@ -460,85 +462,96 @@ public abstract class TrajectoryEnvelopeTrackerRK4 extends AbstractTrajectoryEnv
 
 	@Override
 	public void run() {
-		this.elapsedTrackingTime = 0.0;
 		double deltaTime = 0.0;
 		boolean atCP = false;
 		int myRobotID = te.getRobotID();
 		int myTEID = te.getID();
-		
-		
+
 		while (true) {
-						
-			//End condition: passed the middle AND velocity < 0 AND no criticalPoint 			
-			boolean skipIntegration = false;
-			//if (state.getPosition() >= totalDistance/2.0 && state.getVelocity() < 0.0) {
+			synchronized (this) {
+				while (isPaused) {
+					try {
+						wait();  // Wait until the thread is notified to resume
+					} catch (InterruptedException e) {
+						Thread.currentThread().interrupt();  // Properly handle thread interruption
+						return;
+					}
+				}
+			}
+
+			// Check end condition
 			if (state.getPosition() >= this.positionToSlowDown && state.getVelocity() < 0.0) {
 				if (criticalPoint == -1 && !atCP) {
-					//set state to final position, just in case it didn't quite get there (it's certainly close enough)
 					state = new State(totalDistance, 0.0);
 					onPositionUpdate();
 					break;
 				}
-								
-				//Vel < 0 hence we are at CP, thus we need to skip integration
-				if (!atCP /*&& getRobotReport().getPathIndex() == criticalPoint*/) {
+				if (!atCP) {
 					int pathIndex = getRobotReport().getPathIndex();
 					metaCSPLogger.info("At critical point (" + te.getComponent() + "): " + criticalPoint + " (" + pathIndex + ")");
-					if (pathIndex > criticalPoint) metaCSPLogger.severe("* ATTENTION! STOPPED AFTER!! *");
 					atCP = true;
 				}
-				
-				skipIntegration = true;
-				
 			}
 
-			//Compute deltaTime
-			long timeStart = Calendar.getInstance().getTimeInMillis();
-			
-			//Update the robot's state via RK4 numerical integration
-			if (!skipIntegration) {
-				if (atCP) {
-					metaCSPLogger.info("Resuming from critical point (" + te.getComponent() + ")");
-					atCP = false;
-				}
-                slowingDown = state.getPosition() >= positionToSlowDown;
+			long timeStart = System.currentTimeMillis();
+
+			if (!atCP) {
+				slowingDown = state.getPosition() >= positionToSlowDown;
 				double dampening = getCurvatureDampening(getRobotReport().getPathIndex(), false);
 				RungeKutta4.integrate(state, elapsedTrackingTime, deltaTime, slowingDown, MAX_VELOCITY, dampening, MAX_ACCELERATION);
-
 			}
-			
-			//Do some user function on position update
+
 			onPositionUpdate();
 			enqueueOneReport();
-						
-			//Sleep for tracking period
+
+			// Handle sleep and timing
 			int delay = trackingPeriodInMillis;
-			if (NetworkConfiguration.getMaximumTxDelay() > 0) delay += rand.nextInt(NetworkConfiguration.getMaximumTxDelay());
-			try { Thread.sleep(delay); }
-			catch (InterruptedException e) { e.printStackTrace(); }
-			
-			//Advance time to reflect how much we have slept (~ trackingPeriod)
-			long deltaTimeInMillis = Calendar.getInstance().getTimeInMillis()-timeStart;
-			deltaTime = deltaTimeInMillis/this.temporalResolution;
+			if (NetworkConfiguration.getMaximumTxDelay() > 0) {
+				delay += rand.nextInt(NetworkConfiguration.getMaximumTxDelay());
+			}
+			try {
+				Thread.sleep(delay);
+			} catch (InterruptedException e) {
+				Thread.currentThread().interrupt();
+				return;
+			}
+
+			long deltaTimeInMillis = System.currentTimeMillis() - timeStart;
+			deltaTime = deltaTimeInMillis / this.temporalResolution;
 			elapsedTrackingTime += deltaTime;
 		}
-		
-		//continue transmitting until the coordinator will be informed of having reached the last position.
-		while (tec.getRobotReport(te.getRobotID()).getPathIndex() != -1)
-		{
+
+		// Post-loop cleanup
+		while (tec.getRobotReport(te.getRobotID()).getPathIndex() != -1) {
 			enqueueOneReport();
-			try { Thread.sleep(trackingPeriodInMillis); }
-			catch (InterruptedException e) { e.printStackTrace(); }
+			try {
+				Thread.sleep(trackingPeriodInMillis);
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
 		}
-		
-		//persevere with last path point in case listeners didn't catch it!
+
 		long timerStart = getCurrentTimeInMillis();
-		while (getCurrentTimeInMillis()-timerStart < WAIT_AMOUNT_AT_END) {
-			//System.out.println("Waiting " + te.getComponent());
-			try { Thread.sleep(trackingPeriodInMillis); }
-			catch (InterruptedException e) { e.printStackTrace(); }
+		while (getCurrentTimeInMillis() - timerStart < WAIT_AMOUNT_AT_END) {
+			try {
+				Thread.sleep(trackingPeriodInMillis);
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
 		}
 		metaCSPLogger.info("RK4 tracking thread terminates (Robot " + myRobotID + ", TrajectoryEnvelope " + myTEID + ")");
+	}
+
+
+	// Method to pause the tracker
+	public synchronized void pause() {
+		isPaused = true;
+	}
+
+	// Method to resume the tracker
+	public synchronized void resume() {
+		isPaused = false;
+		notifyAll();  // Notify potentially waiting thread
 	}
 
 }

@@ -3,10 +3,10 @@ package se.oru.coordination.coordination_oru.gui;
 import java.util.ArrayList;
 import java.util.Objects;
 
-public class ControllerVehicle {
-    private final SceneVehicle scene;
+public class VehicleController {
+    private final VehicleScene scene;
 
-    public ControllerVehicle(SceneVehicle scene) {
+    public VehicleController(VehicleScene scene) {
         this.scene = scene;
     }
 

@@ -13,7 +13,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-public class SceneVehicle {
+public class VehicleScene {
     private static final int PADDING = 10;
     private static final int MAP_WIDTH = 680;
     private static final int MAP_HEIGHT = 538;
@@ -27,7 +27,7 @@ public class SceneVehicle {
     private TextField safetyDistanceField;
     private ChoiceBox<String> colorField;
     private ChoiceBox<String> initialPoseField;
-    private VBox missionField;
+    private VBox taskField;
     private TextField missionRepetitionField;
     private CheckBox isHumanField;
     private Text lookAheadDistance;
@@ -43,9 +43,9 @@ public class SceneVehicle {
     private final Button deleteVehicle = new Button("Delete Vehicle");
     private final Main main;
     private BorderPane pane;
-    private final ControllerVehicle controller = new ControllerVehicle(this);
+    private final VehicleController controller = new VehicleController(this);
 
-    public SceneVehicle(Main main) {
+    public VehicleScene(Main main) {
         this.main = main;
     }
 
@@ -178,8 +178,8 @@ public class SceneVehicle {
         missionButtons.setSpacing(5);
         missionButtons.setAlignment(Pos.CENTER);
         missionButtons.getChildren().addAll(add, delete, down, up, load);
-        missionField.setMaxWidth(TEXT_WIDTH);
-        missionField.getChildren().addAll(missions, missionButtons);
+        taskField.setMaxWidth(TEXT_WIDTH);
+        taskField.getChildren().addAll(missions, missionButtons);
         missionController();
     }
 
@@ -238,7 +238,7 @@ public class SceneVehicle {
         var safetyDistance = text("Safety Distance (m): ", 6);
         var color = text("Color: ", 7);
         var initialPose = text("Start Pose: ", 8);
-        var task = text("Tasks (min, task):", 9);
+        var task = text("Tasks (min, goals, priority):", 9);
         var taskRepetition = text("Tasks Repetition: ", 10);
         var isHuman = text("Human Operated: ", 11);
         lookAheadDistance = text("Look Ahead Distance (m): ", 12);
@@ -255,7 +255,7 @@ public class SceneVehicle {
                 safetyDistance, safetyDistanceField,
                 color, colorField,
                 initialPose, initialPoseField,
-                task, missionField,
+                task, taskField,
                 taskRepetition, missionRepetitionField,
                 isHuman, isHumanField,
                 lookAheadDistance, lookAheadDistanceField);
@@ -284,7 +284,7 @@ public class SceneVehicle {
         colorField = choiceBox(colors, 7);
         var poses = new ArrayList<>(main.getDataStatus().getProjectData().getPoses().keySet());
         initialPoseField = choiceBox(poses, 8);
-        missionField = vBox(9);
+        taskField = vBox(9);
         missionRepetitionField = textField(10);
         isHumanField = checkBox(11);
         lookAheadDistanceField = textField(12);
