@@ -543,15 +543,13 @@ public abstract class TrajectoryEnvelopeTrackerRK4 extends AbstractTrajectoryEnv
 	}
 
 
-	// Method to pause the tracker
 	public synchronized void pause() {
 		isPaused = true;
 	}
 
-	// Method to resume the tracker
 	public synchronized void resume() {
 		isPaused = false;
-		notifyAll();  // Notify potentially waiting thread
+		notifyAll();
 	}
 
 }

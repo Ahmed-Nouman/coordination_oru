@@ -45,11 +45,11 @@ public class Test {
 //        autonomousVehicle1.addTask(new Task(0, new Pose[] {mainTunnelLeft}, 0));
 //        autonomousVehicle1.addTask(new Task(0.1, new Pose[] {orePass}, 1));
 
-//        autonomousVehicle.generatePlans(planner);
+        autonomousVehicle.generatePlans(planner);
 //        autonomousVehicle1.generatePlans(planner);
-//        autonomousVehicle.savePlans(className);
+        autonomousVehicle.savePlans(className);
 //        autonomousVehicle1.savePlans(className);
-        autonomousVehicle.loadPlans(folderName + "A1.path");
+//        autonomousVehicle.loadPlans(folderName + "A1.path");
 //        autonomousVehicle1.loadPlans(folderName + "A2.path");
 
         // Instantiate a trajectory envelope coordinator.
@@ -93,28 +93,35 @@ public class Test {
         // Create a scheduled executor service to manage timing
         final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
 
-        // Runnable task to stop the first vehicle after 2000 steps
+        // Runnable task to stop the first vehicle after a specified step
         Runnable stopFirstVehicle = new Runnable() {
             private int stepCounter = 0;
+            private boolean isStopped = false; // To manage if the vehicle is stopped
 
             @Override
             public void run() {
                 // The step at which to stop the first vehicle.
                 int stopStep = 100;
-                if (stepCounter == stopStep) {
-                    System.out.println(TEC.trackers.get(1).getRobotReport().getPathIndex());
-                    System.out.println("Stopping the first vehicle."); // Print the stopping message
-                    TEC.trackers.get(1).pause(); // Stop tracking the first vehicle
-//                    TEC.trackers.get(1).stopTracking();
-//                    TEC.trackers.get(1).startTracking();
-                    return; // Stop executing this runnable
+                if (stepCounter == stopStep && !isStopped) {
+                    System.out.println("Stopping the first vehicle.");
+                    TEC.trackers.get(1).pause(); // Assume pause stops the vehicle
+                    isStopped = true;
+                    // Schedule the resume action after 5 seconds
+                    scheduler.schedule(this::resumeVehicle, 5, TimeUnit.SECONDS);
+                    return; // Only stop once and do not continue incrementing stepCounter or rescheduling itself
                 }
-                stepCounter++;  // Increment the step counter
-
-                // Reschedule this task to run again after 100 milliseconds if the scheduler is not shut down
-                if (!scheduler.isShutdown()) {
+                if (!isStopped) {
+                    stepCounter++;  // Increment the step counter only if not stopped
+                    // Reschedule this task to run again after 100 milliseconds
                     scheduler.schedule(this, 100, TimeUnit.MILLISECONDS);
                 }
+            }
+
+            // Method to resume the vehicle
+            private void resumeVehicle() {
+                System.out.println("Resuming the first vehicle.");
+                TEC.trackers.get(1).resume();
+                scheduler.shutdown(); // Optional: Shut down the scheduler if no further tasks are scheduled
             }
         };
 
@@ -122,8 +129,11 @@ public class Test {
         scheduler.schedule(stopFirstVehicle, 2, TimeUnit.SECONDS);
 
         // Keep main thread alive to allow time for the scheduler to complete tasks
-        scheduler.awaitTermination(1, TimeUnit.HOURS);  // Wait for up to 1 hour for scheduler to terminate
+        // scheduler.awaitTermination(1, TimeUnit.HOURS);  // Wait for up to 1 hour for scheduler to terminate
+        // It's better to avoid using awaitTermination in production if not needed. If used, it should be done wisely.
     }
+
+
 
 
 }

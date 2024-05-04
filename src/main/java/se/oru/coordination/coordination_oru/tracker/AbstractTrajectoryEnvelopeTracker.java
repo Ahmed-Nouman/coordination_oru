@@ -50,17 +50,15 @@ public abstract class AbstractTrajectoryEnvelopeTracker {
 	protected boolean canStartTracking = false;
 	protected long startingTimeInMillis;
 
-	protected volatile boolean isPaused = false;  // Flag to control the paused state
+	protected volatile boolean isPaused = false;
 
-	// Method to pause the tracker
 	public synchronized void pause() {
 		isPaused = true;
 	}
 
-	// Method to resume the tracker
 	public synchronized void resume() {
 		isPaused = false;
-		notifyAll();  // Notify potentially waiting thread
+		notifyAll();
 	}
 	
 	protected Logger metaCSPLogger = MetaCSPLogging.getLogger(AbstractTrajectoryEnvelopeTracker.class);
