@@ -35,6 +35,18 @@ public abstract class MyTracker extends AbstractTrajectoryEnvelopeTracker implem
     protected ArrayList<Long> reportTimeLists = new ArrayList<>();
     private HashMap<Integer,Integer> userCPReplacements = null;
 
+    public static void resumeVehicles(ArrayList<AbstractTrajectoryEnvelopeTracker> trackers) {
+        for (var tracker : trackers) {
+            tracker.resume();
+        }
+    }
+
+    public static void stopVehicles(ArrayList<AbstractTrajectoryEnvelopeTracker> trackers) {
+        for (AbstractTrajectoryEnvelopeTracker tracker : trackers) {
+            tracker.pause();
+        }
+    }
+
     public void setUseInternalCriticalPoints(boolean value) {
         this.useInternalCPs = value;
     }

@@ -18,7 +18,7 @@ import se.oru.coordination.coordination_oru.vehicles.VehiclesHashMap;
 import java.awt.*;
 import java.io.FileNotFoundException;
 
-public class PaperScenario_3A1L {
+public class LookAheadPaper_3A1L {
     public static void main(String[] args) throws FileNotFoundException {
 
         String absolutePath = System.getProperty("user.dir");

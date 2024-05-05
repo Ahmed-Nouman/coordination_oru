@@ -108,7 +108,7 @@ public class MapInspector extends JPanel implements MouseListener, MouseMotionLi
 //		String map = "/home/ra2/mine-map-full.yaml";
 //		String map = "maps/mine-map-heuristic-paper.yaml";
 //		String map = "maps/mine-map-test.yaml";
-		String map = "maps/mine-map-scenario.yaml";
+		String map = "maps/mine-map-shutdown.yaml";
 		OccupancyMap om = new OccupancyMap(map);
 		//"/home/fpa/gitroot.gitlab/iqmobility/maps/leipzig-lindenau/leipzig-lindenau.yaml"
 		MapInspector p = new MapInspector(om);

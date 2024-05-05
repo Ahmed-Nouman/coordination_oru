@@ -2,6 +2,8 @@ package se.oru.coordination.coordination_oru.scenarios;
 
 import org.metacsp.multi.spatioTemporal.paths.Pose;
 import se.oru.coordination.coordination_oru.forwardModel.ConstantAcceleration;
+import se.oru.coordination.coordination_oru.tracker.AbstractTrajectoryEnvelopeTracker;
+import se.oru.coordination.coordination_oru.tracker.MyTracker;
 import se.oru.coordination.coordination_oru.utils.Task;
 import se.oru.coordination.coordination_oru.forwardModel.ForwardModel;
 import se.oru.coordination.coordination_oru.motionPlanning.VehiclePathPlanner;
@@ -13,6 +15,7 @@ import se.oru.coordination.coordination_oru.utils.Missions;
 import se.oru.coordination.coordination_oru.vehicles.AutonomousVehicle;
 
 import java.awt.*;
+import java.util.ArrayList;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -34,20 +37,20 @@ public class Test {
                 0.09, 30, 2.0, 0.1);
 
         var autonomousVehicle = new AutonomousVehicle("A1",1, Color.YELLOW, 10.0, 1.0,
-                0.9, 0.65, drawPoint21, 2.4, 2, model);
+                0.9, 0.65, drawPoint21, 0.0, 2, model);
 //        autonomousVehicle.setGoals(new Pose[] {mainTunnelRight, drawPoint21});
 //        autonomousVehicle.setGoals(new Pose[] {mainTunnelRight, drawPoint21});
         autonomousVehicle.addTask(new Task(0, new Pose[] {mainTunnelRight}, 1));
         autonomousVehicle.addTask(new Task(0.1, new Pose[] {drawPoint21}, 0));
 
-//        var autonomousVehicle1 = new AutonomousVehicle("A2",1, Color.YELLOW, 10.0, 1.0,
-//                0.9, 0.65, orePass, 2.4, 2, model);
-//        autonomousVehicle1.addTask(new Task(0, new Pose[] {mainTunnelLeft}, 0));
-//        autonomousVehicle1.addTask(new Task(0.1, new Pose[] {orePass}, 1));
+        var autonomousVehicle1 = new AutonomousVehicle("A2",2, Color.YELLOW, 10.0, 1.0,
+                0.9, 0.65, orePass, 0.0, 2, model);
+        autonomousVehicle1.addTask(new Task(0, new Pose[] {mainTunnelLeft}, 0));
+        autonomousVehicle1.addTask(new Task(0.1, new Pose[] {orePass}, 1));
 
         autonomousVehicle.generatePlans(planner);
-//        autonomousVehicle1.generatePlans(planner);
-        autonomousVehicle.savePlans(className);
+        autonomousVehicle1.generatePlans(planner);
+//        autonomousVehicle.savePlans(className);
 //        autonomousVehicle1.savePlans(className);
 //        autonomousVehicle.loadPlans(folderName + "A1.path");
 //        autonomousVehicle1.loadPlans(folderName + "A2.path");
@@ -57,12 +60,14 @@ public class Test {
         TEC.setupSolver(0, 100000000);
         // Start the thread that checks and enforces dependencies at every clock tick
         TEC.startInference();
+//        var heuristics = new Heuristics(Heuristics.HeuristicType.HIGHEST_PRIORITY_FIRST);
+//        TEC.addComparator(heuristics.getComparator());
 
         TEC.setDefaultFootprint(autonomousVehicle.getFootprint());
         TEC.placeRobotsAtStartPoses();
 //        tec.placeRobot(autonomousVehicle.getID(), autonomousVehicle.getPaths().get(0)[0].getPose()); //FIXME: DO Automatic placing of vehicles
 //        tec.placeRobot(autonomousVehicle1.getID(), autonomousVehicle1.getPaths().get(0)[0].getPose());
-        TEC.addComparator(new Heuristics(Heuristics.HeuristicType.MISSION_PRIORITY_FIRST).getComparator());
+        TEC.addComparator(new Heuristics(Heuristics.HeuristicType.HIGHEST_PRIORITY_FIRST).getComparator());
         TEC.setUseInternalCriticalPoints(false);
         TEC.setYieldIfParking(true);
         TEC.setBreakDeadlocks(true, false, false);
@@ -103,11 +108,13 @@ public class Test {
                 // The step at which to stop the first vehicle.
                 int stopStep = 100;
                 if (stepCounter == stopStep && !isStopped) {
-                    System.out.println("Stopping the first vehicle.");
-                    TEC.trackers.get(1).pause(); // Assume pause stops the vehicle
+                    ArrayList<AbstractTrajectoryEnvelopeTracker> trackers = new ArrayList<>();
+                    trackers.add(TEC.trackers.get(1));
+                    trackers.add(TEC.trackers.get(2));
+                    MyTracker.stopVehicles(trackers);
                     isStopped = true;
                     // Schedule the resume action after 5 seconds
-                    scheduler.schedule(this::resumeVehicle, 5, TimeUnit.SECONDS);
+                    scheduler.schedule(() -> MyTracker.resumeVehicles(trackers), 5, TimeUnit.SECONDS);
                     return; // Only stop once and do not continue incrementing stepCounter or rescheduling itself
                 }
                 if (!isStopped) {
@@ -116,24 +123,12 @@ public class Test {
                     scheduler.schedule(this, 100, TimeUnit.MILLISECONDS);
                 }
             }
-
-            // Method to resume the vehicle
-            private void resumeVehicle() {
-                System.out.println("Resuming the first vehicle.");
-                TEC.trackers.get(1).resume();
-                scheduler.shutdown(); // Optional: Shut down the scheduler if no further tasks are scheduled
-            }
         };
 
         // Schedule the task to start after 2 seconds
         scheduler.schedule(stopFirstVehicle, 2, TimeUnit.SECONDS);
 
-        // Keep main thread alive to allow time for the scheduler to complete tasks
-        // scheduler.awaitTermination(1, TimeUnit.HOURS);  // Wait for up to 1 hour for scheduler to terminate
-        // It's better to avoid using awaitTermination in production if not needed. If used, it should be done wisely.
     }
-
-
 
 
 }

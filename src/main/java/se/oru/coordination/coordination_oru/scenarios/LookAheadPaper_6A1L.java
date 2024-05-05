@@ -16,7 +16,7 @@ import se.oru.coordination.coordination_oru.vehicles.VehiclesHashMap;
 import java.awt.*;
 import java.io.IOException;
 
-public class PaperScenario_6A1L {
+public class LookAheadPaper_6A1L {
     public static void main(String[] args) throws IOException {
 
         String absolutePath = System.getProperty("user.dir");

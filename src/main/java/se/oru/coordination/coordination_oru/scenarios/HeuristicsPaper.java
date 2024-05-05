@@ -12,7 +12,7 @@ import se.oru.coordination.coordination_oru.vehicles.AutonomousVehicle;
 
 import java.awt.*;
 
-public class HeuristicsPaperScenario {
+public class HeuristicsPaper {
 
     public static final String MAP = "maps/mine-map-heuristic-paper.yaml";
     public static final double MAP_RESOLUTION = new MapResolution().getMapResolution(MAP);
@@ -42,7 +42,7 @@ public class HeuristicsPaperScenario {
     public static final double DOWN_LEFT = 5 * Math.PI / 4;
     public static final double DOWN_RIGHT = 7 * Math.PI / 4;
     public static final double RIGHT = 0;
-    public static final double LEFT = Math.PI;;
+    public static final double LEFT = Math.PI;
     public static void main(String[] args) throws Exception {
 
         final var maxVelocity = MAX_VELOCITY / SCALE_ADJUSTMENT;

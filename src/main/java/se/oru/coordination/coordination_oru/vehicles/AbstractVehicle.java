@@ -133,6 +133,10 @@ public abstract class AbstractVehicle {
 
         try (var out = new PrintWriter(filename)) {
             this.getPaths().forEach(path -> {
+                if (path == null) {
+                    System.out.println("Path not found.");
+                    return;
+                };
                 Arrays.stream(path).map(this::serializePoseSteering).forEach(out::println);
                 out.println("---");
             });
