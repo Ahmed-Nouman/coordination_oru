@@ -229,7 +229,6 @@ public class TrajectoryEnvelopeCoordinatorSimulation extends TrajectoryEnvelopeC
 	public AbstractTrajectoryEnvelopeTracker getNewTracker(TrajectoryEnvelope te, TrackingCallback cb) {
 		if (this.getRobotTrackingPeriodInMillis(te.getRobotID()) == null || this.getRobotMaxVelocity(te.getRobotID()) == null || this.getRobotMaxAcceleration(te.getRobotID()) == null) throw new Error("Robot" +  te.getRobotID() + ": missing kinodynamic parameters.");
 		var ret = new MyTracker(te, this.getRobotTrackingPeriodInMillis(te.getRobotID()), TEMPORAL_RESOLUTION, this.getRobotMaxVelocity(te.getRobotID()), this.getRobotMaxAcceleration(te.getRobotID()), this, cb) {
-
 			//Method for measuring time in the trajectory envelope tracker
 			@Override
 			public long getCurrentTimeInMillis() {
@@ -249,7 +248,6 @@ public class TrajectoryEnvelopeCoordinatorSimulation extends TrajectoryEnvelopeC
 
 	@Override
 	protected String[] getStatistics() {
-
 		String CONNECTOR_BRANCH = (char)0x251C + "" + (char)0x2500 + " ";
 		String CONNECTOR_LEAF = (char)0x2514 + "" + (char)0x2500 + " ";
 		ArrayList<String> ret = new ArrayList<String>();

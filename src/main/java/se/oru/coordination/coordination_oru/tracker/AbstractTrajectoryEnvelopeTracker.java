@@ -52,15 +52,6 @@ public abstract class AbstractTrajectoryEnvelopeTracker {
 
 	protected volatile boolean isPaused = false;
 
-	public synchronized void pause() {
-		isPaused = true;
-	}
-
-	public synchronized void resume() {
-		isPaused = false;
-		notifyAll();
-	}
-	
 	protected Logger metaCSPLogger = MetaCSPLogging.getLogger(AbstractTrajectoryEnvelopeTracker.class);
 
 	/**
@@ -88,21 +79,21 @@ public abstract class AbstractTrajectoryEnvelopeTracker {
 	}
 	
 	/**
-	 * Return the tracking period in milli-seconds.
+	 * Return the tracking period in milliseconds.
 	 */
 	public int getTrackingPeriod() {
 		return this.trackingPeriodInMillis;
 	}
 	
 	/**
-	 * Return the coordination time (in milli-seconds) at which the tracker has started its mission.
+	 * Return the coordination time (in milliseconds) at which the tracker has started its mission.
 	 */
 	public long getStartingTimeInMillis() {
 		return this.startingTimeInMillis;
 	}
 	
 	/**
-	 * Return the coordination time (in milli-seconds) at which the tracker has started its mission.
+	 * Return the coordination time (in milliseconds) at which the tracker has started its mission.
 	 */
 	public void resetStartingTimeInMillis() {
 		this.startingTimeInMillis= tec.getCurrentTimeInMillis();
@@ -509,6 +500,5 @@ public abstract class AbstractTrajectoryEnvelopeTracker {
 	public TrajectoryEnvelope getTrajectoryEnvelope() {
 		return this.te;
 	}
-	
-	
+
 }

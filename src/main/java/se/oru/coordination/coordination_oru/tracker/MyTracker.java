@@ -10,14 +10,19 @@ import se.oru.coordination.coordination_oru.coordinator.TrajectoryEnvelopeCoordi
 import se.oru.coordination.coordination_oru.utils.RungeKutta4;
 import se.oru.coordination.coordination_oru.utils.RobotReport;
 import se.oru.coordination.coordination_oru.utils.State;
+import se.oru.coordination.coordination_oru.vehicles.AutonomousVehicle;
+import se.oru.coordination.coordination_oru.vehicles.VehiclesHashMap;
 
 import java.util.*;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
+import java.util.function.Function;
 
 public abstract class MyTracker extends AbstractTrajectoryEnvelopeTracker implements Runnable {
 
     protected static final long WAIT_AMOUNT_AT_END = 3000;
-    protected final double MAX_VELOCITY;
-    protected final double MAX_ACCELERATION;
+    public double maxVelocity;
+    protected final double maxAcceleration;
     protected double overallDistance = 0.0;
     protected double totalDistance = 0.0;
     protected double positionToSlowDown = -1.0;
@@ -35,15 +40,99 @@ public abstract class MyTracker extends AbstractTrajectoryEnvelopeTracker implem
     protected ArrayList<Long> reportTimeLists = new ArrayList<>();
     private HashMap<Integer,Integer> userCPReplacements = null;
 
-    public static void resumeVehicles(ArrayList<AbstractTrajectoryEnvelopeTracker> trackers) {
-        for (var tracker : trackers) {
-            tracker.resume();
+    public static void scheduleVehicleSlow(
+            AutonomousVehicle priorityVehicle,
+            List<Integer> missionIDsToStop,
+            List<Integer> vehicleIDsToSTop,
+            Function<Integer, AbstractTrajectoryEnvelopeTracker> trackerRetriever) {
+        final var scheduler = Executors.newScheduledThreadPool(1);
+
+        var shutdown = new Runnable() {
+            @Override
+            public void run() {
+                if (missionIDsToStop.contains(priorityVehicle.getCurrentTaskIndex())) {
+                    var trackers = new ArrayList<AbstractTrajectoryEnvelopeTracker>();
+                    for (Integer vehicleId : vehicleIDsToSTop) {
+                        trackers.add(trackerRetriever.apply(vehicleId));
+                    }
+                    slowVehicles(trackers);
+
+                    scheduler.schedule(() -> {
+                        if (!missionIDsToStop.contains(priorityVehicle.getCurrentTaskIndex())) {
+                            fasterVehicles(trackers);
+                        }
+                    }, 5, TimeUnit.SECONDS);
+                }
+                scheduler.schedule(this, 100, TimeUnit.MILLISECONDS);
+            }
+        };
+
+        scheduler.schedule(shutdown, 2, TimeUnit.SECONDS);
+    }
+
+    private static void fasterVehicles(ArrayList<AbstractTrajectoryEnvelopeTracker> trackers) {
+        for (AbstractTrajectoryEnvelopeTracker tracker : trackers) {
+            synchronized (tracker) {
+                System.out.println("Faster vehicle");
+                VehiclesHashMap.getVehicle(tracker.te.getRobotID()).setMaxVelocity(100.0);
+            }
         }
+    }
+
+    public static void slowVehicles(ArrayList<AbstractTrajectoryEnvelopeTracker> trackers) {
+        for (AbstractTrajectoryEnvelopeTracker tracker : trackers) {
+            synchronized (tracker) {
+                System.out.println("Slow vehicle");
+                VehiclesHashMap.getVehicle(tracker.te.getRobotID()).setMaxVelocity(0.5);
+//                tracker.isPaused = true;
+            }
+        }
+    }
+
+    public static void scheduleVehicleStop(
+            AutonomousVehicle priorityVehicle,
+            List<Integer> missionIDsToStop,
+            List<Integer> vehicleIDsToSTop,
+            Function<Integer, AbstractTrajectoryEnvelopeTracker> trackerRetriever) {
+        final var scheduler = Executors.newScheduledThreadPool(1);
+
+        var shutdown = new Runnable() {
+            @Override
+            public void run() {
+                if (missionIDsToStop.contains(priorityVehicle.getCurrentTaskIndex())) {
+                    var trackers = new ArrayList<AbstractTrajectoryEnvelopeTracker>();
+                    for (Integer vehicleId : vehicleIDsToSTop) {
+                        trackers.add(trackerRetriever.apply(vehicleId));
+                    }
+                    stopVehicles(trackers);
+
+                    scheduler.schedule(() -> {
+                        if (!missionIDsToStop.contains(priorityVehicle.getCurrentTaskIndex())) {
+                            resumeVehicles(trackers);
+                        }
+                    }, 5, TimeUnit.SECONDS);
+                }
+                scheduler.schedule(this, 100, TimeUnit.MILLISECONDS);
+            }
+        };
+
+        scheduler.schedule(shutdown, 2, TimeUnit.SECONDS);
     }
 
     public static void stopVehicles(ArrayList<AbstractTrajectoryEnvelopeTracker> trackers) {
         for (AbstractTrajectoryEnvelopeTracker tracker : trackers) {
-            tracker.pause();
+            synchronized (tracker) {
+                tracker.isPaused = true;
+            }
+        }
+    }
+
+    public static void resumeVehicles(ArrayList<AbstractTrajectoryEnvelopeTracker> trackers) {
+        for (var tracker : trackers) {
+            synchronized (tracker) {
+                tracker.isPaused = false;
+                tracker.notifyAll();
+            }
         }
     }
 
@@ -53,8 +142,8 @@ public abstract class MyTracker extends AbstractTrajectoryEnvelopeTracker implem
 
     public MyTracker(TrajectoryEnvelope te, int timeStep, double temporalResolution, double maxVelocity, double maxAcceleration, TrajectoryEnvelopeCoordinator tec, TrackingCallback cb) {
         super(te, temporalResolution, tec, timeStep, cb);
-        this.MAX_VELOCITY = maxVelocity;
-        this.MAX_ACCELERATION = maxAcceleration;
+        this.maxVelocity = maxVelocity;
+        this.maxAcceleration = maxAcceleration;
         this.state = new State(0.0, 0.0);
         this.totalDistance = this.computeDistance(0, trajectory.getPose().length-1);
         this.overallDistance = totalDistance;
@@ -257,10 +346,10 @@ public abstract class MyTracker extends AbstractTrajectoryEnvelopeTracker implem
         double time = 0.0;
         double deltaTime = 0.5*(this.trackingPeriodInMillis/this.temporalResolution);
         //Compute where to slow down (can do forward here for both states...)
-        while (tempStateBW.getVelocity() < MAX_VELOCITY*1.1) {
+        while (tempStateBW.getVelocity() < maxVelocity *1.1) {
             double dampeningBW = getCurvatureDampening(getRobotReport(tempStateBW).getPathIndex(), true);
             //Use slightly conservative max deceleration (which is positive acceleration since we simulate FW dynamics)
-            RungeKutta4.integrate(tempStateBW, time, deltaTime, false, MAX_VELOCITY*1.1, dampeningBW, MAX_ACCELERATION);
+            RungeKutta4.integrate(tempStateBW, time, deltaTime, false, maxVelocity *1.1, dampeningBW, maxAcceleration);
             time += deltaTime;
             ret.put(tempStateBW.getVelocity(), tempStateBW.getPosition());
         }
@@ -296,7 +385,7 @@ public abstract class MyTracker extends AbstractTrajectoryEnvelopeTracker implem
             }
 
             double dampeningFW = getCurvatureDampening(getRobotReport(tempStateFW).getPathIndex(), true);
-            RungeKutta4.integrate(tempStateFW, time, deltaTime, false, MAX_VELOCITY, dampeningFW, MAX_ACCELERATION);
+            RungeKutta4.integrate(tempStateFW, time, deltaTime, false, maxVelocity, dampeningFW, maxAcceleration);
 
             time += deltaTime;
         }
@@ -481,15 +570,14 @@ public abstract class MyTracker extends AbstractTrajectoryEnvelopeTracker implem
             synchronized (this) {
                 while (isPaused) {
                     try {
-                        wait();  // Wait until the thread is notified to resume
+                        wait();
                     } catch (InterruptedException e) {
-                        Thread.currentThread().interrupt();  // Properly handle thread interruption
+                        Thread.currentThread().interrupt();
                         return;
                     }
                 }
             }
 
-            // Check end condition
             if (state.getPosition() >= this.positionToSlowDown && state.getVelocity() < 0.0) {
                 if (criticalPoint == -1 && !atCP) {
                     state = new State(totalDistance, 0.0);
@@ -508,7 +596,7 @@ public abstract class MyTracker extends AbstractTrajectoryEnvelopeTracker implem
             if (!atCP) {
                 slowingDown = state.getPosition() >= positionToSlowDown;
                 double dampening = getCurvatureDampening(getRobotReport().getPathIndex(), false);
-                RungeKutta4.integrate(state, elapsedTrackingTime, deltaTime, slowingDown, MAX_VELOCITY, dampening, MAX_ACCELERATION);
+                RungeKutta4.integrate(state, elapsedTrackingTime, deltaTime, slowingDown, maxVelocity, dampening, maxAcceleration);
             }
 
             onPositionUpdate();
@@ -552,4 +640,11 @@ public abstract class MyTracker extends AbstractTrajectoryEnvelopeTracker implem
         metaCSPLogger.info("RK4 tracking thread terminates (Robot " + myRobotID + ", TrajectoryEnvelope " + myTEID + ")");
     }
 
+    public void setMaxVelocity(double maxVelocity) {
+        this.maxVelocity = maxVelocity;
+    }
+
+    public double getMaxVelocity() {
+        return maxVelocity;
+    }
 }

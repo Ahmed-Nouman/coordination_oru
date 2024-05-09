@@ -2,7 +2,6 @@ package se.oru.coordination.coordination_oru.scenarios;
 
 import org.metacsp.multi.spatioTemporal.paths.Pose;
 import se.oru.coordination.coordination_oru.forwardModel.ConstantAcceleration;
-import se.oru.coordination.coordination_oru.tracker.AbstractTrajectoryEnvelopeTracker;
 import se.oru.coordination.coordination_oru.tracker.MyTracker;
 import se.oru.coordination.coordination_oru.utils.MapResolution;
 import se.oru.coordination.coordination_oru.utils.Task;
@@ -14,18 +13,14 @@ import se.oru.coordination.coordination_oru.simulation.BrowserVisualization;
 import se.oru.coordination.coordination_oru.utils.Heuristics;
 import se.oru.coordination.coordination_oru.utils.Missions;
 import se.oru.coordination.coordination_oru.vehicles.AutonomousVehicle;
-import se.oru.coordination.coordination_oru.vehicles.LookAheadVehicle;
 
 import java.awt.*;
 import java.util.ArrayList;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
+import java.util.Arrays;
 
-public class ProductionCycleCompleteShutdown {
+public class ProductionCycleShutdown {
 
-    public static final TrajectoryEnvelopeCoordinatorSimulation TEC = new TrajectoryEnvelopeCoordinatorSimulation(2000, 1000, 5, 2);
-    //FIXME: Change the maximum velocity and acceleration to 10.0 and 1.0 respectively
+    public static final TrajectoryEnvelopeCoordinatorSimulation TEC = new TrajectoryEnvelopeCoordinatorSimulation(2000, 1000);
 
     public static void main(String[] args) throws Exception {
         String className = Thread.currentThread().getStackTrace()[Thread.currentThread().getStackTrace().length-1].getFileName().split("\\.")[0];
@@ -37,7 +32,6 @@ public class ProductionCycleCompleteShutdown {
         double scaleAdjustment = 1.0 / mapResolution;
         double lookAheadDistance = 95 / scaleAdjustment; // use separate look ahead distance for all robots
         double timeIntervalInSeconds = 0.1;
-        int inferenceCycleTime = 100;
         int terminationInMinutes = 5;
         int numOfCallsForLookAheadRobot = 1;
         boolean visualization = true;
@@ -99,8 +93,6 @@ public class ProductionCycleCompleteShutdown {
         serviceVehicle.addTask(new Task(0, new Pose[] {barrier2Start}, 0));
         serviceVehicle.addTask(new Task(0.1, new Pose[] {entrance}, 0));
 
-//        autonomousVehicle1.generatePlans(planner);
-//        autonomousVehicle1.savePlans(className);
         autonomousVehicle1.loadPlans(folderName + "A1.path");
         autonomousVehicle2.loadPlans(folderName + "A2.path");
         autonomousVehicle3.loadPlans(folderName + "A3.path");
@@ -119,44 +111,15 @@ public class ProductionCycleCompleteShutdown {
         var viz = new BrowserVisualization();
         viz.setMap(map);
         viz.setFontScale(4);
-        viz.setInitialTransform(11, 45, -3.5);
+        viz.setInitialTransform(9, 28.53, 1.0);
         TEC.setVisualization(viz);
 
         Missions.generateMissions();
         Missions.setMap(map);
         Missions.runTasks(TEC, -1);
-        scheduleVehicleStop(serviceVehicle);
+        ArrayList<Integer> missionIDsToStop = new ArrayList<>(Arrays.asList(1, 4));
+        ArrayList<Integer> vehicleIDsToSTop = new ArrayList<>(Arrays.asList(1, 2, 3));
+        MyTracker.scheduleVehicleSlow(serviceVehicle, missionIDsToStop, vehicleIDsToSTop, vehicleId -> ProductionCycleShutdown.TEC.trackers.get(vehicleId));
     }
-
-    public static void scheduleVehicleStop(AutonomousVehicle vehicle) throws InterruptedException {
-        final var scheduler = Executors.newScheduledThreadPool(1);
-
-        var partialShutdown = new Runnable() {
-            @Override
-            public void run() {
-                // Check if the current task index is 1 or 4
-                if (vehicle.getCurrentTaskIndex() == 1 || vehicle.getCurrentTaskIndex() == 4) {
-                    ArrayList<AbstractTrajectoryEnvelopeTracker> trackers = new ArrayList<>();
-                    trackers.add(TEC.trackers.get(1));
-                    trackers.add(TEC.trackers.get(2));
-                    MyTracker.stopVehicles(trackers);
-
-                    // Schedule to resume the vehicle after 5 seconds if the task index changes
-                    scheduler.schedule(() -> {
-                        // Resume only if the task index is no longer 1 or 4
-                        if (vehicle.getCurrentTaskIndex() != 1 && vehicle.getCurrentTaskIndex() != 4) {
-                            MyTracker.resumeVehicles(trackers);
-                        }
-                    }, 5, TimeUnit.SECONDS);
-                }
-                // Reschedule this task to run again after 100 milliseconds to monitor task changes
-                scheduler.schedule(this, 100, TimeUnit.MILLISECONDS);
-            }
-        };
-
-        // Schedule the task to start after 2 seconds
-        scheduler.schedule(partialShutdown, 2, TimeUnit.SECONDS);
-    }
-
 
 }

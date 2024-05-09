@@ -3,6 +3,7 @@ package se.oru.coordination.coordination_oru.vehicles;
 import com.vividsolutions.jts.geom.Coordinate;
 import org.metacsp.multi.spatioTemporal.paths.Pose;
 import org.metacsp.multi.spatioTemporal.paths.PoseSteering;
+import se.oru.coordination.coordination_oru.tracker.AbstractTrajectoryEnvelopeTracker;
 import se.oru.coordination.coordination_oru.utils.Task;
 import se.oru.coordination.coordination_oru.forwardModel.ForwardModel;
 import se.oru.coordination.coordination_oru.motionPlanning.PathPlanner;
@@ -44,7 +45,7 @@ public abstract class AbstractVehicle {
     private final String name;
     private final int priority;
     private final String type = this.getClass().getSimpleName();
-    private final double maxVelocity;
+    private double maxVelocity;
     private final double maxAcceleration;
     private double length;
     private double width;
@@ -320,6 +321,10 @@ public abstract class AbstractVehicle {
 
     public double getMaxVelocity() {
         return maxVelocity;
+    }
+
+    public void setMaxVelocity(double maxVelocity) {
+        this.maxVelocity = maxVelocity;
     }
 
     public double getMaxAcceleration() {
