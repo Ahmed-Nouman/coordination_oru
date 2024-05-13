@@ -15,7 +15,6 @@ import se.oru.coordination.coordination_oru.vehicles.VehiclesHashMap;
 
 import java.util.*;
 import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
 
@@ -92,9 +91,7 @@ public abstract class AdaptiveTrackerRK4 extends AbstractTrajectoryEnvelopeTrack
     public static void stopVehicles(List<AbstractTrajectoryEnvelopeTracker> trackers) {
         for (AbstractTrajectoryEnvelopeTracker tracker : trackers) {
             synchronized (tracker) {
-                if (tracker instanceof AdaptiveTrackerRK4) {
-                    ((AdaptiveTrackerRK4) tracker).pause();
-                }
+                if (tracker instanceof AdaptiveTrackerRK4) ((AdaptiveTrackerRK4) tracker).pause();
             }
         }
     }
@@ -102,9 +99,7 @@ public abstract class AdaptiveTrackerRK4 extends AbstractTrajectoryEnvelopeTrack
     private static void resumeVehicles(List<AbstractTrajectoryEnvelopeTracker> trackers) {
         for (AbstractTrajectoryEnvelopeTracker tracker : trackers) {
             synchronized (tracker) {
-                if (tracker instanceof AdaptiveTrackerRK4) {
-                    ((AdaptiveTrackerRK4) tracker).resume();
-                }
+                if (tracker instanceof AdaptiveTrackerRK4) ((AdaptiveTrackerRK4) tracker).resume();
             }
         }
     }
@@ -224,10 +219,10 @@ public abstract class AdaptiveTrackerRK4 extends AbstractTrajectoryEnvelopeTrack
             AutonomousVehicle priorityVehicle,
             List<Integer> missionIDsToStop,
             List<Integer> vehicleIDsToStop,
-            Function<Integer, AbstractTrajectoryEnvelopeTracker> trackerRetriever) {
+            Function<Integer, AbstractTrajectoryEnvelopeTracker> trackerRetriever,
+            double maxVelocity, double minVelocity) {
 
         final var scheduler = Executors.newScheduledThreadPool(1);
-        Map<AbstractTrajectoryEnvelopeTracker, Double> previousVelocities = new HashMap<>();
 
         var shutdown = new Runnable() {
             @Override
@@ -238,11 +233,11 @@ public abstract class AdaptiveTrackerRK4 extends AbstractTrajectoryEnvelopeTrack
                         AbstractTrajectoryEnvelopeTracker tracker = trackerRetriever.apply(vehicleId);
                         trackers.add(tracker);
                     }
-                    slowDownVehicles(trackers, previousVelocities);
+                    slowDownVehicles(trackers, minVelocity);
 
                     scheduler.schedule(() -> {
                         if (!missionIDsToStop.contains(priorityVehicle.getCurrentTaskIndex())) {
-                            speedUpVehicles(trackers, previousVelocities);
+                            speedUpVehicles(trackers, maxVelocity);
                         }
                     }, 5, TimeUnit.SECONDS);
                 }
@@ -253,27 +248,51 @@ public abstract class AdaptiveTrackerRK4 extends AbstractTrajectoryEnvelopeTrack
         scheduler.schedule(shutdown, 2, TimeUnit.SECONDS);
     }
 
-    public static void slowDownVehicles(ArrayList<AbstractTrajectoryEnvelopeTracker> trackers, Map<AbstractTrajectoryEnvelopeTracker, Double> previousVelocities) {
+    public static void slowDownVehicles(List<AbstractTrajectoryEnvelopeTracker> trackers, double targetVelocity) {
         for (AbstractTrajectoryEnvelopeTracker tracker : trackers) {
             synchronized (tracker) {
-                double currentVelocity = VehiclesHashMap.getVehicle(tracker.te.getRobotID()).getMaxVelocity();
-                previousVelocities.put(tracker, currentVelocity);
-                System.out.println("Slowing down vehicle from velocity: " + currentVelocity);
-                VehiclesHashMap.getVehicle(tracker.te.getRobotID()).setMaxVelocity(0.5);
+                if (tracker instanceof AdaptiveTrackerRK4) {
+                    AdaptiveTrackerRK4 adaptiveTracker = (AdaptiveTrackerRK4) tracker;
+                    adaptiveTracker.maxVelocity = targetVelocity;
+                    graduallyChangeVelocity(adaptiveTracker, targetVelocity, 0.1); // Adjust step size as needed
+                }
             }
         }
     }
 
-    private static void speedUpVehicles(ArrayList<AbstractTrajectoryEnvelopeTracker> trackers, Map<AbstractTrajectoryEnvelopeTracker, Double> previousVelocities) {
+    private static void speedUpVehicles(List<AbstractTrajectoryEnvelopeTracker> trackers, double targetVelocity) {
         for (AbstractTrajectoryEnvelopeTracker tracker : trackers) {
             synchronized (tracker) {
-                if (previousVelocities.containsKey(tracker)) {
-                    double previousVelocity = previousVelocities.get(tracker);
-                    System.out.println("Resuming vehicle to previous velocity: " + previousVelocity);
-                    VehiclesHashMap.getVehicle(tracker.te.getRobotID()).setMaxVelocity(10.0);
+                if (tracker instanceof AdaptiveTrackerRK4) {
+                    AdaptiveTrackerRK4 adaptiveTracker = (AdaptiveTrackerRK4) tracker;
+                    adaptiveTracker.maxVelocity = targetVelocity;
+                    graduallyChangeVelocity(adaptiveTracker, targetVelocity, 0.1); // Adjust step size as needed
                 }
             }
         }
+    }
+
+    private static void graduallyChangeVelocity(AbstractTrajectoryEnvelopeTracker tracker, double targetVelocity, double step) {
+        new Thread(() -> {
+            boolean increasing = targetVelocity > VehiclesHashMap.getVehicle(tracker.te.getRobotID()).getMaxVelocity();
+            while (true) {
+                synchronized (tracker) {
+                    double currentVelocity = VehiclesHashMap.getVehicle(tracker.te.getRobotID()).getMaxVelocity();
+                    if (increasing) {
+                        if (currentVelocity >= targetVelocity) break;
+                        VehiclesHashMap.getVehicle(tracker.te.getRobotID()).setMaxVelocity(Math.min(currentVelocity + step, targetVelocity));
+                    } else {
+                        if (currentVelocity <= targetVelocity) break;
+                        VehiclesHashMap.getVehicle(tracker.te.getRobotID()).setMaxVelocity(Math.max(currentVelocity - step, targetVelocity));
+                    }
+                }
+                try {
+                    Thread.sleep(10); // Adjust the sleep duration as needed
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+        }).start();
     }
 
     public static void scheduleVehiclesPriorityChange(

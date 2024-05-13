@@ -91,7 +91,7 @@ public class ProductionCycleShutdown {
         serviceVehicle.addTask(new Task(0, new Pose[] {barrier2End}, 0));
         serviceVehicle.addTask(new Task(0.1, new Pose[] {barrier1End}, 0));
         serviceVehicle.addTask(new Task(0, new Pose[] {mainTunnelLeft}, 0));
-        serviceVehicle.addTask(new Task(0.25, new Pose[] {barrier1Start}, 0));
+        serviceVehicle.addTask(new Task(0.1, new Pose[] {barrier1Start}, 0));
         serviceVehicle.addTask(new Task(0, new Pose[] {barrier2Start}, 0));
         serviceVehicle.addTask(new Task(0.1, new Pose[] {entrance}, 0));
 
@@ -102,7 +102,7 @@ public class ProductionCycleShutdown {
 
         TEC.setupSolver(0, 100000000);
         TEC.startInference();
-        var heuristics = new Heuristics(Heuristics.HeuristicType.CLOSEST_FIRST);
+        var heuristics = new Heuristics(Heuristics.HeuristicType.HIGHEST_PRIORITY_FIRST);
         var newheuristics = new Heuristics(Heuristics.HeuristicType.HIGHEST_PRIORITY_FIRST);
         TEC.addComparator(heuristics.getComparator());
         TEC.setDefaultFootprint(autonomousVehicle1.getFootprint());
@@ -121,10 +121,10 @@ public class ProductionCycleShutdown {
         Missions.setMap(map);
         Missions.runTasks(TEC, -1);
         ArrayList<Integer> missionIDsToStop = new ArrayList<>(Arrays.asList(1, 4));
-        ArrayList<Integer> vehicleIDsToStop = new ArrayList<>(Arrays.asList(1, 2, 3));
+        ArrayList<Integer> vehicleIDsToStop = new ArrayList<>(Arrays.asList(1, 2));
         Function<Integer, AbstractTrajectoryEnvelopeTracker> trackerRetriever = vehicleId -> TEC.trackers.get(vehicleId);
-//        AdaptiveTrackerRK4.scheduleVehicleSlow(serviceVehicle, missionIDsToStop, vehicleIDsToStop, trackerRetriever);
-        AdaptiveTrackerRK4.scheduleVehicleStop(serviceVehicle, missionIDsToStop, vehicleIDsToStop, trackerRetriever);
+//        AdaptiveTrackerRK4.scheduleVehicleStop(serviceVehicle, missionIDsToStop, vehicleIDsToStop, trackerRetriever);
+        AdaptiveTrackerRK4.scheduleVehicleSlow(serviceVehicle, missionIDsToStop, vehicleIDsToStop, trackerRetriever, 10.0, 1.0); // FIXME: Vehicles Jump
 //        AdaptiveTrackerRK4.scheduleVehiclesPriorityChange(serviceVehicle, missionIDsToStop, TEC, heuristics, newheuristics);
     }
 
