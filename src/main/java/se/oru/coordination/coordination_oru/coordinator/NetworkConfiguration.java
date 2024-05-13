@@ -1,4 +1,4 @@
-package se.oru.coordination.coordination_oru;
+package se.oru.coordination.coordination_oru.coordinator;
 
 public class NetworkConfiguration {
 	

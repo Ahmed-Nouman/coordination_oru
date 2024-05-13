@@ -1,7 +1,6 @@
-package se.oru.coordination.coordination_oru;
+package se.oru.coordination.coordination_oru.tracker;
 
 import org.metacsp.multi.spatioTemporal.paths.TrajectoryEnvelope;
-import se.oru.coordination.coordination_oru.tracker.AbstractTrajectoryEnvelopeTracker;
 import se.oru.coordination.coordination_oru.simulation.FleetVisualization;
 
 /**

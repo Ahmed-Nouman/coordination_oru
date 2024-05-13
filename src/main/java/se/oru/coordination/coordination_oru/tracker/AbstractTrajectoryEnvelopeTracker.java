@@ -11,7 +11,6 @@ import org.metacsp.time.APSPSolver;
 import org.metacsp.time.Bounds;
 import org.metacsp.utility.logging.MetaCSPLogging;
 import se.oru.coordination.coordination_oru.coordinator.AbstractTrajectoryEnvelopeCoordinator;
-import se.oru.coordination.coordination_oru.TrackingCallback;
 import se.oru.coordination.coordination_oru.coordinator.TrajectoryEnvelopeCoordinator;
 import se.oru.coordination.coordination_oru.utils.Dependency;
 import se.oru.coordination.coordination_oru.utils.RobotReport;

@@ -3,7 +3,7 @@ package se.oru.coordination.coordination_oru.tests.icaps2018.eval;
 import com.vividsolutions.jts.geom.Coordinate;
 import org.metacsp.multi.spatioTemporal.paths.Pose;
 import org.metacsp.multi.spatioTemporal.paths.PoseSteering;
-import se.oru.coordination.coordination_oru.RobotAtCriticalSection;
+import se.oru.coordination.coordination_oru.utils.RobotAtCriticalSection;
 import se.oru.coordination.coordination_oru.demo.DemoDescription;
 import se.oru.coordination.coordination_oru.forwardModel.ConstantAcceleration;
 import se.oru.coordination.coordination_oru.simulation.RVizVisualization;

@@ -18,7 +18,7 @@ import org.metacsp.multi.spatioTemporal.paths.Trajectory;
 import org.metacsp.multi.spatioTemporal.paths.TrajectoryEnvelope;
 import org.metacsp.utility.PermutationsWithRepetition;
 import org.metacsp.utility.UI.Callback;
-import se.oru.coordination.coordination_oru.RobotAtCriticalSection;
+import se.oru.coordination.coordination_oru.utils.RobotAtCriticalSection;
 import se.oru.coordination.coordination_oru.utils.CriticalSection;
 import se.oru.coordination.coordination_oru.utils.Dependency;
 import se.oru.coordination.coordination_oru.utils.RobotReport;
@@ -29,7 +29,6 @@ import se.oru.coordination.coordination_oru.tracker.TrajectoryEnvelopeTrackerDum
 import se.oru.coordination.coordination_oru.vehicles.LookAheadVehicle;
 import se.oru.coordination.coordination_oru.vehicles.VehiclesHashMap;
 
-import java.io.File;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;

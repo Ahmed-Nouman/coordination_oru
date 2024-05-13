@@ -1,6 +1,6 @@
 package se.oru.coordination.coordination_oru.tests.icaps2018.talk;
 
-import se.oru.coordination.coordination_oru.RobotAtCriticalSection;
+import se.oru.coordination.coordination_oru.utils.RobotAtCriticalSection;
 import se.oru.coordination.coordination_oru.coordinator.TrajectoryEnvelopeCoordinatorSimulation;
 import se.oru.coordination.coordination_oru.demo.DemoDescription;
 import se.oru.coordination.coordination_oru.forwardModel.ConstantAcceleration;

@@ -1,7 +1,7 @@
 package se.oru.coordination.coordination_oru.tests;
 
 import com.vividsolutions.jts.geom.Coordinate;
-import se.oru.coordination.coordination_oru.RobotAtCriticalSection;
+import se.oru.coordination.coordination_oru.utils.RobotAtCriticalSection;
 import se.oru.coordination.coordination_oru.coordinator.TrajectoryEnvelopeCoordinatorSimulation;
 import se.oru.coordination.coordination_oru.demo.DemoDescription;
 import se.oru.coordination.coordination_oru.forwardModel.ConstantAcceleration;

@@ -1,6 +1,5 @@
 package se.oru.coordination.coordination_oru.utils;
 
-import se.oru.coordination.coordination_oru.RobotAtCriticalSection;
 import se.oru.coordination.coordination_oru.vehicles.VehiclesHashMap;
 
 import java.util.ArrayList;

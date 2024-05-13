@@ -16,9 +16,8 @@ import org.metacsp.multi.spatioTemporal.paths.TrajectoryEnvelopeSolver;
 import org.metacsp.time.Bounds;
 import org.metacsp.utility.UI.Callback;
 import org.metacsp.utility.logging.MetaCSPLogging;
-import se.oru.coordination.coordination_oru.NetworkConfiguration;
-import se.oru.coordination.coordination_oru.RobotAtCriticalSection;
-import se.oru.coordination.coordination_oru.TrackingCallback;
+import se.oru.coordination.coordination_oru.utils.RobotAtCriticalSection;
+import se.oru.coordination.coordination_oru.tracker.TrackingCallback;
 import se.oru.coordination.coordination_oru.utils.CriticalSection;
 import se.oru.coordination.coordination_oru.utils.Dependency;
 import se.oru.coordination.coordination_oru.utils.Mission;
@@ -994,6 +993,10 @@ public abstract class AbstractTrajectoryEnvelopeCoordinator {
 	 */
 	public void addComparator(Comparator<RobotAtCriticalSection> c) {
 		this.comparators.addComparator(c);
+	}
+
+	public void clearComparator() {
+		this.comparators = new ComparatorChain();
 	}
 
 	protected void computeCriticalSections() {

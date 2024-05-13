@@ -2,7 +2,7 @@ package se.oru.coordination.coordination_oru.tests.safetyAndLiveness;
 
 import com.vividsolutions.jts.geom.Coordinate;
 import org.metacsp.multi.spatioTemporal.paths.Pose;
-import se.oru.coordination.coordination_oru.NetworkConfiguration;
+import se.oru.coordination.coordination_oru.coordinator.NetworkConfiguration;
 import se.oru.coordination.coordination_oru.coordinator.TrajectoryEnvelopeCoordinatorSimulation;
 import se.oru.coordination.coordination_oru.forwardModel.ConstantAcceleration;
 import se.oru.coordination.coordination_oru.motionPlanning.ompl.ReedsSheppCarPlanner;

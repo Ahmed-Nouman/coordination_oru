@@ -5,13 +5,11 @@ import com.vividsolutions.jts.geom.Geometry;
 import org.metacsp.multi.spatioTemporal.paths.Pose;
 import org.metacsp.multi.spatioTemporal.paths.PoseSteering;
 import org.metacsp.multi.spatioTemporal.paths.TrajectoryEnvelope;
-import se.oru.coordination.coordination_oru.*;
+import se.oru.coordination.coordination_oru.tracker.*;
+import se.oru.coordination.coordination_oru.utils.CollisionEvent;
 import se.oru.coordination.coordination_oru.utils.CriticalSection;
 import se.oru.coordination.coordination_oru.utils.Mission;
 import se.oru.coordination.coordination_oru.utils.RobotReport;
-import se.oru.coordination.coordination_oru.tracker.AbstractTrajectoryEnvelopeTracker;
-import se.oru.coordination.coordination_oru.tracker.TrajectoryEnvelopeTrackerDummy;
-import se.oru.coordination.coordination_oru.tracker.TrajectoryEnvelopeTrackerRK4;
 import se.oru.coordination.coordination_oru.vehicles.AbstractVehicle;
 import se.oru.coordination.coordination_oru.vehicles.AutonomousVehicle;
 import se.oru.coordination.coordination_oru.vehicles.VehiclesHashMap;
@@ -227,7 +225,7 @@ public class TrajectoryEnvelopeCoordinatorSimulation extends TrajectoryEnvelopeC
 	@Override
 	public AbstractTrajectoryEnvelopeTracker getNewTracker(TrajectoryEnvelope te, TrackingCallback cb) {
 		if (this.getRobotTrackingPeriodInMillis(te.getRobotID()) == null || this.getRobotMaxVelocity(te.getRobotID()) == null || this.getRobotMaxAcceleration(te.getRobotID()) == null) throw new Error("Robot" +  te.getRobotID() + ": missing kinodynamic parameters.");
-		TrajectoryEnvelopeTrackerRK4 ret = new TrajectoryEnvelopeTrackerRK4(te, this.getRobotTrackingPeriodInMillis(te.getRobotID()), TEMPORAL_RESOLUTION, this.getRobotMaxVelocity(te.getRobotID()), this.getRobotMaxAcceleration(te.getRobotID()), this, cb) {
+		var ret = new AdaptiveTrackerRK4(te, this.getRobotTrackingPeriodInMillis(te.getRobotID()), TEMPORAL_RESOLUTION, this.getRobotMaxVelocity(te.getRobotID()), this.getRobotMaxAcceleration(te.getRobotID()), this, cb) {
 
 			//Method for measuring time in the trajectory envelope tracker
 			@Override
