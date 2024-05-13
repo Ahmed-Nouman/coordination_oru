@@ -50,8 +50,11 @@ public abstract class AbstractTrajectoryEnvelopeTracker {
 	protected long startingTimeInMillis;
 	
 	protected Logger metaCSPLogger = MetaCSPLogging.getLogger(AbstractTrajectoryEnvelopeTracker.class);
+	protected boolean isPaused;
 
-	/**
+	private volatile boolean paused = false;
+
+    /**
 	 * Create a new {@link AbstractTrajectoryEnvelopeTracker} to track a given {@link TrajectoryEnvelope},
 	 * with a given tracking period in a given temporal resolution. The tracker will post temporal constraints
 	 * to the given solver representing when the robot transitions from one sub-envelope to the next. An optional
@@ -497,6 +500,5 @@ public abstract class AbstractTrajectoryEnvelopeTracker {
 	public TrajectoryEnvelope getTrajectoryEnvelope() {
 		return this.te;
 	}
-	
-	
+
 }

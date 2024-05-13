@@ -2,6 +2,7 @@ package se.oru.coordination.coordination_oru.scenarios;
 
 import org.metacsp.multi.spatioTemporal.paths.Pose;
 import se.oru.coordination.coordination_oru.forwardModel.ConstantAcceleration;
+import se.oru.coordination.coordination_oru.tracker.AbstractTrajectoryEnvelopeTracker;
 import se.oru.coordination.coordination_oru.tracker.AdaptiveTrackerRK4;
 import se.oru.coordination.coordination_oru.utils.MapResolution;
 import se.oru.coordination.coordination_oru.utils.Task;
@@ -17,6 +18,7 @@ import se.oru.coordination.coordination_oru.vehicles.AutonomousVehicle;
 import java.awt.*;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.function.Function;
 
 public class ProductionCycleShutdown {
 
@@ -77,15 +79,15 @@ public class ProductionCycleShutdown {
         autonomousVehicle1.addTask(new Task(0, new Pose[] {orePass1}, 1));
         autonomousVehicle1.addTask(new Task(0.1, new Pose[] {drawPoint30}, 0));
         var autonomousVehicle2 = new AutonomousVehicle("A2", 1, Color.YELLOW, MAX_VELOCITY, MAX_ACCELERATION,
-                LENGTH, WIDTH, drawPoint32A, 0, 5, model);
+                LENGTH, WIDTH, drawPoint32A, 5, 5, model);
         autonomousVehicle2.addTask(new Task(0, new Pose[] {orePass2}, 1));
         autonomousVehicle2.addTask(new Task(0.1, new Pose[] {drawPoint32A}, 0));
         var autonomousVehicle3 = new AutonomousVehicle("A3", 1, Color.YELLOW, MAX_VELOCITY, MAX_ACCELERATION,
-                LENGTH, WIDTH, drawPoint12, 0, 5, model);
+                LENGTH, WIDTH, drawPoint12, 5, 5, model);
         autonomousVehicle3.addTask(new Task(0, new Pose[] {parking}, 1));
         autonomousVehicle3.addTask(new Task(0.1, new Pose[] {drawPoint12}, 0));
         var serviceVehicle = new AutonomousVehicle("S", 2,  Color.GREEN, MAX_VELOCITY, MAX_ACCELERATION,
-                LENGTH, WIDTH, entrance, 0, 1, model);
+                LENGTH, WIDTH, entrance, 5, 1, model);
         serviceVehicle.addTask(new Task(0, new Pose[] {barrier2End}, 0));
         serviceVehicle.addTask(new Task(0.1, new Pose[] {barrier1End}, 0));
         serviceVehicle.addTask(new Task(0, new Pose[] {mainTunnelLeft}, 0));
@@ -119,8 +121,11 @@ public class ProductionCycleShutdown {
         Missions.setMap(map);
         Missions.runTasks(TEC, -1);
         ArrayList<Integer> missionIDsToStop = new ArrayList<>(Arrays.asList(1, 4));
-        ArrayList<Integer> vehicleIDsToSTop = new ArrayList<>(Arrays.asList(1, 2, 3));
-        AdaptiveTrackerRK4.scheduleVehiclesPriorityChange(serviceVehicle, missionIDsToStop, TEC, heuristics, newheuristics);
+        ArrayList<Integer> vehicleIDsToStop = new ArrayList<>(Arrays.asList(1, 2, 3));
+        Function<Integer, AbstractTrajectoryEnvelopeTracker> trackerRetriever = vehicleId -> TEC.trackers.get(vehicleId);
+//        AdaptiveTrackerRK4.scheduleVehicleSlow(serviceVehicle, missionIDsToStop, vehicleIDsToStop, trackerRetriever);
+        AdaptiveTrackerRK4.scheduleVehicleStop(serviceVehicle, missionIDsToStop, vehicleIDsToStop, trackerRetriever);
+//        AdaptiveTrackerRK4.scheduleVehiclesPriorityChange(serviceVehicle, missionIDsToStop, TEC, heuristics, newheuristics);
     }
 
 }

@@ -44,7 +44,9 @@ public abstract class AbstractVehicle {
     private final String name;
     private final int priority;
     private final String type = this.getClass().getSimpleName();
-    private final double maxVelocity;
+
+    private double maxVelocity;
+
     private final double maxAcceleration;
     private double length;
     private double width;
@@ -60,7 +62,6 @@ public abstract class AbstractVehicle {
     private double pathLength;
     private int currentTaskIndex = -1;
     private final ForwardModel forwardModel;
-
     public AbstractVehicle(int ID, String name, int priority, Color color, double maxVelocity, double maxAcceleration,
                            double length, double width, Pose initialPose, double safetyDistance, int missionRepetition, ForwardModel model) {
         this.ID = ID;
@@ -96,6 +97,7 @@ public abstract class AbstractVehicle {
     public static double calculateFootprintArea(double length, double width) {
         return length * width;
     }
+
     public void generatePlans(PathPlanner planner) {
         if (!tasks.isEmpty()) {
             for (Task task : tasks) {
@@ -105,7 +107,6 @@ public abstract class AbstractVehicle {
             setSafetyPathPoints();
         }
     }
-
     public String serializePoseSteering(PoseSteering poseSteering) {
         return String.format("%f %f %f %f", poseSteering.getPose().getX(), poseSteering.getPose().getY(), poseSteering.getPose().getTheta(), poseSteering.getSteering());
     }
@@ -301,10 +302,10 @@ public abstract class AbstractVehicle {
         this.length = length;
         this.footprint = makeFootprint(length, width);
     }
+
     public double getLength() {
         return length;
     }
-
     public void setWidth(double width) {
         this.width = width;
         this.footprint = makeFootprint(length, width);
@@ -378,10 +379,10 @@ public abstract class AbstractVehicle {
     public List<PoseSteering[]> getPaths() {
         return paths;
     }
+
     public double getSafetyDistance() {
         return safetyDistance;
     }
-
     public ForwardModel getForwardModel() {
         return forwardModel;
     }
@@ -389,8 +390,12 @@ public abstract class AbstractVehicle {
     public int getCurrentTaskIndex() {
         return currentTaskIndex;
     }
+
     public void setCurrentTaskIndex(int currentTaskIndex) {
         this.currentTaskIndex = currentTaskIndex;
     }
 
+    public void setMaxVelocity(double maxVelocity) {
+        this.maxVelocity = maxVelocity;
+    }
 }
