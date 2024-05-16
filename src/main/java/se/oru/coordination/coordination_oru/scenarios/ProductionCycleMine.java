@@ -98,14 +98,14 @@ public class ProductionCycleMine {
         chargingVehicle.generatePlans(planner);
         Thread.sleep(5000);
         tec.placeRobot(drillVehicle.getID(), mainTunnelLeft);
-        PoseSteering[] drillInitialPath = drillVehicle.getLimitedPath(drillVehicle.getID(), drillVehicle.getLookAheadDistance(), tec);
+        PoseSteering[] drillInitialPath = drillVehicle.getLimitedPath(tec);
         var m3 = new Mission(drillVehicle.getID(), drillInitialPath);
 //        Missions.enqueueMission(m3);
         tec.addMissions(m3);
         m3.setStoppingPoint(drawPoint38, 5000);
         Thread.sleep(10000);
         tec.placeRobot(chargingVehicle.getID(), mainTunnelRight);
-        PoseSteering[] chargingInitialPath = chargingVehicle.getLimitedPath(chargingVehicle.getID(), chargingVehicle.getLookAheadDistance(), tec);
+        PoseSteering[] chargingInitialPath = chargingVehicle.getLimitedPath(tec);
         var m4 = new Mission(chargingVehicle.getID(), chargingInitialPath);
         tec.addMissions(m4);
 

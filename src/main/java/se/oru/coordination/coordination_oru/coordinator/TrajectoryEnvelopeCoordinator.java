@@ -74,7 +74,7 @@ public abstract class TrajectoryEnvelopeCoordinator extends AbstractTrajectoryEn
 
 	//Set if inferring precedence constraints
 	protected boolean fake = false;
-	private int inferenceSleepingTime = 500; // Default value
+	private int inferenceSleepingTime = 100; // Default value
 
 	/**
 	 * Get whether there is a robot in a blocked situation (waiting for a parked robot).
@@ -1105,7 +1105,7 @@ public abstract class TrajectoryEnvelopeCoordinator extends AbstractTrajectoryEn
                     synchronized (solver) {
 						for (Integer robotID : trackers.keySet()) trackers.get(robotID);
 
-						checkLookAheadVehicle();
+						checkIfLookAheadVehicle();
 
 						if (!missionsPool.isEmpty()) {
 							//FIXME critical sections should be computed incrementally/asynchronously
@@ -1124,7 +1124,7 @@ public abstract class TrajectoryEnvelopeCoordinator extends AbstractTrajectoryEn
 					}
 
 					//Sleep a little...
-					expectedSleepingTime = Math.max(inferenceSleepingTime, CONTROL_PERIOD-Calendar.getInstance().getTimeInMillis()+threadLastUpdate);
+					expectedSleepingTime = Math.min(inferenceSleepingTime, CONTROL_PERIOD-Calendar.getInstance().getTimeInMillis()+threadLastUpdate);
                     if (CONTROL_PERIOD > 0) {
 						try { Thread.sleep(expectedSleepingTime); }
 						catch (InterruptedException e) { e.printStackTrace(); }
@@ -1142,19 +1142,76 @@ public abstract class TrajectoryEnvelopeCoordinator extends AbstractTrajectoryEn
 		inference.start();
 	}
 
-	private void checkLookAheadVehicle() {
-		//TODO: Make a separate method for this part
-		// Update look-ahead paths
+	private void checkIfLookAheadVehicle() {
 		for (Integer robotID : trackers.keySet()) {
 			if (VehiclesHashMap.getList() != null) {
 				var vehicle = VehiclesHashMap.getVehicle(robotID);
 				if (vehicle != null && "LookAheadVehicle".equals(vehicle.getType())) {
 					try {
 						var lookAheadVehicle = (LookAheadVehicle) vehicle;
-						lookAheadVehicle.updateLookAheadRobotPath(trajectoryEnvelopeCoordinatorSimulation, lookAheadVehicle);
+						lookAheadVehicle.updatePath(trajectoryEnvelopeCoordinatorSimulation);
 					} catch (ClassCastException e) {
 						e.printStackTrace();
 					}
+				}
+			}
+		}
+	}
+
+	public void updatePath(int robotID, PoseSteering[] newPath, int breakingPathIndex) {
+
+		synchronized (solver) {
+
+			synchronized(trackers) {
+				if (!trackers.containsKey(robotID)) {
+					metaCSPLogger.warning("Invalid robotID. Place the robot before!");
+					return;
+				}
+			}
+
+			synchronized (allCriticalSections) {
+
+				var te = this.getCurrentTrajectoryEnvelope(robotID);
+				if (viz != null) viz.removeEnvelope(te);
+				metaCSPLogger.info("Replacing TE " + te.getID() + " (Robot" + robotID + ") with breaking point " + breakingPathIndex + ".");
+				cleanUpRobotCS(te.getRobotID(), breakingPathIndex);
+                var newTE = solver.createEnvelopeNoParking(robotID, newPath, "Driving", this.getFootprint(robotID));
+
+				synchronized (trackers) {
+					this.trackers.get(robotID).updateTrajectoryEnvelope(newTE);
+				}
+
+				replaceConstraints(robotID, te, newTE);
+				if (viz != null) viz.addEnvelope(newTE);
+				envelopesToTrack.add(newTE);
+				computeCriticalSections();
+				envelopesToTrack.remove(newTE);
+				forceCriticalPointReTransmission.put(robotID, true);
+				updateDependencies();
+
+			}
+		}
+	}
+
+	private void replaceConstraints(int robotID, TrajectoryEnvelope te, TrajectoryEnvelope newTE) {
+		for (Constraint con : solver.getConstraintNetwork().getOutgoingEdges(te)) {
+			if (con instanceof AllenIntervalConstraint) {
+				var aic = (AllenIntervalConstraint)con;
+				if (aic.getTypes()[0].equals(AllenIntervalConstraint.Type.Meets)) {
+					var newEndParking = solver.createParkingEnvelope(robotID, PARKING_DURATION, newTE.getTrajectory().getPose()[newTE.getTrajectory().getPose().length-1], "whatever", getFootprint(robotID));
+					var oldEndParking = (TrajectoryEnvelope)aic.getTo();
+
+					solver.removeConstraints(solver.getConstraintNetwork().getIncidentEdges(te));
+					solver.removeVariable(te);
+					solver.removeConstraints(solver.getConstraintNetwork().getIncidentEdges(oldEndParking));
+					solver.removeVariable(oldEndParking);
+
+					var newMeets = new AllenIntervalConstraint(AllenIntervalConstraint.Type.Meets);
+					newMeets.setFrom(newTE);
+					newMeets.setTo(newEndParking);
+					solver.addConstraint(newMeets);
+
+					break;
 				}
 			}
 		}
@@ -1201,81 +1258,6 @@ public abstract class TrajectoryEnvelopeCoordinator extends AbstractTrajectoryEn
 				CSToDepsOrder.remove(cs);
 				allCriticalSections.remove(cs);
 				escapingCSToWaitingRobotIDandCP.remove(cs);
-			}
-		}
-	}
-
-	public void updatePath(int robotID, PoseSteering[] newPath, int breakingPathIndex) {
-
-		synchronized (solver) {
-
-			synchronized(trackers) {
-				if (!trackers.containsKey(robotID)) {
-					metaCSPLogger.warning("Invalid robotID. Place the robot before!");
-					return;
-				}
-			}
-
-			synchronized (allCriticalSections) {
-				//Get current envelope
-				TrajectoryEnvelope te = this.getCurrentTrajectoryEnvelope(robotID);
-
-				if (viz != null) {
-					viz.removeEnvelope(te);
-				}
-
-				metaCSPLogger.info("Replacing TE " + te.getID() + " (Robot" + robotID + ") with breaking point " + breakingPathIndex + ".");
-
-				//Remove CSs involving this robot, clearing the history.
-				cleanUpRobotCS(te.getRobotID(), breakingPathIndex);
-				//---------------------------------------------------------
-
-				//Make new envelope
-				TrajectoryEnvelope newTE = solver.createEnvelopeNoParking(robotID, newPath, "Driving", this.getFootprint(robotID));
-
-				//Notify tracker
-				synchronized (trackers) {
-					this.trackers.get(robotID).updateTrajectoryEnvelope(newTE);
-				}
-
-				//Stitch together with rest of constraint network (temporal constraints with parking envelopes etc.)
-				for (Constraint con : solver.getConstraintNetwork().getOutgoingEdges(te)) {
-					if (con instanceof AllenIntervalConstraint) {
-						AllenIntervalConstraint aic = (AllenIntervalConstraint)con;
-						if (aic.getTypes()[0].equals(AllenIntervalConstraint.Type.Meets)) {
-							TrajectoryEnvelope newEndParking = solver.createParkingEnvelope(robotID, PARKING_DURATION, newTE.getTrajectory().getPose()[newTE.getTrajectory().getPose().length-1], "whatever", getFootprint(robotID));
-							TrajectoryEnvelope oldEndParking = (TrajectoryEnvelope)aic.getTo();
-
-							solver.removeConstraints(solver.getConstraintNetwork().getIncidentEdges(te));
-							solver.removeVariable(te);
-							solver.removeConstraints(solver.getConstraintNetwork().getIncidentEdges(oldEndParking));
-							solver.removeVariable(oldEndParking);
-
-							AllenIntervalConstraint newMeets = new AllenIntervalConstraint(AllenIntervalConstraint.Type.Meets);
-							newMeets.setFrom(newTE);
-							newMeets.setTo(newEndParking);
-							solver.addConstraint(newMeets);
-
-							break;
-						}
-					}
-				}
-
-				if (viz != null) {
-					viz.addEnvelope(newTE);
-				}
-
-				//Add as if it were a new envelope, that way it will be accounted for in computeCriticalSections()
-				envelopesToTrack.add(newTE);
-
-				//Recompute CSs involving this robot
-				computeCriticalSections();
-
-				envelopesToTrack.remove(newTE);
-
-				forceCriticalPointReTransmission.put(robotID, true);
-				updateDependencies();
-
 			}
 		}
 	}

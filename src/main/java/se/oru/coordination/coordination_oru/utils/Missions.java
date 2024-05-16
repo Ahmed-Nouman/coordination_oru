@@ -15,6 +15,7 @@ import se.oru.coordination.coordination_oru.coordinator.TrajectoryEnvelopeCoordi
 import se.oru.coordination.coordination_oru.motionPlanning.AbstractMotionPlanner;
 import se.oru.coordination.coordination_oru.vehicles.AbstractVehicle;
 import se.oru.coordination.coordination_oru.vehicles.AutonomousVehicle;
+import se.oru.coordination.coordination_oru.vehicles.HumanVehicle;
 import se.oru.coordination.coordination_oru.vehicles.VehiclesHashMap;
 
 import javax.imageio.ImageIO;
@@ -191,15 +192,15 @@ public class Missions {
 		if (VehiclesHashMap.getInstance() == null || VehiclesHashMap.getList().isEmpty()) throw new Error("No vehicles to generate missions for!");
 		for (AbstractVehicle vehicle : VehiclesHashMap.getList().values()) {
 			if (vehicle instanceof AutonomousVehicle) {
-				AutonomousVehicle autonomousVehicle = (AutonomousVehicle)vehicle;
+                var autonomousVehicle = (AutonomousVehicle) vehicle;
 				if (autonomousVehicle.getPaths() != null) {
 					for (PoseSteering[] path : autonomousVehicle.getPaths()) {
-						Mission mission = new Mission(autonomousVehicle.getID(), path);
+                        var mission = new Mission(autonomousVehicle.getID(), path);
 						Missions.enqueueMission(mission);
 					}
 				}
 			}
-		}
+        }
 	}
 
 	private static class ScenarioContainer {

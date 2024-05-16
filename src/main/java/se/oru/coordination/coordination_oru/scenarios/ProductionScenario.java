@@ -122,7 +122,7 @@ public class ProductionScenario {
         var m3 = new Mission(autonomousRobot3.getID(), autonomousRobot3.getPath());
         var m4 = new Mission(autonomousRobot4.getID(), autonomousRobot4.getPath());
         var m5 = new Mission(autonomousRobot5.getID(), autonomousRobot5.getPath());
-        var m6 = new Mission(drillRig.getID(), drillRig.getLimitedPath(drillRig.getID(), drillLookAheadDistance, tec));
+        var m6 = new Mission(drillRig.getID(), drillRig.getLimitedPath(tec));
 //        m4.setStoppingPoint(orePass3, 10000); //FIXME I think it does not work.
 
 //        var randomRobotCaller = new RandomRobotCaller(numOfCallsForLookAheadRobot, terminationInMinutes);

@@ -41,7 +41,18 @@ public class VerifyPlan {
                 for (var vehicle : controllerNavigation.getMain().getDataStatus().getProjectData().getVehicles()) {
                     AbstractVehicle newVehicle;
                     if ("Human".equals(vehicle.getType()))
-                        newVehicle = new LookAheadVehicle(vehicle.getLookAheadDistance() / scaleAdjustment, model);
+                        newVehicle = new LookAheadVehicle(vehicle.getID(),
+                                vehicle.getName(),
+                                vehicle.getLookAheadDistance() / scaleAdjustment,
+                                vehicle.getPriority(),
+                                Utils.stringToColor(vehicle.getColor()),
+                                vehicle.getMaxVelocity() / scaleAdjustment,
+                                vehicle.getMaxAcceleration() / scaleAdjustment,
+                                vehicle.getLength() / scaleAdjustment,
+                                vehicle.getWidth() / scaleAdjustment,
+                                controllerNavigation.getMain().getDataStatus().getProjectData().getPose(vehicle.getInitialPose()),
+                                vehicle.getSafetyDistance() / scaleAdjustment,
+                                vehicle.getMissionRepetition(), model);
                     else newVehicle = new AutonomousVehicle(vehicle.getID(),
                             vehicle.getName(),
                             vehicle.getPriority(),

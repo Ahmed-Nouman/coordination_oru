@@ -57,22 +57,15 @@ public class LookAheadVehicle extends AutonomousVehicle {
                 missionRepetition, model);
     }
 
-    //FIXME: Remove as a constructor
-    public LookAheadVehicle(double lookAheadDistance, ForwardModel model) {
-        this(vehicleNumber, null,  lookAheadDistance,  1, Color.YELLOW, 5.0, 1.0,
-                0.5, 0.5, null, 0, 0, model);
-    }
-
     /**
      * Updates the path of all LookAheadVehicles in the TrajectoryEnvelopeCoordinator.
      *
      * @param tec The TrajectoryEnvelopeCoordinator containing the vehicles.
-     * @param lookAheadVehicle The LookAheadVehicle for which the path needs to be updated.
      */
-    public synchronized void updateLookAheadRobotPath(TrajectoryEnvelopeCoordinator tec, LookAheadVehicle lookAheadVehicle) {
-        if (tec.isDriving(lookAheadVehicle.getID()) && lookAheadVehicle.getLookAheadDistance() != -1) {
-            var newPath = lookAheadVehicle.getLimitedPath(lookAheadVehicle.getID(), lookAheadVehicle.getLookAheadDistance(), tec);
-            tec.updatePath(lookAheadVehicle.getID(), newPath, 0);
+    public synchronized void updatePath(TrajectoryEnvelopeCoordinator tec) {
+        if (tec.isDriving(this.getID()) && this.getLookAheadDistance() != -1) {
+            var newPath = this.getLimitedPath(tec);
+            tec.updatePath(this.getID(), newPath, 0);
         }
     }
 
@@ -84,26 +77,24 @@ public class LookAheadVehicle extends AutonomousVehicle {
      * @return An array of PoseSteering objects representing the path.
      */
     public PoseSteering[] getPath(double lookAheadDistance, TrajectoryEnvelopeCoordinator tec) {
-        return getLimitedPath(getID(), lookAheadDistance, tec);
+        return getLimitedPath(tec);
     }
 
     /**
      * Retrieves a limited path for the LookAheadVehicle up to a specified look-ahead distance.
      *
-     * @param vehicleID         The ID of the vehicle for which the path is being generated.
-     * @param lookAheadDistance The maximum distance ahead in the path to consider.
-     * @param tec               The TrajectoryEnvelopeCoordinator containing the vehicles.
+     * @param tec The TrajectoryEnvelopeCoordinator containing the vehicles.
      * @return An array of PoseSteering objects representing the limited path.
      */
-    public synchronized PoseSteering[] getLimitedPath(int vehicleID, double lookAheadDistance, TrajectoryEnvelopeCoordinator tec) {
-        if (lookAheadDistance < 0) return getPath();
+    public synchronized PoseSteering[] getLimitedPath(TrajectoryEnvelopeCoordinator tec) {
+        if (lookAheadDistance < 0) return getPaths().get(0);
 
         var distance = 0.0;
-        var vehicleReport = tec.getRobotReport(vehicleID);
-        var fullPath = getPath();
+        var vehicleReport = tec.getRobotReport(getID());
+        var fullPath = getPaths().get(0);
 
         if (vehicleReport == null) {
-            System.err.println("Error: RobotReport for vehicleID " + vehicleID + " not found.");
+            System.err.println("Error: RobotReport for vehicleID " + getID() + " not found.");
             return new PoseSteering[0];
         }
 
@@ -121,9 +112,6 @@ public class LookAheadVehicle extends AutonomousVehicle {
         return Arrays.copyOfRange(fullPath, 0, pathIndex);
     }
 
-    public void setLookAheadDistance(double lookAheadDistance) {
-        this.lookAheadDistance = lookAheadDistance;
-    }
     public double getLookAheadDistance() {
         return lookAheadDistance;
     }

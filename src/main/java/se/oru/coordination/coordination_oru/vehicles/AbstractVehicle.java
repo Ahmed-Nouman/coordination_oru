@@ -44,9 +44,7 @@ public abstract class AbstractVehicle {
     private final String name;
     private final int priority;
     private final String type = this.getClass().getSimpleName();
-
     private double maxVelocity;
-
     private final double maxAcceleration;
     private double length;
     private double width;

@@ -10,11 +10,13 @@ import se.oru.coordination.coordination_oru.utils.Heuristics;
 import se.oru.coordination.coordination_oru.utils.RungeKutta4;
 import se.oru.coordination.coordination_oru.utils.RobotReport;
 import se.oru.coordination.coordination_oru.utils.State;
+import se.oru.coordination.coordination_oru.vehicles.AbstractVehicle;
 import se.oru.coordination.coordination_oru.vehicles.AutonomousVehicle;
 import se.oru.coordination.coordination_oru.vehicles.VehiclesHashMap;
 
 import java.util.*;
 import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
 
@@ -55,7 +57,7 @@ public abstract class AdaptiveTrackerRK4 extends AbstractTrajectoryEnvelopeTrack
         this.th.setPriority(Thread.MAX_PRIORITY);
     }
 
-    public static void scheduleVehicleStop(
+    public static void scheduleVehiclesStop(
             AutonomousVehicle priorityVehicle,
             List<Integer> missionIDsToStop,
             List<Integer> vehicleIDsToStop,
@@ -113,6 +115,95 @@ public abstract class AdaptiveTrackerRK4 extends AbstractTrajectoryEnvelopeTrack
             this.paused = false;
             this.notifyAll();
         }
+    }
+
+    public static void scheduleVehicleSlow(
+            AutonomousVehicle priorityVehicle,
+            List<Integer> missionIDsToStop,
+            List<Integer> vehicleIDsToStop,
+            Function<Integer, AbstractTrajectoryEnvelopeTracker> trackerRetriever,
+            double maxVelocity, double minVelocity) {
+
+        final var scheduler = Executors.newScheduledThreadPool(1);
+
+        var shutdown = new Runnable() {
+            @Override
+            public void run() {
+                if (missionIDsToStop.contains(priorityVehicle.getCurrentTaskIndex())) {
+                    var trackers = new ArrayList<AbstractTrajectoryEnvelopeTracker>();
+                    for (Integer vehicleId : vehicleIDsToStop) {
+                        AbstractTrajectoryEnvelopeTracker tracker = trackerRetriever.apply(vehicleId);
+                        trackers.add(tracker);
+                    }
+                    slowDownVehicles(trackers, minVelocity);
+
+                    scheduler.schedule(() -> {
+                        if (!missionIDsToStop.contains(priorityVehicle.getCurrentTaskIndex())) {
+                            speedUpVehicles(trackers, maxVelocity);
+                        }
+                    }, 5, TimeUnit.SECONDS);
+                }
+                scheduler.schedule(this, 100, TimeUnit.MILLISECONDS);
+            }
+        };
+
+        scheduler.schedule(shutdown, 2, TimeUnit.SECONDS);
+    }
+
+    private static void slowDownVehicles(List<AbstractTrajectoryEnvelopeTracker> trackers, double targetVelocity) {
+        for (AbstractTrajectoryEnvelopeTracker tracker : trackers) {
+            synchronized (tracker) {
+                if (tracker instanceof AdaptiveTrackerRK4) {
+                    AdaptiveTrackerRK4 adaptiveTracker = (AdaptiveTrackerRK4) tracker;
+                    VehiclesHashMap.getVehicle(adaptiveTracker.te.getRobotID()).setMaxVelocity(targetVelocity);
+//                    adaptiveTracker.maxVelocity = targetVelocity;
+                }
+            }
+        }
+    }
+
+    private static void speedUpVehicles(List<AbstractTrajectoryEnvelopeTracker> trackers, double targetVelocity) {
+        for (AbstractTrajectoryEnvelopeTracker tracker : trackers) {
+            synchronized (tracker) {
+                if (tracker instanceof AdaptiveTrackerRK4) {
+                    AdaptiveTrackerRK4 adaptiveTracker = (AdaptiveTrackerRK4) tracker;
+                    // Apply on the next task but doesn't cause vehicle to jump
+                    VehiclesHashMap.getVehicle(adaptiveTracker.te.getRobotID()).setMaxVelocity(targetVelocity);
+                    // Instantaneous speed up but causes vehicles to jump
+//                    adaptiveTracker.maxVelocity = targetVelocity;
+                }
+            }
+        }
+    }
+
+    public static void scheduleVehiclesPriorityChange(
+            AutonomousVehicle priorityVehicle,
+            List<Integer> missionIDs,
+            TrajectoryEnvelopeCoordinatorSimulation tec,
+            Heuristics originalHeuristics,
+            Heuristics newHeuristics) {
+
+        final var scheduler = Executors.newScheduledThreadPool(1);
+
+        var updateHeuristics = new Runnable() {
+            @Override
+            public void run() {
+                synchronized (tec) {
+                    boolean missionMatchFound = missionIDs.contains(priorityVehicle.getCurrentTaskIndex());
+
+                    tec.clearComparator();
+                    if (missionMatchFound) {
+                        tec.addComparator(newHeuristics.getComparator());
+                    } else {
+                        tec.addComparator(originalHeuristics.getComparator());
+                    }
+                }
+
+                scheduler.schedule(this, 100, TimeUnit.MILLISECONDS);
+            }
+        };
+
+        scheduler.schedule(updateHeuristics, 0, TimeUnit.SECONDS);
     }
 
     @Override
@@ -213,116 +304,6 @@ public abstract class AdaptiveTrackerRK4 extends AbstractTrajectoryEnvelopeTrack
             }
         }
         metaCSPLogger.info("RK4 tracking thread terminates (Robot " + myRobotID + ", TrajectoryEnvelope " + myTEID + ")");
-    }
-
-    public static void scheduleVehicleSlow(
-            AutonomousVehicle priorityVehicle,
-            List<Integer> missionIDsToStop,
-            List<Integer> vehicleIDsToStop,
-            Function<Integer, AbstractTrajectoryEnvelopeTracker> trackerRetriever,
-            double maxVelocity, double minVelocity) {
-
-        final var scheduler = Executors.newScheduledThreadPool(1);
-
-        var shutdown = new Runnable() {
-            @Override
-            public void run() {
-                if (missionIDsToStop.contains(priorityVehicle.getCurrentTaskIndex())) {
-                    var trackers = new ArrayList<AbstractTrajectoryEnvelopeTracker>();
-                    for (Integer vehicleId : vehicleIDsToStop) {
-                        AbstractTrajectoryEnvelopeTracker tracker = trackerRetriever.apply(vehicleId);
-                        trackers.add(tracker);
-                    }
-                    slowDownVehicles(trackers, minVelocity);
-
-                    scheduler.schedule(() -> {
-                        if (!missionIDsToStop.contains(priorityVehicle.getCurrentTaskIndex())) {
-                            speedUpVehicles(trackers, maxVelocity);
-                        }
-                    }, 5, TimeUnit.SECONDS);
-                }
-                scheduler.schedule(this, 100, TimeUnit.MILLISECONDS);
-            }
-        };
-
-        scheduler.schedule(shutdown, 2, TimeUnit.SECONDS);
-    }
-
-    public static void slowDownVehicles(List<AbstractTrajectoryEnvelopeTracker> trackers, double targetVelocity) {
-        for (AbstractTrajectoryEnvelopeTracker tracker : trackers) {
-            synchronized (tracker) {
-                if (tracker instanceof AdaptiveTrackerRK4) {
-                    AdaptiveTrackerRK4 adaptiveTracker = (AdaptiveTrackerRK4) tracker;
-                    adaptiveTracker.maxVelocity = targetVelocity;
-                    graduallyChangeVelocity(adaptiveTracker, targetVelocity, 0.1); // Adjust step size as needed
-                }
-            }
-        }
-    }
-
-    private static void speedUpVehicles(List<AbstractTrajectoryEnvelopeTracker> trackers, double targetVelocity) {
-        for (AbstractTrajectoryEnvelopeTracker tracker : trackers) {
-            synchronized (tracker) {
-                if (tracker instanceof AdaptiveTrackerRK4) {
-                    AdaptiveTrackerRK4 adaptiveTracker = (AdaptiveTrackerRK4) tracker;
-                    adaptiveTracker.maxVelocity = targetVelocity;
-                    graduallyChangeVelocity(adaptiveTracker, targetVelocity, 0.1); // Adjust step size as needed
-                }
-            }
-        }
-    }
-
-    private static void graduallyChangeVelocity(AbstractTrajectoryEnvelopeTracker tracker, double targetVelocity, double step) {
-        new Thread(() -> {
-            boolean increasing = targetVelocity > VehiclesHashMap.getVehicle(tracker.te.getRobotID()).getMaxVelocity();
-            while (true) {
-                synchronized (tracker) {
-                    double currentVelocity = VehiclesHashMap.getVehicle(tracker.te.getRobotID()).getMaxVelocity();
-                    if (increasing) {
-                        if (currentVelocity >= targetVelocity) break;
-                        VehiclesHashMap.getVehicle(tracker.te.getRobotID()).setMaxVelocity(Math.min(currentVelocity + step, targetVelocity));
-                    } else {
-                        if (currentVelocity <= targetVelocity) break;
-                        VehiclesHashMap.getVehicle(tracker.te.getRobotID()).setMaxVelocity(Math.max(currentVelocity - step, targetVelocity));
-                    }
-                }
-                try {
-                    Thread.sleep(10); // Adjust the sleep duration as needed
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-            }
-        }).start();
-    }
-
-    public static void scheduleVehiclesPriorityChange(
-            AutonomousVehicle priorityVehicle,
-            List<Integer> missionIDs,
-            TrajectoryEnvelopeCoordinatorSimulation tec,
-            Heuristics originalHeuristics,
-            Heuristics newHeuristics) {
-
-        final var scheduler = Executors.newScheduledThreadPool(1);
-
-        var updateHeuristics = new Runnable() {
-            @Override
-            public void run() {
-                synchronized (tec) {
-                    boolean missionMatchFound = missionIDs.contains(priorityVehicle.getCurrentTaskIndex());
-
-                    tec.clearComparator();
-                    if (missionMatchFound) {
-                        tec.addComparator(newHeuristics.getComparator());
-                    } else {
-                        tec.addComparator(originalHeuristics.getComparator());
-                    }
-                }
-
-                scheduler.schedule(this, 100, TimeUnit.MILLISECONDS);
-            }
-        };
-
-        scheduler.schedule(updateHeuristics, 0, TimeUnit.SECONDS);
     }
 
     public void setUseInternalCriticalPoints(boolean value) {

@@ -2,8 +2,6 @@ package se.oru.coordination.coordination_oru.scenarios;
 
 import org.metacsp.multi.spatioTemporal.paths.Pose;
 import se.oru.coordination.coordination_oru.forwardModel.ConstantAcceleration;
-import se.oru.coordination.coordination_oru.tracker.AbstractTrajectoryEnvelopeTracker;
-import se.oru.coordination.coordination_oru.tracker.AdaptiveTrackerRK4;
 import se.oru.coordination.coordination_oru.utils.MapResolution;
 import se.oru.coordination.coordination_oru.utils.Task;
 import se.oru.coordination.coordination_oru.forwardModel.ForwardModel;
@@ -14,11 +12,11 @@ import se.oru.coordination.coordination_oru.simulation.BrowserVisualization;
 import se.oru.coordination.coordination_oru.utils.Heuristics;
 import se.oru.coordination.coordination_oru.utils.Missions;
 import se.oru.coordination.coordination_oru.vehicles.AutonomousVehicle;
+import se.oru.coordination.coordination_oru.vehicles.HumanVehicle;
 
 import java.awt.*;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.function.Function;
 
 public class ProductionCycleShutdown {
 
@@ -86,8 +84,8 @@ public class ProductionCycleShutdown {
                 LENGTH, WIDTH, drawPoint12, 5, 5, model);
         autonomousVehicle3.addTask(new Task(0, new Pose[] {parking}, 1));
         autonomousVehicle3.addTask(new Task(0.1, new Pose[] {drawPoint12}, 0));
-        var serviceVehicle = new AutonomousVehicle("S", 2,  Color.GREEN, MAX_VELOCITY, MAX_ACCELERATION,
-                LENGTH, WIDTH, entrance, 5, 1, model);
+        var serviceVehicle = new HumanVehicle("S", 2,  Color.GREEN, MAX_VELOCITY, MAX_ACCELERATION,
+                LENGTH, WIDTH, entrance, 5, 1, model, TEC);
         serviceVehicle.addTask(new Task(0, new Pose[] {barrier2End}, 0));
         serviceVehicle.addTask(new Task(0.1, new Pose[] {barrier1End}, 0));
         serviceVehicle.addTask(new Task(0, new Pose[] {mainTunnelLeft}, 0));
@@ -102,7 +100,7 @@ public class ProductionCycleShutdown {
 
         TEC.setupSolver(0, 100000000);
         TEC.startInference();
-        var heuristics = new Heuristics(Heuristics.HeuristicType.HIGHEST_PRIORITY_FIRST);
+        var heuristics = new Heuristics(Heuristics.HeuristicType.CLOSEST_FIRST);
         var newheuristics = new Heuristics(Heuristics.HeuristicType.HIGHEST_PRIORITY_FIRST);
         TEC.addComparator(heuristics.getComparator());
         TEC.setDefaultFootprint(autonomousVehicle1.getFootprint());
@@ -122,9 +120,9 @@ public class ProductionCycleShutdown {
         Missions.runTasks(TEC, -1);
         ArrayList<Integer> missionIDsToStop = new ArrayList<>(Arrays.asList(1, 4));
         ArrayList<Integer> vehicleIDsToStop = new ArrayList<>(Arrays.asList(1, 2));
-        Function<Integer, AbstractTrajectoryEnvelopeTracker> trackerRetriever = vehicleId -> TEC.trackers.get(vehicleId);
-//        AdaptiveTrackerRK4.scheduleVehicleStop(serviceVehicle, missionIDsToStop, vehicleIDsToStop, trackerRetriever);
-        AdaptiveTrackerRK4.scheduleVehicleSlow(serviceVehicle, missionIDsToStop, vehicleIDsToStop, trackerRetriever, 10.0, 1.0); // FIXME: Vehicles Jump
+
+//        AdaptiveTrackerRK4.scheduleVehicleStop(serviceVehicle, 10, 10, trackerRetriever);
+//        AdaptiveTrackerRK4.scheduleVehicleSlow(serviceVehicle, missionIDsToStop, vehicleIDsToStop, trackerRetriever, 10.0, 1.0); // FIXME: Vehicles Jump
 //        AdaptiveTrackerRK4.scheduleVehiclesPriorityChange(serviceVehicle, missionIDsToStop, TEC, heuristics, newheuristics);
     }
 
