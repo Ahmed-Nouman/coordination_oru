@@ -32,12 +32,12 @@ public class OneAutonomousOneLookAheadVehicles {
         ForwardModel model = new ConstantAcceleration(10.0, 1.0, 1000, 1000, 30);
 
         var autonomousVehicle = new AutonomousVehicle("A1",1, Color.YELLOW, 10.0, 1.0,
-                0.9, 0.65, drawPoint21, 5, 0, model);
+                0.9, 0.65, drawPoint21, 5, 5, model);
         autonomousVehicle.setGoals(new Pose[] {orePass, drawPoint21});
         autonomousVehicle.generatePlans(planner);
 
         var humanVehicle = new HumanVehicle("H1",1, Color.BLUE, 10.0, 1.0,
-                0.9, 0.65, mainTunnelLeft, 5, 0, model, tec);
+                0.9, 0.65, mainTunnelLeft, 5, 5, model, tec);
         humanVehicle.setGoals(new Pose[] {mainTunnelRight, mainTunnelLeft});
         humanVehicle.generatePlans(planner);
 
@@ -57,11 +57,8 @@ public class OneAutonomousOneLookAheadVehicles {
         viz.setInitialTransform(11, 45, -3.5);
         tec.setVisualization(viz);
 
-        var mission1 = new Mission(autonomousVehicle.getID(), autonomousVehicle.getPaths().get(0));
-        var mission2 = new Mission(humanVehicle.getID(), humanVehicle.getPaths().get(0));
-        Missions.enqueueMission(mission1);
-        Missions.enqueueMission(mission2);
+        Missions.generateMissions();
         Missions.setMap(map);
-        Missions.startMissionDispatcher(tec);
+        Missions.runTasks(tec, -1);
     }
 }

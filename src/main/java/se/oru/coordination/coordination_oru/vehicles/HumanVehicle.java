@@ -5,16 +5,18 @@ import se.oru.coordination.coordination_oru.coordinator.TrajectoryEnvelopeCoordi
 import se.oru.coordination.coordination_oru.forwardModel.ForwardModel;
 import se.oru.coordination.coordination_oru.tracker.AbstractTrajectoryEnvelopeTracker;
 import se.oru.coordination.coordination_oru.tracker.AdaptiveTrackerRK4;
+import se.oru.coordination.coordination_oru.utils.Task;
 
 import java.awt.*;
+import java.util.Random;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
-import java.util.Random;
 
 public class HumanVehicle extends AutonomousVehicle {
 
     private final Random random;
+    private final TrajectoryEnvelopeCoordinatorSimulation tec;
 
     public HumanVehicle(int ID, String name, int priorityID, Color color, double maxVelocity, double maxAcceleration,
                         double length, double width, Pose initialPose, double safetyDistance, int missionRepetition, ForwardModel model,
@@ -22,24 +24,7 @@ public class HumanVehicle extends AutonomousVehicle {
         super(ID, name, priorityID, color, maxVelocity, maxAcceleration, length, width, initialPose, safetyDistance,
                 missionRepetition, model);
         this.random = new Random();
-
-        int behavior = random.nextInt(3);
-        switch (behavior) {
-            case 0:
-                System.out.println("No stopping or slowing for vehicle " + ID);
-                break;
-            case 1:
-                System.out.println("Slowing behavior for vehicle " + ID);
-                Function<Integer, AbstractTrajectoryEnvelopeTracker> trackerRetriever = vehicleId -> tec.trackers.get(vehicleId);
-                scheduleVehicleSlow(ID, trackerRetriever, 1.0);
-                break;
-            case 2:
-                System.out.println("Stopping and resuming behavior for vehicle " + ID);
-                Function<Integer, AbstractTrajectoryEnvelopeTracker> trackerRetriever2 = vehicleId -> tec.trackers.get(vehicleId);
-                int numberOfStops = random.nextInt(3) + 1;
-                scheduleMultipleStops(ID, trackerRetriever2, numberOfStops);
-                break;
-        }
+        this.tec = tec;
     }
 
     public HumanVehicle(String name, int priorityID, Color color, double maxVelocity, double maxAcceleration, double length,
@@ -47,6 +32,33 @@ public class HumanVehicle extends AutonomousVehicle {
                         TrajectoryEnvelopeCoordinatorSimulation tec) {
         this(vehicleNumber, name, priorityID, color, maxVelocity, maxAcceleration, length, width, initialPose, safetyDistance,
                 missionRepetition, model, tec);
+    }
+
+    @Override
+    public void setCurrentTaskIndex(int currentTaskIndex) {
+        super.setCurrentTaskIndex(currentTaskIndex);
+        setupBehaviorForCurrentTask();
+    }
+
+    private void setupBehaviorForCurrentTask() {
+        if (getCurrentTaskIndex() >= 0 && getCurrentTaskIndex() < getTasks().size()) {
+            Function<Integer, AbstractTrajectoryEnvelopeTracker> trackerRetriever = vehicleId -> tec.trackers.get(vehicleId);
+            int behavior = random.nextInt(3);
+            switch (behavior) {
+                case 0:
+                    System.out.println("No stopping or slowing for vehicle " + getID() + " on task " + getCurrentTaskIndex());
+                    break;
+                case 1:
+                    System.out.println("Slowing behavior for vehicle " + getID() + " on task " + getCurrentTaskIndex());
+                    scheduleVehicleSlow(getID(), trackerRetriever, 1.0);
+                    break;
+                case 2:
+                    System.out.println("Stopping and resuming behavior for vehicle " + getID() + " on task " + getCurrentTaskIndex());
+                    int numberOfStops = random.nextInt(3) + 1;
+                    scheduleMultipleStops(getID(), trackerRetriever, numberOfStops);
+                    break;
+            }
+        }
     }
 
     private void scheduleMultipleStops(Integer vehicleIDToStop, Function<Integer, AbstractTrajectoryEnvelopeTracker> trackerRetriever, int numberOfStops) {
