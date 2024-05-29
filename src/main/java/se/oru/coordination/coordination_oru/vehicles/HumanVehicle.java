@@ -5,7 +5,6 @@ import se.oru.coordination.coordination_oru.coordinator.TrajectoryEnvelopeCoordi
 import se.oru.coordination.coordination_oru.forwardModel.ForwardModel;
 import se.oru.coordination.coordination_oru.tracker.AbstractTrajectoryEnvelopeTracker;
 import se.oru.coordination.coordination_oru.tracker.AdaptiveTrackerRK4;
-import se.oru.coordination.coordination_oru.utils.Task;
 
 import java.awt.*;
 import java.util.Random;
@@ -15,7 +14,12 @@ import java.util.function.Function;
 
 public class HumanVehicle extends AutonomousVehicle {
 
-    private final Random random;
+    private static final Random random = new Random();
+    private static final int MAX_NO_OF_STOPS = 3;
+    private static final double MIN_VELOCITY = 2.0;
+    private static final long STOP_TIME = 5 + random.nextInt(16);
+    private static final long RESUME_TIME = 5 + random.nextInt(16);
+    private static final long SLOWDOWN_TIME = 5 + random.nextInt(11);
     private final TrajectoryEnvelopeCoordinatorSimulation tec;
 
     public HumanVehicle(int ID, String name, int priorityID, Color color, double maxVelocity, double maxAcceleration,
@@ -23,7 +27,6 @@ public class HumanVehicle extends AutonomousVehicle {
                         TrajectoryEnvelopeCoordinatorSimulation tec) {
         super(ID, name, priorityID, color, maxVelocity, maxAcceleration, length, width, initialPose, safetyDistance,
                 missionRepetition, model);
-        this.random = new Random();
         this.tec = tec;
     }
 
@@ -43,31 +46,32 @@ public class HumanVehicle extends AutonomousVehicle {
     private void setupBehaviorForCurrentTask() {
         if (getCurrentTaskIndex() >= 0 && getCurrentTaskIndex() < getTasks().size()) {
             Function<Integer, AbstractTrajectoryEnvelopeTracker> trackerRetriever = vehicleId -> tec.trackers.get(vehicleId);
-            int behavior = random.nextInt(3);
+            var behavior = Behavior.fromIntToBehavior(random.nextInt(Behavior.values().length));
             switch (behavior) {
-                case 0:
+                case NORMAL:
                     System.out.println("No stopping or slowing for vehicle " + getID() + " on task " + getCurrentTaskIndex());
                     break;
-                case 1:
+                case SLOWING:
                     System.out.println("Slowing behavior for vehicle " + getID() + " on task " + getCurrentTaskIndex());
-                    scheduleVehicleSlow(getID(), trackerRetriever, 1.0);
+                    scheduleVehicleSlow(getID(), trackerRetriever, MIN_VELOCITY);
                     break;
-                case 2:
+                case STOPPING:
                     System.out.println("Stopping and resuming behavior for vehicle " + getID() + " on task " + getCurrentTaskIndex());
-                    int numberOfStops = random.nextInt(3) + 1;
+                    int numberOfStops = random.nextInt(MAX_NO_OF_STOPS) + 1;
                     scheduleMultipleStops(getID(), trackerRetriever, numberOfStops);
                     break;
             }
         }
     }
 
-    private void scheduleMultipleStops(Integer vehicleIDToStop, Function<Integer, AbstractTrajectoryEnvelopeTracker> trackerRetriever, int numberOfStops) {
+
+    private static void scheduleMultipleStops(Integer vehicleIDToStop, Function<Integer, AbstractTrajectoryEnvelopeTracker> trackerRetriever, int numberOfStops) {
         final var scheduler = Executors.newScheduledThreadPool(1);
         long currentTime = 0;
 
         for (int i = 0; i < numberOfStops; i++) {
-            long stopTime = currentTime + 5 + random.nextInt(16);
-            long resumeTime = 5 + random.nextInt(16);
+            long stopTime = currentTime + STOP_TIME;
+            long resumeTime = RESUME_TIME;
 
             var stopRunnable = new Runnable() {
                 @Override
@@ -83,7 +87,7 @@ public class HumanVehicle extends AutonomousVehicle {
         }
     }
 
-    private void stopVehicle(AbstractTrajectoryEnvelopeTracker tracker) {
+    private static void stopVehicle(AbstractTrajectoryEnvelopeTracker tracker) {
         synchronized (tracker) {
             if (tracker instanceof AdaptiveTrackerRK4) {
                 ((AdaptiveTrackerRK4) tracker).pause();
@@ -91,7 +95,7 @@ public class HumanVehicle extends AutonomousVehicle {
         }
     }
 
-    private void resumeVehicle(AbstractTrajectoryEnvelopeTracker tracker) {
+    private static void resumeVehicle(AbstractTrajectoryEnvelopeTracker tracker) {
         synchronized (tracker) {
             if (tracker instanceof AdaptiveTrackerRK4) {
                 ((AdaptiveTrackerRK4) tracker).resume();
@@ -105,8 +109,6 @@ public class HumanVehicle extends AutonomousVehicle {
             double minVelocity) {
 
         final var scheduler = Executors.newScheduledThreadPool(1);
-        Random random = new Random();
-        long delay = 5 + random.nextInt(11);
 
         var slowdownRunnable = new Runnable() {
             @Override
@@ -119,6 +121,29 @@ public class HumanVehicle extends AutonomousVehicle {
             }
         };
 
-        scheduler.schedule(slowdownRunnable, delay, TimeUnit.SECONDS);
+        scheduler.schedule(slowdownRunnable, SLOWDOWN_TIME, TimeUnit.SECONDS);
     }
+
+    public enum Behavior {
+        STOPPING(0),
+        SLOWING(1),
+        NORMAL(2);
+
+        private final int value;
+
+        Behavior(int value) {
+            this.value = value;
+        }
+
+        public int getValue() {
+            return value;
+        }
+
+        public static Behavior fromIntToBehavior(int value) {
+            for (var behavior : Behavior.values())
+                if (behavior.getValue() == value) return behavior;
+            throw new IllegalArgumentException("Invalid behavior value: " + value);
+        }
+    }
+
 }

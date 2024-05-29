@@ -10,13 +10,10 @@ import se.oru.coordination.coordination_oru.utils.Heuristics;
 import se.oru.coordination.coordination_oru.utils.RungeKutta4;
 import se.oru.coordination.coordination_oru.utils.RobotReport;
 import se.oru.coordination.coordination_oru.utils.State;
-import se.oru.coordination.coordination_oru.vehicles.AbstractVehicle;
 import se.oru.coordination.coordination_oru.vehicles.AutonomousVehicle;
-import se.oru.coordination.coordination_oru.vehicles.VehiclesHashMap;
 
 import java.util.*;
 import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
 
@@ -154,9 +151,9 @@ public abstract class AdaptiveTrackerRK4 extends AbstractTrajectoryEnvelopeTrack
         for (AbstractTrajectoryEnvelopeTracker tracker : trackers) {
             synchronized (tracker) {
                 if (tracker instanceof AdaptiveTrackerRK4) {
-                    AdaptiveTrackerRK4 adaptiveTracker = (AdaptiveTrackerRK4) tracker;
-                    VehiclesHashMap.getVehicle(adaptiveTracker.te.getRobotID()).setMaxVelocity(targetVelocity);
-//                    adaptiveTracker.maxVelocity = targetVelocity;
+                    var adaptiveTracker = (AdaptiveTrackerRK4) tracker;
+//                    VehiclesHashMap.getVehicle(adaptiveTracker.te.getRobotID()).setMaxVelocity(targetVelocity);
+                    adaptiveTracker.maxVelocity = targetVelocity;
                 }
             }
         }
@@ -166,11 +163,9 @@ public abstract class AdaptiveTrackerRK4 extends AbstractTrajectoryEnvelopeTrack
         for (AbstractTrajectoryEnvelopeTracker tracker : trackers) {
             synchronized (tracker) {
                 if (tracker instanceof AdaptiveTrackerRK4) {
-                    AdaptiveTrackerRK4 adaptiveTracker = (AdaptiveTrackerRK4) tracker;
-                    // Apply on the next task but doesn't cause vehicle to jump
-                    VehiclesHashMap.getVehicle(adaptiveTracker.te.getRobotID()).setMaxVelocity(targetVelocity);
-                    // Instantaneous speed up but causes vehicles to jump
-//                    adaptiveTracker.maxVelocity = targetVelocity;
+                    var adaptiveTracker = (AdaptiveTrackerRK4) tracker;
+//                    VehiclesHashMap.getVehicle(adaptiveTracker.te.getRobotID()).setMaxVelocity(targetVelocity);
+                    adaptiveTracker.maxVelocity = targetVelocity;
                 }
             }
         }
@@ -713,3 +708,4 @@ public abstract class AdaptiveTrackerRK4 extends AbstractTrajectoryEnvelopeTrack
         return new RobotReport(te.getRobotID(), pose, currentPathIndex, auxState.getVelocity(), auxState.getPosition(), -1);
     }
 }
+
