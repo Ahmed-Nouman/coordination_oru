@@ -2,6 +2,7 @@ package se.oru.coordination.coordination_oru.gui;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.metacsp.multi.spatioTemporal.paths.Pose;
+import org.metacsp.multi.spatioTemporal.paths.PoseSteering;
 
 import java.io.Serializable;
 import java.util.*;
@@ -144,13 +145,13 @@ public class ProjectData implements Serializable {
         private double length;
         private double width;
         private String initialPose;
+        private String pathFile;
         private List<TaskStep> task;
         private int taskRepetition;
         private double safetyDistance;
         public Vehicle() {
             this.ID = nextId++;
         }
-
         public int getID() {
             return ID;
         }
@@ -257,6 +258,14 @@ public class ProjectData implements Serializable {
 
         public void setSafetyDistance(double safetyDistance) {
             this.safetyDistance = safetyDistance;
+        }
+
+        public String getPathFile() {
+            return pathFile;
+        }
+
+        public void setPathFile(String pathFile) {
+            this.pathFile = pathFile;
         }
 
         @Override

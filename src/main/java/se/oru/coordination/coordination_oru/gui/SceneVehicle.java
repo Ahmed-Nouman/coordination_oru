@@ -37,7 +37,7 @@ public class SceneVehicle {
     private final Button delete = new Button("Delete");
     private final Button down = new Button("↑");
     private final Button up = new Button("↓");
-    private final Button load = new Button("Load Plans");
+    private final Button loadPath = new Button("Load Path");
     private ListView<String> tasks = new ListView<>();
     private final Button addVehicle = new Button("Add Vehicle");
     private final Button deleteVehicle = new Button("Delete Vehicle");
@@ -173,7 +173,7 @@ public class SceneVehicle {
         var taskButtons = new HBox();
         taskButtons.setSpacing(5);
         taskButtons.setAlignment(Pos.CENTER);
-        taskButtons.getChildren().addAll(add, delete, down, up, load);
+        taskButtons.getChildren().addAll(add, delete, down, up, loadPath);
         taskField.setMaxWidth(TEXT_WIDTH);
         taskField.getChildren().addAll(tasks, taskButtons);
         taskController();
@@ -184,6 +184,7 @@ public class SceneVehicle {
         delete.setOnAction(e -> controller.clickDelete());
         down.setOnAction(e -> controller.clickDown());
         up.setOnAction(e -> controller.clickUp());
+        loadPath.setOnAction(e -> controller.clickLoadPath());
         tasks.setOnMouseClicked(e -> {
             if (e.getClickCount() == 2) controller.doubleClickTask();
         });
