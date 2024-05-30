@@ -83,11 +83,11 @@ public class ControllerVehicle {
         }
     }
 
-    public void chooseInitialPose() {
+    public void chooseStartPose() {
         var vehicleName = scene.getVehicles().getSelectionModel().getSelectedItem();
         if (vehicleName != null) {
-            var newInitialPose = scene.getInitialPoseField().getValue();
-            scene.getMain().getDataStatus().getProjectData().getVehicle(scene.getMain().getDataStatus().getProjectData().getVehicleID(vehicleName, scene.getMain().getDataStatus().getProjectData().getVehicles())).setInitialPose(newInitialPose);
+            var newStartPose = scene.getStartPoseField().getValue();
+            scene.getMain().getDataStatus().getProjectData().getVehicle(scene.getMain().getDataStatus().getProjectData().getVehicleID(vehicleName, scene.getMain().getDataStatus().getProjectData().getVehicles())).setStartPose(newStartPose);
         }
     }
 
@@ -110,12 +110,12 @@ public class ControllerVehicle {
         }
     }
 
-    public void changeMissionRepetition() {
-        var validated = Utils.validateInteger(scene.getMissionRepetitionField());
+    public void changeTaskRepetition() {
+        var validated = Utils.validateInteger(scene.getTaskRepetitionField());
         var vehicleName = scene.getVehicles().getSelectionModel().getSelectedItem();
         if (validated && vehicleName != null) {
-            var newMissionRepetition = Integer.parseInt(scene.getMissionRepetitionField().getText());
-            scene.getMain().getDataStatus().getProjectData().getVehicle(scene.getMain().getDataStatus().getProjectData().getVehicleID(vehicleName, scene.getMain().getDataStatus().getProjectData().getVehicles())).setMissionRepetition(newMissionRepetition);
+            var newMissionRepetition = Integer.parseInt(scene.getTaskRepetitionField().getText());
+            scene.getMain().getDataStatus().getProjectData().getVehicle(scene.getMain().getDataStatus().getProjectData().getVehicleID(vehicleName, scene.getMain().getDataStatus().getProjectData().getVehicles())).setTaskRepetition(newMissionRepetition);
         }
     }
 
@@ -140,19 +140,20 @@ public class ControllerVehicle {
     var safetyDistanceOfVehicle = 0.0;
     var colorOfVehicle = "Yellow";
     var initialPoseOfVehicle = scene.getMain().getDataStatus().getProjectData().getPoses().keySet().stream().findFirst().orElse(null);
-    var missionRepetitionOfVehicle = 1;
+    var taskRepetitionOfVehicle = 1;
     var typeOfVehicle = "Autonomous";
     var lookAheadDistanceOfVehicle = 0.0;
 
-    // Adding a default mission
-    var missionOfVehicle = new ArrayList<ProjectData.MissionStep>();
-    var missionStep = new ProjectData.MissionStep();
-    missionStep.setPoseName(scene.getMain().getDataStatus().getProjectData().getPoses().keySet().stream().
+    // Adding a default task
+    var taskOfVehicle = new ArrayList<ProjectData.TaskStep>();
+    var taskStep = new ProjectData.TaskStep();
+    taskStep.setPoseName(scene.getMain().getDataStatus().getProjectData().getPoses().keySet().stream().
             filter(item -> !item.equals(initialPoseOfVehicle)).
             findAny().
             orElse(null));
-    missionStep.setDuration(1.0);
-    missionOfVehicle.add(missionStep);
+    taskStep.setDuration(1.0);
+    taskStep.setPriority(1);
+    taskOfVehicle.add(taskStep);
 
     // Handle duplicate names for vehicles
     String nameOfVehicle = baseNameOfVehicle;
@@ -171,9 +172,9 @@ public class ControllerVehicle {
     vehicle.setMaxAcceleration(maxAccelerationOfVehicle);
     vehicle.setSafetyDistance(safetyDistanceOfVehicle);
     vehicle.setColor(colorOfVehicle);
-    vehicle.setInitialPose(initialPoseOfVehicle);
-    vehicle.setMission(missionOfVehicle);
-    vehicle.setMissionRepetition(missionRepetitionOfVehicle);
+    vehicle.setStartPose(initialPoseOfVehicle);
+    vehicle.setTask(taskOfVehicle);
+    vehicle.setTaskRepetition(taskRepetitionOfVehicle);
     vehicle.setType(typeOfVehicle);
     vehicle.setLookAheadDistance(lookAheadDistanceOfVehicle);
 
@@ -206,9 +207,9 @@ private void verifyNext() {
 public void clickDelete() {
     var vehicle = scene.getMain().getDataStatus().getProjectData().getVehicle(scene.getMain().getDataStatus().getProjectData().getVehicleID(scene.getVehicles().getSelectionModel().getSelectedItem(), scene.getMain().getDataStatus().getProjectData().getVehicles()));
     if (vehicle != null) {
-        var index = scene.getMissions().getSelectionModel().getSelectedIndex();
-        scene.getMissions().getItems().remove(index);
-        vehicle.getMission().remove(index);
+        var index = scene.getTasks().getSelectionModel().getSelectedIndex();
+        scene.getTasks().getItems().remove(index);
+        vehicle.getTask().remove(index);
         }
     }
 
@@ -217,36 +218,36 @@ public void clickDelete() {
     }
 
     public void clickDown() {
-        var index = scene.getMissions().getSelectionModel().getSelectedIndex();
+        var index = scene.getTasks().getSelectionModel().getSelectedIndex();
         var vehicle = scene.getMain().getDataStatus().getProjectData().getVehicle(scene.getMain().getDataStatus().getProjectData().getVehicleID(scene.getVehicles().getSelectionModel().getSelectedItem(), scene.getMain().getDataStatus().getProjectData().getVehicles()));
         if (index > 0) {
-            var itemToMove = scene.getMissions().getItems().remove(index);
-            scene.getMissions().getItems().add(index - 1, itemToMove);
-            scene.getMissions().getSelectionModel().select(index - 1);
+            var itemToMove = scene.getTasks().getItems().remove(index);
+            scene.getTasks().getItems().add(index - 1, itemToMove);
+            scene.getTasks().getSelectionModel().select(index - 1);
             if (vehicle != null) {
-                var missionSteps = vehicle.getMission();
-                var missionStep = missionSteps.remove(index);
-                missionSteps.add(index - 1, missionStep);
+                var taskSteps = vehicle.getTask();
+                var taskStep = taskSteps.remove(index);
+                taskSteps.add(index - 1, taskStep);
             }
         }
     }
 
     public void clickUp() {
-        var index = scene.getMissions().getSelectionModel().getSelectedIndex();
+        var index = scene.getTasks().getSelectionModel().getSelectedIndex();
         var vehicle = scene.getMain().getDataStatus().getProjectData().getVehicle(scene.getMain().getDataStatus().getProjectData().getVehicleID(scene.getVehicles().getSelectionModel().getSelectedItem(), scene.getMain().getDataStatus().getProjectData().getVehicles()));
-        if (index < scene.getMissions().getItems().size() - 1) {
-            var itemToMove = scene.getMissions().getItems().remove(index);
-            scene.getMissions().getItems().add(index + 1, itemToMove);
-            scene.getMissions().getSelectionModel().select(index + 1);
+        if (index < scene.getTasks().getItems().size() - 1) {
+            var itemToMove = scene.getTasks().getItems().remove(index);
+            scene.getTasks().getItems().add(index + 1, itemToMove);
+            scene.getTasks().getSelectionModel().select(index + 1);
             if (vehicle != null) {
-                var missionSteps = vehicle.getMission();
+                var missionSteps = vehicle.getTask();
                 var missionStep = missionSteps.remove(index);
                 missionSteps.add(index + 1, missionStep);
             }
         }
     }
 
-    public void doubleCLickMission() {
+    public void doubleClickTask() {
         TaskDialog.edit(scene);
     }
 }

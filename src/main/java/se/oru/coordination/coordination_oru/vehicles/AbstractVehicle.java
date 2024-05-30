@@ -99,7 +99,7 @@ public abstract class AbstractVehicle {
     public void generatePlans(PathPlanner planner) {
         if (!tasks.isEmpty()) {
             for (Task task : tasks) {
-                paths.add(planner.plan(getFootprint(), initialPose, task.getPoses()));
+                paths.add(planner.plan(footprint, initialPose, task.getPoses()));
                 initialPose = task.getPoses()[task.getPoses().length - 1];
             }
             setSafetyPathPoints();

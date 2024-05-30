@@ -9,7 +9,7 @@ import javafx.scene.control.TextField;
 import javafx.stage.FileChooser;
 import org.metacsp.multi.spatioTemporal.paths.Pose;
 import org.yaml.snakeyaml.Yaml;
-import se.oru.coordination.coordination_oru.gui.ProjectData.MissionStep;
+import se.oru.coordination.coordination_oru.gui.ProjectData.TaskStep;
 import se.oru.coordination.coordination_oru.gui.ProjectData.Vehicle;
 
 import java.awt.*;
@@ -45,10 +45,8 @@ public class Utils {
 
     protected static Color stringToColor(String colorStr) {
 
-        // Convert the string to uppercase to match the enum constant naming convention
         String colorUpper = colorStr.toUpperCase();
 
-        // Match the string to the corresponding color constant
         switch (colorUpper) {
             case "RED":
                 return Color.RED;
@@ -158,18 +156,22 @@ public class Utils {
         for (JsonNode vehicleNode : vehiclesNode) {
             ObjectNode vehicleObject = (ObjectNode) vehicleNode;
 
-            // Handle mission
-            JsonNode missionNode = vehicleObject.get("mission");
-            List<MissionStep> mission = new ArrayList<>();
-            missionNode.forEach(missionStepNode -> {
-                String poseName = missionStepNode.get(0).asText();
-                double duration = missionStepNode.get(1).asDouble();
-                MissionStep missionStep = new MissionStep();
-                missionStep.setPoseName(poseName);
-                missionStep.setDuration(duration);
-                mission.add(missionStep);
+            // Handle task
+            JsonNode taskNode = vehicleObject.get("task");
+            List<TaskStep> task = new ArrayList<>();
+            taskNode.forEach(taskStepNode -> {
+                String taskName = taskStepNode.get(0).asText();
+                String poseName = taskStepNode.get(1).asText();
+                double duration = taskStepNode.get(2).asDouble();
+                int priority = taskStepNode.get(3).asInt();
+                var taskStep = new TaskStep();
+                taskStep.setTaskName(taskName);
+                taskStep.setPoseName(poseName);
+                taskStep.setDuration(duration);
+                taskStep.setPriority(priority);
+                task.add(taskStep);
             });
-            vehicleObject.remove("mission");
+            vehicleObject.remove("task");
 
             // Deserialize the vehicle
             Vehicle vehicle = null;
@@ -178,7 +180,7 @@ public class Utils {
             } catch (JsonProcessingException e) {
                 throw new RuntimeException(e);
             }
-            vehicle.setMission(mission);
+            vehicle.setTask(task);
 
             vehicles.add(vehicle);
         }
@@ -212,16 +214,18 @@ public class Utils {
                     GSON.writeStringField("length", String.valueOf(((Vehicle) object).getLength()));
                     GSON.writeStringField("width", String.valueOf(((Vehicle) object).getWidth()));
                     GSON.writeStringField("initialPose", ((Vehicle) object).getInitialPose());
-                    GSON.writeArrayFieldStart("mission");
-                    for (MissionStep missionStep : ((Vehicle) object).getMission()) {
+                    GSON.writeArrayFieldStart("task");
+                    for (TaskStep taskStep : ((Vehicle) object).getTask()) {
                         GSON.writeStartArray();
-                        GSON.writeString(missionStep.getPoseName());
-                        GSON.writeNumber(missionStep.getDuration());
+                        GSON.writeString(taskStep.getTaskName());
+                        GSON.writeString(taskStep.getPoseName());
+                        GSON.writeNumber(taskStep.getDuration());
+                        GSON.writeNumber(taskStep.getPriority());
                         GSON.writeEndArray();
                     }
                     GSON.writeEndArray();
                     GSON.writeStringField("safetyDistance", String.valueOf(((Vehicle) object).getSafetyDistance()));
-                    GSON.writeStringField("missionRepetition", String.valueOf(((Vehicle) object).getMissionRepetition()));
+                    GSON.writeStringField("taskRepetition", String.valueOf(((Vehicle) object).getTaskRepetition()));
                     GSON.writeEndObject();
                 } else if (object instanceof Pose) {
                     // Serialize Pose as an object

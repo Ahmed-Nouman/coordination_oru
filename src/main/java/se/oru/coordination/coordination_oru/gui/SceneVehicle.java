@@ -27,8 +27,8 @@ public class SceneVehicle {
     private TextField safetyDistanceField;
     private ChoiceBox<String> colorField;
     private ChoiceBox<String> initialPoseField;
-    private VBox missionField;
-    private TextField missionRepetitionField;
+    private VBox taskField;
+    private TextField taskRepetitionField;
     private CheckBox isHumanField;
     private Text lookAheadDistance;
     private TextField lookAheadDistanceField;
@@ -38,7 +38,7 @@ public class SceneVehicle {
     private final Button down = new Button("↑");
     private final Button up = new Button("↓");
     private final Button load = new Button("Load Plans");
-    private ListView<String> missions = new ListView<>();
+    private ListView<String> tasks = new ListView<>();
     private final Button addVehicle = new Button("Add Vehicle");
     private final Button deleteVehicle = new Button("Delete Vehicle");
     private final Main main;
@@ -70,23 +70,23 @@ public class SceneVehicle {
                     safetyDistanceField.setText(String.valueOf(vehicle.getSafetyDistance()));
                     colorField.setValue(String.valueOf(vehicle.getColor()));
                     initialPoseField.setValue(String.valueOf(vehicle.getInitialPose()));
-                    missionRepetitionField.setText(String.valueOf(vehicle.getMissionRepetition()));
+                    taskRepetitionField.setText(String.valueOf(vehicle.getTaskRepetition()));
                     isHumanField.setSelected("Human".equals(vehicle.getType()));
                     lookAheadDistanceField.setText(String.valueOf(vehicle.getLookAheadDistance()));
                 }
             }
         });
 
-        missions = initializeMissionList();
-        initializeMissions();
+        tasks = initializeTaskList();
+        initializeTasks();
 
         vehicles.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
             if (newValue != null) {
                 var selectedVehicle = main.getDataStatus().getProjectData().getVehicle(main.getDataStatus().getProjectData().getVehicleID(newValue, main.getDataStatus().getProjectData().getVehicles()));
                 if (selectedVehicle != null) {
-                    missions.getItems().clear();
-                    var missionSteps = selectedVehicle.getMission();
-                    missionSteps.forEach(missionStep -> missions.getItems().add(missionStep.toString()));
+                    tasks.getItems().clear();
+                    var taskSteps = selectedVehicle.getTask();
+                    taskSteps.forEach(taskStep -> tasks.getItems().add(taskStep.toString()));
                 }
             }
         });
@@ -114,13 +114,11 @@ public class SceneVehicle {
         buttons.setMaxWidth(label.getPrefWidth());
         leftPane.getChildren().addAll(label, vehicles, buttons);
 
-        // Listener for list selection changes
         vehicles.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
             if (newValue != null) {
-                // Get the selected vehicle's details
+
                 var vehicle = main.getDataStatus().getProjectData().getVehicle(main.getDataStatus().getProjectData().getVehicleID(newValue, main.getDataStatus().getProjectData().getVehicles()));
 
-                // Update the fields in the centerPane with the details of the selected vehicle
                 nameField.setText(newValue);
                 lengthField.setText(String.valueOf(vehicle.getLength()));
                 widthField.setText(String.valueOf(vehicle.getWidth()));
@@ -130,13 +128,11 @@ public class SceneVehicle {
                 colorField.setValue(vehicle.getColor());
                 initialPoseField.setValue(main.getDataStatus().getProjectData().getVehicle(main.getDataStatus().getProjectData().getVehicleID(newValue, main.getDataStatus().getProjectData().getVehicles())).getInitialPose());
                 lookAheadDistanceField.setText(String.valueOf(vehicle.getLookAheadDistance()));
-                missionRepetitionField.setText(String.valueOf(vehicle.getMissionRepetition()));
+                taskRepetitionField.setText(String.valueOf(vehicle.getTaskRepetition()));
 
-                // Update the mission list view with the mission of the selected vehicle
-                missions.getItems().clear();
-                vehicle.getMission().forEach(missionStep -> missions.getItems().add(missionStep.toString()));
+                tasks.getItems().clear();
+                vehicle.getTask().forEach(missionStep -> tasks.getItems().add(missionStep.toString()));
 
-                // Update the view according to the type of the vehicle
                 if (vehicle.getType().equals("Human")) {
                     isHumanField.setSelected(true);
                     lookAheadDistance.setVisible(true);
@@ -166,30 +162,30 @@ public class SceneVehicle {
         return label;
     }
 
-    private ListView<String> initializeMissionList() {
+    private ListView<String> initializeTaskList() {
         var missions = new ListView<String>();
         missions.setMaxWidth(TEXT_WIDTH);
         missions.setMaxHeight(110);
         return missions;
     }
 
-    private void initializeMissions() {
-        var missionButtons = new HBox();
-        missionButtons.setSpacing(5);
-        missionButtons.setAlignment(Pos.CENTER);
-        missionButtons.getChildren().addAll(add, delete, down, up, load);
-        missionField.setMaxWidth(TEXT_WIDTH);
-        missionField.getChildren().addAll(missions, missionButtons);
-        missionController();
+    private void initializeTasks() {
+        var taskButtons = new HBox();
+        taskButtons.setSpacing(5);
+        taskButtons.setAlignment(Pos.CENTER);
+        taskButtons.getChildren().addAll(add, delete, down, up, load);
+        taskField.setMaxWidth(TEXT_WIDTH);
+        taskField.getChildren().addAll(tasks, taskButtons);
+        taskController();
     }
 
-    private void missionController() {
+    private void taskController() {
         add.setOnAction(e -> controller.clickAdd());
         delete.setOnAction(e -> controller.clickDelete());
         down.setOnAction(e -> controller.clickDown());
         up.setOnAction(e -> controller.clickUp());
-        missions.setOnMouseClicked(e -> {
-            if (e.getClickCount() == 2) controller.doubleCLickMission();
+        tasks.setOnMouseClicked(e -> {
+            if (e.getClickCount() == 2) controller.doubleClickTask();
         });
     }
 
@@ -215,14 +211,14 @@ public class SceneVehicle {
         safetyDistanceField.focusedProperty().addListener((observable, wasFocused, isNowFocused) -> {
             if (!isNowFocused) controller.changeSafetyDistance();
         });
-        missionRepetitionField.focusedProperty().addListener((observable, wasFocused, isNowFocused) -> {
-            if (!isNowFocused) controller.changeMissionRepetition();
+        taskRepetitionField.focusedProperty().addListener((observable, wasFocused, isNowFocused) -> {
+            if (!isNowFocused) controller.changeTaskRepetition();
         });
         lookAheadDistanceField.focusedProperty().addListener((observable, wasFocused, isNowFocused) -> {
             if (!isNowFocused) controller.changeLookAhead();
         });
         colorField.setOnAction(e -> controller.chooseColor());
-        initialPoseField.setOnAction(e -> controller.chooseInitialPose());
+        initialPoseField.setOnAction(e -> controller.chooseStartPose());
         isHumanField.setOnAction(e -> controller.checkIsHuman());
     }
 
@@ -238,7 +234,7 @@ public class SceneVehicle {
         var safetyDistance = text("Safety Distance (m): ", 6);
         var color = text("Color: ", 7);
         var initialPose = text("Start Pose: ", 8);
-        var task = text("Tasks (min, task):", 9);
+        var task = text("Tasks :", 9);
         var taskRepetition = text("Tasks Repetition: ", 10);
         var isHuman = text("Human Operated: ", 11);
         lookAheadDistance = text("Look Ahead Distance (m): ", 12);
@@ -255,8 +251,8 @@ public class SceneVehicle {
                 safetyDistance, safetyDistanceField,
                 color, colorField,
                 initialPose, initialPoseField,
-                task, missionField,
-                taskRepetition, missionRepetitionField,
+                task, taskField,
+                taskRepetition, taskRepetitionField,
                 isHuman, isHumanField,
                 lookAheadDistance, lookAheadDistanceField);
     }
@@ -284,8 +280,8 @@ public class SceneVehicle {
         colorField = choiceBox(colors, 7);
         var poses = new ArrayList<>(main.getDataStatus().getProjectData().getPoses().keySet());
         initialPoseField = choiceBox(poses, 8);
-        missionField = vBox(9);
-        missionRepetitionField = textField(10);
+        taskField = vBox(9);
+        taskRepetitionField = textField(10);
         isHumanField = checkBox(11);
         lookAheadDistanceField = textField(12);
         lookAheadDistanceField.setVisible(false);
@@ -298,11 +294,11 @@ public class SceneVehicle {
     }
 
     private VBox vBox(int row) {
-        var missionVBox = new VBox();
-        missionVBox.setSpacing(2);
-        missionVBox.setAlignment(Pos.CENTER);
-        GridPane.setConstraints(missionVBox, 1, row);
-        return missionVBox;
+        var taskVBox = new VBox();
+        taskVBox.setSpacing(2);
+        taskVBox.setAlignment(Pos.CENTER);
+        GridPane.setConstraints(taskVBox, 1, row);
+        return taskVBox;
     }
 
     private ChoiceBox<String> choiceBox(List<String> items, int row) {
@@ -385,12 +381,12 @@ public class SceneVehicle {
         return colorField;
     }
 
-    public ChoiceBox<String> getInitialPoseField() {
+    public ChoiceBox<String> getStartPoseField() {
         return initialPoseField;
     }
 
-    public TextField getMissionRepetitionField() {
-        return missionRepetitionField;
+    public TextField getTaskRepetitionField() {
+        return taskRepetitionField;
     }
 
     public CheckBox getIsHumanField() {
@@ -425,8 +421,8 @@ public class SceneVehicle {
         return up;
     }
 
-    public ListView<String> getMissions() {
-        return missions;
+    public ListView<String> getTasks() {
+        return tasks;
     }
 
     public Text getLookAheadDistance() {

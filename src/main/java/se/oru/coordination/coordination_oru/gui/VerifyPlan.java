@@ -31,12 +31,12 @@ public class VerifyPlan {
             @Override
             protected Void call() {
 
-                var YAML_FILE = controllerNavigation.getMain().getDataStatus().getProjectData().getMap();
+                var map = controllerNavigation.getMain().getDataStatus().getProjectData().getMap();
                 var mapResolution = controllerNavigation.getMain().getDataStatus().getMapData().getResolution();
                 var scaleAdjustment = 1 / mapResolution;
-                final ForwardModel model = new ConstantAcceleration(10.0, 1.0, 1000, 1000, 30);
-                final var planner = new VehiclePathPlanner(YAML_FILE, ReedsSheppCarPlanner.PLANNING_ALGORITHM.RRTConnect,
-                        0.09, 60, 2.0, 0.1);
+                final ForwardModel model = new ConstantAcceleration(10.0, 1.0, 1000, 1000, 30); //FIXME: HARD CODED
+                final var planner = new VehiclePathPlanner(map, ReedsSheppCarPlanner.PLANNING_ALGORITHM.RRTConnect,
+                        0.09, 60, 2.0, 0.1); //FIXME: HARD CODED
 
                 for (var vehicle : controllerNavigation.getMain().getDataStatus().getProjectData().getVehicles()) {
                     AbstractVehicle newVehicle;
@@ -52,7 +52,7 @@ public class VerifyPlan {
                                 vehicle.getWidth() / scaleAdjustment,
                                 controllerNavigation.getMain().getDataStatus().getProjectData().getPose(vehicle.getInitialPose()),
                                 vehicle.getSafetyDistance() / scaleAdjustment,
-                                vehicle.getMissionRepetition(), model);
+                                vehicle.getTaskRepetition(), model);
                     else newVehicle = new AutonomousVehicle(vehicle.getID(),
                             vehicle.getName(),
                             vehicle.getPriority(),
@@ -63,11 +63,11 @@ public class VerifyPlan {
                             vehicle.getWidth() / scaleAdjustment,
                             controllerNavigation.getMain().getDataStatus().getProjectData().getPose(vehicle.getInitialPose()),
                             vehicle.getSafetyDistance() / scaleAdjustment,
-                            vehicle.getMissionRepetition(), model);
+                            vehicle.getTaskRepetition(), model);
 
-                    newVehicle.setGoals(vehicle.getMission()
+                    newVehicle.setGoals(vehicle.getTask()
                             .stream()
-                            .map(ProjectData.MissionStep::getPoseName)
+                            .map(ProjectData.TaskStep::getPoseName)
                             .map(poseName -> controllerNavigation.getMain().getDataStatus().getProjectData().getPose(poseName))
                             .toArray(Pose[]::new));
 //            newVehicle.setMission(vehicle.getMission()); //FIXME Fix Mission, How to handle multiple missions to GoalPoses, handle stoppages

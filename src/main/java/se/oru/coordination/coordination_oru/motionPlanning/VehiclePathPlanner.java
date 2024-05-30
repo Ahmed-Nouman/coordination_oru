@@ -5,6 +5,8 @@ import org.metacsp.multi.spatioTemporal.paths.Pose;
 import org.metacsp.multi.spatioTemporal.paths.PoseSteering;
 import se.oru.coordination.coordination_oru.motionPlanning.ompl.ReedsSheppCarPlanner;
 
+import java.util.Arrays;
+
 public class VehiclePathPlanner implements PathPlanner {
 
     private final String map;
@@ -14,7 +16,6 @@ public class VehiclePathPlanner implements PathPlanner {
     private final double turningRadius;
     private final double distanceBetweenPathPoints;
 
-    // Constructor
     public VehiclePathPlanner(String map, ReedsSheppCarPlanner.PLANNING_ALGORITHM planningAlgorithm,
                               double radius, double planningTimeInSecs, double turningRadius,
                               double distanceBetweenPathPoints) {

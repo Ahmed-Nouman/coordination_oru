@@ -73,7 +73,7 @@ public class ProjectData implements Serializable {
                 return vehicle.getID();
             }
         }
-        return -1; // Return -1 if the vehicle is not found
+        return -1;
     }
 
     public void addVehicle(Vehicle vehicle) {
@@ -144,8 +144,8 @@ public class ProjectData implements Serializable {
         private double length;
         private double width;
         private String initialPose;
-        private List<MissionStep> mission;
-        private int missionRepetition;
+        private List<TaskStep> task;
+        private int taskRepetition;
         private double safetyDistance;
         public Vehicle() {
             this.ID = nextId++;
@@ -231,24 +231,24 @@ public class ProjectData implements Serializable {
             return initialPose;
         }
 
-        public void setInitialPose(String initialPose) {
+        public void setStartPose(String initialPose) {
             this.initialPose = initialPose;
         }
 
-        public List<MissionStep> getMission() {
-            return mission;
+        public List<TaskStep> getTask() {
+            return task;
         }
 
-        public void setMission(List<MissionStep> mission) {
-            this.mission = mission;
+        public void setTask(List<TaskStep> task) {
+            this.task = task;
         }
 
-        public int getMissionRepetition() {
-            return missionRepetition;
+        public int getTaskRepetition() {
+            return taskRepetition;
         }
 
-        public void setMissionRepetition(int missionRepetition) {
-            this.missionRepetition = missionRepetition;
+        public void setTaskRepetition(int taskRepetition) {
+            this.taskRepetition = taskRepetition;
         }
 
         public double getSafetyDistance() {
@@ -263,20 +263,30 @@ public class ProjectData implements Serializable {
         public boolean equals(Object object) {
             if (this == object) return true;
             if (object == null || getClass() != object.getClass()) return false;
-            Vehicle vehicle = (Vehicle) object;
-            return ID == vehicle.ID && priority == vehicle.priority && Double.compare(lookAheadDistance, vehicle.lookAheadDistance) == 0 && Double.compare(maxVelocity, vehicle.maxVelocity) == 0 && Double.compare(maxAcceleration, vehicle.maxAcceleration) == 0 && Double.compare(length, vehicle.length) == 0 && Double.compare(width, vehicle.width) == 0 && missionRepetition == vehicle.missionRepetition && Double.compare(safetyDistance, vehicle.safetyDistance) == 0 && Objects.equals(name, vehicle.name) && Objects.equals(type, vehicle.type) && Objects.equals(color, vehicle.color) && Objects.equals(initialPose, vehicle.initialPose) && Objects.equals(mission, vehicle.mission);
+            var vehicle = (Vehicle) object;
+            return ID == vehicle.ID && priority == vehicle.priority && Double.compare(lookAheadDistance, vehicle.lookAheadDistance) == 0 && Double.compare(maxVelocity, vehicle.maxVelocity) == 0 && Double.compare(maxAcceleration, vehicle.maxAcceleration) == 0 && Double.compare(length, vehicle.length) == 0 && Double.compare(width, vehicle.width) == 0 && taskRepetition == vehicle.taskRepetition && Double.compare(safetyDistance, vehicle.safetyDistance) == 0 && Objects.equals(name, vehicle.name) && Objects.equals(type, vehicle.type) && Objects.equals(color, vehicle.color) && Objects.equals(initialPose, vehicle.initialPose) && Objects.equals(task, vehicle.task);
         }
 
         @Override
         public int hashCode() {
-            return Objects.hash(ID, name, priority, type, lookAheadDistance, color, maxVelocity, maxAcceleration, length, width, initialPose, mission, missionRepetition, safetyDistance);
+            return Objects.hash(ID, name, priority, type, lookAheadDistance, color, maxVelocity, maxAcceleration, length, width, initialPose, task, taskRepetition, safetyDistance);
         }
     }
 
-    // Inner class to represent a mission step
-    public static class MissionStep implements Serializable{
+    // Inner class to represent a task step
+    public static class TaskStep implements Serializable{
+        private String taskName;
         private String poseName;
         private double duration; // in minutes
+        private int priority;
+
+        public String getTaskName() {
+            return taskName;
+        }
+
+        public void setTaskName(String taskName) {
+            this.taskName = taskName;
+        }
 
         public String getPoseName() {
             return poseName;
@@ -294,16 +304,24 @@ public class ProjectData implements Serializable {
             this.duration = duration;
         }
 
+        public int getPriority() {
+            return priority;
+        }
+
+        public void setPriority(int priority) {
+            this.priority = priority;
+        }
+
         @Override
         public String toString() {
-            return "(" + poseName + ", " + duration + ")";
+            return taskName + " (" + poseName + ", " + duration + ", " + priority + ")";
         }
 
         @Override
         public boolean equals(Object o) {
             if (this == o) return true;
             if (o == null || getClass() != o.getClass()) return false;
-            MissionStep that = (MissionStep) o;
+            TaskStep that = (TaskStep) o;
             return Double.compare(duration, that.duration) == 0 && Objects.equals(poseName, that.poseName);
         }
 

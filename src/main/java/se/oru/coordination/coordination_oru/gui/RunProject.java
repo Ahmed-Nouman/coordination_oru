@@ -3,9 +3,8 @@ package se.oru.coordination.coordination_oru.gui;
 import se.oru.coordination.coordination_oru.coordinator.TrajectoryEnvelopeCoordinatorSimulation;
 import se.oru.coordination.coordination_oru.forwardModel.ConstantAcceleration;
 import se.oru.coordination.coordination_oru.simulation.BrowserVisualization;
-import se.oru.coordination.coordination_oru.utils.Mission;
 import se.oru.coordination.coordination_oru.utils.Missions;
-import se.oru.coordination.coordination_oru.vehicles.VehiclesHashMap;
+import se.oru.coordination.coordination_oru.utils.RobotReportWriter;
 
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
@@ -21,56 +20,52 @@ public class RunProject {
     public void clickRun() {
         var executorService = Executors.newScheduledThreadPool(1);
         var runCount = new AtomicInteger(0);
+        int simulationTime = controllerNavigation.getMain().getDataStatus().getSimulationTime();
+        int numberOfRuns = controllerNavigation.getMain().getDataStatus().getNumberOfRuns();
         var future = executorService.scheduleAtFixedRate(() -> {
-            if (runCount.incrementAndGet() <= controllerNavigation.getMain().getDataStatus().getNumberOfRuns()) {
-                runProject();
+            if (runCount.incrementAndGet() <= numberOfRuns) {
+                run();
             } else {
                 executorService.shutdown();
             }
-        }, 0, controllerNavigation.getMain().getDataStatus().getSimulationTime(), TimeUnit.MINUTES);
+        }, 0, simulationTime, TimeUnit.MINUTES);
 
         executorService.schedule(() -> {
             future.cancel(true);
-        }, controllerNavigation.getMain().getDataStatus().getSimulationTime(), TimeUnit.MINUTES);
+        }, simulationTime, TimeUnit.MINUTES);
     }
 
-    public void runProject() {
+    public void run() {
 
-        final var YAML_FILE = controllerNavigation.getMain().getDataStatus().getProjectData().getMap();
+        var map = controllerNavigation.getMain().getDataStatus().getProjectData().getMap();
         var mapResolution = controllerNavigation.getMain().getDataStatus().getMapData().getResolution();
+        var writeReports = controllerNavigation.getMain().getDataStatus().getWriteVehicleReports();
+        var simulationTime = controllerNavigation.getMain().getDataStatus().getSimulationTime();
+        var heuristicsName = controllerNavigation.getMain().getDataStatus().getHeuristics().getName();
+        var reportsFolder = controllerNavigation.getMain().getDataStatus().getReportsFolder();
+        String folderName = "results-";
         var scaleAdjustment = 1 / mapResolution;
         var reportsTimeIntervalInSeconds = 0.1;
 
-        var tec = new TrajectoryEnvelopeCoordinatorSimulation(1000, 1000, 5.0, 1.0, 30);
+        var tec = new TrajectoryEnvelopeCoordinatorSimulation(10.0, 1.0);
         tec.setupSolver(0, 100000000);
         tec.startInference();
-        tec.addComparator(controllerNavigation.getMain().getDataStatus().getHeuristics().getComparator());
         tec.setBreakDeadlocks(true, false, false);
-
-        controllerNavigation.getMain().getDataStatus().getVehicles().forEach((vehicle) -> {
-            tec.setForwardModel(vehicle.getID(), new ConstantAcceleration(vehicle.getMaxAcceleration(),
-                    vehicle.getMaxVelocity(), tec.getTemporalResolution(), tec.getControlPeriod(),
-                    tec.getRobotTrackingPeriodInMillis(vehicle.getID())));
-            tec.setDefaultFootprint(vehicle.getFootprint());
-
-            tec.placeRobot(vehicle.getID(), vehicle.getInitialPose());
-
-            var mission = new Mission(vehicle.getID(), vehicle.getPath());
-            Missions.enqueueMission(mission);
-        });
+        tec.setDefaultFootprint(controllerNavigation.getMain().getDataStatus().getVehicles().get(0).getFootprint());
+        tec.addComparator(controllerNavigation.getMain().getDataStatus().getHeuristics().getComparator());
+        tec.placeRobotsAtStartPoses();
 
         var viz = new BrowserVisualization();
-        viz.setMap(YAML_FILE);
-//        viz.AccessInitialTransform();
-//        viz.setInitialTransform(9.0, 11.0, 5.0);
+        viz.setMap(map);
         viz.setInitialTransform(9.0, 23.75, 43.40);
         viz.setFontScale(3.5);
         tec.setVisualization(viz);
 
-        Missions.setMap(YAML_FILE);
-        String fileName = "HEHE"; //FIXME:
-        Missions.startMissionDispatcher(tec, controllerNavigation.getMain().getDataStatus().getWriteVehicleReports(), reportsTimeIntervalInSeconds,
-                controllerNavigation.getMain().getDataStatus().getSimulationTime(), controllerNavigation.getMain().getDataStatus().getHeuristics().getName(),
-                controllerNavigation.getMain().getDataStatus().getReportsFolder(), fileName, scaleAdjustment);
+        Missions.setMap(map);
+        Missions.generateMissions();
+
+        if (writeReports)
+            RobotReportWriter.writeReports(tec, reportsTimeIntervalInSeconds, simulationTime, heuristicsName, reportsFolder, folderName, scaleAdjustment);
+        Missions.runTasks(tec, simulationTime);
     }
 }
