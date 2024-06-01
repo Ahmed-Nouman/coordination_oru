@@ -8,6 +8,7 @@ import javafx.scene.layout.*;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
+import se.oru.coordination.coordination_oru.vehicles.VehiclesHashMap;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -73,6 +74,13 @@ public class SceneVehicle {
                     taskRepetitionField.setText(String.valueOf(vehicle.getTaskRepetition()));
                     isHumanField.setSelected("Human".equals(vehicle.getType()));
                     lookAheadDistanceField.setText(String.valueOf(vehicle.getLookAheadDistance()));
+
+
+                    add.setDisable(vehicle.getPathFile() != null);
+                    delete.setDisable(vehicle.getPathFile() != null);
+                    down.setDisable(vehicle.getPathFile() != null);
+                    up.setDisable(vehicle.getPathFile() != null);
+                    tasks.setDisable(vehicle.getPathFile() != null);
                 }
             }
         });

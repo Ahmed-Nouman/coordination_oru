@@ -1,10 +1,16 @@
 package se.oru.coordination.coordination_oru.gui;
 
+import org.metacsp.multi.spatioTemporal.paths.Pose;
 import se.oru.coordination.coordination_oru.coordinator.TrajectoryEnvelopeCoordinatorSimulation;
 import se.oru.coordination.coordination_oru.forwardModel.ConstantAcceleration;
+import se.oru.coordination.coordination_oru.forwardModel.ForwardModel;
 import se.oru.coordination.coordination_oru.simulation.BrowserVisualization;
 import se.oru.coordination.coordination_oru.utils.Missions;
 import se.oru.coordination.coordination_oru.utils.RobotReportWriter;
+import se.oru.coordination.coordination_oru.vehicles.AbstractVehicle;
+import se.oru.coordination.coordination_oru.vehicles.AutonomousVehicle;
+import se.oru.coordination.coordination_oru.vehicles.LookAheadVehicle;
+import se.oru.coordination.coordination_oru.vehicles.VehiclesHashMap;
 
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
@@ -38,6 +44,7 @@ public class RunProject {
     public void run() {
 
         var map = controllerNavigation.getMain().getDataStatus().getProjectData().getMap();
+        var model = new ConstantAcceleration(10.0, 100.0, 1000, 1000, 30); //FIXME: HARD CODED
         var mapResolution = controllerNavigation.getMain().getDataStatus().getMapData().getResolution();
         var writeReports = controllerNavigation.getMain().getDataStatus().getWriteVehicleReports();
         var simulationTime = controllerNavigation.getMain().getDataStatus().getSimulationTime();
@@ -45,7 +52,43 @@ public class RunProject {
         var reportsFolder = controllerNavigation.getMain().getDataStatus().getReportsFolder();
         String folderName = "results-";
         var scaleAdjustment = 1 / mapResolution;
-        var reportsTimeIntervalInSeconds = 0.1;
+        var reportsTimeIntervalInSeconds = 0.1; //FIXME: HARD CODED
+
+        for (var vehicle : controllerNavigation.getMain().getDataStatus().getProjectData().getVehicles()) {
+            AbstractVehicle newVehicle;
+            if ("Human".equals(vehicle.getType()))
+                newVehicle = new LookAheadVehicle(vehicle.getID(),
+                        vehicle.getName(),
+                        vehicle.getLookAheadDistance() / scaleAdjustment,
+                        vehicle.getPriority(),
+                        Utils.stringToColor(vehicle.getColor()),
+                        vehicle.getMaxVelocity() / scaleAdjustment,
+                        vehicle.getMaxAcceleration() / scaleAdjustment,
+                        vehicle.getLength() / scaleAdjustment,
+                        vehicle.getWidth() / scaleAdjustment,
+                        controllerNavigation.getMain().getDataStatus().getProjectData().getPose(vehicle.getInitialPose()),
+                        vehicle.getSafetyDistance() / scaleAdjustment,
+                        vehicle.getTaskRepetition(), model);
+            else newVehicle = new AutonomousVehicle(vehicle.getID(),
+                    vehicle.getName(),
+                    vehicle.getPriority(),
+                    Utils.stringToColor(vehicle.getColor()),
+                    vehicle.getMaxVelocity() / scaleAdjustment,
+                    vehicle.getMaxAcceleration() / scaleAdjustment,
+                    vehicle.getLength() / scaleAdjustment,
+                    vehicle.getWidth() / scaleAdjustment,
+                    controllerNavigation.getMain().getDataStatus().getProjectData().getPose(vehicle.getInitialPose()),
+                    vehicle.getSafetyDistance() / scaleAdjustment,
+                    vehicle.getTaskRepetition(), model);
+
+            newVehicle.setGoals(vehicle.getTask()
+                    .stream()
+                    .map(ProjectData.TaskStep::getPoseName)
+                    .map(poseName -> controllerNavigation.getMain().getDataStatus().getProjectData().getPose(poseName))
+                    .toArray(Pose[]::new));
+
+            controllerNavigation.getMain().getDataStatus().getVehicles().add(newVehicle);
+        }
 
         var tec = new TrajectoryEnvelopeCoordinatorSimulation(10.0, 1.0);
         tec.setupSolver(0, 100000000);
@@ -53,6 +96,11 @@ public class RunProject {
         tec.setBreakDeadlocks(true, false, false);
         tec.setDefaultFootprint(controllerNavigation.getMain().getDataStatus().getVehicles().get(0).getFootprint());
         tec.addComparator(controllerNavigation.getMain().getDataStatus().getHeuristics().getComparator());
+
+        for (var vehicle : controllerNavigation.getMain().getDataStatus().getVehicles()) {
+            vehicle.loadPlans(controllerNavigation.getMain().getDataStatus().getProjectData().getVehicle(vehicle.getID()).getPathFile());
+        }
+
         tec.placeRobotsAtStartPoses();
 
         var viz = new BrowserVisualization();

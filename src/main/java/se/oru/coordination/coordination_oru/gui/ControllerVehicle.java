@@ -132,7 +132,6 @@ public class ControllerVehicle {
 
     public void clickAddVehicle() {
 
-    // Setting default values for a vehicle
     var baseNameOfVehicle = "vehicle";
     var priorityOfVehicle = 1;
     var lengthOfVehicle = 8.0;
@@ -146,7 +145,6 @@ public class ControllerVehicle {
     var typeOfVehicle = "Autonomous";
     var lookAheadDistanceOfVehicle = 0.0;
 
-    // Adding a default task
     var taskOfVehicle = new ArrayList<ProjectData.TaskStep>();
     var taskStep = new ProjectData.TaskStep();
     taskStep.setPoseName(scene.getMain().getDataStatus().getProjectData().getPoses().keySet().stream().
@@ -164,7 +162,6 @@ public class ControllerVehicle {
         nameOfVehicle = baseNameOfVehicle + " (" + scene.getMain().getDataStatus().getVehicleCounter() + ")";
     }
 
-    // Create a new vehicle with default values
     var vehicle = new ProjectData.Vehicle();
     vehicle.setName(nameOfVehicle);
     vehicle.setPriority(priorityOfVehicle);
@@ -256,7 +253,17 @@ public void clickDelete() {
     public void clickLoadPath() {
         var file = Utils.chooseFile(scene.getMain(), "Select a saved path for the vehicle: ", "path");
         if (file != null) {
-            scene.getMain().getDataStatus().getProjectData().getVehicle(scene.getMain().getDataStatus().getProjectData().getVehicleID(scene.getVehicles().getSelectionModel().getSelectedItem(), scene.getMain().getDataStatus().getProjectData().getVehicles())).setPathFile(file.getAbsolutePath());
+            scene.getMain().getDataStatus().getProjectData().getVehicle(
+                    scene.getMain().getDataStatus().getProjectData().getVehicleID(
+                            scene.getVehicles().getSelectionModel().getSelectedItem(),
+                            scene.getMain().getDataStatus().getProjectData().getVehicles())
+            ).setPathFile(file.getAbsolutePath());
+
+            scene.getAdd().setDisable(true);
+            scene.getDelete().setDisable(true);
+            scene.getUp().setDisable(true);
+            scene.getDown().setDisable(true);
+            scene.getTasks().setDisable(true);
         }
     }
 }

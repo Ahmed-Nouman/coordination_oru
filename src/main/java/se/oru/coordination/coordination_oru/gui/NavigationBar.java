@@ -29,7 +29,7 @@ public class NavigationBar {
             case EXPERIMENT:
                 buttonsButtons.getChildren().addAll(main.getNavigationButton().getReset(), main.getNavigationButton().getBack(),
                         main.getNavigationButton().getSave());
-                if (main.getDataStatus().isPlansVerified())
+                if (main.getDataStatus().isPlansVerified() || main.getDataStatus().allVehiclesHavePaths())
                     buttonsButtons.getChildren().add(main.getNavigationButton().getRun());
                 else buttonsButtons.getChildren().add(main.getNavigationButton().getVerify());
                 break;

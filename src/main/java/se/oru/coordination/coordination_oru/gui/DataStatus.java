@@ -3,6 +3,7 @@ package se.oru.coordination.coordination_oru.gui;
 import se.oru.coordination.coordination_oru.motionPlanning.ompl.ReedsSheppCarPlanner;
 import se.oru.coordination.coordination_oru.utils.Heuristics;
 import se.oru.coordination.coordination_oru.vehicles.AbstractVehicle;
+import se.oru.coordination.coordination_oru.vehicles.VehiclesHashMap;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -141,4 +142,9 @@ public class DataStatus {
         this.vehicleCounter = 0;
         this.vehicles.clear();
     }
+
+    public boolean allVehiclesHavePaths() {
+        return projectData.getVehicles().stream().allMatch(vehicle -> vehicle.getPathFile() != null);
+    }
+
 }

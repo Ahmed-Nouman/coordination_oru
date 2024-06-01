@@ -13,7 +13,7 @@ public class ControllerNavigation {
     private final Button run = new Button("Run");
     private final Main main;
     private final VerifyPlan verifyPlan = new VerifyPlan(this);
-    final SaveProject saveProject = new SaveProject(this);
+    public final SaveProject saveProject = new SaveProject(this);
     private final RunProject runProject = new RunProject(this);
     private SceneState currentSceneState = SceneState.HOME;
     public ControllerNavigation(Main main) {

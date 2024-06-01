@@ -18,6 +18,8 @@ import se.oru.coordination.coordination_oru.vehicles.AutonomousVehicle;
 import se.oru.coordination.coordination_oru.vehicles.LookAheadVehicle;
 
 public class VerifyPlan {
+    public static final int WIDTH = 250;
+    public static final int SPACING = 20;
     private final ControllerNavigation controllerNavigation;
 
     public VerifyPlan(ControllerNavigation controllerNavigation) {
@@ -34,6 +36,7 @@ public class VerifyPlan {
                 var map = controllerNavigation.getMain().getDataStatus().getProjectData().getMap();
                 var mapResolution = controllerNavigation.getMain().getDataStatus().getMapData().getResolution();
                 var scaleAdjustment = 1 / mapResolution;
+                final String className = Thread.currentThread().getStackTrace()[Thread.currentThread().getStackTrace().length-1].getFileName().split("\\.")[0];
                 final ForwardModel model = new ConstantAcceleration(10.0, 1.0, 1000, 1000, 30); //FIXME: HARD CODED
                 final var planner = new VehiclePathPlanner(map, ReedsSheppCarPlanner.PLANNING_ALGORITHM.RRTConnect,
                         0.09, 60, 2.0, 0.1); //FIXME: HARD CODED
@@ -73,6 +76,7 @@ public class VerifyPlan {
 //            newVehicle.setMission(vehicle.getMission()); //FIXME Fix Mission, How to handle multiple missions to GoalPoses, handle stoppages
 
                     newVehicle.generatePlans(planner);
+//                    newVehicle.savePlans(className);  //FIXME: Do I need savePlans() option in GUI?
 //                    newVehicle.setPlanningAlgorithm(controllerNavigation.getMain().getDataStatus().getPathPlanner()); //FIXME: HARD CODED
 
                     controllerNavigation.getMain().getDataStatus().getVehicles().add(newVehicle);
@@ -103,11 +107,11 @@ public class VerifyPlan {
         progressDialog.setTitle("Verifying and Saving Plans");
 
         var progressBar = new ProgressBar();
-        progressBar.setPrefWidth(250);
+        progressBar.setPrefWidth(WIDTH);
 
-        var dialogVbox = new VBox(20);
+        var dialogVbox = new VBox(SPACING);
         dialogVbox.setAlignment(Pos.CENTER);
-        dialogVbox.setPadding(new Insets(20));
+        dialogVbox.setPadding(new Insets(SPACING));
         dialogVbox.getChildren().add(progressBar);
 
         var dialogScene = new Scene(dialogVbox);
