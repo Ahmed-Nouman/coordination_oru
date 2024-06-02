@@ -19,7 +19,7 @@ import java.util.function.Function;
 
 public class ProductionCycleBatteryChange {
 
-    public static final String MAP = "maps/mine-map-heuristic-paper.yaml";
+    public static final String MAP = "maps/12-1051_batteryChange.yaml";
     public static final double MAP_RESOLUTION = new MapResolution().getMapResolution(MAP);
     public static final double SCALE_ADJUSTMENT = 1 / MAP_RESOLUTION;
     public static final Heuristics.HeuristicType HEURISTIC_TYPE = Heuristics.HeuristicType.CLOSEST_FIRST;
@@ -32,7 +32,7 @@ public class ProductionCycleBatteryChange {
     public static final double PRODUCTION_SAFETY_DISTANCE = 50.0;
     public static final double SERVICE_SAFETY_DISTANCE = 10.0;
     public static final boolean VISUALIZATION = true;
-    public static final boolean WRITE_VEHICLE_REPORTS = true;
+    public static final boolean WRITE_VEHICLE_REPORTS = false;
     public static final double REPORTING_TIME = 0.1;
     public static final int SIMULATION_INTERVAL = 30;
     public static final String CLASS_NAME = Thread.currentThread().getStackTrace()[Thread.currentThread().getStackTrace().length-1].getFileName().split("\\.")[0];
@@ -51,7 +51,7 @@ public class ProductionCycleBatteryChange {
         final var serviceSafetyDistance = SERVICE_SAFETY_DISTANCE / SCALE_ADJUSTMENT;
         final var missionRepetition = 100;
 
-        TrajectoryEnvelopeCoordinatorSimulation tec = new TrajectoryEnvelopeCoordinatorSimulation(maxVelocity, maxAcceleration);
+        var tec = new TrajectoryEnvelopeCoordinatorSimulation(maxVelocity, maxAcceleration);
         final Pose drawPoint1 = new Pose(11.45,61.65,-Math.PI/2);
         final Pose drawPoint2 = new Pose(18.65,56.45,-Math.PI/2);
         final Pose drawPoint3 = new Pose(25.55,61.45,-Math.PI/2);
@@ -62,21 +62,25 @@ public class ProductionCycleBatteryChange {
         final Pose orePass1 = new Pose(48.75,15.75,-Math.PI/2);
         final Pose orePass2 = new Pose(106.55,32.95,-Math.PI/2);
         final Pose orePass3 = new Pose(134.95,34.05,-Math.PI/2);
-        final Pose entrance = new Pose(11.55,18.15, -Math.PI/2);
+        final Pose endrawPoint3trance = new Pose(11.55,18.15, -Math.PI/2);
         final Pose barrierEntry = new Pose(21.45,20.65, 0);
         final Pose barrierExit = new Pose(25.45,21.35, 0);
-        final Pose serviceWorkshop = new Pose(128.05,40.95, -Math.PI/2);
-        final String map = "maps/12-1051_occupancy.yaml";
-        final var planner = new VehiclePathPlanner(map, ReedsSheppCarPlanner.PLANNING_ALGORITHM.RRTstar,
+        final Pose serviceWorkshop1 = new Pose(115.85,33.95, -Math.PI/2);
+        final Pose serviceWorkshop2A = new Pose(125.25,29.65, Math.PI/2);
+        final Pose serviceWorkshop2B = new Pose(128.05,30.15, Math.PI/2);
+        final var planner = new VehiclePathPlanner(MAP, ReedsSheppCarPlanner.PLANNING_ALGORITHM.RRTstar,
                 0.09, 120, 2.0, 0.1);
         ForwardModel model = new ConstantAcceleration(10.0, 1.0, 1000, 1000, 30);
 
         var autonomousVehicle1 = new AutonomousVehicle("A1",1, Color.YELLOW, 10.0, 1.0,
-                length, width, drawPoint3, productionSafetyDistance, missionRepetition, model);
-        autonomousVehicle1.addTask(new Task(0, new Pose[] {orePass1}, 1));
+                length, width, drawPoint3, productionSafetyDistance, 1, model);
+        autonomousVehicle1.addTask(new Task(0.0, new Pose[] {orePass1}, 1));
         autonomousVehicle1.addTask(new Task(0.1, new Pose[] {drawPoint3}, 1));
+        autonomousVehicle1.addTask(new Task(0.0, new Pose[] {orePass1}, 1));
+        autonomousVehicle1.addTask(new Task(0.1, new Pose[] {serviceWorkshop2A}, 1));
+        autonomousVehicle1.addTask(new Task(1.0, new Pose[] {drawPoint3}, 1));
 //        autonomousVehicle1.generatePlans(planner);
-//        autonomousVehicle1.savePlans(className);
+//        autonomousVehicle1.savePlans(CLASS_NAME);
         autonomousVehicle1.loadPlans(PLANS_FOLDER_NAME + "A1.path");
 
         var autonomousVehicle2 = new AutonomousVehicle("A2",1, Color.YELLOW, 10.0, 1.0,
@@ -91,13 +95,13 @@ public class ProductionCycleBatteryChange {
         autonomousVehicle3.addTask(new Task(0.1, new Pose[] {drawPoint20}, 1));
         autonomousVehicle3.loadPlans(PLANS_FOLDER_NAME + "A3.path");
 
-        var serviceVehicle = new AutonomousVehicle("S",5, Color.GREEN, 10.0, 1.0,
-                length, width, entrance, serviceSafetyDistance, missionRepetition, model);
-        serviceVehicle.addTask(new Task(0.25, new Pose[] {barrierEntry}, 1));
-        serviceVehicle.addTask(new Task(0.25, new Pose[] {serviceWorkshop}, 1));
-        serviceVehicle.addTask(new Task(0.25, new Pose[] {barrierExit}, 1));
-        serviceVehicle.addTask(new Task(0.25, new Pose[] {entrance}, 1));
-        serviceVehicle.loadPlans(PLANS_FOLDER_NAME + "S.path");
+        var serviceVehicle1 = new AutonomousVehicle("S1",1, Color.GREEN, 10.0, 1.0,
+                length, width, serviceWorkshop1, serviceSafetyDistance, 1, model);
+        serviceVehicle1.addTask(new Task(1.40, new Pose[] {serviceWorkshop2B}, 1));
+        serviceVehicle1.addTask(new Task(0.25, new Pose[] {serviceWorkshop1}, 1));
+//        serviceVehicle1.generatePlans(planner);
+//        serviceVehicle1.savePlans(CLASS_NAME);
+        serviceVehicle1.loadPlans(PLANS_FOLDER_NAME + "S1.path");
 
         tec.setupSolver(0, 100000000);
         tec.startInference();
@@ -115,14 +119,14 @@ public class ProductionCycleBatteryChange {
 
         if(VISUALIZATION) {
             var viz = new BrowserVisualization();
-            viz.setMap(map);
+            viz.setMap(MAP);
             viz.setFontScale(4);
             viz.setInitialTransform(10.0, 5.0, 0.0);
             tec.setVisualization(viz);
         }
 
         Missions.generateMissions();
-        Missions.setMap(map);
+        Missions.setMap(MAP);
 
         String fileName = "C" + "_" + "S" + "_" + autonomousVehicle1.getSafetyDistance() * SCALE_ADJUSTMENT + "_"
                 + "V" + "_" + autonomousVehicle1.getMaxVelocity() * SCALE_ADJUSTMENT + "_";
@@ -136,7 +140,7 @@ public class ProductionCycleBatteryChange {
 
 //        AdaptiveTrackerRK4.scheduleVehiclesStop(serviceVehicle, missionIDsToStop, vehicleIDsToStop, trackerRetriever);
 //        AdaptiveTrackerRK4.scheduleVehicleSlow(serviceVehicle, missionIDsToStop, vehicleIDsToStop, trackerRetriever, 10.0, 5.0);
-        AdaptiveTrackerRK4.scheduleVehiclesPriorityChange(serviceVehicle, missionIDsToStop, tec, heuristic, newheuristics);
+//        AdaptiveTrackerRK4.scheduleVehiclesPriorityChange(serviceVehicle, missionIDsToStop, tec, heuristic, newheuristics);
 
     }
 
