@@ -1,7 +1,7 @@
 import os
 import pandas as pd
 
-root_directory = '../results/ProductionCycleBatteryChange/'
+root_directory = '../results/productionCycleDrilling/'
 
 def read_robot_csv(filepath):
     if not os.path.exists(filepath):
