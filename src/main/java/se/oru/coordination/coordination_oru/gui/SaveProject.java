@@ -5,10 +5,10 @@ import javafx.scene.control.Alert;
 import java.io.IOException;
 
 public class SaveProject {
-    private final ControllerNavigation controllerNavigation;
+    private final NavigationController navigationController;
 
-    public SaveProject(ControllerNavigation controllerNavigation) {
-        this.controllerNavigation = controllerNavigation;
+    public SaveProject(NavigationController navigationController) {
+        this.navigationController = navigationController;
     }
 
     public void clickSave() {
@@ -17,7 +17,7 @@ public class SaveProject {
 
     public void trySaveProject() {
         try {
-            boolean isProjectUnchanged = controllerNavigation.getMain().getDataStatus().getProjectData().equals(controllerNavigation.getMain().getDataStatus().getOriginalProjectData());
+            boolean isProjectUnchanged = navigationController.getMain().getDataStatus().getProjectData().equals(navigationController.getMain().getDataStatus().getOriginalProjectData());
             if (isProjectUnchanged) doNotSaveProject();
             else saveProject();
         } catch (IOException e) {
@@ -26,19 +26,22 @@ public class SaveProject {
     }
 
     public void doNotSaveProject() {
-        AlertBox.display("Saving the Project", "There are no changes to save in the project: " + controllerNavigation.getMain().getDataStatus().getProjectFile(), Alert.AlertType.INFORMATION);
+        AlertBox.display("Saving the Project", "There are no changes to save in the project: " + navigationController.getMain().getDataStatus().getProjectFile(), Alert.AlertType.INFORMATION);
     }
 
     public void saveProject() throws IOException {
-        var file = Utils.createFile(controllerNavigation.getMain(), "project", "json");
+        //TODO: Also add paths to saved project file.
+        //Should saving paths be automatic?
+        var file = Utils.createFile(navigationController.getMain(), "project", "json");
         if (file != null) {
-            controllerNavigation.getMain().getDataStatus().setProjectFile(file.getAbsolutePath());
-            Utils.writeJSON(controllerNavigation.getMain().getDataStatus().getProjectData(), controllerNavigation.getMain().getDataStatus().getProjectFile());
-            AlertBox.display("Saving the Project", "The project has been saved to: " + controllerNavigation.getMain().getDataStatus().getProjectFile(), Alert.AlertType.INFORMATION);
+            navigationController.getMain().getDataStatus().setProjectFile(file.getAbsolutePath());
+            //TODO Write the JSON file with added paths to the project file.
+            Utils.writeJSON(navigationController.getMain().getDataStatus().getProjectData(), navigationController.getMain().getDataStatus().getProjectFile());
+            AlertBox.display("Saving the Project", "The project has been saved to: " + navigationController.getMain().getDataStatus().getProjectFile(), Alert.AlertType.INFORMATION);
         }
     }
 
-    public void trySaveProject(ControllerNavigation controllerNavigation) {
+    public void trySaveProject(NavigationController navigationController) {
         trySaveProject();
     }
 }

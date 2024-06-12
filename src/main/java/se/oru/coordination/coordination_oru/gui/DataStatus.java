@@ -143,6 +143,8 @@ public class DataStatus {
         this.vehicles.clear();
     }
 
+    //TODO: Add a method to check if all vehicles have saved paths
+    //FIXME: The method should be if oldProjectData is same as new ProjectData, this method will not be needed.
     public boolean allVehiclesHavePaths() {
         return projectData.getVehicles().stream().allMatch(vehicle -> vehicle.getPathFile() != null);
     }

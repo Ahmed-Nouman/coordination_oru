@@ -282,7 +282,7 @@ public class ProjectData implements Serializable {
         }
     }
 
-    // Inner class to represent a task step
+    // Inner class to represent a task step TODO: Can i use the same class as Task?
     public static class TaskStep implements Serializable{
         private String taskName;
         private String poseName;
@@ -323,7 +323,7 @@ public class ProjectData implements Serializable {
 
         @Override
         public String toString() {
-            return taskName + " (" + poseName + ", " + duration + ", " + priority + ")";
+            return taskName + " (" + duration + ", " + poseName + ", " + priority + ")";
         }
 
         @Override

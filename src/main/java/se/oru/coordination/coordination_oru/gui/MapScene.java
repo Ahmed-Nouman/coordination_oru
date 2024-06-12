@@ -13,7 +13,7 @@ import javafx.scene.text.Text;
 
 import java.util.Objects;
 
-public class SceneMap {
+public class MapScene {
     private static final int WIDTH = 1200;
     private static final int HEIGHT = 800;
     private static final int SPACING = 10;
@@ -23,9 +23,9 @@ public class SceneMap {
     private Button browse = new Button();
     private BorderPane pane;
     private final Main main;
-    public final ControllerMap controller = new ControllerMap(this);
+    public final MapController controller = new MapController(this);
 
-    public SceneMap(Main main) {
+    public MapScene(Main main) {
         this.main = main;
     }
 

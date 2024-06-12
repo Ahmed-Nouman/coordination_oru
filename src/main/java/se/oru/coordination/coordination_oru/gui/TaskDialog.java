@@ -22,7 +22,7 @@ public class TaskDialog {
     private static Button ok = new Button();
     private static int editIndex = -1; // To keep track of the index of the task being edited
 
-    public static void add(SceneVehicle scene) {
+    public static void add(VehicleScene scene) {
         isEdit = false;
         var taskStep = taskStep(scene);
         taskStep.ifPresent(step -> {
@@ -32,7 +32,7 @@ public class TaskDialog {
         });
     }
 
-    public static void edit(SceneVehicle scene) {
+    public static void edit(VehicleScene scene) {
         isEdit = true;
         editIndex = scene.getTasks().getSelectionModel().getSelectedIndex();
         var taskStep = taskStep(scene);
@@ -43,14 +43,14 @@ public class TaskDialog {
         });
     }
 
-    private static ProjectData.Vehicle getVehicle(SceneVehicle scene) {
+    private static ProjectData.Vehicle getVehicle(VehicleScene scene) {
         return scene.getMain().getDataStatus().getProjectData().getVehicle(
                 scene.getMain().getDataStatus().getProjectData().getVehicleID(
                         scene.getVehicles().getSelectionModel().getSelectedItem(),
                         scene.getMain().getDataStatus().getProjectData().getVehicles()));
     }
 
-    private static Optional<TaskStep> taskStep(SceneVehicle scene) {
+    private static Optional<TaskStep> taskStep(VehicleScene scene) {
         var dialog = new Dialog<TaskStep>();
         dialog.setTitle(isEdit ? "Edit task" : "Add task");
         var buttonType = new ButtonType("OK", ButtonBar.ButtonData.OK_DONE);
@@ -62,7 +62,7 @@ public class TaskDialog {
         return dialogResult(scene, dialog, buttonType);
     }
 
-    private static void pane(SceneVehicle scene, Dialog<TaskStep> dialog) {
+    private static void pane(VehicleScene scene, Dialog<TaskStep> dialog) {
         var pane = new GridPane();
         pane.setHgap(GAP);
         pane.setVgap(GAP);
@@ -99,10 +99,10 @@ public class TaskDialog {
         pane.add(new Text("Name: "), 0, 0);
         pane.add(nameField, 1, 0);
         nameField.setPrefWidth(WIDTH);
-        pane.add(new Text("Pose: "), 0, 1);
-        pane.add(locationField, 1, 1);
-        pane.add(new Text("Duration (min): "), 0, 2);
-        pane.add(durationField, 1, 2);
+        pane.add(new Text("Duration (min): "), 0, 1);
+        pane.add(durationField, 1, 1);
+        pane.add(new Text("Pose: "), 0, 2);
+        pane.add(locationField, 1, 2);
         pane.add(new Text("Priority: "), 0, 3);
         pane.add(priorityField, 1, 3);
 
@@ -119,7 +119,7 @@ public class TaskDialog {
         });
     }
 
-    private static Optional<TaskStep> dialogResult(SceneVehicle scene, Dialog<TaskStep> dialog, ButtonType buttonType) {
+    private static Optional<TaskStep> dialogResult(VehicleScene scene, Dialog<TaskStep> dialog, ButtonType buttonType) {
         dialog.setResultConverter(dialogButton -> {
             if (dialogButton == buttonType && validateDouble(durationField) && validateInteger(priorityField)) {
                 var taskStep = new TaskStep();

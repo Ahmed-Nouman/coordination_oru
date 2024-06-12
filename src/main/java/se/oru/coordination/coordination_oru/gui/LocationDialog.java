@@ -23,7 +23,7 @@ public class LocationDialog {
         return new LocationDialogInstance("Add Pose", "Add", "PoseName", x, y, 0).showAndWait();
     }
 
-    public static List<String> edit(SceneMap scene, String poseName) {
+    public static List<String> edit(MapScene scene, String poseName) {
         var pose = scene.getMain().getDataStatus().getProjectData().getPoses().get(poseName);
         return new LocationDialogInstance("Edit Pose", "OK", poseName, pose.getX(), pose.getY(), Math.toDegrees(pose.getTheta())).showAndWait();
     }

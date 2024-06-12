@@ -5,10 +5,10 @@ import javafx.stage.Stage;
 import se.oru.coordination.coordination_oru.motionPlanning.ompl.ReedsSheppCarPlanner;
 import se.oru.coordination.coordination_oru.utils.Heuristics;
 
-public class ControllerSetup {
-    private final SceneSetup scene;
+public class SetupController {
+    private final SetupScene scene;
 
-    public ControllerSetup(SceneSetup scene) {
+    public SetupController(SetupScene scene) {
         this.scene = scene;
     }
 

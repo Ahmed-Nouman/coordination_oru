@@ -18,10 +18,10 @@ public class InteractiveMap {
     private final OccupancyMap map;
     private final Canvas canvas;
     private Image image;
-    private final ControllerMap controller;
+    private final MapController controller;
     private final Main main;
 
-    public InteractiveMap(Main main, ControllerMap controller) {
+    public InteractiveMap(Main main, MapController controller) {
         this.main = main;
         this.controller = controller;
         this.map = new OccupancyMap(main.getDataStatus().getProjectData().getMap());

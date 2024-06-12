@@ -3,7 +3,6 @@ package se.oru.coordination.coordination_oru.gui;
 import org.metacsp.multi.spatioTemporal.paths.Pose;
 import se.oru.coordination.coordination_oru.coordinator.TrajectoryEnvelopeCoordinatorSimulation;
 import se.oru.coordination.coordination_oru.forwardModel.ConstantAcceleration;
-import se.oru.coordination.coordination_oru.forwardModel.ForwardModel;
 import se.oru.coordination.coordination_oru.simulation.BrowserVisualization;
 import se.oru.coordination.coordination_oru.utils.Missions;
 import se.oru.coordination.coordination_oru.utils.RobotReportWriter;
@@ -17,17 +16,17 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class RunProject {
-    private final ControllerNavigation controllerNavigation;
+    private final NavigationController navigationController;
 
-    public RunProject(ControllerNavigation controllerNavigation) {
-        this.controllerNavigation = controllerNavigation;
+    public RunProject(NavigationController navigationController) {
+        this.navigationController = navigationController;
     }
 
     public void clickRun() {
         var executorService = Executors.newScheduledThreadPool(1);
         var runCount = new AtomicInteger(0);
-        int simulationTime = controllerNavigation.getMain().getDataStatus().getSimulationTime();
-        int numberOfRuns = controllerNavigation.getMain().getDataStatus().getNumberOfRuns();
+        int simulationTime = navigationController.getMain().getDataStatus().getSimulationTime();
+        int numberOfRuns = navigationController.getMain().getDataStatus().getNumberOfRuns();
         var future = executorService.scheduleAtFixedRate(() -> {
             if (runCount.incrementAndGet() <= numberOfRuns) {
                 run();
@@ -43,18 +42,18 @@ public class RunProject {
 
     public void run() {
 
-        var map = controllerNavigation.getMain().getDataStatus().getProjectData().getMap();
+        var map = navigationController.getMain().getDataStatus().getProjectData().getMap();
         var model = new ConstantAcceleration(10.0, 100.0, 1000, 1000, 30); //FIXME: HARD CODED
-        var mapResolution = controllerNavigation.getMain().getDataStatus().getMapData().getResolution();
-        var writeReports = controllerNavigation.getMain().getDataStatus().getWriteVehicleReports();
-        var simulationTime = controllerNavigation.getMain().getDataStatus().getSimulationTime();
-        var heuristicsName = controllerNavigation.getMain().getDataStatus().getHeuristics().getName();
-        var reportsFolder = controllerNavigation.getMain().getDataStatus().getReportsFolder();
+        var mapResolution = navigationController.getMain().getDataStatus().getMapData().getResolution();
+        var writeReports = navigationController.getMain().getDataStatus().getWriteVehicleReports();
+        var simulationTime = navigationController.getMain().getDataStatus().getSimulationTime();
+        var heuristicsName = navigationController.getMain().getDataStatus().getHeuristics().getName();
+        var reportsFolder = navigationController.getMain().getDataStatus().getReportsFolder();
         String folderName = "results-";
         var scaleAdjustment = 1 / mapResolution;
         var reportsTimeIntervalInSeconds = 0.1; //FIXME: HARD CODED
 
-        for (var vehicle : controllerNavigation.getMain().getDataStatus().getProjectData().getVehicles()) {
+        for (var vehicle : navigationController.getMain().getDataStatus().getProjectData().getVehicles()) {
             AbstractVehicle newVehicle = VehiclesHashMap.getVehicle(vehicle.getID());
 
             if (newVehicle == null) {
@@ -69,7 +68,7 @@ public class RunProject {
                             vehicle.getMaxAcceleration() / scaleAdjustment,
                             vehicle.getLength() / scaleAdjustment,
                             vehicle.getWidth() / scaleAdjustment,
-                            controllerNavigation.getMain().getDataStatus().getProjectData().getPose(vehicle.getInitialPose()),
+                            navigationController.getMain().getDataStatus().getProjectData().getPose(vehicle.getInitialPose()),
                             vehicle.getSafetyDistance() / scaleAdjustment,
                             vehicle.getTaskRepetition(),
                             model
@@ -84,20 +83,20 @@ public class RunProject {
                             vehicle.getMaxAcceleration() / scaleAdjustment,
                             vehicle.getLength() / scaleAdjustment,
                             vehicle.getWidth() / scaleAdjustment,
-                            controllerNavigation.getMain().getDataStatus().getProjectData().getPose(vehicle.getInitialPose()),
+                            navigationController.getMain().getDataStatus().getProjectData().getPose(vehicle.getInitialPose()),
                             vehicle.getSafetyDistance() / scaleAdjustment,
                             vehicle.getTaskRepetition(),
                             model
                     );
                 }
                 VehiclesHashMap.getList().put(vehicle.getID(), newVehicle);
-                controllerNavigation.getMain().getDataStatus().getVehicles().add(newVehicle);
+                navigationController.getMain().getDataStatus().getVehicles().add(newVehicle);
             }
 
             newVehicle.setGoals(vehicle.getTask()
                     .stream()
                     .map(ProjectData.TaskStep::getPoseName)
-                    .map(poseName -> controllerNavigation.getMain().getDataStatus().getProjectData().getPose(poseName))
+                    .map(poseName -> navigationController.getMain().getDataStatus().getProjectData().getPose(poseName))
                     .toArray(Pose[]::new));
         }
 
@@ -105,11 +104,11 @@ public class RunProject {
         tec.setupSolver(0, 100000000);
         tec.startInference();
         tec.setBreakDeadlocks(true, false, false);
-        tec.setDefaultFootprint(controllerNavigation.getMain().getDataStatus().getVehicles().get(0).getFootprint());
-        tec.addComparator(controllerNavigation.getMain().getDataStatus().getHeuristics().getComparator());
+        tec.setDefaultFootprint(navigationController.getMain().getDataStatus().getVehicles().get(0).getFootprint());
+        tec.addComparator(navigationController.getMain().getDataStatus().getHeuristics().getComparator());
 
-        for (var vehicle : controllerNavigation.getMain().getDataStatus().getVehicles()){
-            String pathFile = controllerNavigation.getMain().getDataStatus().getProjectData().getVehicle(vehicle.getID()).getPathFile();
+        for (var vehicle : navigationController.getMain().getDataStatus().getVehicles()){
+            String pathFile = navigationController.getMain().getDataStatus().getProjectData().getVehicle(vehicle.getID()).getPathFile();
             if (pathFile != null) vehicle.loadPlans(pathFile);
         }
 

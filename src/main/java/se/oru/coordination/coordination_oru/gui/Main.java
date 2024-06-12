@@ -7,11 +7,12 @@ public class Main extends Application {
 
     private Stage primaryStage;
     private final DataStatus dataStatus = new DataStatus();
-    private final SceneHome sceneHome = new SceneHome(this);
-    private final SceneMap sceneMap = new SceneMap(this);
-    private final SceneVehicle sceneVehicle = new SceneVehicle(this);
-    private final SceneSetup sceneSetup = new SceneSetup(this);
-    final ControllerNavigation controllerNavigation = new ControllerNavigation(this);
+    private final HomeScene homeScene = new HomeScene(this);
+    private final MapScene mapScene = new MapScene(this);
+    private final VehicleScene vehicleScene = new VehicleScene(this);
+    //TODO: Add the coordination scene
+    private final SetupScene setupScene = new SetupScene(this);
+    public final NavigationController navigationController = new NavigationController(this);
 
     public static void main(String[] args) {
         launch(args);
@@ -21,13 +22,13 @@ public class Main extends Application {
     public void start(Stage primaryStage) {
         this.primaryStage = primaryStage;
         initializeStage();
-        controllerNavigation.getNavigationController();
+        navigationController.getNavigationController();
     }
 
     private void initializeStage() {
         primaryStage.setTitle("Coordination_ORU");
-        primaryStage.setOnCloseRequest(e -> controllerNavigation.closeProgram(this));
-        primaryStage.setScene(getHomeScene().get());
+        primaryStage.setOnCloseRequest(e -> navigationController.closeProgram(this));
+        primaryStage.setScene(homeScene.get());
         primaryStage.show();
     }
 
@@ -35,28 +36,28 @@ public class Main extends Application {
         return primaryStage;
     }
 
-    public ControllerNavigation getNavigationButton() {
-        return controllerNavigation;
+    public NavigationController getNavigationButton() {
+        return navigationController;
     }
 
     public DataStatus getDataStatus() {
         return dataStatus;
     }
 
-    public SceneHome getHomeScene() {
-        return sceneHome;
+    public HomeScene getHomeScene() {
+        return homeScene;
     }
 
-    public SceneMap getMapScene() {
-        return sceneMap;
+    public MapScene getMapScene() {
+        return mapScene;
     }
 
-    public SceneVehicle getVehicleScene() {
-        return sceneVehicle;
+    public VehicleScene getVehicleScene() {
+        return vehicleScene;
     }
 
-    public SceneSetup getSetupScene() {
-        return sceneSetup;
+    public SetupScene getSetupScene() {
+        return setupScene;
     }
 }
 

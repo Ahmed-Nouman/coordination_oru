@@ -14,7 +14,7 @@ import se.oru.coordination.coordination_oru.utils.Heuristics;
 
 import java.util.List;
 
-public class SceneSetup {
+public class SetupScene {
     private static final int PADDING = 30;
     private static final int SPACING = 10;
     public static final int WIDTH = 220;
@@ -34,9 +34,9 @@ public class SceneSetup {
     private CheckBox saveReportField;
     private BorderPane pane;
     private final Main main;
-    private final ControllerSetup controller = new ControllerSetup(this);
+    private final SetupController controller = new SetupController(this);
 
-    public SceneSetup(Main main) {
+    public SetupScene(Main main) {
         this.main = main;
     }
 

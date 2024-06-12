@@ -82,7 +82,7 @@ public class MenuBar {
     private static MenuItem quit(Main main) {
         var quit = new MenuItem("Quit");
         quit.setAccelerator(new KeyCodeCombination(KeyCode.Q, KeyCodeCombination.CONTROL_DOWN));
-        quit.setOnAction(e -> main.controllerNavigation.closeProgram(main));
+        quit.setOnAction(e -> main.navigationController.closeProgram(main));
         return quit;
     }
 

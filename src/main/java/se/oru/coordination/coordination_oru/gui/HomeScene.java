@@ -12,7 +12,7 @@ import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
 
-public class SceneHome {
+public class HomeScene {
     private static final int WIDTH = 400;
     private static final int HEIGHT = 300;
     private static final int SPACING = 40;
@@ -23,9 +23,9 @@ public class SceneHome {
     private final Text filePath = new Text("");
     private final Main main;
     private BorderPane pane;
-    public final ControllerHome controller = new ControllerHome(this);
+    public final HomeController controller = new HomeController(this);
 
-    public SceneHome(Main main) {
+    public HomeScene(Main main) {
         this.main = main;
     }
 

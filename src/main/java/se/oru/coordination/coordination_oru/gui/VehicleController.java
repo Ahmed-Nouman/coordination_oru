@@ -3,10 +3,10 @@ package se.oru.coordination.coordination_oru.gui;
 import java.util.ArrayList;
 import java.util.Objects;
 
-public class ControllerVehicle {
-    private final SceneVehicle scene;
+public class VehicleController {
+    private final VehicleScene scene;
 
-    public ControllerVehicle(SceneVehicle scene) {
+    public VehicleController(VehicleScene scene) {
         this.scene = scene;
     }
 
@@ -142,7 +142,7 @@ public class ControllerVehicle {
     var taskRepetitionOfVehicle = 1;
     var typeOfVehicle = "Autonomous";
     var lookAheadDistanceOfVehicle = 0.0;
-    var taskOfVehicle = setDefaultInitialTask(initialPoseOfVehicle);
+    var taskOfVehicle = new ArrayList<ProjectData.TaskStep>();
 
     // Handle duplicate names for vehicles
     String nameOfVehicle = baseNameOfVehicle;
@@ -172,19 +172,6 @@ public class ControllerVehicle {
 
     verifyDeleteVehicle();
     verifyNext();
-    }
-
-    private ArrayList<ProjectData.TaskStep> setDefaultInitialTask(String initialPoseOfVehicle) {
-        var taskOfVehicle = new ArrayList<ProjectData.TaskStep>();
-        var taskStep = new ProjectData.TaskStep();
-        taskStep.setPoseName(scene.getMain().getDataStatus().getProjectData().getPoses().keySet().stream().
-                filter(item -> !item.equals(initialPoseOfVehicle)).
-                findAny().
-                orElse(null));
-        taskStep.setDuration(1.0);
-        taskStep.setPriority(1);
-        taskOfVehicle.add(taskStep);
-        return taskOfVehicle;
     }
 
     public void clickDeleteVehicle() {

@@ -4,11 +4,11 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 
-public class ControllerHome {
+public class HomeController {
 
-    private final SceneHome scene;
+    private final HomeScene scene;
 
-    public ControllerHome(SceneHome scene) {
+    public HomeController(HomeScene scene) {
         this.scene = scene;
     }
 

@@ -4,7 +4,7 @@ import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.ButtonType;
 
-public class ControllerNavigation {
+public class NavigationController {
     private final Button back = new Button("Back");
     private final Button next = new Button("Next");
     private final Button save = new Button("Save");
@@ -16,7 +16,7 @@ public class ControllerNavigation {
     public final SaveProject saveProject = new SaveProject(this);
     private final RunProject runProject = new RunProject(this);
     private SceneState currentSceneState = SceneState.HOME;
-    public ControllerNavigation(Main main) {
+    public NavigationController(Main main) {
         this.main = main;
     }
 

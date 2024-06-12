@@ -8,13 +8,12 @@ import javafx.scene.layout.*;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
-import se.oru.coordination.coordination_oru.vehicles.VehiclesHashMap;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-public class SceneVehicle {
+public class VehicleScene {
     private static final int PADDING = 10;
     private static final int MAP_WIDTH = 680;
     private static final int MAP_HEIGHT = 538;
@@ -38,15 +37,15 @@ public class SceneVehicle {
     private final Button delete = new Button("Delete");
     private final Button down = new Button("↑");
     private final Button up = new Button("↓");
-    private final Button loadPath = new Button("Load Path");
+    private final CheckBox computedPath = new CheckBox("Computed Path"); //FIXME: Maybe use a checkbox instead
     private ListView<String> tasks = new ListView<>();
     private final Button addVehicle = new Button("Add Vehicle");
     private final Button deleteVehicle = new Button("Delete Vehicle");
     private final Main main;
     private BorderPane pane;
-    private final ControllerVehicle controller = new ControllerVehicle(this);
+    private final VehicleController controller = new VehicleController(this);
 
-    public SceneVehicle(Main main) {
+    public VehicleScene(Main main) {
         this.main = main;
     }
 
@@ -174,7 +173,7 @@ public class SceneVehicle {
         var taskButtons = new HBox();
         taskButtons.setSpacing(5);
         taskButtons.setAlignment(Pos.CENTER);
-        taskButtons.getChildren().addAll(add, delete, down, up, loadPath);
+        taskButtons.getChildren().addAll(add, delete, down, up, computedPath);
         taskField.setMaxWidth(TEXT_WIDTH);
         taskField.getChildren().addAll(tasks, taskButtons);
         taskController();
@@ -185,7 +184,7 @@ public class SceneVehicle {
         delete.setOnAction(e -> controller.clickDelete());
         down.setOnAction(e -> controller.clickDown());
         up.setOnAction(e -> controller.clickUp());
-        loadPath.setOnAction(e -> controller.clickLoadPath());
+        computedPath.setOnAction(e -> controller.clickLoadPath());
         tasks.setOnMouseClicked(e -> {
             if (e.getClickCount() == 2) controller.doubleClickTask();
         });

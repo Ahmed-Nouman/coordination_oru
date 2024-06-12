@@ -399,16 +399,12 @@ public class TrajectoryEnvelopeCoordinatorSimulation extends TrajectoryEnvelopeC
 		for (AbstractVehicle vehicle : VehiclesHashMap.getList().values()) {
 			if (vehicle instanceof AutonomousVehicle) {
 				var autonomousVehicle = (AutonomousVehicle) vehicle;
-				if (autonomousVehicle.getPaths().isEmpty()) {
-					System.out.println(("No paths available for vehicle " + autonomousVehicle.getID()));
-					System.exit(1);
-				} else {
-					autonomousVehicle.getPaths().get(0)[0].getPose();
-					this.placeRobot(autonomousVehicle.getID(), autonomousVehicle.getPaths().get(0)[0].getPose());
-					}
-				}
+				if (autonomousVehicle.getPaths().isEmpty())
+                    System.out.println(("No path available for vehicle " + autonomousVehicle.getID()));
+				this.placeRobot(autonomousVehicle.getID(), autonomousVehicle.getInitialPose());
 			}
 		}
+	}
 
 	public void setForwardModelsForRobots() {
 		if (VehiclesHashMap.getInstance() == null || VehiclesHashMap.getList().isEmpty()) throw new Error("No vehicles available to place at locations.");

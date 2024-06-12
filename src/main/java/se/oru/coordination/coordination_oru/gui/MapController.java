@@ -2,9 +2,9 @@ package se.oru.coordination.coordination_oru.gui;
 
 import org.metacsp.multi.spatioTemporal.paths.Pose;
 
-public class ControllerMap {
-    private final SceneMap scene;
-    public ControllerMap(SceneMap scene) {
+public class MapController {
+    private final MapScene scene;
+    public MapController(MapScene scene) {
         this.scene = scene;
     }
 

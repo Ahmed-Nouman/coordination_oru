@@ -5,6 +5,7 @@ import org.metacsp.multi.spatioTemporal.paths.Pose;
 import java.util.Arrays;
 import java.util.Objects;
 
+//TODO: Maybe i need to add name to the task
 public class Task {
     public static final int MINUTE_TO_SECOND = 60;
     public static final int SECOND_TO_MILLISECOND = 1000;
@@ -16,6 +17,12 @@ public class Task {
         this.poses = poses;
         this.time = time;
         this.priority = priority;
+    }
+
+    public boolean isEmpty() {
+        return poses.length == 0 &&
+                time == 0 &&
+                priority == 0;
     }
 
     @Override
