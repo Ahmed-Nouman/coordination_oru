@@ -1,7 +1,5 @@
 package se.oru.coordination.coordination_oru.gui;
 
-import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Objects;
 
@@ -144,16 +142,7 @@ public class ControllerVehicle {
     var taskRepetitionOfVehicle = 1;
     var typeOfVehicle = "Autonomous";
     var lookAheadDistanceOfVehicle = 0.0;
-
-    var taskOfVehicle = new ArrayList<ProjectData.TaskStep>();
-    var taskStep = new ProjectData.TaskStep();
-    taskStep.setPoseName(scene.getMain().getDataStatus().getProjectData().getPoses().keySet().stream().
-            filter(item -> !item.equals(initialPoseOfVehicle)).
-            findAny().
-            orElse(null));
-    taskStep.setDuration(1.0);
-    taskStep.setPriority(1);
-    taskOfVehicle.add(taskStep);
+    var taskOfVehicle = setDefaultInitialTask(initialPoseOfVehicle);
 
     // Handle duplicate names for vehicles
     String nameOfVehicle = baseNameOfVehicle;
@@ -185,7 +174,20 @@ public class ControllerVehicle {
     verifyNext();
     }
 
-public void clickDeleteVehicle() {
+    private ArrayList<ProjectData.TaskStep> setDefaultInitialTask(String initialPoseOfVehicle) {
+        var taskOfVehicle = new ArrayList<ProjectData.TaskStep>();
+        var taskStep = new ProjectData.TaskStep();
+        taskStep.setPoseName(scene.getMain().getDataStatus().getProjectData().getPoses().keySet().stream().
+                filter(item -> !item.equals(initialPoseOfVehicle)).
+                findAny().
+                orElse(null));
+        taskStep.setDuration(1.0);
+        taskStep.setPriority(1);
+        taskOfVehicle.add(taskStep);
+        return taskOfVehicle;
+    }
+
+    public void clickDeleteVehicle() {
     scene.getDeleteVehicle().setOnAction(e -> {
         var vehicleName = scene.getVehicles().getSelectionModel().getSelectedItem();
         scene.getMain().getDataStatus().getProjectData().removeVehicle(scene.getMain().getDataStatus().getProjectData().getVehicle(scene.getMain().getDataStatus().getProjectData().getVehicleID(vehicleName, scene.getMain().getDataStatus().getProjectData().getVehicles())).getID());
@@ -258,12 +260,6 @@ public void clickDelete() {
                             scene.getVehicles().getSelectionModel().getSelectedItem(),
                             scene.getMain().getDataStatus().getProjectData().getVehicles())
             ).setPathFile(file.getAbsolutePath());
-
-            scene.getAdd().setDisable(true);
-            scene.getDelete().setDisable(true);
-            scene.getUp().setDisable(true);
-            scene.getDown().setDisable(true);
-            scene.getTasks().setDisable(true);
         }
     }
 }

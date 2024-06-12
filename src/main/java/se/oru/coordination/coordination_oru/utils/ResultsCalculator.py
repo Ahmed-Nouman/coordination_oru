@@ -4,7 +4,7 @@ from pathlib import Path
 from collections import defaultdict
 import numpy as np
 
-base_directory = '../results/productionCycleDrilling/'
+base_directory = '../results/productionVehiclePassing/'
 
 # Dictionary to hold the grouped folders
 folder_groups = defaultdict(list)
@@ -24,9 +24,10 @@ for main_name, folders in folder_groups.items():
 
     fieldnames_set = set()
     all_data = []
-    robot_5_data = []
+    robot_highest_data = []
     numeric_data = defaultdict(list)
-    numeric_data_5 = defaultdict(list)
+    numeric_data_highest = defaultdict(list)
+    highest_robot_number = -1
 
     # Process each folder in the group
     for folder in folders:
@@ -36,12 +37,29 @@ for main_name, folders in folder_groups.items():
                 reader = csv.DictReader(infile)
                 fieldnames_set.update(reader.fieldnames)
                 for row in reader:
-                    if row.get('Robot Name') == 'Robot_5':
-                        robot_5_data.append(row)
+                    robot_name = row.get('Robot Name')
+                    if robot_name and robot_name.startswith('Robot_'):
+                        try:
+                            robot_number = int(robot_name.split('_')[1])
+                            if robot_number > highest_robot_number:
+                                highest_robot_number = robot_number
+                        except ValueError:
+                            continue  # Ignore if robot_number is not an integer
+
+    highest_robot_name = f'Robot_{highest_robot_number}'
+
+    for folder in folders:
+        output_variables_path = Path(folder) / 'OutputVariables.csv'
+        if output_variables_path.exists():
+            with open(output_variables_path, 'r') as infile:
+                reader = csv.DictReader(infile)
+                for row in reader:
+                    if row.get('Robot Name') == highest_robot_name:
+                        robot_highest_data.append(row)
                         for key, value in row.items():
                             if key != 'Robot Name':  # Exclude 'Robot Name' from numeric processing
                                 try:
-                                    numeric_data_5[key].append(float(value))
+                                    numeric_data_highest[key].append(float(value))
                                 except ValueError:
                                     continue  # Ignore non-numeric data
                     else:
@@ -63,7 +81,7 @@ for main_name, folders in folder_groups.items():
         writer = csv.DictWriter(outfile, fieldnames=fieldnames)
         writer.writeheader()
 
-        # Write all data except Robot_5
+        # Write all data except the highest Robot number
         for row in all_data:
             writer.writerow(row)
 
@@ -81,20 +99,20 @@ for main_name, folders in folder_groups.items():
         # Leave one blank line for clear separation
         writer.writerow({})
 
-        # Write Robot_5 data
-        for row in robot_5_data:
+        # Write data for the highest Robot number
+        for row in robot_highest_data:
             writer.writerow(row)
 
         # Leave one blank line before statistics
         writer.writerow({})
 
-        # Calculate and write statistics for Robot_5
-        stats_5 = {}
-        for key, values in numeric_data_5.items():
+        # Calculate and write statistics for the highest Robot number
+        stats_highest = {}
+        for key, values in numeric_data_highest.items():
             if values:
-                stats_5[f'{key}_mean'] = round(np.mean(values), 2)
-                stats_5[f'{key}_stddev'] = round(np.std(values), 2)
-        writer.writerow(stats_5)
+                stats_highest[f'{key}_mean'] = round(np.mean(values), 2)
+                stats_highest[f'{key}_stddev'] = round(np.std(values), 2)
+        writer.writerow(stats_highest)
 
     print(f"Data from OutputVariables.csv combined, statistics calculated, and everything saved to {output_path}")
 

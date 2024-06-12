@@ -17,7 +17,7 @@ import se.oru.coordination.coordination_oru.vehicles.LookAheadVehicle;
 import java.awt.*;
 import java.io.FileNotFoundException;
 
-public class ProductionScenario {
+public class Production {
     public static void main(String[] args) throws FileNotFoundException, InterruptedException {
 
         String absolutePath = System.getProperty("user.dir");

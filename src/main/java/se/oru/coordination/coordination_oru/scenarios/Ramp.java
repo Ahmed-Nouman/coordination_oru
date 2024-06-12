@@ -15,7 +15,7 @@ import se.oru.coordination.coordination_oru.vehicles.LookAheadVehicle;
 
 import java.awt.*;
 
-public class RampScenario {
+public class Ramp {
     public static void main(String[] args) {
 
         final int simulationTimeMinutes = 2;

@@ -55,39 +55,50 @@ public class RunProject {
         var reportsTimeIntervalInSeconds = 0.1; //FIXME: HARD CODED
 
         for (var vehicle : controllerNavigation.getMain().getDataStatus().getProjectData().getVehicles()) {
-            AbstractVehicle newVehicle;
-            if ("Human".equals(vehicle.getType()))
-                newVehicle = new LookAheadVehicle(vehicle.getID(),
-                        vehicle.getName(),
-                        vehicle.getLookAheadDistance() / scaleAdjustment,
-                        vehicle.getPriority(),
-                        Utils.stringToColor(vehicle.getColor()),
-                        vehicle.getMaxVelocity() / scaleAdjustment,
-                        vehicle.getMaxAcceleration() / scaleAdjustment,
-                        vehicle.getLength() / scaleAdjustment,
-                        vehicle.getWidth() / scaleAdjustment,
-                        controllerNavigation.getMain().getDataStatus().getProjectData().getPose(vehicle.getInitialPose()),
-                        vehicle.getSafetyDistance() / scaleAdjustment,
-                        vehicle.getTaskRepetition(), model);
-            else newVehicle = new AutonomousVehicle(vehicle.getID(),
-                    vehicle.getName(),
-                    vehicle.getPriority(),
-                    Utils.stringToColor(vehicle.getColor()),
-                    vehicle.getMaxVelocity() / scaleAdjustment,
-                    vehicle.getMaxAcceleration() / scaleAdjustment,
-                    vehicle.getLength() / scaleAdjustment,
-                    vehicle.getWidth() / scaleAdjustment,
-                    controllerNavigation.getMain().getDataStatus().getProjectData().getPose(vehicle.getInitialPose()),
-                    vehicle.getSafetyDistance() / scaleAdjustment,
-                    vehicle.getTaskRepetition(), model);
+            AbstractVehicle newVehicle = VehiclesHashMap.getVehicle(vehicle.getID());
+
+            if (newVehicle == null) {
+                if ("Human".equals(vehicle.getType())) {
+                    newVehicle = new LookAheadVehicle(
+                            vehicle.getID(),
+                            vehicle.getName(),
+                            vehicle.getLookAheadDistance() / scaleAdjustment,
+                            vehicle.getPriority(),
+                            Utils.stringToColor(vehicle.getColor()),
+                            vehicle.getMaxVelocity() / scaleAdjustment,
+                            vehicle.getMaxAcceleration() / scaleAdjustment,
+                            vehicle.getLength() / scaleAdjustment,
+                            vehicle.getWidth() / scaleAdjustment,
+                            controllerNavigation.getMain().getDataStatus().getProjectData().getPose(vehicle.getInitialPose()),
+                            vehicle.getSafetyDistance() / scaleAdjustment,
+                            vehicle.getTaskRepetition(),
+                            model
+                    );
+                } else {
+                    newVehicle = new AutonomousVehicle(
+                            vehicle.getID(),
+                            vehicle.getName(),
+                            vehicle.getPriority(),
+                            Utils.stringToColor(vehicle.getColor()),
+                            vehicle.getMaxVelocity() / scaleAdjustment,
+                            vehicle.getMaxAcceleration() / scaleAdjustment,
+                            vehicle.getLength() / scaleAdjustment,
+                            vehicle.getWidth() / scaleAdjustment,
+                            controllerNavigation.getMain().getDataStatus().getProjectData().getPose(vehicle.getInitialPose()),
+                            vehicle.getSafetyDistance() / scaleAdjustment,
+                            vehicle.getTaskRepetition(),
+                            model
+                    );
+                }
+                VehiclesHashMap.getList().put(vehicle.getID(), newVehicle);
+                controllerNavigation.getMain().getDataStatus().getVehicles().add(newVehicle);
+            }
 
             newVehicle.setGoals(vehicle.getTask()
                     .stream()
                     .map(ProjectData.TaskStep::getPoseName)
                     .map(poseName -> controllerNavigation.getMain().getDataStatus().getProjectData().getPose(poseName))
                     .toArray(Pose[]::new));
-
-            controllerNavigation.getMain().getDataStatus().getVehicles().add(newVehicle);
         }
 
         var tec = new TrajectoryEnvelopeCoordinatorSimulation(10.0, 1.0);
@@ -97,8 +108,9 @@ public class RunProject {
         tec.setDefaultFootprint(controllerNavigation.getMain().getDataStatus().getVehicles().get(0).getFootprint());
         tec.addComparator(controllerNavigation.getMain().getDataStatus().getHeuristics().getComparator());
 
-        for (var vehicle : controllerNavigation.getMain().getDataStatus().getVehicles()) {
-            vehicle.loadPlans(controllerNavigation.getMain().getDataStatus().getProjectData().getVehicle(vehicle.getID()).getPathFile());
+        for (var vehicle : controllerNavigation.getMain().getDataStatus().getVehicles()){
+            String pathFile = controllerNavigation.getMain().getDataStatus().getProjectData().getVehicle(vehicle.getID()).getPathFile();
+            if (pathFile != null) vehicle.loadPlans(pathFile);
         }
 
         tec.placeRobotsAtStartPoses();

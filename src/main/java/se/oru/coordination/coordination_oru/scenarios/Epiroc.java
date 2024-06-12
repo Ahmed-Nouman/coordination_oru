@@ -16,7 +16,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.function.Function;
 
-public class EpirocScenario {
+public class Epiroc {
 
     public static final String MAP = "maps/mine-map-full.yaml";
     public static final double MAP_RESOLUTION = new MapResolution().getMapResolution(MAP);
@@ -43,23 +43,23 @@ public class EpirocScenario {
         final var maxVelocity = MAX_VELOCITY / SCALE_ADJUSTMENT;
         final var safetyDistance = SAFETY_DISTANCE / SCALE_ADJUSTMENT;
 
-        final var loaderLength = 9.0 / SCALE_ADJUSTMENT;
-        final var loaderWidth = 6.0 / SCALE_ADJUSTMENT;
+        final var loaderLength = 12.0 / SCALE_ADJUSTMENT;
+        final var loaderWidth = 8.0 / SCALE_ADJUSTMENT;
         final var loaderMaxVelocity = 4.17 * 10 / SCALE_ADJUSTMENT;
         final var loaderMaxAcceleration = 1.0 * 10  / SCALE_ADJUSTMENT;
 
-        final var drillRigLength = 9.0 / SCALE_ADJUSTMENT;
-        final var drillRigWidth = 6.0 / SCALE_ADJUSTMENT;
+        final var drillRigLength = 12.0 / SCALE_ADJUSTMENT;
+        final var drillRigWidth = 8.0 / SCALE_ADJUSTMENT;
         final var drillRigMaxVelocity = 11.11 / SCALE_ADJUSTMENT;
         final var drillRigMaxAcceleration = 11.11 / SCALE_ADJUSTMENT;
 
-        final var serviceVehicleLength = 9.0 / SCALE_ADJUSTMENT;
-        final var serviceVehicleWidth = 6.0 / SCALE_ADJUSTMENT;
+        final var serviceVehicleLength = 12.0 / SCALE_ADJUSTMENT;
+        final var serviceVehicleWidth = 8.0 / SCALE_ADJUSTMENT;
         final var serviceVehicleMaxVelocity = 11.11 / SCALE_ADJUSTMENT;
         final var serviceVehicleMaxAcceleration = 11.11 / SCALE_ADJUSTMENT;
 
-        final var mineTruckLength = 9.0 / SCALE_ADJUSTMENT;
-        final var mineTruckWidth = 6.0 / SCALE_ADJUSTMENT;
+        final var mineTruckLength = 12.0 / SCALE_ADJUSTMENT;
+        final var mineTruckWidth = 8.0 / SCALE_ADJUSTMENT;
         final var mineTRuckMaxVelocity = 11.11 / SCALE_ADJUSTMENT;
         final var mineTruckMaxAcceleration = 11.11 / SCALE_ADJUSTMENT;
 
@@ -125,47 +125,47 @@ public class EpirocScenario {
 
         var drillRig1 = new AutonomousVehicle("DR1",1, Color.GREEN, drillRigMaxVelocity, drillRigMaxAcceleration,
                 drillRigLength, drillRigWidth, orePass4, safetyDistance, 1, model);
-        drillRig1.addTask(new Task(60, new Pose[] {drawPoint8}, 1));
-        drillRig1.addTask(new Task(120, new Pose[] {orePass4}, 1));
+        drillRig1.addTask(new Task(0.25, new Pose[] {drawPoint8}, 1));
+        drillRig1.addTask(new Task(0.25, new Pose[] {orePass4}, 1));
 //        drillRig1.generatePlans(planner);
 //        drillRig1.savePlans(CLASS_NAME);
         drillRig1.loadPlans(PLANS_FOLDER_NAME + "DR1.path");
 
         var drillRig2 = new AutonomousVehicle("DR2",1, Color.GREEN, drillRigMaxVelocity, drillRigMaxAcceleration,
                 drillRigLength, drillRigWidth, drawPoint24, safetyDistance, 1, model);
-        drillRig2.addTask(new Task(60, new Pose[] {drawPoint18}, 1));
-        drillRig2.addTask(new Task(120, new Pose[] {drawPoint24}, 1));
+        drillRig2.addTask(new Task(0.25, new Pose[] {drawPoint18}, 1));
+        drillRig2.addTask(new Task(0.25, new Pose[] {drawPoint24}, 1));
 //        drillRig2.generatePlans(planner);
 //        drillRig2.savePlans(CLASS_NAME);
         drillRig2.loadPlans(PLANS_FOLDER_NAME + "DR2.path");
 
         var drillRig3 = new AutonomousVehicle("DR3",1, Color.GREEN, drillRigMaxVelocity, drillRigMaxAcceleration,
                 drillRigLength, drillRigWidth, entrance, safetyDistance, 1, model);
-        drillRig3.addTask(new Task(60, new Pose[] {drawPoint37}, 1));
-        drillRig3.addTask(new Task(120, new Pose[] {entrance}, 1));
+        drillRig3.addTask(new Task(0.25, new Pose[] {drawPoint37}, 1));
+        drillRig3.addTask(new Task(0.25, new Pose[] {entrance}, 1));
 //        drillRig3.generatePlans(planner);
 //        drillRig3.savePlans(CLASS_NAME);
         drillRig3.loadPlans(PLANS_FOLDER_NAME + "DR3.path");
 
         var serviceVehicle1 = new AutonomousVehicle("S1",1, Color.BLUE, serviceVehicleMaxVelocity, serviceVehicleMaxAcceleration,
                 serviceVehicleLength, serviceVehicleWidth, serviceWorkshop1, safetyDistance, 1, model);
-        serviceVehicle1.addTask(new Task(60, new Pose[] {drawPoint34}, 1));
-        serviceVehicle1.addTask(new Task(120, new Pose[] {serviceWorkshop1}, 1));
+        serviceVehicle1.addTask(new Task(0.25, new Pose[] {drawPoint34}, 1));
+        serviceVehicle1.addTask(new Task(0.25, new Pose[] {serviceWorkshop1}, 1));
 //        serviceVehicle1.generatePlans(planner);
 //        serviceVehicle1.savePlans(CLASS_NAME);
         serviceVehicle1.loadPlans(PLANS_FOLDER_NAME + "S1.path");
 
         var serviceVehicle2 = new AutonomousVehicle("S2",1, Color.BLUE, serviceVehicleMaxVelocity, serviceVehicleMaxAcceleration,
                 serviceVehicleLength, serviceVehicleWidth, serviceWorkshop2, safetyDistance, 1, model);
-        serviceVehicle2.addTask(new Task(60, new Pose[] {drawPoint32A}, 1));
-        serviceVehicle2.addTask(new Task(240, new Pose[] {serviceWorkshop2}, 1));
+        serviceVehicle2.addTask(new Task(0.25, new Pose[] {drawPoint32A}, 1));
+        serviceVehicle2.addTask(new Task(0.25, new Pose[] {serviceWorkshop2}, 1));
 //        serviceVehicle2.generatePlans(planner);
 //        serviceVehicle2.savePlans(CLASS_NAME);
         serviceVehicle2.loadPlans(PLANS_FOLDER_NAME + "S2.path");
 
         var mineTruck = new AutonomousVehicle("MT1",1, Color.RED, mineTRuckMaxVelocity, mineTruckMaxAcceleration,
                 mineTruckLength, mineTruckWidth, drawPoint38, safetyDistance, 1, model);
-        mineTruck.addTask(new Task(120, new Pose[] {orePass3}, 1));
+        mineTruck.addTask(new Task(0.25, new Pose[] {orePass3}, 1));
         mineTruck.addTask(new Task(0, new Pose[] {drawPoint38}, 1));
 //        mineTruck.generatePlans(planner);
 //        mineTruck.savePlans(CLASS_NAME);

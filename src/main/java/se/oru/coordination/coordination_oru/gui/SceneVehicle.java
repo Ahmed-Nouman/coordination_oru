@@ -74,13 +74,6 @@ public class SceneVehicle {
                     taskRepetitionField.setText(String.valueOf(vehicle.getTaskRepetition()));
                     isHumanField.setSelected("Human".equals(vehicle.getType()));
                     lookAheadDistanceField.setText(String.valueOf(vehicle.getLookAheadDistance()));
-
-
-                    add.setDisable(vehicle.getPathFile() != null);
-                    delete.setDisable(vehicle.getPathFile() != null);
-                    down.setDisable(vehicle.getPathFile() != null);
-                    up.setDisable(vehicle.getPathFile() != null);
-                    tasks.setDisable(vehicle.getPathFile() != null);
                 }
             }
         });

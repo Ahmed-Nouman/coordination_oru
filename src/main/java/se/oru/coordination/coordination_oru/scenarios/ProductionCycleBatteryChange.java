@@ -128,7 +128,7 @@ public class ProductionCycleBatteryChange {
         Missions.generateMissions();
         Missions.setMap(MAP);
 
-        String fileName = "C" + "_" + "S" + "_" + autonomousVehicle1.getSafetyDistance() * SCALE_ADJUSTMENT + "_"
+        String fileName = "FA" + "_" + "C" + "_" + "S" + "_" + autonomousVehicle1.getSafetyDistance() * SCALE_ADJUSTMENT + "_"
                 + "V" + "_" + autonomousVehicle1.getMaxVelocity() * SCALE_ADJUSTMENT + "_";
         if (WRITE_VEHICLE_REPORTS)
             RobotReportWriter.writeReports(tec, REPORTING_TIME, SIMULATION_INTERVAL, heuristicName, REPORT_ADDRESS, fileName, SCALE_ADJUSTMENT);

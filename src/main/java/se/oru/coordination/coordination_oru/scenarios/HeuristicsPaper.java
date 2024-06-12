@@ -12,7 +12,7 @@ import se.oru.coordination.coordination_oru.vehicles.AutonomousVehicle;
 
 import java.awt.*;
 
-public class HeuristicsPaperScenario {
+public class HeuristicsPaper {
 
     public static final String MAP = "maps/mine-map-heuristic-paper.yaml";
     public static final double MAP_RESOLUTION = new MapResolution().getMapResolution(MAP);
