@@ -11,6 +11,7 @@ import se.oru.coordination.coordination_oru.vehicles.AutonomousVehicle;
 import se.oru.coordination.coordination_oru.vehicles.LookAheadVehicle;
 import se.oru.coordination.coordination_oru.vehicles.VehiclesHashMap;
 
+import java.util.Arrays;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -93,11 +94,19 @@ public class RunProject {
                 navigationController.getMain().getDataStatus().getVehicles().add(newVehicle);
             }
 
-            newVehicle.setGoals(vehicle.getTask()
-                    .stream()
-                    .map(ProjectData.TaskStep::getPoseName)
-                    .map(poseName -> navigationController.getMain().getDataStatus().getProjectData().getPose(poseName))
-                    .toArray(Pose[]::new));
+            for (var task : vehicle.getTask()) {
+                var poses = Arrays.stream(task.getPoseName().split(" -> "))
+                        .map(poseName -> navigationController.getMain().getDataStatus().getProjectData().getPose(poseName.trim()))
+                        .toArray(Pose[]::new);
+                newVehicle.addTask(new se.oru.coordination.coordination_oru.utils.Task(task.getTaskName(), task.getDuration(), poses, task.getPriority()));
+            }
+
+//            newVehicle.setGoals(vehicle.getTask()
+//                    .stream()
+//                    .map(ProjectData.TaskStep::getPoseName)
+//                    .map(poseName -> navigationController.getMain().getDataStatus().getProjectData().getPose(poseName))
+//                    .toArray(Pose[]::new));
+            System.out.println(newVehicle.getTasks().get(0).isEmpty());
         }
 
         var tec = new TrajectoryEnvelopeCoordinatorSimulation(10.0, 1.0);

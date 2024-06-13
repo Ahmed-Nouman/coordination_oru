@@ -74,31 +74,31 @@ public class ProductionCycleBatteryChange {
 
         var autonomousVehicle1 = new AutonomousVehicle("A1",1, Color.YELLOW, 10.0, 1.0,
                 length, width, drawPoint3, productionSafetyDistance, 1, model);
-        autonomousVehicle1.addTask(new Task(0.0, new Pose[] {orePass1}, 1));
-        autonomousVehicle1.addTask(new Task(0.1, new Pose[] {drawPoint3}, 1));
-        autonomousVehicle1.addTask(new Task(0.0, new Pose[] {orePass1}, 1));
-        autonomousVehicle1.addTask(new Task(0.1, new Pose[] {serviceWorkshop2A}, 1));
-        autonomousVehicle1.addTask(new Task(1.0, new Pose[] {drawPoint3}, 1));
+        autonomousVehicle1.addTask(new Task("", 0.0, new Pose[] {orePass1}, 1));
+        autonomousVehicle1.addTask(new Task("", 0.1, new Pose[] {drawPoint3}, 1));
+        autonomousVehicle1.addTask(new Task("", 0.0, new Pose[] {orePass1}, 1));
+        autonomousVehicle1.addTask(new Task("", 0.1, new Pose[] {serviceWorkshop2A}, 1));
+        autonomousVehicle1.addTask(new Task("", 1.0, new Pose[] {drawPoint3}, 1));
 //        autonomousVehicle1.generatePlans(planner);
 //        autonomousVehicle1.savePlans(CLASS_NAME);
         autonomousVehicle1.loadPlans(PLANS_FOLDER_NAME + "A1.path");
 
         var autonomousVehicle2 = new AutonomousVehicle("A2",1, Color.YELLOW, 10.0, 1.0,
                 length, width, drawPoint12, productionSafetyDistance, missionRepetition, model);
-        autonomousVehicle2.addTask(new Task(0, new Pose[] {orePass2}, 1));
-        autonomousVehicle2.addTask(new Task(0.1, new Pose[] {drawPoint12}, 1));
+        autonomousVehicle2.addTask(new Task("", 0, new Pose[] {orePass2}, 1));
+        autonomousVehicle2.addTask(new Task("", 0.1, new Pose[] {drawPoint12}, 1));
         autonomousVehicle2.loadPlans(PLANS_FOLDER_NAME + "A2.path");
 
         var autonomousVehicle3 = new AutonomousVehicle("A3",1, Color.YELLOW, 10.0, 1.0,
                 length, width, drawPoint20, productionSafetyDistance, missionRepetition, model);
-        autonomousVehicle3.addTask(new Task(0, new Pose[] {orePass3}, 1));
-        autonomousVehicle3.addTask(new Task(0.1, new Pose[] {drawPoint20}, 1));
+        autonomousVehicle3.addTask(new Task("", 0, new Pose[] {orePass3}, 1));
+        autonomousVehicle3.addTask(new Task("", 0.1, new Pose[] {drawPoint20}, 1));
         autonomousVehicle3.loadPlans(PLANS_FOLDER_NAME + "A3.path");
 
         var serviceVehicle1 = new AutonomousVehicle("S1",1, Color.GREEN, 10.0, 1.0,
                 length, width, serviceWorkshop1, serviceSafetyDistance, 1, model);
-        serviceVehicle1.addTask(new Task(1.40, new Pose[] {serviceWorkshop2B}, 1));
-        serviceVehicle1.addTask(new Task(0.25, new Pose[] {serviceWorkshop1}, 1));
+        serviceVehicle1.addTask(new Task("", 1.40, new Pose[] {serviceWorkshop2B}, 1));
+        serviceVehicle1.addTask(new Task("", 0.25, new Pose[] {serviceWorkshop1}, 1));
 //        serviceVehicle1.generatePlans(planner);
 //        serviceVehicle1.savePlans(CLASS_NAME);
         serviceVehicle1.loadPlans(PLANS_FOLDER_NAME + "S1.path");

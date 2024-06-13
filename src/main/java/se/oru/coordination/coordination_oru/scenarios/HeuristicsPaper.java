@@ -66,28 +66,28 @@ public class HeuristicsPaper {
 
         var productionVehicle1 = new AutonomousVehicle("P1",1, Color.YELLOW, maxVelocity, maxAcceleration,
                 length, width, drawPoint1, productionSafetyDistance, 100, model);
-        productionVehicle1.addTask(new Task(0, new Pose[] {orePass}, 1));
-        productionVehicle1.addTask(new Task(0, new Pose[] {drawPoint1}, 0));
+        productionVehicle1.addTask(new Task("", 0, new Pose[] {orePass}, 1));
+        productionVehicle1.addTask(new Task("", 0, new Pose[] {drawPoint1}, 0));
 //        productionVehicle1.setGoals(new Pose[] {orePass, drawPoint1});
         var productionVehicle2 = new AutonomousVehicle("P2", 1, Color.YELLOW, maxVelocity, maxAcceleration,
                 length, width, drawPoint3, productionSafetyDistance, 100, model);
-        productionVehicle2.addTask(new Task(0, new Pose[] {orePass}, 1));
-        productionVehicle2.addTask(new Task(0, new Pose[] {drawPoint3}, 0));
+        productionVehicle2.addTask(new Task("", 0, new Pose[] {orePass}, 1));
+        productionVehicle2.addTask(new Task("", 0, new Pose[] {drawPoint3}, 0));
 //        productionVehicle2.setGoals(new Pose[] {orePass, drawPoint3});
         var productionVehicle3 = new AutonomousVehicle("P3", 1, Color.YELLOW, maxVelocity, maxAcceleration,
                 length, width, drawPoint5, productionSafetyDistance, 100, model);
 //        productionVehicle3.setGoals(new Pose[] {orePass, drawPoint5});
-        productionVehicle3.addTask(new Task(0, new Pose[] {orePass}, 1));
-        productionVehicle3.addTask(new Task(0, new Pose[] {drawPoint5}, 0));
+        productionVehicle3.addTask(new Task("", 0, new Pose[] {orePass}, 1));
+        productionVehicle3.addTask(new Task("", 0, new Pose[] {drawPoint5}, 0));
         var productionVehicle4 = new AutonomousVehicle("P4", 1, Color.YELLOW, maxVelocity, maxAcceleration,
                 length, width, drawPoint7, productionSafetyDistance, 100, model);
 //        productionVehicle4.setGoals(new Pose[] {orePass, drawPoint7});
-        productionVehicle4.addTask(new Task(0, new Pose[] {orePass}, 1));
-        productionVehicle4.addTask(new Task(0, new Pose[] {drawPoint7}, 0));
+        productionVehicle4.addTask(new Task("", 0, new Pose[] {orePass}, 1));
+        productionVehicle4.addTask(new Task("", 0, new Pose[] {drawPoint7}, 0));
         var serviceVehicle = new AutonomousVehicle("S", 0,  Color.GREEN, maxVelocity, maxAcceleration,
                 length, width, mainTunnelLeft, serviceSafetyDistance, 100, model);
-        serviceVehicle.addTask(new Task(0.25, new Pose[] {mainTunnelRight}, 0));
-        serviceVehicle.addTask(new Task(0.25, new Pose[] {mainTunnelLeft}, 0));
+        serviceVehicle.addTask(new Task("", 0.25, new Pose[] {mainTunnelRight}, 0));
+        serviceVehicle.addTask(new Task("", 0.25, new Pose[] {mainTunnelLeft}, 0));
 
         productionVehicle1.loadPlans(PLANS_FOLDER_NAME + "P1.path");
         productionVehicle2.loadPlans(PLANS_FOLDER_NAME + "P2.path");

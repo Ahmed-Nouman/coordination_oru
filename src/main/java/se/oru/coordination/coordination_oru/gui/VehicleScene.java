@@ -17,7 +17,7 @@ public class VehicleScene {
     private static final int PADDING = 10;
     private static final int MAP_WIDTH = 680;
     private static final int MAP_HEIGHT = 538;
-    private static final int TEXT_WIDTH = 300;
+    private static final int TEXT_WIDTH = 180;
     private TextField nameField;
     private TextField priorityField;
     private TextField lengthField;
@@ -37,7 +37,6 @@ public class VehicleScene {
     private final Button delete = new Button("Delete");
     private final Button down = new Button("↑");
     private final Button up = new Button("↓");
-    private final CheckBox computedPath = new CheckBox("Computed Path"); //FIXME: Maybe use a checkbox instead
     private ListView<String> tasks = new ListView<>();
     private final Button addVehicle = new Button("Add Vehicle");
     private final Button deleteVehicle = new Button("Delete Vehicle");
@@ -173,7 +172,7 @@ public class VehicleScene {
         var taskButtons = new HBox();
         taskButtons.setSpacing(5);
         taskButtons.setAlignment(Pos.CENTER);
-        taskButtons.getChildren().addAll(add, delete, down, up, computedPath);
+        taskButtons.getChildren().addAll(add, delete, down, up);
         taskField.setMaxWidth(TEXT_WIDTH);
         taskField.getChildren().addAll(tasks, taskButtons);
         taskController();
@@ -184,7 +183,6 @@ public class VehicleScene {
         delete.setOnAction(e -> controller.clickDelete());
         down.setOnAction(e -> controller.clickDown());
         up.setOnAction(e -> controller.clickUp());
-        computedPath.setOnAction(e -> controller.clickLoadPath());
         tasks.setOnMouseClicked(e -> {
             if (e.getClickCount() == 2) controller.doubleClickTask();
         });

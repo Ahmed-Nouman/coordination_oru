@@ -401,7 +401,7 @@ public class TrajectoryEnvelopeCoordinatorSimulation extends TrajectoryEnvelopeC
 				var autonomousVehicle = (AutonomousVehicle) vehicle;
 				if (autonomousVehicle.getPaths().isEmpty())
                     System.out.println(("No path available for vehicle " + autonomousVehicle.getID()));
-				this.placeRobot(autonomousVehicle.getID(), autonomousVehicle.getInitialPose());
+				this.placeRobot(autonomousVehicle.getID(), autonomousVehicle.getPaths().get(0)[0].getPose());
 			}
 		}
 	}

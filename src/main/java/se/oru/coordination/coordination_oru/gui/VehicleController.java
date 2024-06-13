@@ -239,14 +239,4 @@ public void clickDelete() {
         TaskDialog.edit(scene);
     }
 
-    public void clickLoadPath() {
-        var file = Utils.chooseFile(scene.getMain(), "Select a saved path for the vehicle: ", "path");
-        if (file != null) {
-            scene.getMain().getDataStatus().getProjectData().getVehicle(
-                    scene.getMain().getDataStatus().getProjectData().getVehicleID(
-                            scene.getVehicles().getSelectionModel().getSelectedItem(),
-                            scene.getMain().getDataStatus().getProjectData().getVehicles())
-            ).setPathFile(file.getAbsolutePath());
-        }
-    }
 }

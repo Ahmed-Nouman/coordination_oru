@@ -32,7 +32,7 @@ public class ProductionCycleDrilling {
         double reportingTime = 0.1;
         int simulationTime = 15;
         boolean visualization = true;
-        boolean writeVehicleReports = true;
+        boolean writeVehicleReports = false;
 
         final double productionMaxVelocity = 4.17 / scaleAdjustment;
         final double productionMaxAcceleration = 1.0 / scaleAdjustment;
@@ -81,38 +81,38 @@ public class ProductionCycleDrilling {
 
         var productionVehicle1 = new AutonomousVehicle("A1",1, Color.YELLOW, productionMaxVelocity, productionMaxAcceleration,
                 productionVehicleLength, productionVehicleWidth, drawPoint32, 5, 100, model);
-        productionVehicle1.addTask(new Task(0.1, new Pose[] {orePass1}, 1));
-        productionVehicle1.addTask(new Task(0.1, new Pose[] {drawPoint32}, 0));
+        productionVehicle1.addTask(new Task("", 0.1, new Pose[] {orePass1}, 1));
+        productionVehicle1.addTask(new Task("", 0.1, new Pose[] {drawPoint32}, 0));
 //        productionVehicle1.generatePlans(planner);
 //        productionVehicle1.savePlans(className);
         productionVehicle1.loadPlans(pathsFolderName + "A1.path");
 
         var productionVehicle2 = new AutonomousVehicle("A2",1, Color.YELLOW, productionMaxVelocity, productionMaxAcceleration,
                 productionVehicleLength, productionVehicleWidth, drawPoint12, 5, 100, model);
-        productionVehicle2.addTask(new Task(0.1, new Pose[] {orePass2}, 1));
-        productionVehicle2.addTask(new Task(0.1, new Pose[] {drawPoint12}, 0));
+        productionVehicle2.addTask(new Task("", 0.1, new Pose[] {orePass2}, 1));
+        productionVehicle2.addTask(new Task("", 0.1, new Pose[] {drawPoint12}, 0));
         productionVehicle2.loadPlans(pathsFolderName + "A2.path");
 
         var productionVehicle3 = new AutonomousVehicle("A3",1, Color.YELLOW, productionMaxVelocity, productionMaxAcceleration,
                 productionVehicleLength, productionVehicleWidth, drawPoint17, 5, 100, model);
-        productionVehicle3.addTask(new Task(0.1, new Pose[] {orePass3}, 1));
-        productionVehicle3.addTask(new Task(0.1, new Pose[] {drawPoint17}, 0));
+        productionVehicle3.addTask(new Task("", 0.1, new Pose[] {orePass3}, 1));
+        productionVehicle3.addTask(new Task("", 0.1, new Pose[] {drawPoint17}, 0));
         productionVehicle3.loadPlans(pathsFolderName + "A3.path");
 
         var productionVehicle4 = new AutonomousVehicle("A4",1, Color.YELLOW, productionMaxVelocity, productionMaxAcceleration,
                 productionVehicleLength, productionVehicleWidth, drawPoint21, 5, 100, model);
-        productionVehicle4.addTask(new Task(0.1, new Pose[] {orePass4}, 1));
-        productionVehicle4.addTask(new Task(0.1, new Pose[] {drawPoint21}, 0));
+        productionVehicle4.addTask(new Task("", 0.1, new Pose[] {orePass4}, 1));
+        productionVehicle4.addTask(new Task("", 0.1, new Pose[] {drawPoint21}, 0));
         productionVehicle4.loadPlans(pathsFolderName + "A4.path");
 
         var drillRig = new AutonomousVehicle("DR",1, Color.RED, drillRigMaxVelocity, drillRigMaxAcceleration,
                 drillRigLength, drillRigWidth, entrance, 0, 1, model);
-        drillRig.addTask(new Task(0.25, new Pose[] {barrierStart}, 1));
-        drillRig.addTask(new Task(0.25, new Pose[] {drawPoint25}, 1));
-        drillRig.addTask(new Task(0.25, new Pose[] {drawPoint26}, 0));
-        drillRig.addTask(new Task(0.25, new Pose[] {drawPoint28}, 0));
-        drillRig.addTask(new Task(0.25, new Pose[] {barrierEnd}, 0));
-        drillRig.addTask(new Task(0.25, new Pose[] {entrance}, 0));
+        drillRig.addTask(new Task("", 0.25, new Pose[] {barrierStart}, 1));
+        drillRig.addTask(new Task("", 0.25, new Pose[] {drawPoint25}, 1));
+        drillRig.addTask(new Task("", 0.25, new Pose[] {drawPoint26}, 0));
+        drillRig.addTask(new Task("", 0.25, new Pose[] {drawPoint28}, 0));
+        drillRig.addTask(new Task("", 0.25, new Pose[] {barrierEnd}, 0));
+        drillRig.addTask(new Task("", 0.25, new Pose[] {entrance}, 0));
         drillRig.loadPlans(pathsFolderName + "DR.path");
 
         tec.setupSolver(0, 100000000);

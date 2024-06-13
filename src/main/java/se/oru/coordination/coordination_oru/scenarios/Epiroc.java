@@ -93,80 +93,80 @@ public class Epiroc {
 
         var loader1 = new AutonomousVehicle("L1",1, Color.YELLOW, loaderMaxVelocity, loaderMaxAcceleration,
                 loaderLength, loaderWidth, drawPoint6, safetyDistance, 20, model);
-        loader1.addTask(new Task(0, new Pose[] {orePass2}, 1));
-        loader1.addTask(new Task(0, new Pose[] {drawPoint6}, 1));
+        loader1.addTask(new Task("", 0, new Pose[] {orePass2}, 1));
+        loader1.addTask(new Task("", 0, new Pose[] {drawPoint6}, 1));
 //        loader1.generatePlans(planner);
 //        loader1.savePlans(CLASS_NAME);
         loader1.loadPlans(PLANS_FOLDER_NAME + "L1.path");
 
         var loader2 = new AutonomousVehicle("L2",1, Color.YELLOW, loaderMaxVelocity, loaderMaxAcceleration,
                 loaderLength, loaderWidth, drawPoint32, safetyDistance, 50, model);
-        loader2.addTask(new Task(0, new Pose[] {orePass2}, 1));
-        loader2.addTask(new Task(0, new Pose[] {drawPoint32}, 1));
+        loader2.addTask(new Task("", 0, new Pose[] {orePass2}, 1));
+        loader2.addTask(new Task("", 0, new Pose[] {drawPoint32}, 1));
 //        loader2.generatePlans(planner);
 //        loader2.savePlans(CLASS_NAME);
         loader2.loadPlans(PLANS_FOLDER_NAME + "L2.path");
 
         var loader3 = new AutonomousVehicle("L3",1, Color.YELLOW, loaderMaxVelocity, loaderMaxAcceleration,
                 loaderLength, loaderWidth, drawPoint30, safetyDistance, 35, model);
-        loader3.addTask(new Task(0, new Pose[] {orePass1}, 1));
-        loader3.addTask(new Task(0, new Pose[] {drawPoint30}, 1));
+        loader3.addTask(new Task("", 0, new Pose[] {orePass1}, 1));
+        loader3.addTask(new Task("", 0, new Pose[] {drawPoint30}, 1));
 //        loader3.generatePlans(planner);
 //        loader3.savePlans(CLASS_NAME);
         loader3.loadPlans(PLANS_FOLDER_NAME + "L3.path");
 
         var loader4 = new AutonomousVehicle("L4",1, Color.YELLOW, loaderMaxVelocity, loaderMaxAcceleration,
                 loaderLength, loaderWidth, drawPoint27, safetyDistance, 25, model);
-        loader4.addTask(new Task(0, new Pose[] {orePass1}, 1));
-        loader4.addTask(new Task(0, new Pose[] {drawPoint27}, 1));
+        loader4.addTask(new Task("", 0, new Pose[] {orePass1}, 1));
+        loader4.addTask(new Task("", 0, new Pose[] {drawPoint27}, 1));
 //        loader4.generatePlans(planner);
 //        loader4.savePlans(CLASS_NAME);
         loader4.loadPlans(PLANS_FOLDER_NAME + "L4.path");
 
         var drillRig1 = new AutonomousVehicle("DR1",1, Color.GREEN, drillRigMaxVelocity, drillRigMaxAcceleration,
                 drillRigLength, drillRigWidth, orePass4, safetyDistance, 1, model);
-        drillRig1.addTask(new Task(0.25, new Pose[] {drawPoint8}, 1));
-        drillRig1.addTask(new Task(0.25, new Pose[] {orePass4}, 1));
+        drillRig1.addTask(new Task("", 0.25, new Pose[] {drawPoint8}, 1));
+        drillRig1.addTask(new Task("", 0.25, new Pose[] {orePass4}, 1));
 //        drillRig1.generatePlans(planner);
 //        drillRig1.savePlans(CLASS_NAME);
         drillRig1.loadPlans(PLANS_FOLDER_NAME + "DR1.path");
 
         var drillRig2 = new AutonomousVehicle("DR2",1, Color.GREEN, drillRigMaxVelocity, drillRigMaxAcceleration,
                 drillRigLength, drillRigWidth, drawPoint24, safetyDistance, 1, model);
-        drillRig2.addTask(new Task(0.25, new Pose[] {drawPoint18}, 1));
-        drillRig2.addTask(new Task(0.25, new Pose[] {drawPoint24}, 1));
+        drillRig2.addTask(new Task("", 0.25, new Pose[] {drawPoint18}, 1));
+        drillRig2.addTask(new Task("", 0.25, new Pose[] {drawPoint24}, 1));
 //        drillRig2.generatePlans(planner);
 //        drillRig2.savePlans(CLASS_NAME);
         drillRig2.loadPlans(PLANS_FOLDER_NAME + "DR2.path");
 
         var drillRig3 = new AutonomousVehicle("DR3",1, Color.GREEN, drillRigMaxVelocity, drillRigMaxAcceleration,
                 drillRigLength, drillRigWidth, entrance, safetyDistance, 1, model);
-        drillRig3.addTask(new Task(0.25, new Pose[] {drawPoint37}, 1));
-        drillRig3.addTask(new Task(0.25, new Pose[] {entrance}, 1));
+        drillRig3.addTask(new Task("", 0.25, new Pose[] {drawPoint37}, 1));
+        drillRig3.addTask(new Task("", 0.25, new Pose[] {entrance}, 1));
 //        drillRig3.generatePlans(planner);
 //        drillRig3.savePlans(CLASS_NAME);
         drillRig3.loadPlans(PLANS_FOLDER_NAME + "DR3.path");
 
         var serviceVehicle1 = new AutonomousVehicle("S1",1, Color.BLUE, serviceVehicleMaxVelocity, serviceVehicleMaxAcceleration,
                 serviceVehicleLength, serviceVehicleWidth, serviceWorkshop1, safetyDistance, 1, model);
-        serviceVehicle1.addTask(new Task(0.25, new Pose[] {drawPoint34}, 1));
-        serviceVehicle1.addTask(new Task(0.25, new Pose[] {serviceWorkshop1}, 1));
+        serviceVehicle1.addTask(new Task("", 0.25, new Pose[] {drawPoint34}, 1));
+        serviceVehicle1.addTask(new Task("", 0.25, new Pose[] {serviceWorkshop1}, 1));
 //        serviceVehicle1.generatePlans(planner);
 //        serviceVehicle1.savePlans(CLASS_NAME);
         serviceVehicle1.loadPlans(PLANS_FOLDER_NAME + "S1.path");
 
         var serviceVehicle2 = new AutonomousVehicle("S2",1, Color.BLUE, serviceVehicleMaxVelocity, serviceVehicleMaxAcceleration,
                 serviceVehicleLength, serviceVehicleWidth, serviceWorkshop2, safetyDistance, 1, model);
-        serviceVehicle2.addTask(new Task(0.25, new Pose[] {drawPoint32A}, 1));
-        serviceVehicle2.addTask(new Task(0.25, new Pose[] {serviceWorkshop2}, 1));
+        serviceVehicle2.addTask(new Task("", 0.25, new Pose[] {drawPoint32A}, 1));
+        serviceVehicle2.addTask(new Task("", 0.25, new Pose[] {serviceWorkshop2}, 1));
 //        serviceVehicle2.generatePlans(planner);
 //        serviceVehicle2.savePlans(CLASS_NAME);
         serviceVehicle2.loadPlans(PLANS_FOLDER_NAME + "S2.path");
 
         var mineTruck = new AutonomousVehicle("MT1",1, Color.RED, mineTRuckMaxVelocity, mineTruckMaxAcceleration,
                 mineTruckLength, mineTruckWidth, drawPoint38, safetyDistance, 1, model);
-        mineTruck.addTask(new Task(0.25, new Pose[] {orePass3}, 1));
-        mineTruck.addTask(new Task(0, new Pose[] {drawPoint38}, 1));
+        mineTruck.addTask(new Task("", 0.25, new Pose[] {orePass3}, 1));
+        mineTruck.addTask(new Task("", 0, new Pose[] {drawPoint38}, 1));
 //        mineTruck.generatePlans(planner);
 //        mineTruck.savePlans(CLASS_NAME);
         mineTruck.loadPlans(PLANS_FOLDER_NAME + "MT1.path");

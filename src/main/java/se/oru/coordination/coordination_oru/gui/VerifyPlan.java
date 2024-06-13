@@ -17,6 +17,8 @@ import se.oru.coordination.coordination_oru.vehicles.AbstractVehicle;
 import se.oru.coordination.coordination_oru.vehicles.AutonomousVehicle;
 import se.oru.coordination.coordination_oru.vehicles.LookAheadVehicle;
 
+import java.util.Arrays;
+
 public class VerifyPlan {
     public static final int WIDTH = 250;
     public static final int SPACING = 20;
@@ -68,11 +70,19 @@ public class VerifyPlan {
                             vehicle.getSafetyDistance() / scaleAdjustment,
                             vehicle.getTaskRepetition(), model);
 
-                    newVehicle.setGoals(vehicle.getTask()
-                            .stream()
-                            .map(ProjectData.TaskStep::getPoseName)
-                            .map(poseName -> navigationController.getMain().getDataStatus().getProjectData().getPose(poseName))
-                            .toArray(Pose[]::new));
+                    for (var task : vehicle.getTask()) {
+                        var poses = Arrays.stream(task.getPoseName().split(" -> "))
+                                .map(poseName -> navigationController.getMain().getDataStatus().getProjectData().getPose(poseName.trim()))
+                                .toArray(Pose[]::new);
+                        newVehicle.addTask(new se.oru.coordination.coordination_oru.utils.Task(task.getTaskName(), task.getDuration(), poses, task.getPriority()));
+                    }
+//                    newVehicle.setGoals(vehicle.getTask()
+//                            .stream()
+//                            .map(ProjectData.TaskStep::getPoseName)
+//                            .flatMap(poseName -> Arrays.stream(poseName.split(" -> ")))
+//                            .map(pose -> navigationController.getMain().getDataStatus().getProjectData().getPose(pose.trim()))
+//                            .toArray(Pose[]::new));
+
 //            newVehicle.setMission(vehicle.getMission()); //FIXME Fix Mission, How to handle multiple missions to GoalPoses, handle stoppages
 //                    if (newVehicle.getTasks().get(0).getPriority() != 0) {
                     if (!newVehicle.getTasks().get(0).isEmpty()) newVehicle.generatePlans(planner);

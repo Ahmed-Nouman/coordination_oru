@@ -76,24 +76,24 @@ public class ProductionCycleVehiclePassing {
 
         var productionVehicle1 = new AutonomousVehicle("A1",1, Color.YELLOW, productionMaxVelocity, productionMaxAcceleration,
                 productionVehicleLength, productionVehicleWidth, drawPoint30, 5, 20, model);
-        productionVehicle1.addTask(new Task(0.1, new Pose[] {orePass1}, 1));
-        productionVehicle1.addTask(new Task(0.1, new Pose[] {drawPoint30}, 0));
+        productionVehicle1.addTask(new Task("", 0.1, new Pose[] {orePass1}, 1));
+        productionVehicle1.addTask(new Task("", 0.1, new Pose[] {drawPoint30}, 0));
         var productionVehicle2 = new AutonomousVehicle("A2", 1, Color.YELLOW, productionMaxVelocity, productionMaxAcceleration,
                 productionVehicleLength, productionVehicleWidth, drawPoint32A, 5, 20, model);
-        productionVehicle2.addTask(new Task(0.1, new Pose[] {orePass2}, 1));
-        productionVehicle2.addTask(new Task(0.1, new Pose[] {drawPoint32A}, 0));
+        productionVehicle2.addTask(new Task("", 0.1, new Pose[] {orePass2}, 1));
+        productionVehicle2.addTask(new Task("", 0.1, new Pose[] {drawPoint32A}, 0));
         var productionVehicle3 = new AutonomousVehicle("A3", 1, Color.YELLOW, productionMaxVelocity, productionMaxAcceleration,
                 productionVehicleLength, productionVehicleWidth, drawPoint12, 5, 20, model);
-        productionVehicle3.addTask(new Task(0.1, new Pose[] {parking}, 1));
-        productionVehicle3.addTask(new Task(0.1, new Pose[] {drawPoint12}, 0));
+        productionVehicle3.addTask(new Task("", 0.1, new Pose[] {parking}, 1));
+        productionVehicle3.addTask(new Task("", 0.1, new Pose[] {drawPoint12}, 0));
         var serviceVehicle = new AutonomousVehicle("S", 2,  Color.GREEN, serviceVehicleMaxVelocity, serviceVehicleMaxAcceleration,
                 serviceVehicleLength, serviceVehicleWidth, entrance, 5, 1, model);
-        serviceVehicle.addTask(new Task(0.75, new Pose[] {barrier2End}, 0));
-        serviceVehicle.addTask(new Task(0.75, new Pose[] {barrier1End}, 0));
-        serviceVehicle.addTask(new Task(0.25, new Pose[] {mainTunnelLeft}, 0));
-        serviceVehicle.addTask(new Task(0.50, new Pose[] {barrier1Start}, 0));
-        serviceVehicle.addTask(new Task(0.25, new Pose[] {barrier2Start}, 0));
-        serviceVehicle.addTask(new Task(0.25, new Pose[] {entrance}, 0));
+        serviceVehicle.addTask(new Task("", 0.75, new Pose[] {barrier2End}, 0));
+        serviceVehicle.addTask(new Task("", 0.75, new Pose[] {barrier1End}, 0));
+        serviceVehicle.addTask(new Task("", 0.25, new Pose[] {mainTunnelLeft}, 0));
+        serviceVehicle.addTask(new Task("", 0.50, new Pose[] {barrier1Start}, 0));
+        serviceVehicle.addTask(new Task("", 0.25, new Pose[] {barrier2Start}, 0));
+        serviceVehicle.addTask(new Task("", 0.25, new Pose[] {entrance}, 0));
 
         productionVehicle1.loadPlans(folderName + "A1.path");
         productionVehicle2.loadPlans(folderName + "A2.path");
