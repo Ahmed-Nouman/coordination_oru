@@ -52,7 +52,7 @@ public abstract class AbstractVehicle {
     private Color color;
     private Pose initialPose;
     private final List<Task> tasks = new ArrayList<>();
-    private final int missionRepetition;
+    private final int goalRepetition;
     private final double safetyDistance;
     private int safetyPathPoints;
     private PoseSteering[] path; //FIXME:should be removed later
@@ -61,7 +61,7 @@ public abstract class AbstractVehicle {
     private int currentTaskIndex = -1;
     private final ForwardModel forwardModel;
     public AbstractVehicle(int ID, String name, int priority, Color color, double maxVelocity, double maxAcceleration,
-                           double length, double width, Pose initialPose, double safetyDistance, int missionRepetition, ForwardModel model) {
+                           double length, double width, Pose initialPose, double safetyDistance, int goalRepetition, ForwardModel model) {
         this.ID = ID;
         this.name = name;
         this.priority = priority;
@@ -72,7 +72,7 @@ public abstract class AbstractVehicle {
         this.width = width;
         this.initialPose = initialPose;
         this.safetyDistance = safetyDistance;
-        this.missionRepetition = missionRepetition;
+        this.goalRepetition = goalRepetition;
         this.footprint = makeFootprint(length, width);
         this.forwardModel = model;
 
@@ -341,8 +341,8 @@ public abstract class AbstractVehicle {
         return pathLength;
     }
 
-    public int getMissionRepetition() {
-        return missionRepetition;
+    public int getGoalRepetition() {
+        return goalRepetition;
     }
 
     public int getSafetyPathPoints() {
@@ -362,16 +362,22 @@ public abstract class AbstractVehicle {
         return tasks;
     }
 
+    public void addTask(Task task, int repeat) {
+        for (int i = 0; i < repeat; i++) {
+            this.tasks.add(new Task(task.getName(), task.getTimeInMinutes(), task.getPoses(), task.getPriority()));
+        }
+    }
+
+    public void addTask(Task task) {
+        addTask(task, 1);
+    }
+
     public void setGoals(Pose goalPose) {
     this.tasks.add(new Task("", 0.0, new Pose[] {goalPose}, 0));
     }
 
     public void setGoals(Pose[] goalPoses) {
         this.tasks.add(new Task("", 0.0, goalPoses, 0));
-    }
-
-    public void addTask(Task task) {
-        this.tasks.add(task);
     }
 
     public List<PoseSteering[]> getPaths() {

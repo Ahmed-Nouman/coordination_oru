@@ -2,7 +2,6 @@ package se.oru.coordination.coordination_oru.gui;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.metacsp.multi.spatioTemporal.paths.Pose;
-import org.metacsp.multi.spatioTemporal.paths.PoseSteering;
 
 import java.io.Serializable;
 import java.util.*;
@@ -76,6 +75,15 @@ public class ProjectData implements Serializable {
         }
         return -1;
     }
+
+    public List<String> getVehicleNames() {
+        List<String> vehicleNames = new ArrayList<>();
+        for (Vehicle vehicle : vehicles) {
+            vehicleNames.add(vehicle.getName());
+        }
+        return vehicleNames;
+    }
+
 
     public void addVehicle(Vehicle vehicle) {
         this.vehicles.add(vehicle);
@@ -236,7 +244,7 @@ public class ProjectData implements Serializable {
             this.initialPose = initialPose;
         }
 
-        public List<TaskStep> getTask() {
+        public List<TaskStep> getTasks() {
             return task;
         }
 
@@ -244,7 +252,7 @@ public class ProjectData implements Serializable {
             this.task = task;
         }
 
-        public int getTaskRepetition() {
+        public int getTasksRepetition() {
             return taskRepetition;
         }
 
@@ -283,11 +291,12 @@ public class ProjectData implements Serializable {
     }
 
     // Inner class to represent a task step
-    public static class TaskStep implements Serializable{
+    public static class TaskStep implements Serializable {
         private String taskName;
         private String poseName;
         private double duration; // in minutes
         private int priority;
+        private int repetition;
 
         public String getTaskName() {
             return taskName;
@@ -321,9 +330,17 @@ public class ProjectData implements Serializable {
             this.priority = priority;
         }
 
+        public int getRepetition() {
+            return repetition;
+        }
+
+        public void setRepetition(int repetition) {
+            this.repetition = repetition;
+        }
+
         @Override
         public String toString() {
-            return taskName + " (" + poseName + ", " + duration + ", " + priority + ")";
+            return taskName + " (" + poseName + ", " + duration + ", " + priority + ", " + repetition + ")";
         }
 
         @Override
@@ -331,12 +348,17 @@ public class ProjectData implements Serializable {
             if (this == o) return true;
             if (o == null || getClass() != o.getClass()) return false;
             TaskStep that = (TaskStep) o;
-            return Double.compare(duration, that.duration) == 0 && Objects.equals(poseName, that.poseName);
+            return Double.compare(duration, that.duration) == 0 &&
+                    priority == that.priority &&
+                    repetition == that.repetition &&
+                    Objects.equals(taskName, that.taskName) &&
+                    Objects.equals(poseName, that.poseName);
         }
 
         @Override
         public int hashCode() {
-            return Objects.hash(poseName, duration);
+            return Objects.hash(taskName, poseName, duration, priority, repetition);
         }
     }
+
 }

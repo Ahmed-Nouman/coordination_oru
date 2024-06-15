@@ -43,7 +43,7 @@ public class MenuBar {
                 saveProject.setDisable(true);
                 runProject.setDisable(true);
                 break;
-            case EXPERIMENT:
+            case SETUP:
                 newProject.setDisable(true);
                 openProject.setDisable(true);
                 break;

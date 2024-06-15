@@ -15,7 +15,6 @@ import se.oru.coordination.coordination_oru.coordinator.TrajectoryEnvelopeCoordi
 import se.oru.coordination.coordination_oru.motionPlanning.AbstractMotionPlanner;
 import se.oru.coordination.coordination_oru.vehicles.AbstractVehicle;
 import se.oru.coordination.coordination_oru.vehicles.AutonomousVehicle;
-import se.oru.coordination.coordination_oru.vehicles.HumanVehicle;
 import se.oru.coordination.coordination_oru.vehicles.VehiclesHashMap;
 
 import javax.imageio.ImageIO;
@@ -874,7 +873,7 @@ public class Missions {
 				@Override
 				public void run() {
 					if (!Thread.currentThread().isInterrupted()) {
-						int totalMissionsToExecute = Missions.getMissions(robotID).size() * VehiclesHashMap.getVehicle(robotID).getMissionRepetition();
+						int totalMissionsToExecute = Missions.getMissions(robotID).size() * VehiclesHashMap.getVehicle(robotID).getGoalRepetition();
 
 						if (iteration < totalMissionsToExecute) {
 							int missionIndex = iteration % Missions.getMissions(robotID).size();

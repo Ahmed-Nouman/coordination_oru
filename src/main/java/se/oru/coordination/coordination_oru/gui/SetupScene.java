@@ -18,6 +18,7 @@ public class SetupScene {
     private static final int PADDING = 30;
     private static final int SPACING = 10;
     public static final int WIDTH = 220;
+
     private Text pathPlanner;
     private ChoiceBox<String> pathPlannerField;
     private Text priorityRule;
@@ -32,6 +33,7 @@ public class SetupScene {
     private Text reportLocationField;
     private Text saveReport;
     private CheckBox saveReportField;
+
     private BorderPane pane;
     private final Main main;
     private final SetupController controller = new SetupController(this);
@@ -42,18 +44,18 @@ public class SetupScene {
 
     public Scene get() {
         pane = new BorderPane();
+        centerPane();
         menuBar();
         navigationBar();
-        centerPane();
         return new Scene(pane);
     }
 
     private void menuBar() {
-        pane.setTop(MenuBar.update(main, SceneState.EXPERIMENT));
+        pane.setTop(MenuBar.update(main, SceneState.SETUP));
     }
 
     private void navigationBar() {
-        pane.setBottom(NavigationBar.getBar(main, SceneState.EXPERIMENT));
+        pane.setBottom(NavigationBar.getBar(main, SceneState.SETUP));
     }
 
     private void centerPane() {

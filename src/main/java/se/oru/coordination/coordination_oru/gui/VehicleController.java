@@ -197,7 +197,7 @@ public void clickDelete() {
     if (vehicle != null) {
         var index = scene.getTasks().getSelectionModel().getSelectedIndex();
         scene.getTasks().getItems().remove(index);
-        vehicle.getTask().remove(index);
+        vehicle.getTasks().remove(index);
         }
     }
 
@@ -213,7 +213,7 @@ public void clickDelete() {
             scene.getTasks().getItems().add(index - 1, itemToMove);
             scene.getTasks().getSelectionModel().select(index - 1);
             if (vehicle != null) {
-                var taskSteps = vehicle.getTask();
+                var taskSteps = vehicle.getTasks();
                 var taskStep = taskSteps.remove(index);
                 taskSteps.add(index - 1, taskStep);
             }
@@ -228,7 +228,7 @@ public void clickDelete() {
             scene.getTasks().getItems().add(index + 1, itemToMove);
             scene.getTasks().getSelectionModel().select(index + 1);
             if (vehicle != null) {
-                var missionSteps = vehicle.getTask();
+                var missionSteps = vehicle.getTasks();
                 var missionStep = missionSteps.remove(index);
                 missionSteps.add(index + 1, missionStep);
             }

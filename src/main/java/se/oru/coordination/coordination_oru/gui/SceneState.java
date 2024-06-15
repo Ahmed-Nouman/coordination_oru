@@ -56,15 +56,15 @@ public enum SceneState implements SceneUpdater {
 
         @Override
         public SceneState getNextState() {
-            return EXPERIMENT;
+            return COORDINATION;
         }
 
     },
-    EXPERIMENT {
+    COORDINATION {
         @Override
         public void update(Main main) {
-            main.getPrimaryStage().setTitle("Coordination_ORU: Setting up the simulation");
-            main.getPrimaryStage().setScene(main.getSetupScene().get());
+            main.getPrimaryStage().setTitle("Coordination_ORU: Coordination control strategies");
+            main.getPrimaryStage().setScene(main.getCoordinationScene().get());
             main.getPrimaryStage().centerOnScreen();
         }
 
@@ -75,8 +75,25 @@ public enum SceneState implements SceneUpdater {
 
         @Override
         public SceneState getNextState() {
-            return null;
+            return SETUP;
+        }
+    },
+    SETUP {
+        @Override
+        public void update(Main main) {
+            main.getPrimaryStage().setTitle("Coordination_ORU: Setting up the simulation");
+            main.getPrimaryStage().setScene(main.getSetupScene().get());
+            main.getPrimaryStage().centerOnScreen();
         }
 
-    };
+        @Override
+        public SceneState getBackState() {
+            return COORDINATION;
+        }
+
+        @Override
+        public SceneState getNextState() {
+            return null;
+        }
+    }
 }

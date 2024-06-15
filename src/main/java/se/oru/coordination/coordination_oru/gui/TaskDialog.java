@@ -23,6 +23,7 @@ public class TaskDialog {
     private static ListView<String> locationField = new ListView<>();
     private static TextField durationField = new TextField();
     private static TextField priorityField = new TextField();
+    private static TextField repetitionField = new TextField(); // New field for repetition
     private static Button ok = new Button();
     private static int editIndex = -1;
 
@@ -31,7 +32,7 @@ public class TaskDialog {
         var taskStep = taskStep(scene);
         taskStep.ifPresent(step -> {
             var vehicle = getVehicle(scene);
-            var taskSteps = vehicle.getTask();
+            var taskSteps = vehicle.getTasks();
             taskSteps.add(step);
         });
     }
@@ -42,7 +43,7 @@ public class TaskDialog {
         var taskStep = taskStep(scene);
         taskStep.ifPresent(step -> {
             var vehicle = getVehicle(scene);
-            var taskSteps = vehicle.getTask();
+            var taskSteps = vehicle.getTasks();
             taskSteps.set(editIndex, step);
         });
     }
@@ -85,9 +86,12 @@ public class TaskDialog {
         priorityField = new TextField();
         priorityField.setPrefWidth(WIDTH);
 
+        repetitionField = new TextField();
+        repetitionField.setPrefWidth(WIDTH);
+
         if (isEdit) {
             var selectedTask = scene.getTasks().getSelectionModel().getSelectedItem();
-            var pattern = Pattern.compile("^(.*?) \\((.*?), (.*?), (.*?)\\)$");
+            var pattern = Pattern.compile("^(.*?) \\((.*?), (.*?), (.*?), (.*?)\\)$");
             var matcher = pattern.matcher(selectedTask);
 
             if (matcher.matches()) {
@@ -96,6 +100,7 @@ public class TaskDialog {
                 locationField.getItems().setAll(selectedPoses);  // Show only the selected poses
                 durationField.setText(matcher.group(3).trim());
                 priorityField.setText(matcher.group(4).trim());
+                repetitionField.setText(matcher.group(5).trim());
             }
         }
 
@@ -116,42 +121,85 @@ public class TaskDialog {
         pane.add(vbox, 1, 2);
         pane.add(new Text("Priority: "), 0, 3);
         pane.add(priorityField, 1, 3);
+        pane.add(new Text("Repeat: "), 0, 4);  // New field for repetition
+        pane.add(repetitionField, 1, 4);
 
         dialog.getDialogPane().setContent(pane);
     }
 
     private static VBox selectPose(VehicleScene scene) {
-        Button addButton = new Button("Add Pose");
+        var addButton = getAddButton(scene);
+        var deleteButton = getDeleteButton();
+        var upButton = getUpButton();
+        var downButton = getDownButton();
+
+        HBox buttonBox = new HBox(10, addButton, deleteButton, upButton, downButton);
+        return new VBox(10, locationField, buttonBox);
+    }
+
+    private static Button getAddButton(VehicleScene scene) {
+        var addButton = new Button("Add Pose");
         addButton.setOnAction(e -> {
             var randomPose = getRandomPose(scene);
             locationField.getItems().add(randomPose);
         });
+        return addButton;
+    }
 
-        Button deleteButton = new Button("Delete Pose");
+    private static Button getDeleteButton() {
+        var deleteButton = new Button("Delete Pose");
         deleteButton.setOnAction(e -> {
             int selectedIdx = locationField.getSelectionModel().getSelectedIndex();
             if (selectedIdx >= 0) {
                 locationField.getItems().remove(selectedIdx);
             }
         });
+        return deleteButton;
+    }
 
-        HBox buttonBox = new HBox(10, addButton, deleteButton);
-        return new VBox(10, locationField, buttonBox);
+    private static Button getUpButton() {
+        var upButton = new Button("↑");
+        upButton.setOnAction(e -> {
+            int selectedIdx = locationField.getSelectionModel().getSelectedIndex();
+            if (selectedIdx > 0) {
+                String pose = locationField.getItems().remove(selectedIdx);
+                locationField.getItems().add(selectedIdx - 1, pose);
+                locationField.getSelectionModel().select(selectedIdx - 1);
+            }
+        });
+        return upButton;
+    }
+
+    private static Button getDownButton() {
+        var downButton = new Button("↓");
+        downButton.setOnAction(e -> {
+            int selectedIdx = locationField.getSelectionModel().getSelectedIndex();
+            if (selectedIdx < locationField.getItems().size() - 1) {
+                String pose = locationField.getItems().remove(selectedIdx);
+                locationField.getItems().add(selectedIdx + 1, pose);
+                locationField.getSelectionModel().select(selectedIdx + 1);
+            }
+        });
+        return downButton;
     }
 
     private static void controller() {
         durationField.textProperty().addListener((observable, oldValue, newValue) -> {
-            ok.setDisable(!validateDouble(durationField) || !validateInteger(priorityField));
+            ok.setDisable(!validateDouble(durationField) || !validateInteger(priorityField) || !validateInteger(repetitionField));
         });
 
         priorityField.textProperty().addListener((observable, oldValue, newValue) -> {
-            ok.setDisable(!validateDouble(durationField) || !validateInteger(priorityField));
+            ok.setDisable(!validateDouble(durationField) || !validateInteger(priorityField) || !validateInteger(repetitionField));
+        });
+
+        repetitionField.textProperty().addListener((observable, oldValue, newValue) -> {
+            ok.setDisable(!validateInteger(repetitionField));
         });
     }
 
     private static Optional<TaskStep> dialogResult(VehicleScene scene, Dialog<TaskStep> dialog, ButtonType buttonType) {
         dialog.setResultConverter(dialogButton -> {
-            if (dialogButton == buttonType && validateDouble(durationField) && validateInteger(priorityField)) {
+            if (dialogButton == buttonType && validateDouble(durationField) && validateInteger(priorityField) && validateInteger(repetitionField)) {
                 var taskStep = new TaskStep();
                 taskStep.setTaskName(nameField.getText());
                 var selectedPoses = locationField.getItems();
@@ -159,6 +207,7 @@ public class TaskDialog {
                 taskStep.setPoseName(poses);
                 taskStep.setDuration(Double.parseDouble(durationField.getText()));
                 taskStep.setPriority(Integer.parseInt(priorityField.getText()));
+                taskStep.setRepetition(Integer.parseInt(repetitionField.getText()));
                 return taskStep;
             }
             return null;
@@ -177,7 +226,7 @@ public class TaskDialog {
     }
 
     private static String formatTaskStep(TaskStep taskStep) {
-        return taskStep.getTaskName() + " (" + taskStep.getPoseName() + ", " + taskStep.getDuration() + ", " + taskStep.getPriority() + ")";
+        return taskStep.getTaskName() + " (" + taskStep.getPoseName() + ", " + taskStep.getDuration() + ", " + taskStep.getPriority() + ", " + taskStep.getRepetition() + ")";
     }
 
     private static void showPoseSelectionDialog(VehicleScene scene, String selectedPose) {

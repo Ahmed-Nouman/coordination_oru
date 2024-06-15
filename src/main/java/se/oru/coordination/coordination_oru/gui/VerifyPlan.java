@@ -57,7 +57,7 @@ public class VerifyPlan {
                                 vehicle.getWidth() / scaleAdjustment,
                                 navigationController.getMain().getDataStatus().getProjectData().getPose(vehicle.getInitialPose()),
                                 vehicle.getSafetyDistance() / scaleAdjustment,
-                                vehicle.getTaskRepetition(), model);
+                                vehicle.getTasksRepetition(), model);
                     else newVehicle = new AutonomousVehicle(vehicle.getID(),
                             vehicle.getName(),
                             vehicle.getPriority(),
@@ -68,25 +68,15 @@ public class VerifyPlan {
                             vehicle.getWidth() / scaleAdjustment,
                             navigationController.getMain().getDataStatus().getProjectData().getPose(vehicle.getInitialPose()),
                             vehicle.getSafetyDistance() / scaleAdjustment,
-                            vehicle.getTaskRepetition(), model);
+                            vehicle.getTasksRepetition(), model);
 
-                    for (var task : vehicle.getTask()) {
+                    for (var task : vehicle.getTasks()) {
                         var poses = Arrays.stream(task.getPoseName().split(" -> "))
                                 .map(poseName -> navigationController.getMain().getDataStatus().getProjectData().getPose(poseName.trim()))
                                 .toArray(Pose[]::new);
-                        newVehicle.addTask(new se.oru.coordination.coordination_oru.utils.Task(task.getTaskName(), task.getDuration(), poses, task.getPriority()));
+                        newVehicle.addTask(new se.oru.coordination.coordination_oru.utils.Task(task.getTaskName(), task.getDuration(), poses, task.getPriority()), task.getRepetition());
                     }
-//                    newVehicle.setGoals(vehicle.getTask()
-//                            .stream()
-//                            .map(ProjectData.TaskStep::getPoseName)
-//                            .flatMap(poseName -> Arrays.stream(poseName.split(" -> ")))
-//                            .map(pose -> navigationController.getMain().getDataStatus().getProjectData().getPose(pose.trim()))
-//                            .toArray(Pose[]::new));
-
-//            newVehicle.setMission(vehicle.getMission()); //FIXME Fix Mission, How to handle multiple missions to GoalPoses, handle stoppages
-//                    if (newVehicle.getTasks().get(0).getPriority() != 0) {
                     if (!newVehicle.getTasks().get(0).isEmpty()) newVehicle.generatePlans(planner);
-//                    }
 //                    newVehicle.savePlans(className);  //FIXME: Do I need savePlans() option in GUI?
 //                    newVehicle.setPlanningAlgorithm(controllerNavigation.getMain().getDataStatus().getPathPlanner()); //FIXME: HARD CODED
 
@@ -132,6 +122,6 @@ public class VerifyPlan {
 
     public void updateNavigationBar() {
         navigationController.getMain().getDataStatus().setPlansVerified(true);
-        navigationController.getMain().getSetupScene().getPane().setBottom(NavigationBar.getBar(navigationController.getMain(), SceneState.EXPERIMENT));
+        navigationController.getMain().getSetupScene().getPane().setBottom(NavigationBar.getBar(navigationController.getMain(), SceneState.SETUP));
     }
 }

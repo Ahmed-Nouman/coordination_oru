@@ -7,13 +7,14 @@ public class Main extends Application {
 
     private Stage primaryStage;
     private final DataStatus dataStatus = new DataStatus();
+
     private final HomeScene homeScene = new HomeScene(this);
     private final MapScene mapScene = new MapScene(this);
     private final VehicleScene vehicleScene = new VehicleScene(this);
-    //TODO: Add the coordination scene
+    private final CoordinationScene coordinationScene = new CoordinationScene(this);
     private final SetupScene setupScene = new SetupScene(this);
-    public final NavigationController navigationController = new NavigationController(this);
 
+    public final NavigationController navigationController = new NavigationController(this);
     public static void main(String[] args) {
         launch(args);
     }
@@ -54,6 +55,10 @@ public class Main extends Application {
 
     public VehicleScene getVehicleScene() {
         return vehicleScene;
+    }
+
+    public CoordinationScene getCoordinationScene() {
+        return coordinationScene;
     }
 
     public SetupScene getSetupScene() {

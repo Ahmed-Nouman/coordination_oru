@@ -19,6 +19,9 @@ import java.util.function.Function;
 
 public class ProductionCycleVehiclePassing {
 
+    public static final double OPERATING_TIME = 5.0;
+    public static final double SAFETY_DISTANCE = 5.0;
+
     public static void main(String[] args) throws Exception {
 
         var tec = new TrajectoryEnvelopeCoordinatorSimulation(2000, 1000);
@@ -28,19 +31,19 @@ public class ProductionCycleVehiclePassing {
         String reportsFolder = absolutePath + "/src/main/java/se/oru/coordination/coordination_oru/results/productionVehiclePassing";
         final String map = "maps/mine-map-shutdown.yaml";
         double mapResolution = new MapResolution().getMapResolution(map);
-        double scaleAdjustment = 1.0 / mapResolution;
+        double scaleAdjustment = 1 / mapResolution;
         double reportingTime = 0.1;
-        int simulationTime = 15;
+        int simulationTime = 60;
         boolean visualization = true;
         boolean writeVehicleReports = true;
 
         final double productionMaxVelocity = 4.17 / scaleAdjustment;
-        final double productionMaxAcceleration = 1.0 / scaleAdjustment;
+        final double productionMaxAcceleration = 1 / scaleAdjustment;
         final double productionVehicleLength = 12.0 / scaleAdjustment;
         final double productionVehicleWidth = 8.0 / scaleAdjustment;
 
         final double serviceVehicleMaxVelocity = 11.12 / scaleAdjustment;
-        final double serviceVehicleMaxAcceleration = 1.0 / scaleAdjustment;
+        final double serviceVehicleMaxAcceleration = 1 / scaleAdjustment;
         final double serviceVehicleLength = 10.0 / scaleAdjustment;
         final double serviceVehicleWidth = 6.0 / scaleAdjustment;
 
@@ -75,23 +78,23 @@ public class ProductionCycleVehiclePassing {
         final Pose parking = new Pose(100.55, 62.65, 0);
 
         var productionVehicle1 = new AutonomousVehicle("A1",1, Color.YELLOW, productionMaxVelocity, productionMaxAcceleration,
-                productionVehicleLength, productionVehicleWidth, drawPoint30, 5, 20, model);
+                productionVehicleLength, productionVehicleWidth, drawPoint30, SAFETY_DISTANCE, 100, model);
         productionVehicle1.addTask(new Task("", 0.1, new Pose[] {orePass1}, 1));
         productionVehicle1.addTask(new Task("", 0.1, new Pose[] {drawPoint30}, 0));
         var productionVehicle2 = new AutonomousVehicle("A2", 1, Color.YELLOW, productionMaxVelocity, productionMaxAcceleration,
-                productionVehicleLength, productionVehicleWidth, drawPoint32A, 5, 20, model);
+                productionVehicleLength, productionVehicleWidth, drawPoint32A, SAFETY_DISTANCE, 100, model);
         productionVehicle2.addTask(new Task("", 0.1, new Pose[] {orePass2}, 1));
         productionVehicle2.addTask(new Task("", 0.1, new Pose[] {drawPoint32A}, 0));
         var productionVehicle3 = new AutonomousVehicle("A3", 1, Color.YELLOW, productionMaxVelocity, productionMaxAcceleration,
-                productionVehicleLength, productionVehicleWidth, drawPoint12, 5, 20, model);
+                productionVehicleLength, productionVehicleWidth, drawPoint12, SAFETY_DISTANCE, 100, model);
         productionVehicle3.addTask(new Task("", 0.1, new Pose[] {parking}, 1));
         productionVehicle3.addTask(new Task("", 0.1, new Pose[] {drawPoint12}, 0));
         var serviceVehicle = new AutonomousVehicle("S", 2,  Color.GREEN, serviceVehicleMaxVelocity, serviceVehicleMaxAcceleration,
-                serviceVehicleLength, serviceVehicleWidth, entrance, 5, 1, model);
+                serviceVehicleLength, serviceVehicleWidth, entrance, SAFETY_DISTANCE, 100, model);
         serviceVehicle.addTask(new Task("", 0.75, new Pose[] {barrier2End}, 0));
         serviceVehicle.addTask(new Task("", 0.75, new Pose[] {barrier1End}, 0));
         serviceVehicle.addTask(new Task("", 0.25, new Pose[] {mainTunnelLeft}, 0));
-        serviceVehicle.addTask(new Task("", 0.50, new Pose[] {barrier1Start}, 0));
+        serviceVehicle.addTask(new Task("", OPERATING_TIME, new Pose[] {barrier1Start}, 0));
         serviceVehicle.addTask(new Task("", 0.25, new Pose[] {barrier2Start}, 0));
         serviceVehicle.addTask(new Task("", 0.25, new Pose[] {entrance}, 0));
 
@@ -122,7 +125,7 @@ public class ProductionCycleVehiclePassing {
         Missions.generateMissions();
         Missions.setMap(map);
 
-        String fileName = "SS" + "_" + "C" + "_" + "S" + "_" + productionVehicle1.getSafetyDistance() * scaleAdjustment + "_"
+        String fileName = "CS_OP" + "_" + "C" + "_" + "S" + "_" + productionVehicle1.getSafetyDistance() + "_"
                 + "V" + "_" + productionVehicle1.getMaxVelocity() * scaleAdjustment + "_";
         if (writeVehicleReports)
             RobotReportWriter.writeReports(tec, reportingTime, simulationTime, heuristics.getName(), reportsFolder, fileName, scaleAdjustment);
@@ -132,8 +135,8 @@ public class ProductionCycleVehiclePassing {
         ArrayList<Integer> vehicleIDsToStop = new ArrayList<>(Arrays.asList(1, 2, 3));
         Function<Integer, AbstractTrajectoryEnvelopeTracker> trackerRetriever = vehicleId -> tec.trackers.get(vehicleId);
 
-//        AdaptiveTrackerRK4.scheduleVehiclesStop(serviceVehicle, missionIDsToStop, vehicleIDsToStop, trackerRetriever);
-        AdaptiveTrackerRK4.scheduleVehicleSlow(serviceVehicle, missionIDsToStop, vehicleIDsToStop, trackerRetriever, productionMaxVelocity, productionMaxVelocity / 8); // FIXME: Vehicles may Jump if difference is too much
+        AdaptiveTrackerRK4.scheduleVehiclesStop(serviceVehicle, missionIDsToStop, vehicleIDsToStop, trackerRetriever);
+//        AdaptiveTrackerRK4.scheduleVehicleSlow(serviceVehicle, missionIDsToStop, vehicleIDsToStop, trackerRetriever, productionMaxVelocity, productionMaxVelocity / 8); // FIXME: Vehicles may Jump if difference is too much
 //        AdaptiveTrackerRK4.scheduleVehiclesPriorityChange(serviceVehicle, missionIDsToStop, TEC, heuristics, newheuristics);
     }
 

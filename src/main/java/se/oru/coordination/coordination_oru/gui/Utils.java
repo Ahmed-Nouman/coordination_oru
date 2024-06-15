@@ -164,11 +164,13 @@ public class Utils {
                 String poseName = taskStepNode.get(1).asText();
                 double duration = taskStepNode.get(2).asDouble();
                 int priority = taskStepNode.get(3).asInt();
+                int repetition = taskStepNode.get(4).asInt();
                 var taskStep = new TaskStep();
                 taskStep.setTaskName(taskName);
                 taskStep.setPoseName(poseName);
                 taskStep.setDuration(duration);
                 taskStep.setPriority(priority);
+                taskStep.setRepetition(repetition);
                 task.add(taskStep);
             });
             vehicleObject.remove("task");
@@ -215,17 +217,18 @@ public class Utils {
                     GSON.writeStringField("width", String.valueOf(((Vehicle) object).getWidth()));
                     GSON.writeStringField("initialPose", ((Vehicle) object).getInitialPose());
                     GSON.writeArrayFieldStart("task");
-                    for (TaskStep taskStep : ((Vehicle) object).getTask()) {
+                    for (TaskStep taskStep : ((Vehicle) object).getTasks()) {
                         GSON.writeStartArray();
                         GSON.writeString(taskStep.getTaskName());
                         GSON.writeString(taskStep.getPoseName());
                         GSON.writeNumber(taskStep.getDuration());
                         GSON.writeNumber(taskStep.getPriority());
+                        GSON.writeNumber(taskStep.getRepetition());
                         GSON.writeEndArray();
                     }
                     GSON.writeEndArray();
                     GSON.writeStringField("safetyDistance", String.valueOf(((Vehicle) object).getSafetyDistance()));
-                    GSON.writeStringField("taskRepetition", String.valueOf(((Vehicle) object).getTaskRepetition()));
+                    GSON.writeStringField("taskRepetition", String.valueOf(((Vehicle) object).getTasksRepetition()));
                     GSON.writeEndObject();
                 } else if (object instanceof Pose) {
                     // Serialize Pose as an object

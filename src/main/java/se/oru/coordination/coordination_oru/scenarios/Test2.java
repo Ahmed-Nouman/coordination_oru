@@ -33,10 +33,9 @@ public class Test2 {
 
         var chargingVehicle = new AutonomousVehicle("E",1, Color.BLUE, 5.0, 0.5,
                 0.8, 0.5, mainTunnelLeft, 10, 1, model);
-        chargingVehicle.addTask(new Task("", 0, new Pose[] {mainTunnelRight}, 0));
-        chargingVehicle.addTask(new Task("", 0.1, new Pose[] {orePass}, 0));
+        chargingVehicle.addTask(new Task("", 0, new Pose[] {orePass, mainTunnelLeft}, 0), 2);
         chargingVehicle.addTask(new Task("", 0.1, new Pose[] {mainTunnelRight}, 0));
-        chargingVehicle.addTask(new Task("", 0.1, new Pose[] {mainTunnelLeft}, 0));
+        System.out.println(chargingVehicle.getTasks());
         chargingVehicle.generatePlans(planner);
 
         var autonomousVehicle1 = new AutonomousVehicle("A1",2, Color.YELLOW, 5.0, 0.5,

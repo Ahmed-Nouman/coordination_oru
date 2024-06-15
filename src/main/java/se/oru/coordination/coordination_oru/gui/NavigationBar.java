@@ -24,9 +24,10 @@ public class NavigationBar {
                 break;
             case MAP:
             case VEHICLE:
+            case COORDINATION:
                 buttonsButtons.getChildren().addAll(main.getNavigationButton().getBack(), main.getNavigationButton().getNext());
                 break;
-            case EXPERIMENT:
+            case SETUP:
                 buttonsButtons.getChildren().addAll(main.getNavigationButton().getReset(), main.getNavigationButton().getBack(),
                         main.getNavigationButton().getSave());
                 if (main.getDataStatus().isPlansVerified() || main.getDataStatus().allVehiclesHavePaths())

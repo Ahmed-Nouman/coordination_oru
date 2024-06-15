@@ -69,7 +69,7 @@ public class VehicleScene {
                     safetyDistanceField.setText(String.valueOf(vehicle.getSafetyDistance()));
                     colorField.setValue(String.valueOf(vehicle.getColor()));
                     initialPoseField.setValue(String.valueOf(vehicle.getInitialPose()));
-                    taskRepetitionField.setText(String.valueOf(vehicle.getTaskRepetition()));
+                    taskRepetitionField.setText(String.valueOf(vehicle.getTasksRepetition()));
                     isHumanField.setSelected("Human".equals(vehicle.getType()));
                     lookAheadDistanceField.setText(String.valueOf(vehicle.getLookAheadDistance()));
                 }
@@ -84,7 +84,7 @@ public class VehicleScene {
                 var selectedVehicle = main.getDataStatus().getProjectData().getVehicle(main.getDataStatus().getProjectData().getVehicleID(newValue, main.getDataStatus().getProjectData().getVehicles()));
                 if (selectedVehicle != null) {
                     tasks.getItems().clear();
-                    var taskSteps = selectedVehicle.getTask();
+                    var taskSteps = selectedVehicle.getTasks();
                     taskSteps.forEach(taskStep -> tasks.getItems().add(taskStep.toString()));
                 }
             }
@@ -127,10 +127,10 @@ public class VehicleScene {
                 colorField.setValue(vehicle.getColor());
                 initialPoseField.setValue(main.getDataStatus().getProjectData().getVehicle(main.getDataStatus().getProjectData().getVehicleID(newValue, main.getDataStatus().getProjectData().getVehicles())).getInitialPose());
                 lookAheadDistanceField.setText(String.valueOf(vehicle.getLookAheadDistance()));
-                taskRepetitionField.setText(String.valueOf(vehicle.getTaskRepetition()));
+                taskRepetitionField.setText(String.valueOf(vehicle.getTasksRepetition()));
 
                 tasks.getItems().clear();
-                vehicle.getTask().forEach(missionStep -> tasks.getItems().add(missionStep.toString()));
+                vehicle.getTasks().forEach(missionStep -> tasks.getItems().add(missionStep.toString()));
 
                 if (vehicle.getType().equals("Human")) {
                     isHumanField.setSelected(true);
