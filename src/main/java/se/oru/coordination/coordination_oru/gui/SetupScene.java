@@ -21,8 +21,6 @@ public class SetupScene {
 
     private Text pathPlanner;
     private ChoiceBox<String> pathPlannerField;
-    private Text priorityRule;
-    private ChoiceBox<String> priorityRuleField;
     private Text simulationTime;
     private TextField simulationTimeField;
     private Text numberOfRun;
@@ -83,36 +81,32 @@ public class SetupScene {
 
     private void setupTexts() {
         pathPlanner = text("Path Planner: ", 0, 0);
-        priorityRule = text("Priority Rule: ", 0, 1);
-        simulationTime = text("Simulation Time (minutes): ", 0, 4);
-        numberOfRun = text("No. of Runs: ", 0, 5);
-        saveReport = text("Saving Vehicles Reports: ", 0, 6);
-        reportFolder = text("Folder to Save the Reports: ", 0, 7);
+        simulationTime = text("Simulation Time (minutes): ", 0, 1);
+        numberOfRun = text("No. of Runs: ", 0, 2);
+        saveReport = text("Saving Vehicles Reports: ", 0, 3);
+        reportFolder = text("Folder to Save the Reports: ", 0, 4);
         reportFolder.setVisible(false);
-        reportLocation = text("Reports will be saved in:", 0, 8);
+        reportLocation = text("Reports will be saved in:", 0, 5);
         reportLocation.setVisible(false);
     }
 
     private void setupFields() {
         var pathPlanners = List.of("Fast (RRTConnect)", "Optimal (RRT*)");
         pathPlannerField = choiceBox(pathPlanners, 0);
-        var priorityRules = Heuristics.getHeuristicNames();
-        priorityRuleField = choiceBox(priorityRules, 1);
-        simulationTimeField = textField(4);
+        simulationTimeField = textField(1);
         simulationTimeField.setText("30");
-        numberOfRunField = textField(5);
+        numberOfRunField = textField(2);
         numberOfRunField.setText("1");
-        saveReportField = checkBox(6);
+        saveReportField = checkBox(3);
         saveReportField.setSelected(false);
-        reportFolderField = button("Browse...", 7);
+        reportFolderField = button("Browse...", 4);
         reportFolderField.setVisible(false);
-        reportLocationField = text("", 1, 8);
+        reportLocationField = text("", 1, 5);
         reportLocationField.setVisible(false);
     }
 
     private void addChildren(GridPane centerPane) {
-        centerPane.getChildren().addAll(pathPlanner, pathPlannerField, priorityRule, priorityRuleField, simulationTime,
-                simulationTimeField, numberOfRun, numberOfRunField, saveReport, saveReportField,
+        centerPane.getChildren().addAll(pathPlanner, pathPlannerField, simulationTime, simulationTimeField, numberOfRun, numberOfRunField, saveReport, saveReportField,
                 reportFolder, reportFolderField, reportLocation, reportLocationField);
     }
 
@@ -158,7 +152,6 @@ public class SetupScene {
             if (!isNowFocused) controller.changeNumberOfRun();
         });
         pathPlannerField.setOnAction(e -> controller.choosePathPlanner());
-        priorityRuleField.setOnAction(e -> controller.chooseHeuristic());
         saveReportField.setOnAction(e -> controller.checkSavingReport());
         reportFolderField.setOnAction(e -> controller.clickReportFolder());
     }
@@ -168,10 +161,6 @@ public class SetupScene {
 
     public ChoiceBox<String> getPathPlannerField() {
         return pathPlannerField;
-    }
-
-    public ChoiceBox<String> getPriorityRuleField() {
-        return priorityRuleField;
     }
 
     public TextField getSimulationTimeField() {

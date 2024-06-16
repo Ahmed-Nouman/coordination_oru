@@ -3,7 +3,6 @@ package se.oru.coordination.coordination_oru.gui;
 import se.oru.coordination.coordination_oru.motionPlanning.ompl.ReedsSheppCarPlanner;
 import se.oru.coordination.coordination_oru.utils.Heuristics;
 import se.oru.coordination.coordination_oru.vehicles.AbstractVehicle;
-import se.oru.coordination.coordination_oru.vehicles.VehiclesHashMap;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -43,8 +42,8 @@ public class DataStatus {
         return originalProjectData;
     }
 
-    public void setOriginalProjectData(ProjectData orignalProjectData) {
-        this.originalProjectData = orignalProjectData;
+    public void setOriginalProjectData(ProjectData originalProjectData) {
+        this.originalProjectData = originalProjectData;
     }
 
     public MapData getMapData() {
@@ -143,10 +142,7 @@ public class DataStatus {
         this.vehicles.clear();
     }
 
-    //TODO: Add a method to check if all vehicles have saved paths
-    //FIXME: The method should be if oldProjectData is same as new ProjectData, this method will not be needed.
     public boolean allVehiclesHavePaths() {
         return projectData.getVehicles().stream().allMatch(vehicle -> vehicle.getPathFile() != null);
     }
-
 }

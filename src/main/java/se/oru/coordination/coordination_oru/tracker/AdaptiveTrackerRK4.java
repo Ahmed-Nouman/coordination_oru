@@ -56,8 +56,8 @@ public abstract class AdaptiveTrackerRK4 extends AbstractTrajectoryEnvelopeTrack
 
     public static void scheduleVehiclesStop(
             AutonomousVehicle priorityVehicle,
-            List<Integer> missionIDsToStop,
-            List<Integer> vehicleIDsToStop,
+            List<Integer> missionIDsToTrigger,
+            List<Integer> vehicleIDsToComply,
             Function<Integer, AbstractTrajectoryEnvelopeTracker> trackerRetriever) {
 
         final var scheduler = Executors.newScheduledThreadPool(1);
@@ -66,16 +66,16 @@ public abstract class AdaptiveTrackerRK4 extends AbstractTrajectoryEnvelopeTrack
         var shutdown = new Runnable() {
             @Override
             public void run() {
-                if (missionIDsToStop.contains(priorityVehicle.getCurrentTaskIndex())) {
+                if (missionIDsToTrigger.contains(priorityVehicle.getCurrentTaskIndex())) {
                     var trackers = new ArrayList<AbstractTrajectoryEnvelopeTracker>();
-                    for (Integer vehicleId : vehicleIDsToStop) {
+                    for (Integer vehicleId : vehicleIDsToComply) {
                         AbstractTrajectoryEnvelopeTracker tracker = trackerRetriever.apply(vehicleId);
                         trackers.add(tracker);
                     }
                     stopVehicles(trackers);
 
                     scheduler.schedule(() -> {
-                        if (!missionIDsToStop.contains(priorityVehicle.getCurrentTaskIndex())) {
+                        if (!missionIDsToTrigger.contains(priorityVehicle.getCurrentTaskIndex())) {
                             resumeVehicles(trackers);
                         }
                     }, 5, TimeUnit.SECONDS);
@@ -116,8 +116,8 @@ public abstract class AdaptiveTrackerRK4 extends AbstractTrajectoryEnvelopeTrack
 
     public static void scheduleVehicleSlow(
             AutonomousVehicle priorityVehicle,
-            List<Integer> missionIDsToStop,
-            List<Integer> vehicleIDsToStop,
+            List<Integer> missionIDsToTrigger,
+            List<Integer> vehicleIDsToComply,
             Function<Integer, AbstractTrajectoryEnvelopeTracker> trackerRetriever,
             double maxVelocity, double minVelocity) {
 
@@ -126,16 +126,16 @@ public abstract class AdaptiveTrackerRK4 extends AbstractTrajectoryEnvelopeTrack
         var shutdown = new Runnable() {
             @Override
             public void run() {
-                if (missionIDsToStop.contains(priorityVehicle.getCurrentTaskIndex())) {
+                if (missionIDsToTrigger.contains(priorityVehicle.getCurrentTaskIndex())) {
                     var trackers = new ArrayList<AbstractTrajectoryEnvelopeTracker>();
-                    for (Integer vehicleId : vehicleIDsToStop) {
+                    for (Integer vehicleId : vehicleIDsToComply) {
                         AbstractTrajectoryEnvelopeTracker tracker = trackerRetriever.apply(vehicleId);
                         trackers.add(tracker);
                     }
                     slowDownVehicles(trackers, minVelocity);
 
                     scheduler.schedule(() -> {
-                        if (!missionIDsToStop.contains(priorityVehicle.getCurrentTaskIndex())) {
+                        if (!missionIDsToTrigger.contains(priorityVehicle.getCurrentTaskIndex())) {
                             speedUpVehicles(trackers, maxVelocity);
                         }
                     }, 5, TimeUnit.SECONDS);

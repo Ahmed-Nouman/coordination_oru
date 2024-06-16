@@ -9,13 +9,12 @@ import java.util.*;
 /**
  * The ProjectData class is used to manage and store the project's data
  * including the map, vehicles, and poses.
- *
- * @author anm
  */
 public class ProjectData implements Serializable {
     private String map;
     private List<Vehicle> vehicles = new ArrayList<>();
     private Map<String, Pose> poses = new HashMap<>();
+    private CoordinationData coordinationData; // Add CoordinationData
 
     public String getMapImage(MapData mapData) {
         String mapFilePath = this.map;
@@ -26,38 +25,18 @@ public class ProjectData implements Serializable {
                 mapFilePath.split("/").length - 1)) + "/" + mapData.getImage();
     }
 
-    /**
-     * Gets the map YAML file location.
-     *
-     * @return A string representing the location of the map YAML file.
-     */
     public String getMap() {
         return map;
     }
 
-    /**
-     * Sets the map.
-     *
-     * @param map A string representing the map.
-     */
     public void setMap(String map) {
         this.map = map;
     }
 
-    /**
-     * Gets the vehicles.
-     *
-     * @return A map of vehicle IDs to AutonomousVehicle objects.
-     */
     public List<Vehicle> getVehicles() {
         return vehicles;
     }
 
-    /**
-     * Gets the vehicle.
-     *
-     * @return The specific vehicle object.
-     */
     public Vehicle getVehicle(int vehicleID) {
         for (Vehicle vehicle : vehicles) {
             if (vehicle.getID() == vehicleID) {
@@ -84,7 +63,6 @@ public class ProjectData implements Serializable {
         return vehicleNames;
     }
 
-
     public void addVehicle(Vehicle vehicle) {
         this.vehicles.add(vehicle);
     }
@@ -106,17 +84,20 @@ public class ProjectData implements Serializable {
         return poses.get(poseName);
     }
 
-    /**
-     * Sets the list of all poses.
-     *
-     * @param poses A map of pose IDs to Pose objects.
-     */
     public void setPoses(Map<String, Pose> poses) {
         this.poses = poses;
     }
 
     public void setVehicles(List<Vehicle> vehicles) {
         this.vehicles = vehicles;
+    }
+
+    public CoordinationData getCoordinationData() {
+        return coordinationData;
+    }
+
+    public void setCoordinationData(CoordinationData coordinationData) {
+        this.coordinationData = coordinationData;
     }
 
     @Override
@@ -140,7 +121,7 @@ public class ProjectData implements Serializable {
         return this.getPoses().size();
     }
 
-    public static class Vehicle implements Serializable{
+    public static class Vehicle implements Serializable {
         private static int nextId = 1;
         private final int ID;
         private String name;
@@ -157,9 +138,11 @@ public class ProjectData implements Serializable {
         private List<TaskStep> task;
         private int taskRepetition;
         private double safetyDistance;
+
         public Vehicle() {
             this.ID = nextId++;
         }
+
         public int getID() {
             return ID;
         }
@@ -290,7 +273,6 @@ public class ProjectData implements Serializable {
         }
     }
 
-    // Inner class to represent a task step
     public static class TaskStep implements Serializable {
         private String taskName;
         private String poseName;
@@ -360,5 +342,4 @@ public class ProjectData implements Serializable {
             return Objects.hash(taskName, poseName, duration, priority, repetition);
         }
     }
-
 }
