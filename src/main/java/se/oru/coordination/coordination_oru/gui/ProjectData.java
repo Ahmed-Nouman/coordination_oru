@@ -14,7 +14,6 @@ public class ProjectData implements Serializable {
     private String map;
     private List<Vehicle> vehicles = new ArrayList<>();
     private Map<String, Pose> poses = new HashMap<>();
-    private CoordinationData coordinationData; // Add CoordinationData
 
     public String getMapImage(MapData mapData) {
         String mapFilePath = this.map;
@@ -90,14 +89,6 @@ public class ProjectData implements Serializable {
 
     public void setVehicles(List<Vehicle> vehicles) {
         this.vehicles = vehicles;
-    }
-
-    public CoordinationData getCoordinationData() {
-        return coordinationData;
-    }
-
-    public void setCoordinationData(CoordinationData coordinationData) {
-        this.coordinationData = coordinationData;
     }
 
     @Override

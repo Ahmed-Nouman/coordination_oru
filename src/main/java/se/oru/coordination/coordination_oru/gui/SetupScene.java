@@ -106,7 +106,8 @@ public class SetupScene {
     }
 
     private void addChildren(GridPane centerPane) {
-        centerPane.getChildren().addAll(pathPlanner, pathPlannerField, simulationTime, simulationTimeField, numberOfRun, numberOfRunField, saveReport, saveReportField,
+        centerPane.getChildren().addAll(pathPlanner, pathPlannerField, simulationTime,
+                simulationTimeField, numberOfRun, numberOfRunField, saveReport, saveReportField,
                 reportFolder, reportFolderField, reportLocation, reportLocationField);
     }
 

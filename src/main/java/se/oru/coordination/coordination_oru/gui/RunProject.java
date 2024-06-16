@@ -45,34 +45,6 @@ public class RunProject {
     }
 
     public void run() {
-        // Access CoordinationData
-        CoordinationData coordinationData = navigationController.getMain().getDataStatus().getProjectData().getCoordinationData();
-
-        // Retrieve data from CoordinationData
-        String priorityRule = coordinationData.getPriorityRule();
-        String trafficControlStrategy = coordinationData.getTrafficControlStrategy();
-        String triggerVehicle = coordinationData.getTriggerVehicle();
-        List<Integer> missionTriggerIndices = coordinationData.getMissionTriggers(); // Updated to List<Integer>
-        List<String> vehiclesToComply = coordinationData.getVehiclesToComply();
-        double velocityChangeRatio = coordinationData.getVelocityChangeRatio();
-
-        // Use the retrieved data as needed
-        System.out.println("Priority Rule: " + priorityRule);
-        System.out.println("Traffic Control Strategy: " + trafficControlStrategy);
-        System.out.println("Trigger Vehicle: " + triggerVehicle);
-        System.out.println("Mission Triggers (Indices): " + missionTriggerIndices);
-        System.out.println("Vehicles to Comply: " + vehiclesToComply);
-        System.out.println("Velocity Change Ratio: " + velocityChangeRatio);
-
-        // Convert mission trigger indices to mission names
-        ProjectData.Vehicle selectedVehicle = navigationController.getMain().getDataStatus().getProjectData().getVehicles().stream()
-                .filter(vehicle -> vehicle.getName().equals(triggerVehicle))
-                .findFirst()
-                .orElse(null);
-
-        List<String> missionTriggers = missionTriggerIndices.stream()
-                .map(index -> selectedVehicle != null ? selectedVehicle.getTasks().get(index).getTaskName() : "")
-                .collect(Collectors.toList());
 
         var map = navigationController.getMain().getDataStatus().getProjectData().getMap();
         var model = new ConstantAcceleration(10.0, 100.0, 1000, 1000, 30); //FIXME: HARD CODED

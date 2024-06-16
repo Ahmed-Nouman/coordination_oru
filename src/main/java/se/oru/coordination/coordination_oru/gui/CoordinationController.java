@@ -9,10 +9,6 @@ public class CoordinationController {
         this.scene = scene;
     }
 
-    public void chooseTrafficControlStrategy() {
-        // Add your logic for handling traffic control strategy changes
-    }
-
     public void chooseHeuristic() {
         var heuristic = scene.getPriorityRuleField().getValue();
         if (heuristic != null) {

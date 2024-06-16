@@ -3,6 +3,7 @@ package se.oru.coordination.coordination_oru.gui;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.Stage;
 import se.oru.coordination.coordination_oru.motionPlanning.ompl.ReedsSheppCarPlanner;
+import se.oru.coordination.coordination_oru.utils.Heuristics;
 
 public class SetupController {
     private final SetupScene scene;
