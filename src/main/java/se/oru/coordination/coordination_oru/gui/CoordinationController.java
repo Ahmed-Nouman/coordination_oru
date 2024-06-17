@@ -40,4 +40,13 @@ public class CoordinationController {
             }
         }
     }
+
+    public void chooseTrafficControl() {
+        scene.getMain().getDataStatus().setTrafficControl(scene.getTrafficControlField().getValue());
+    }
+
+    public void chooseTriggerVehicle() {
+        var triggerVehicle = scene.getTriggerVehicleField().getValue();
+        if (triggerVehicle != null) scene.getMain().getDataStatus().setTriggerVehicle(triggerVehicle);
+    }
 }

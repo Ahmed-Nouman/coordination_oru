@@ -19,9 +19,10 @@ public class DataStatus {
     private String reportsFolder = "";
     private ReedsSheppCarPlanner.PLANNING_ALGORITHM pathPlanner = ReedsSheppCarPlanner.PLANNING_ALGORITHM.RRTConnect;
     private Heuristics heuristics = new Heuristics(Heuristics.HeuristicType.CLOSEST_FIRST);
+    private String trafficControl = "";
+    private String triggerVehicle = "";
     private int vehicleCounter = 0;
     private final List<AbstractVehicle> vehicles = new ArrayList<>();
-
     public String getProjectFile() {
         return projectFile;
     }
@@ -126,6 +127,18 @@ public class DataStatus {
         return vehicles;
     }
 
+    public String getTrafficControl() {
+        return trafficControl;
+    }
+
+    public void setTrafficControl(String value) {
+        this.trafficControl = value;
+    }
+
+    public boolean allVehiclesHavePaths() {
+        return projectData.getVehicles().stream().allMatch(vehicle -> vehicle.getPathFile() != null);
+    }
+
     public void reset() {
         this.isPlansVerified = false;
         this.projectFile = "";
@@ -142,7 +155,12 @@ public class DataStatus {
         this.vehicles.clear();
     }
 
-    public boolean allVehiclesHavePaths() {
-        return projectData.getVehicles().stream().allMatch(vehicle -> vehicle.getPathFile() != null);
+    public String getTriggerVehicle() {
+        return triggerVehicle;
     }
+
+    public void setTriggerVehicle(String triggerVehicle) {
+        this.triggerVehicle = triggerVehicle;
+    }
+
 }
