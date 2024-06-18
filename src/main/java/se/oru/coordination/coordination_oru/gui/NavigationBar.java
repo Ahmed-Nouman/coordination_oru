@@ -30,7 +30,7 @@ public class NavigationBar {
             case SETUP:
                 buttonsButtons.getChildren().addAll(main.getNavigationButton().getReset(), main.getNavigationButton().getBack(),
                         main.getNavigationButton().getSave());
-                if (main.getDataStatus().isPlansVerified() || main.getDataStatus().allVehiclesHavePaths())
+                if (main.getDataStatus().getOriginalProjectData().equals(main.getDataStatus().getProjectData())) // Decide between Run and Verify
                     buttonsButtons.getChildren().add(main.getNavigationButton().getRun());
                 else buttonsButtons.getChildren().add(main.getNavigationButton().getVerify());
                 break;

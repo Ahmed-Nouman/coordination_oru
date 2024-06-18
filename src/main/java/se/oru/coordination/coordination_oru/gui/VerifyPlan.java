@@ -77,8 +77,7 @@ public class VerifyPlan {
                         newVehicle.addTask(new se.oru.coordination.coordination_oru.utils.Task(task.getTaskName(), task.getDuration(), poses, task.getPriority()), task.getRepetition());
                     }
                     if (!newVehicle.getTasks().get(0).isEmpty()) newVehicle.generatePlans(planner);
-//                    newVehicle.savePlans(className);  //FIXME: Do I need savePlans() option in GUI?
-//                    newVehicle.setPlanningAlgorithm(controllerNavigation.getMain().getDataStatus().getPathPlanner()); //FIXME: HARD CODED
+                    newVehicle.savePlans(className);
 
                     navigationController.getMain().getDataStatus().getVehicles().add(newVehicle);
                 }

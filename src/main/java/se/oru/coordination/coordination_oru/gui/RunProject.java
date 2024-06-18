@@ -51,6 +51,8 @@ public class RunProject {
 
     public void run() {
 
+        String className = Thread.currentThread().getStackTrace()[Thread.currentThread().getStackTrace().length-1].getFileName().split("\\.")[0];
+        String pathsFolderName = "paths/" + className + "/";
         var map = navigationController.getMain().getDataStatus().getProjectData().getMap();
         var model = new ConstantAcceleration(10.0, 100.0, 1000, 1000, 30); //FIXME: HARD CODED
         var mapResolution = navigationController.getMain().getDataStatus().getMapData().getResolution();
@@ -108,6 +110,7 @@ public class RunProject {
                         .toArray(Pose[]::new);
                 newVehicle.addTask(new Task(task.getTaskName(), task.getDuration(), poses, task.getPriority()), task.getRepetition());
             }
+            newVehicle.loadPlans(pathsFolderName + newVehicle.getName() + ".path");
         }
 
         var tec = new TrajectoryEnvelopeCoordinatorSimulation(10.0, 1.0);
