@@ -5,6 +5,7 @@ import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.ProgressBar;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
@@ -121,6 +122,12 @@ public class VerifyPlan {
 
     public void updateNavigationBar() {
         navigationController.getMain().getDataStatus().setPlansVerified(true);
-        navigationController.getMain().getSetupScene().getPane().setBottom(NavigationBar.getBar(navigationController.getMain(), SceneState.SETUP));
+
+        // Replace Verify button with Run button in the navigation bar
+        var navigationBar = NavigationBar.getBar(navigationController.getMain(), SceneState.SETUP);
+        var buttonsPane = (HBox) navigationBar.getChildren().get(1);
+        buttonsPane.getChildren().removeIf(node -> node == navigationController.getVerify());
+        buttonsPane.getChildren().add(navigationController.getRun());
+        navigationController.getMain().getSetupScene().getPane().setBottom(navigationBar);
     }
 }

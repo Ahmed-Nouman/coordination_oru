@@ -6,7 +6,6 @@ import se.oru.coordination.coordination_oru.forwardModel.ConstantAcceleration;
 import se.oru.coordination.coordination_oru.simulation.BrowserVisualization;
 import se.oru.coordination.coordination_oru.tracker.AbstractTrajectoryEnvelopeTracker;
 import se.oru.coordination.coordination_oru.tracker.AdaptiveTrackerRK4;
-import se.oru.coordination.coordination_oru.utils.Heuristics;
 import se.oru.coordination.coordination_oru.utils.Missions;
 import se.oru.coordination.coordination_oru.utils.RobotReportWriter;
 import se.oru.coordination.coordination_oru.utils.Task;
@@ -15,7 +14,6 @@ import se.oru.coordination.coordination_oru.vehicles.AutonomousVehicle;
 import se.oru.coordination.coordination_oru.vehicles.LookAheadVehicle;
 import se.oru.coordination.coordination_oru.vehicles.VehiclesHashMap;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.Executors;
@@ -54,7 +52,7 @@ public class RunProject {
         String className = Thread.currentThread().getStackTrace()[Thread.currentThread().getStackTrace().length-1].getFileName().split("\\.")[0];
         String pathsFolderName = "paths/" + className + "/";
         var map = navigationController.getMain().getDataStatus().getProjectData().getMap();
-        var model = new ConstantAcceleration(10.0, 100.0, 1000, 1000, 30); //FIXME: HARD CODED
+        var model = new ConstantAcceleration(10.0, 100.0, 1000, 1000, 30);
         var mapResolution = navigationController.getMain().getDataStatus().getMapData().getResolution();
         var writeReports = navigationController.getMain().getDataStatus().getWriteVehicleReports();
         var simulationTime = navigationController.getMain().getDataStatus().getSimulationTime();

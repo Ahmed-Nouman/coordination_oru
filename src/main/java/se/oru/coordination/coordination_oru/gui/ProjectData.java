@@ -255,7 +255,6 @@ public class ProjectData implements Serializable {
             if (this == object) return true;
             if (object == null || getClass() != object.getClass()) return false;
             var vehicle = (Vehicle) object;
-//            return ID == vehicle.ID;
             return ID == vehicle.ID && priority == vehicle.priority && Double.compare(lookAheadDistance, vehicle.lookAheadDistance) == 0 && Double.compare(maxVelocity, vehicle.maxVelocity) == 0 && Double.compare(maxAcceleration, vehicle.maxAcceleration) == 0 && Double.compare(length, vehicle.length) == 0 && Double.compare(width, vehicle.width) == 0 && taskRepetition == vehicle.taskRepetition && Double.compare(safetyDistance, vehicle.safetyDistance) == 0 && Objects.equals(name, vehicle.name) && Objects.equals(type, vehicle.type) && Objects.equals(color, vehicle.color) && Objects.equals(initialPose, vehicle.initialPose) && Objects.equals(task, vehicle.task);
         }
 

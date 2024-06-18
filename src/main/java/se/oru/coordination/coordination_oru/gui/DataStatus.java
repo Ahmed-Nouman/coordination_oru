@@ -138,10 +138,6 @@ public class DataStatus {
         this.trafficControl = value;
     }
 
-    public boolean allVehiclesHavePaths() {
-        return projectData.getVehicles().stream().allMatch(vehicle -> vehicle.getPathFile() != null);
-    }
-
     public void reset() {
         this.isPlansVerified = false;
         this.projectFile = "";

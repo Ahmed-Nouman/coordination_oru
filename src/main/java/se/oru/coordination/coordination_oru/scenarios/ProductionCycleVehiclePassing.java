@@ -15,6 +15,7 @@ import se.oru.coordination.coordination_oru.vehicles.AutonomousVehicle;
 import java.awt.*;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.function.Function;
 
 public class ProductionCycleVehiclePassing {
@@ -132,7 +133,7 @@ public class ProductionCycleVehiclePassing {
         Missions.runTasks(tec, simulationTime);
 
         ArrayList<Integer> missionIDsToStop = new ArrayList<>(Arrays.asList(1, 4));
-        ArrayList<Integer> vehicleIDsToStop = new ArrayList<>(Arrays.asList(1, 2, 3));
+        ArrayList<Integer> vehicleIDsToStop = new ArrayList<>(Arrays.asList(2, 3));
         Function<Integer, AbstractTrajectoryEnvelopeTracker> trackerRetriever = vehicleId -> tec.trackers.get(vehicleId);
 
         AdaptiveTrackerRK4.scheduleVehiclesStop(serviceVehicle, missionIDsToStop, vehicleIDsToStop, trackerRetriever);
