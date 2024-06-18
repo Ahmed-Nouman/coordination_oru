@@ -1103,7 +1103,7 @@ public abstract class TrajectoryEnvelopeCoordinator extends AbstractTrajectoryEn
                     numberNewAddedMissions = 0;
 
                     synchronized (solver) {
-						for (Integer robotID : trackers.keySet()) trackers.get(robotID);
+						for (Integer robotID : trackers.keySet()) trackers.get(robotID);  // What is happening here?
 
 						checkIfLookAheadVehicle();
 
@@ -1178,7 +1178,7 @@ public abstract class TrajectoryEnvelopeCoordinator extends AbstractTrajectoryEn
                 var newTE = solver.createEnvelopeNoParking(robotID, newPath, "Driving", this.getFootprint(robotID));
 
 				synchronized (trackers) {
-					this.trackers.get(robotID).updateTrajectoryEnvelope(newTE);
+					this.trackers.get(robotID).updateTrajectoryEnvelope(newTE); // Check if this is necessary
 				}
 
 				replaceConstraints(robotID, te, newTE);

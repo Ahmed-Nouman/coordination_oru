@@ -40,8 +40,8 @@ public class VerifyPlan {
                 var scaleAdjustment = 1 / mapResolution;
                 final String className = Thread.currentThread().getStackTrace()[Thread.currentThread().getStackTrace().length-1].getFileName().split("\\.")[0];
                 final ForwardModel model = new ConstantAcceleration(10.0, 1.0, 1000, 1000, 30); //FIXME: HARD CODED
-                final var planner = new VehiclePathPlanner(map, ReedsSheppCarPlanner.PLANNING_ALGORITHM.RRTConnect,
-                        0.09, 60, 2.0, 0.1); //FIXME: HARD CODED
+                final var planner = new VehiclePathPlanner(map, navigationController.getMain().getDataStatus().getPathPlanner(),
+                        0.09, 60, 2.0, 0.1);
 
                 for (var vehicle : navigationController.getMain().getDataStatus().getProjectData().getVehicles()) {
                     AbstractVehicle newVehicle;

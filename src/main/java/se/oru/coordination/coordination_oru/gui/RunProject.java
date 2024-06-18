@@ -4,6 +4,9 @@ import org.metacsp.multi.spatioTemporal.paths.Pose;
 import se.oru.coordination.coordination_oru.coordinator.TrajectoryEnvelopeCoordinatorSimulation;
 import se.oru.coordination.coordination_oru.forwardModel.ConstantAcceleration;
 import se.oru.coordination.coordination_oru.simulation.BrowserVisualization;
+import se.oru.coordination.coordination_oru.tracker.AbstractTrajectoryEnvelopeTracker;
+import se.oru.coordination.coordination_oru.tracker.AdaptiveTrackerRK4;
+import se.oru.coordination.coordination_oru.utils.Heuristics;
 import se.oru.coordination.coordination_oru.utils.Missions;
 import se.oru.coordination.coordination_oru.utils.RobotReportWriter;
 import se.oru.coordination.coordination_oru.utils.Task;
@@ -12,11 +15,13 @@ import se.oru.coordination.coordination_oru.vehicles.AutonomousVehicle;
 import se.oru.coordination.coordination_oru.vehicles.LookAheadVehicle;
 import se.oru.coordination.coordination_oru.vehicles.VehiclesHashMap;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 public class RunProject {
@@ -55,7 +60,7 @@ public class RunProject {
         var reportsFolder = navigationController.getMain().getDataStatus().getReportsFolder();
         String folderName = "results-";
         var scaleAdjustment = 1 / mapResolution;
-        var reportsTimeIntervalInSeconds = 0.1; //FIXME: HARD CODED
+        var reportsTimeIntervalInSeconds = 0.1;
 
         for (var vehicle : navigationController.getMain().getDataStatus().getProjectData().getVehicles()) {
             AbstractVehicle newVehicle = VehiclesHashMap.getVehicle(vehicle.getID());
@@ -128,8 +133,42 @@ public class RunProject {
         Missions.setMap(map);
         Missions.generateMissions();
 
-        if (writeReports)
+        if (writeReports) {
             RobotReportWriter.writeReports(tec, reportsTimeIntervalInSeconds, simulationTime, heuristicsName, reportsFolder, folderName, scaleAdjustment);
+        }
         Missions.runTasks(tec, simulationTime);
+
+        // Shutdown Logic
+        var trafficControl = navigationController.getMain().getDataStatus().getTrafficControl();
+        var triggerVehicleName = navigationController.getMain().getDataStatus().getTriggerVehicle();
+        var triggerVehicleID = navigationController.getMain().getDataStatus().getProjectData().getVehicleID(triggerVehicleName, navigationController.getMain().getDataStatus().getProjectData().getVehicles());
+        var triggerVehicle = navigationController.getMain().getDataStatus().getVehicles().get(triggerVehicleID - 1); // Vehicle ID starts from 1
+        var triggerMissions = navigationController.getMain().getDataStatus().getTriggerMissions();
+        var triggerVelocityRatio = navigationController.getMain().getDataStatus().getTriggerVelocityRatio();
+        var orignalHeuristics = navigationController.getMain().getDataStatus().getHeuristics();
+        var newHeuristics = navigationController.getMain().getDataStatus().getNewHeuristics();
+        List<Integer> complyVehicles = navigationController.getMain().getDataStatus().getVehicles().stream()
+                .map(AbstractVehicle::getID)
+                .filter(id -> id != triggerVehicleID)
+                .collect(Collectors.toList());  // All vehicle must comply except the trigger vehicle
+        Function<Integer, AbstractTrajectoryEnvelopeTracker> trackerRetriever = vehicleId -> tec.trackers.get(vehicleId);
+
+        switch (trafficControl) {
+            case "Mixed Traffic":
+                System.out.println("Mixed Traffic");
+                break;
+            case "Vehicle Stoppage":
+                System.out.println("Vehicle Stoppage");
+                AdaptiveTrackerRK4.scheduleVehiclesStop((AutonomousVehicle) triggerVehicle, triggerMissions, complyVehicles, trackerRetriever);
+                break;
+            case "Vehicle Speed Change":
+                System.out.println("Vehicle Speed Change");
+                AdaptiveTrackerRK4.scheduleVehicleSlow((AutonomousVehicle) triggerVehicle, triggerMissions, complyVehicles, trackerRetriever, triggerVehicle.getMaxVelocity(), triggerVehicle.getMaxVelocity() / Double.parseDouble(triggerVelocityRatio));
+                break;
+            case "Priority Rule Change":
+                System.out.println("Priority Rule Change");
+                AdaptiveTrackerRK4.scheduleVehiclesPriorityChange((AutonomousVehicle) triggerVehicle, triggerMissions, tec, orignalHeuristics, newHeuristics);
+                break;
+        }
     }
 }

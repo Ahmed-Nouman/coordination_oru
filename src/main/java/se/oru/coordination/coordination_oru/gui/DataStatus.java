@@ -21,6 +21,10 @@ public class DataStatus {
     private Heuristics heuristics = new Heuristics(Heuristics.HeuristicType.CLOSEST_FIRST);
     private String trafficControl = "";
     private String triggerVehicle = "";
+    private ArrayList<Integer> triggerMissions = new ArrayList<>();
+    private String triggerVelocityRatio = "";
+    private Heuristics newHeuristics = new Heuristics(Heuristics.HeuristicType.CLOSEST_FIRST);
+
     private int vehicleCounter = 0;
     private final List<AbstractVehicle> vehicles = new ArrayList<>();
     public String getProjectFile() {
@@ -30,7 +34,6 @@ public class DataStatus {
     public void setProjectFile(String projectFile) {
         this.projectFile = projectFile;
     }
-
     public ProjectData getProjectData() {
         return projectData;
     }
@@ -163,4 +166,27 @@ public class DataStatus {
         this.triggerVehicle = triggerVehicle;
     }
 
+    public ArrayList<Integer> getTriggerMissions() {
+        return triggerMissions;
+    }
+
+    public void setTriggerTasks(ArrayList<Integer> triggerMissions) {
+        this.triggerMissions = triggerMissions;
+    }
+
+    public String getTriggerVelocityRatio() {
+        return triggerVelocityRatio;
+    }
+
+    public void setTriggerVelocityRatio(String triggerVelocityRatio) {
+        this.triggerVelocityRatio = triggerVelocityRatio;
+    }
+
+    public Heuristics getNewHeuristics() {
+        return newHeuristics;
+    }
+
+    public void setNewHeuristics(Heuristics newHeuristics) {
+        this.newHeuristics = newHeuristics;
+    }
 }

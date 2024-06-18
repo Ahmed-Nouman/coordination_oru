@@ -69,7 +69,7 @@ public class ProductionCycleVehiclePassing {
         final Pose drawPoint34 = new Pose(81.35, 79.45, -Math.PI / 2);
         final Pose drawPoint35 = new Pose(88.45, 81.95, -Math.PI / 2);
         final Pose orePass1 = new Pose(28.45, 15.05, -Math.PI / 2);
-        final Pose orePass2 = new Pose(76.35, 31.05, -Math.PI / 2.7);
+        final Pose orePass2 = new Pose(76.35, 31.05, -Math.PI / 2);
         final Pose orePass3 = new Pose(92.65, 33.15, -Math.PI / 2);
         final Pose barrier1Start = new Pose(20.25, 22.05, Math.PI);
         final Pose barrier1End = new Pose(24.15, 22.05, Math.PI);
