@@ -78,7 +78,12 @@ public class VerifyPlan {
                         newVehicle.addTask(new se.oru.coordination.coordination_oru.utils.Task(task.getTaskName(), task.getDuration(), poses, task.getPriority()), task.getRepetition());
                     }
                     if (!newVehicle.getTasks().get(0).isEmpty()) newVehicle.generatePlans(planner);
-                    newVehicle.savePlans(className);
+
+                    var filePath = navigationController.getMain().getDataStatus().getProjectFile();
+                    var parts = filePath.split("/");
+                    var lastPart = parts[parts.length - 1];
+                    var projectName = lastPart.split("\\.")[0];
+                    newVehicle.savePlans(className + "/" + projectName);
 
                     navigationController.getMain().getDataStatus().getVehicles().add(newVehicle);
                 }

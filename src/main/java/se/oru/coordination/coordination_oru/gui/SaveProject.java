@@ -30,12 +30,9 @@ public class SaveProject {
     }
 
     public void saveProject() throws IOException {
-        //TODO: Also add paths to saved project file.
-        //Should saving paths be automatic?
         var file = Utils.createFile(navigationController.getMain(), "project", "json");
         if (file != null) {
             navigationController.getMain().getDataStatus().setProjectFile(file.getAbsolutePath());
-            //TODO Write the JSON file with added paths to the project file.
             Utils.writeJSON(navigationController.getMain().getDataStatus().getProjectData(), navigationController.getMain().getDataStatus().getProjectFile());
             AlertBox.display("Saving the Project", "The project has been saved to: " + navigationController.getMain().getDataStatus().getProjectFile(), Alert.AlertType.INFORMATION);
         }

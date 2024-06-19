@@ -108,7 +108,13 @@ public class RunProject {
                         .toArray(Pose[]::new);
                 newVehicle.addTask(new Task(task.getTaskName(), task.getDuration(), poses, task.getPriority()), task.getRepetition());
             }
-            newVehicle.loadPlans(pathsFolderName + newVehicle.getName() + ".path");
+
+            var filePath = navigationController.getMain().getDataStatus().getProjectFile();
+            var parts = filePath.split("/");
+            var lastPart = parts[parts.length - 1];
+            var projectName = lastPart.split("\\.")[0];
+
+            newVehicle.loadPlans(pathsFolderName + "/" + projectName + "/" + newVehicle.getName() + ".path");
         }
 
         var tec = new TrajectoryEnvelopeCoordinatorSimulation(10.0, 1.0);

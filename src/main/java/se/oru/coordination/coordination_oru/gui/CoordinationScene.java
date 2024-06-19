@@ -113,11 +113,13 @@ public class CoordinationScene {
         var vehicles = main.getDataStatus().getProjectData().getVehicleNames();
         triggerVehicleField = choiceBox(vehicles, 2);
         triggerVehicleField.setValue(vehicles.stream().findFirst().orElse(null));
+        triggerVehicleField.setDisable(true);  // Initially disable for the mixed traffic
         var triggerVehicle = this.getTriggerVehicleField().getValue();
         if (triggerVehicle != null) this.getMain().getDataStatus().setTriggerVehicle(triggerVehicle);  // Set the default trigger vehicle in DataStatus
 
         triggerTasksField = new ListView<>();
         triggerTasksField.getSelectionModel().setSelectionMode(MULTIPLE);
+        triggerTasksField.setDisable(true);
         triggerTasksField.setMaxHeight(HEIGHT);
         triggerTasksField.setMaxWidth(WIDTH);
         GridPane.setConstraints(triggerTasksField, 1, 3);
@@ -137,16 +139,18 @@ public class CoordinationScene {
             }
         });
 
-        // Initially load missions and other vehicles for the first selected vehicle
+        // Initially load tasks and other vehicles for the first selected vehicle
         updateTasks(triggerVehicleField.getValue());
         updateOtherVehicles(triggerVehicleField.getValue());
 
         triggerVelocityRatioField = new TextField();
+        triggerVelocityRatioField.setDisable(true);
         triggerVelocityRatioField.setMaxWidth(WIDTH);
         GridPane.setConstraints(triggerVelocityRatioField, 1, 4);
 
         newPriorityRuleField = choiceBox(Heuristics.getHeuristicNames(), 5);
         newPriorityRuleField.setValue(Heuristics.getHeuristicNames().stream().findFirst().orElse(null));
+        newPriorityRuleField.setDisable(true);
     }
 
     private void getSelectedTaskIndices() {
