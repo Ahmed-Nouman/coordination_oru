@@ -147,35 +147,38 @@ public class RunProject {
 
         // Shutdown Logic
         var trafficControl = navigationController.getMain().getDataStatus().getTrafficControl();
-        var triggerVehicleName = navigationController.getMain().getDataStatus().getTriggerVehicle();
-        var triggerVehicleID = navigationController.getMain().getDataStatus().getProjectData().getVehicleID(triggerVehicleName, navigationController.getMain().getDataStatus().getProjectData().getVehicles());
-        var triggerVehicle = navigationController.getMain().getDataStatus().getVehicles().get(triggerVehicleID - 1); // Vehicle ID starts from 1
-        var triggerMissions = navigationController.getMain().getDataStatus().getTriggerMissions();
-        var triggerVelocityRatio = navigationController.getMain().getDataStatus().getTriggerVelocityRatio();
-        var orignalHeuristics = navigationController.getMain().getDataStatus().getHeuristics();
-        var newHeuristics = navigationController.getMain().getDataStatus().getNewHeuristics();
-        List<Integer> complyVehicles = navigationController.getMain().getDataStatus().getVehicles().stream()
-                .map(AbstractVehicle::getID)
-                .filter(id -> id != triggerVehicleID)
-                .collect(Collectors.toList());  // All vehicle must comply except the trigger vehicle
-        Function<Integer, AbstractTrajectoryEnvelopeTracker> trackerRetriever = vehicleId -> tec.trackers.get(vehicleId);
+        var trafficVehicleData = navigationController.getMain().getDataStatus().getTriggerVehiclesData();
+        System.out.println(trafficVehicleData);
+        System.out.println(trafficControl);
+//        var triggerVehicleName = navigationController.getMain().getDataStatus().getTriggerVehicle();
+//        var triggerVehicleID = navigationController.getMain().getDataStatus().getProjectData().getVehicleID(triggerVehicleName, navigationController.getMain().getDataStatus().getProjectData().getVehicles());
+//        var triggerVehicle = navigationController.getMain().getDataStatus().getVehicles().get(triggerVehicleID - 1); // Vehicle ID starts from 1
+//        var triggerMissions = navigationController.getMain().getDataStatus().getTriggerMissions();
+//        var triggerVelocityRatio = navigationController.getMain().getDataStatus().getTriggerVelocityRatio();
+//        var orignalHeuristics = navigationController.getMain().getDataStatus().getHeuristics();
+//        var newHeuristics = navigationController.getMain().getDataStatus().getNewHeuristics();
+//        List<Integer> complyVehicles = navigationController.getMain().getDataStatus().getVehicles().stream()
+//                .map(AbstractVehicle::getID)
+//                .filter(id -> id != triggerVehicleID)
+//                .collect(Collectors.toList());  // All vehicle must comply except the trigger vehicle
+//        Function<Integer, AbstractTrajectoryEnvelopeTracker> trackerRetriever = vehicleId -> tec.trackers.get(vehicleId);
 
-        switch (trafficControl) {
-            case "Mixed Traffic":
-                System.out.println("Mixed Traffic");
-                break;
-            case "Vehicle Stoppage":
-                System.out.println("Vehicle Stoppage");
-                AdaptiveTrackerRK4.scheduleVehiclesStop((AutonomousVehicle) triggerVehicle, triggerMissions, complyVehicles, trackerRetriever);
-                break;
-            case "Vehicle Speed Change":
-                System.out.println("Vehicle Speed Change");
-                AdaptiveTrackerRK4.scheduleVehicleSlow((AutonomousVehicle) triggerVehicle, triggerMissions, complyVehicles, trackerRetriever, triggerVehicle.getMaxVelocity(), triggerVehicle.getMaxVelocity() / Double.parseDouble(triggerVelocityRatio));
-                break;
-            case "Priority Rule Change":
-                System.out.println("Priority Rule Change");
-                AdaptiveTrackerRK4.scheduleVehiclesPriorityChange((AutonomousVehicle) triggerVehicle, triggerMissions, tec, orignalHeuristics, newHeuristics);
-                break;
-        }
+//        switch (trafficControl) {
+//            case "Mixed Traffic":
+//                System.out.println("Mixed Traffic");
+//                break;
+//            case "Vehicle Stoppage":
+//                System.out.println("Vehicle Stoppage");
+//                AdaptiveTrackerRK4.scheduleVehiclesStop((AutonomousVehicle) triggerVehicle, triggerMissions, complyVehicles, trackerRetriever);
+//                break;
+//            case "Vehicle Speed Change":
+//                System.out.println("Vehicle Speed Change");
+//                AdaptiveTrackerRK4.scheduleVehicleSlow((AutonomousVehicle) triggerVehicle, triggerMissions, complyVehicles, trackerRetriever, triggerVehicle.getMaxVelocity(), triggerVehicle.getMaxVelocity() / Double.parseDouble(triggerVelocityRatio));
+//                break;
+//            case "Priority Rule Change":
+//                System.out.println("Priority Rule Change");
+//                AdaptiveTrackerRK4.scheduleVehiclesPriorityChange((AutonomousVehicle) triggerVehicle, triggerMissions, tec, orignalHeuristics, newHeuristics);
+//                break;
+//        }
     }
 }

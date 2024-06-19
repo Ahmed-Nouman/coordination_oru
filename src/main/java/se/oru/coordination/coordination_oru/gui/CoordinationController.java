@@ -58,13 +58,30 @@ public class CoordinationController {
     }
 
     public void chooseTriggerVehicle() {
-        var triggerVehicle = scene.getTriggerVehicleField().getValue();
-        if (triggerVehicle != null) scene.getMain().getDataStatus().setTriggerVehicle(triggerVehicle);
+        var selectedVehicle = scene.getTriggerVehicleField().getSelectionModel().getSelectedItem();
+        if (selectedVehicle != null) {
+            DataStatus.TriggerVehicleData data = scene.getMain().getDataStatus().getTriggerVehicleData(selectedVehicle);
+            if (data == null) {
+                data = scene.getMain().getDataStatus().new TriggerVehicleData(selectedVehicle);
+                scene.getMain().getDataStatus().addTriggerVehicleData(data);
+            }
+            scene.loadTriggerVehicleData(data);
+        }
+    }
+
+    public void saveTriggerVehicleData() {
+        var selectedVehicle = scene.getTriggerVehicleField().getSelectionModel().getSelectedItem();
+        if (selectedVehicle != null) {
+            DataStatus.TriggerVehicleData data = scene.getMain().getDataStatus().getTriggerVehicleData(selectedVehicle);
+            if (data != null) {
+                data.setTriggerMissions(scene.getSelectedTaskIndices());
+                data.setTriggerVelocityRatio(scene.getTriggerVelocityRatioField().getText());
+            }
+        }
     }
 
     public void chooseTriggerVelocityRatio() {
-        var triggerVelocityRatio = scene.getTriggerVelocityRatioField().getText();
-        if (triggerVelocityRatio != null) scene.getMain().getDataStatus().setTriggerVelocityRatio(triggerVelocityRatio);
+        saveTriggerVehicleData();
     }
 
     public void chooseNewHeuristic() {

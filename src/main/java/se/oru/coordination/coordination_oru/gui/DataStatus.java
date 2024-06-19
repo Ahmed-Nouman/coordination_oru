@@ -5,7 +5,9 @@ import se.oru.coordination.coordination_oru.utils.Heuristics;
 import se.oru.coordination.coordination_oru.vehicles.AbstractVehicle;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class DataStatus {
     private boolean isPlansVerified = false;
@@ -20,13 +22,47 @@ public class DataStatus {
     private ReedsSheppCarPlanner.PLANNING_ALGORITHM pathPlanner = ReedsSheppCarPlanner.PLANNING_ALGORITHM.RRTConnect;
     private Heuristics heuristics = new Heuristics(Heuristics.HeuristicType.CLOSEST_FIRST);
     private String trafficControl = "";
-    private String triggerVehicle = "";
-    private ArrayList<Integer> triggerMissions = new ArrayList<>();
-    private String triggerVelocityRatio = "";
+    private Map<String, TriggerVehicleData> triggerVehiclesData = new HashMap<>();
     private Heuristics newHeuristics = new Heuristics(Heuristics.HeuristicType.CLOSEST_FIRST);
 
     private int vehicleCounter = 0;
     private final List<AbstractVehicle> vehicles = new ArrayList<>();
+
+    // Inner class to store trigger vehicle data
+    public class TriggerVehicleData {
+        private String triggerVehicle;
+        private ArrayList<Integer> triggerMissions = new ArrayList<>();
+        private String triggerVelocityRatio = "";
+
+        public TriggerVehicleData(String triggerVehicle) {
+            this.triggerVehicle = triggerVehicle;
+        }
+
+        public String getTriggerVehicle() {
+            return triggerVehicle;
+        }
+
+        public void setTriggerVehicle(String triggerVehicle) {
+            this.triggerVehicle = triggerVehicle;
+        }
+
+        public ArrayList<Integer> getTriggerMissions() {
+            return triggerMissions;
+        }
+
+        public void setTriggerMissions(ArrayList<Integer> triggerMissions) {
+            this.triggerMissions = triggerMissions;
+        }
+
+        public String getTriggerVelocityRatio() {
+            return triggerVelocityRatio;
+        }
+
+        public void setTriggerVelocityRatio(String triggerVelocityRatio) {
+            this.triggerVelocityRatio = triggerVelocityRatio;
+        }
+    }
+
     public String getProjectFile() {
         return projectFile;
     }
@@ -34,6 +70,7 @@ public class DataStatus {
     public void setProjectFile(String projectFile) {
         this.projectFile = projectFile;
     }
+
     public ProjectData getProjectData() {
         return projectData;
     }
@@ -152,30 +189,23 @@ public class DataStatus {
         this.heuristics = new Heuristics(Heuristics.HeuristicType.CLOSEST_FIRST);
         this.vehicleCounter = 0;
         this.vehicles.clear();
+        this.triggerVehiclesData.clear();
     }
 
-    public String getTriggerVehicle() {
-        return triggerVehicle;
+    public Map<String, TriggerVehicleData> getTriggerVehiclesData() {
+        return triggerVehiclesData;
     }
 
-    public void setTriggerVehicle(String triggerVehicle) {
-        this.triggerVehicle = triggerVehicle;
+    public void setTriggerVehiclesData(Map<String, TriggerVehicleData> triggerVehiclesData) {
+        this.triggerVehiclesData = triggerVehiclesData;
     }
 
-    public ArrayList<Integer> getTriggerMissions() {
-        return triggerMissions;
+    public void addTriggerVehicleData(TriggerVehicleData data) {
+        this.triggerVehiclesData.put(data.getTriggerVehicle(), data);
     }
 
-    public void setTriggerTasks(ArrayList<Integer> triggerMissions) {
-        this.triggerMissions = triggerMissions;
-    }
-
-    public String getTriggerVelocityRatio() {
-        return triggerVelocityRatio;
-    }
-
-    public void setTriggerVelocityRatio(String triggerVelocityRatio) {
-        this.triggerVelocityRatio = triggerVelocityRatio;
+    public TriggerVehicleData getTriggerVehicleData(String vehicleName) {
+        return this.triggerVehiclesData.get(vehicleName);
     }
 
     public Heuristics getNewHeuristics() {
