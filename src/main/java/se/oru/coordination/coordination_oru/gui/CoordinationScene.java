@@ -177,36 +177,6 @@ public class CoordinationScene {
         }
     }
 
-    private void updateTasks(String selectedVehicleInGUI) {
-        if (selectedVehicleInGUI == null) {
-            return;
-        }
-
-        var selectedVehicle = main.getDataStatus().getProjectData().getVehicle(
-                main.getDataStatus().getProjectData().getVehicleID(selectedVehicleInGUI, main.getDataStatus().getProjectData().getVehicles()));
-        if (selectedVehicle == null) {
-            return;
-        }
-
-        var tasks = selectedVehicle.getTasks();
-        if (tasks == null) {
-            return;
-        }
-
-        ObservableList<String> taskItems = FXCollections.observableArrayList();
-        tasks.forEach(task -> taskItems.add(task.getTaskName()));
-
-        if (triggerTasksField != null) {
-            triggerTasksField.setItems(taskItems);
-        }
-    }
-
-    private void updateOtherVehicles(String selectedVehicleInGUI) {
-        var vehicles = main.getDataStatus().getProjectData().getVehicleNames();
-        ObservableList<String> otherVehicles = FXCollections.observableArrayList();
-        vehicles.stream().filter(vehicle -> !vehicle.equals(selectedVehicleInGUI)).forEach(otherVehicles::add);
-    }
-
     private ChoiceBox<String> choiceBox(List<String> items, int row) {
         var choiceBox = new ChoiceBox<String>();
         choiceBox.getItems().addAll(items);

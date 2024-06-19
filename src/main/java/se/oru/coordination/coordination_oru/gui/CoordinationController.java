@@ -51,8 +51,8 @@ public class CoordinationController {
         boolean isVehicleSpeedChange = "Vehicle Speed Change".equals(trafficControl);
         boolean isPriorityRuleChange = "Priority Rule Change".equals(trafficControl);
 
-        scene.getTriggerVehicleField().setDisable(isMixedTraffic || isPriorityRuleChange);
-        scene.getTriggerTasksField().setDisable(isMixedTraffic || isPriorityRuleChange);
+        scene.getTriggerVehicleField().setDisable(isMixedTraffic);
+        scene.getTriggerTasksField().setDisable(isMixedTraffic);
         scene.getTriggerVelocityRatioField().setDisable(isMixedTraffic || isVehicleStoppage || isPriorityRuleChange);
         scene.getNewPriorityRuleField().setDisable(isMixedTraffic || isVehicleStoppage || isVehicleSpeedChange);
     }
