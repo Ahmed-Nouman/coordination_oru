@@ -50,7 +50,7 @@ public abstract class AdaptiveTrackerRK4 extends AbstractTrajectoryEnvelopeTrack
         this.computeInternalCriticalPoints();
         this.slowDownProfile = this.getSlowdownProfile();
         this.positionToSlowDown = this.computePositionToSlowDown();
-        this.th = new Thread(this, "RK4 tracker " + te.getComponent());
+        this.th = new Thread(this, "Adaptive RK4 tracker " + te.getComponent());
         this.th.setPriority(Thread.MAX_PRIORITY);
     }
 
@@ -202,7 +202,7 @@ public abstract class AdaptiveTrackerRK4 extends AbstractTrajectoryEnvelopeTrack
     }
 
     @Override
-    public void run() {
+    public void run() { // This method updates the state of the robot based on RK4 integration
         this.elapsedTrackingTime = 0.0;
         double deltaTime = 0.0;
         boolean atCP = false;
@@ -422,7 +422,6 @@ public abstract class AdaptiveTrackerRK4 extends AbstractTrajectoryEnvelopeTrack
             //Keep alive just the most recent message before now.
             if (reportTimeLists.get(reportTimeLists.size() - 1) > timeNow) {
                 metaCSPLogger.severe("* ERROR * Unknown status Robot" + te.getRobotID());
-                //FIXME add a function for stopping pausing the fleet and eventually restart
             } else {
                 ArrayList<Long> reportTimeToRemove = new ArrayList<Long>();
                 ArrayList<RobotReport> reportToRemove = new ArrayList<RobotReport>();
@@ -659,7 +658,7 @@ public abstract class AdaptiveTrackerRK4 extends AbstractTrajectoryEnvelopeTrack
     }
 
     @Override
-    public RobotReport getRobotReport() { //TODO: TrackerRK4 creates robot reports
+    public RobotReport getRobotReport() { // This method creates the robot reports
         if (state == null) return null;
         if (!this.th.isAlive()) return new RobotReport(te.getRobotID(), trajectory.getPose()[0], -1, 0.0, 0.0, -1);
         synchronized (state) {

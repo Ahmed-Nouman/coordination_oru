@@ -36,14 +36,14 @@ public class ProductionCycleVehiclePassing {
         double reportingTime = 0.1;
         int simulationTime = 60;
         boolean visualization = true;
-        boolean writeVehicleReports = true;
+        boolean writeVehicleReports = false;
 
-        final double productionMaxVelocity = 4.17 / scaleAdjustment;
+        final double productionMaxVelocity = 4.17 * 100/ scaleAdjustment;
         final double productionMaxAcceleration = 1 / scaleAdjustment;
         final double productionVehicleLength = 12.0 / scaleAdjustment;
         final double productionVehicleWidth = 8.0 / scaleAdjustment;
 
-        final double serviceVehicleMaxVelocity = 11.12 / scaleAdjustment;
+        final double serviceVehicleMaxVelocity = 11.12  * 100/ scaleAdjustment;
         final double serviceVehicleMaxAcceleration = 1 / scaleAdjustment;
         final double serviceVehicleLength = 10.0 / scaleAdjustment;
         final double serviceVehicleWidth = 6.0 / scaleAdjustment;
@@ -132,11 +132,13 @@ public class ProductionCycleVehiclePassing {
             RobotReportWriter.writeReports(tec, reportingTime, simulationTime, heuristics.getName(), reportsFolder, fileName, scaleAdjustment);
         Missions.runTasks(tec, simulationTime);
 
-        ArrayList<Integer> missionIDsToStop = new ArrayList<>(Arrays.asList(1, 4));
-        ArrayList<Integer> vehicleIDsToStop = new ArrayList<>(Arrays.asList(2, 3));
+        ArrayList<Integer> P_missionIDsToStop = new ArrayList<>(Arrays.asList(1));
+        ArrayList<Integer> S_missionIDsToStop = new ArrayList<>(Arrays.asList(1));
+        ArrayList<Integer> vehicleIDsToStop = new ArrayList<>(Arrays.asList(3));
         Function<Integer, AbstractTrajectoryEnvelopeTracker> trackerRetriever = vehicleId -> tec.trackers.get(vehicleId);
 
-        AdaptiveTrackerRK4.scheduleVehiclesStop(serviceVehicle, missionIDsToStop, vehicleIDsToStop, trackerRetriever);
+        AdaptiveTrackerRK4.scheduleVehiclesStop(productionVehicle2, P_missionIDsToStop, vehicleIDsToStop, trackerRetriever);
+        AdaptiveTrackerRK4.scheduleVehiclesStop(serviceVehicle, S_missionIDsToStop, vehicleIDsToStop, trackerRetriever);
 //        AdaptiveTrackerRK4.scheduleVehicleSlow(serviceVehicle, missionIDsToStop, vehicleIDsToStop, trackerRetriever, productionMaxVelocity, productionMaxVelocity / 8); // FIXME: Vehicles may Jump if difference is too much
 //        AdaptiveTrackerRK4.scheduleVehiclesPriorityChange(serviceVehicle, missionIDsToStop, TEC, heuristics, newheuristics);
     }

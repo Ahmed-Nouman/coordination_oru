@@ -1477,7 +1477,7 @@ Collections.addAll(this.allCriticalSections, getCriticalSections(null, null, env
 				//Note: the parking tracker will anyway wait to exit until earliest end time has been reached
 				startParkingTracker.finishParking();
 
-				this.isDriving.put(te.getRobotID(),true);
+				this.isDriving.put(te.getRobotID(), true);
 			}
 			envelopesToTrack.clear();
 		}
@@ -1660,9 +1660,9 @@ Collections.addAll(this.allCriticalSections, getCriticalSections(null, null, env
 		String[] stats = getStatistics();
 		System.out.printf(((char) 0x1b) + "[H");
 		System.out.printf(((char) 0x1b) + "[1m");
-		for (int l = 0; l < stats.length; l++) {
-			System.out.printf(((char) 0x1b) + "[1B" + ((char) 0x1b) + "[2K\r" + stats[l]);
-		}
+        for (String stat : stats) {
+            System.out.printf(((char) 0x1b) + "[1B" + ((char) 0x1b) + "[2K\r" + stat);
+        }
 		System.out.printf(((char) 0x1b) + "[0m");
 		System.out.printf(((char) 0x1b) + "[200B\r");
 	}
@@ -1677,7 +1677,7 @@ Collections.addAll(this.allCriticalSections, getCriticalSections(null, null, env
     protected void setupInferenceCallback() {
 
 		this.stopInference = false;
-		this.inference = new Thread("Coordinator inference") {
+		this.inference = new Thread("Abstract Coordinator inference") {
 
 			@Override
 			public void run() {

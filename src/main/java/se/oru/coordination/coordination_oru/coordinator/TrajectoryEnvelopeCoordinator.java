@@ -1103,7 +1103,6 @@ public abstract class TrajectoryEnvelopeCoordinator extends AbstractTrajectoryEn
                     numberNewAddedMissions = 0;
 
                     synchronized (solver) {
-						for (Integer robotID : trackers.keySet()) trackers.get(robotID);  // What is happening here?
 
 						checkIfLookAheadVehicle();
 
@@ -1174,11 +1173,11 @@ public abstract class TrajectoryEnvelopeCoordinator extends AbstractTrajectoryEn
 				var te = this.getCurrentTrajectoryEnvelope(robotID);
 				if (viz != null) viz.removeEnvelope(te);
 				metaCSPLogger.info("Replacing TE " + te.getID() + " (Robot" + robotID + ") with breaking point " + breakingPathIndex + ".");
-				cleanUpRobotCS(te.getRobotID(), breakingPathIndex);
+//				cleanUpRobotCS(te.getRobotID(), breakingPathIndex);
                 var newTE = solver.createEnvelopeNoParking(robotID, newPath, "Driving", this.getFootprint(robotID));
 
 				synchronized (trackers) {
-					this.trackers.get(robotID).updateTrajectoryEnvelope(newTE); // Check if this is necessary
+					this.trackers.get(robotID).updateTrajectoryEnvelope(newTE);
 				}
 
 				replaceConstraints(robotID, te, newTE);
@@ -1187,7 +1186,7 @@ public abstract class TrajectoryEnvelopeCoordinator extends AbstractTrajectoryEn
 				computeCriticalSections();
 				envelopesToTrack.remove(newTE);
 				forceCriticalPointReTransmission.put(robotID, true);
-				updateDependencies();
+//				updateDependencies();
 
 			}
 		}
@@ -1268,8 +1267,7 @@ public abstract class TrajectoryEnvelopeCoordinator extends AbstractTrajectoryEn
 	 * @param newPath The path based on which the new {@link TrajectoryEnvelope} should be computed.
 	 * @param breakingPathIndex Last point on the current path to preserve. 
 	 * @param lockedRobotIDs The set of robots which have been locked when the re-plan started.
-	 * @param <code>true</code> whether the robot should be at the current critical point before starting a re-plan.
-	 */
+     */
 	public void replacePath(int robotID, PoseSteering[] newPath, int breakingPathIndex, Set<Integer> lockedRobotIDs) {
 		replacePath(robotID, newPath, breakingPathIndex, true, lockedRobotIDs);
 	}
@@ -1281,7 +1279,6 @@ public abstract class TrajectoryEnvelopeCoordinator extends AbstractTrajectoryEn
 	 * @param breakingPathIndex Last point on the current path to preserve. 
 	 * @param concatenatePaths <code>true</code> if the new path should be concatenated with the old one.
 	 * @param lockedRobotIDs The set of robots which have been locked when the re-plan started.
-	 * @param <code>true</code> whether the robot should be at the current critical point before starting a re-plan.
 	 * @ATTENTION When the path is not concatenated, it is supposed the robot has already traversed the overall path.
 	 */
 	public void replacePath(int robotID, PoseSteering[] newPath, int breakingPathIndex, boolean concatenatePaths, Set<Integer> lockedRobotIDs) {
@@ -1420,7 +1417,7 @@ public abstract class TrajectoryEnvelopeCoordinator extends AbstractTrajectoryEn
 				}
 
 				forceCriticalPointReTransmission.put(robotID, true);
-				updateDependencies();											
+				updateDependencies();
 
 			}
 		}

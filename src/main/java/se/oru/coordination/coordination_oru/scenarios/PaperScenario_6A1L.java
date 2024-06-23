@@ -123,7 +123,7 @@ public class PaperScenario_6A1L {
         var m4 = new Mission(autonomousRobot4.getID(), autonomousRobot4.getPath());
         var m5 = new Mission(autonomousRobot5.getID(), autonomousRobot5.getPath());
         var m6 = new Mission(autonomousRobot6.getID(), autonomousRobot6.getPath());
-        var m7 = new Mission(lookAheadRobot.getID(), lookAheadRobot.getPath(lookAheadDistance, tec));
+        var m7 = new Mission(lookAheadRobot.getID(), lookAheadRobot.getPath(tec));
 
         var randomRobotCaller = new RandomRobotCaller(numOfCallsForLookAheadRobot, terminationInMinutes);
         randomRobotCaller.scheduleRandomCalls(m7);

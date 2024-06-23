@@ -15,7 +15,6 @@ public class MenuBar {
     private static MenuItem openProject;
     private static MenuItem saveProject;
     private static MenuItem closeProject;
-    private static MenuItem runProject;
 
     protected static javafx.scene.control.MenuBar update(Main main, SceneState sceneState) {
         var menuBar = new javafx.scene.control.MenuBar();
@@ -25,23 +24,21 @@ public class MenuBar {
 
     private static void menu(Main main, javafx.scene.control.MenuBar menuBar, SceneState sceneState) {
         var file = fileMenu(main);
-        var run = runMenu(main);
         var help = helpMenu();
 
-        menuBar.getMenus().addAll(file, run, help);
+        menuBar.getMenus().addAll(file, help);
 
         switch (sceneState) {
             case HOME:
                 saveProject.setDisable(true);
                 closeProject.setDisable(true);
-                runProject.setDisable(true);
                 break;
             case MAP:
             case VEHICLE:
+            case COORDINATION:
                 newProject.setDisable(true);
                 openProject.setDisable(true);
                 saveProject.setDisable(true);
-                runProject.setDisable(true);
                 break;
             case SETUP:
                 newProject.setDisable(true);
@@ -63,20 +60,6 @@ public class MenuBar {
 
         fileMenu.getItems().addAll(newProject, openProject, closeProject, saveProject, separator, quit);
         return fileMenu;
-    }
-
-    private static Menu runMenu(Main main) {
-        var run = new Menu("Run");
-        runProject(main);
-        run.getItems().addAll(runProject);
-        return run;
-    }
-
-    //FIXME: Not working
-    private static void runProject(Main main) {
-        runProject = new MenuItem("Run Project...");
-        runProject.setAccelerator(new KeyCodeCombination(KeyCode.R, KeyCodeCombination.CONTROL_DOWN));
-        runProject.setOnAction(e -> main.getNavigationButton().clickRun());
     }
 
     private static MenuItem quit(Main main) {

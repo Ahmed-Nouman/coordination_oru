@@ -16,16 +16,13 @@ public class SetupController {
         var pathPlanner = scene.getPathPlannerField().getValue();
         if (pathPlanner != null && pathPlanner.equals("Fast (RRTConnect)")) {
             scene.getMain().getDataStatus().setPathPlanner(ReedsSheppCarPlanner.PLANNING_ALGORITHM.RRTConnect);
-        } else {
-            scene.getMain().getDataStatus().setPathPlanner(ReedsSheppCarPlanner.PLANNING_ALGORITHM.RRTstar);
-        }
+        } else scene.getMain().getDataStatus().setPathPlanner(ReedsSheppCarPlanner.PLANNING_ALGORITHM.RRTstar);
     }
 
     public void changeSimulationTime() {
         var validated = Utils.validateInteger(scene.getSimulationTimeField());
-        if (validated) {
+        if (validated)
             scene.getMain().getDataStatus().setSimulationTime(Integer.parseInt(scene.getSimulationTimeField().getText()));
-        }
     }
 
     public void checkSavingReport() {
@@ -43,9 +40,8 @@ public class SetupController {
 
     public void changeNumberOfRun() {
         var validated = Utils.validateInteger(scene.getNumberOfRunField());
-        if (validated) {
+        if (validated)
             scene.getMain().getDataStatus().setNumberOfRuns(Integer.parseInt(scene.getNumberOfRunField().getText()));
-        }
     }
 
     public void clickReportFolder() {

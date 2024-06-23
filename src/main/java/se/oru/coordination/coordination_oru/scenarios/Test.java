@@ -20,7 +20,7 @@ public class Test {
 
         final int simulationTimeMinutes = 10;
         final long simulationTime = System.currentTimeMillis() + (simulationTimeMinutes * 60 * 1000);
-        double predictableDistance = 40.0 ;
+        double predictableDistance = 30.0 ;
         final String map = "maps/mine-map-test.yaml";
         final Pose mainTunnelLeft = new Pose(4.25,15.35, -Math.PI);
         final Pose mainTunnelRight = new Pose(80.05,24.75, Math.PI);
@@ -36,27 +36,26 @@ public class Test {
         final var planner = new VehiclePathPlanner(map, ReedsSheppCarPlanner.PLANNING_ALGORITHM.RRTConnect,
                 0.09, 60, 2.0, 0.1);
 
-        var lookAheadVehicle = new LookAheadVehicle("H1",predictableDistance,5,  Color.CYAN, 5, 2,
+        var lookAheadVehicle = new LookAheadVehicle("H1",predictableDistance,5,  Color.CYAN, 5, 1,
                 0.5, 0.5, mainTunnelLeft, 5, 5, model);
-        lookAheadVehicle.setGoals(mainTunnelRight);
-        var autonomousVehicle1 = new AutonomousVehicle("A1", 1, Color.YELLOW, 10.0, 1.0, 0.9, 0.6,
+        lookAheadVehicle.setGoals(new Pose[] {mainTunnelRight, mainTunnelLeft});
+        var autonomousVehicle1 = new AutonomousVehicle("A1", 1, Color.YELLOW, 5.0, 1.0, 0.6, 0.6,
                 drawPoint23, 5, 5, model);
-        autonomousVehicle1.setGoals(orePass);
+        autonomousVehicle1.setGoals(new Pose[] {mainTunnelRight, drawPoint23});
         lookAheadVehicle.generatePlans(planner);
         autonomousVehicle1.generatePlans(planner);
 
         // Instantiate a trajectory envelope coordinator.
-        final var tec = new TrajectoryEnvelopeCoordinatorSimulation(2000, 1000,
-                5, 2);
+        final var tec = new TrajectoryEnvelopeCoordinatorSimulation(2000, 1000);
         // Need to set up infrastructure that maintains the representation
         tec.setupSolver(0, 100000000);
         // Start the thread that checks and enforces dependencies at every clock tick
         tec.startInference();
 
         tec.setDefaultFootprint(autonomousVehicle1.getFootprint());
-        tec.placeRobot(autonomousVehicle1.getID(), autonomousVehicle1.getInitialPose());
-        tec.placeRobot(lookAheadVehicle.getID(), lookAheadVehicle.getInitialPose());
-        tec.addComparator(new Heuristics(Heuristics.HeuristicType.HIGHEST_PRIORITY_FIRST).getComparator());
+        tec.placeRobot(autonomousVehicle1.getID(), mainTunnelLeft);
+        tec.placeRobot(lookAheadVehicle.getID(), drawPoint23);
+        tec.addComparator(new Heuristics(Heuristics.HeuristicType.HUMAN_FIRST).getComparator());
         tec.setUseInternalCriticalPoints(false);
         tec.setYieldIfParking(true);
         tec.setBreakDeadlocks(true, false, false);

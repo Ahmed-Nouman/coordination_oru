@@ -26,7 +26,7 @@ import java.util.Arrays;
  */
 
 public class LookAheadVehicle extends AutonomousVehicle {
-    private double lookAheadDistance;
+    private final double lookAheadDistance;
 
     /**
      * Constructs a new LookAheadVehicle with the specified parameters.
@@ -45,16 +45,16 @@ public class LookAheadVehicle extends AutonomousVehicle {
      * @param model             Forward model for the vehicle.
      */
     public LookAheadVehicle(int ID, String name, double lookAheadDistance, int priorityID, Color color, double maxVelocity, double maxAcceleration,
-                            double length, double width, Pose initialPose, double safetyDistance, int missionRepetition, ForwardModel model) {
+                            double length, double width, Pose initialPose, double safetyDistance, int taskRepetition, ForwardModel model) {
         super(ID, name, priorityID, color, maxVelocity, maxAcceleration, length, width, initialPose, safetyDistance,
-                missionRepetition, model);
+                taskRepetition, model);
         this.lookAheadDistance = lookAheadDistance;
     }
 
     public LookAheadVehicle(String name, double lookAheadDistance, int priorityID, Color color, double maxVelocity, double maxAcceleration,
-                            double length, double width, Pose initialPose, double safetyDistance, int missionRepetition, ForwardModel model) {
+                            double length, double width, Pose initialPose, double safetyDistance, int taskRepetition, ForwardModel model) {
         this(vehicleNumber, name, lookAheadDistance, priorityID, color, maxVelocity, maxAcceleration, length, width, initialPose, safetyDistance,
-                missionRepetition, model);
+                taskRepetition, model);
     }
 
     /**
@@ -72,11 +72,10 @@ public class LookAheadVehicle extends AutonomousVehicle {
     /**
      * Retrieves the path for the LookAheadVehicle.
      *
-     * @param lookAheadDistance The look-ahead distance to consider for path generation.
      * @param tec               The TrajectoryEnvelopeCoordinator containing the vehicles.
      * @return An array of PoseSteering objects representing the path.
      */
-    public PoseSteering[] getPath(double lookAheadDistance, TrajectoryEnvelopeCoordinator tec) {
+    public PoseSteering[] getPath(TrajectoryEnvelopeCoordinator tec) {
         return getLimitedPath(tec);
     }
 

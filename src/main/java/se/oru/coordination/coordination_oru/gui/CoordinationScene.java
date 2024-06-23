@@ -49,6 +49,7 @@ public class CoordinationScene {
 
     public Scene get() {
         pane = new BorderPane();
+        menuBar();
         centerPane();
         navigationBar();
         return new Scene(pane);
@@ -197,6 +198,10 @@ public class CoordinationScene {
         triggerVehicleField.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> controller.chooseTriggerVehicle());
         triggerVelocityRatioField.textProperty().addListener((observable, oldValue, newValue) -> controller.saveTriggerVehicleData());
         newPriorityRuleField.setOnAction(e -> controller.chooseNewHeuristic());
+    }
+
+    private void menuBar() {
+        pane.setTop(MenuBar.update(main, SceneState.COORDINATION));
     }
 
     public Main getMain() {

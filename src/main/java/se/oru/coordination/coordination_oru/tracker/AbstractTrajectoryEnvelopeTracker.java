@@ -48,13 +48,9 @@ public abstract class AbstractTrajectoryEnvelopeTracker {
 	protected boolean calledStartTracking = false;
 	protected boolean canStartTracking = false;
 	protected long startingTimeInMillis;
-	
 	protected Logger metaCSPLogger = MetaCSPLogging.getLogger(AbstractTrajectoryEnvelopeTracker.class);
-	protected boolean isPaused;
 
-	private volatile boolean paused = false;
-
-    /**
+	/**
 	 * Create a new {@link AbstractTrajectoryEnvelopeTracker} to track a given {@link TrajectoryEnvelope},
 	 * with a given tracking period in a given temporal resolution. The tracker will post temporal constraints
 	 * to the given solver representing when the robot transitions from one sub-envelope to the next. An optional
@@ -79,21 +75,21 @@ public abstract class AbstractTrajectoryEnvelopeTracker {
 	}
 	
 	/**
-	 * Return the tracking period in milli-seconds.
+	 * Return the tracking period in milliseconds.
 	 */
 	public int getTrackingPeriod() {
 		return this.trackingPeriodInMillis;
 	}
 	
 	/**
-	 * Return the coordination time (in milli-seconds) at which the tracker has started its mission.
+	 * Return the coordination time (in milliseconds) at which the tracker has started its mission.
 	 */
 	public long getStartingTimeInMillis() {
 		return this.startingTimeInMillis;
 	}
 	
 	/**
-	 * Return the coordination time (in milli-seconds) at which the tracker has started its mission.
+	 * Return the coordination time (in 	milliseconds) at which the tracker has started its mission.
 	 */
 	public void resetStartingTimeInMillis() {
 		this.startingTimeInMillis= tec.getCurrentTimeInMillis();
@@ -228,7 +224,7 @@ public abstract class AbstractTrajectoryEnvelopeTracker {
 	
 	/**
 	 * Returns the tracking period in millis.
-	 * @return The the tracking period in millis.
+	 * @return The tracking period in millis.
 	 */
 	public int getTrackingPeriodInMillis() {
 		return this.trackingPeriodInMillis;
@@ -364,9 +360,7 @@ public abstract class AbstractTrajectoryEnvelopeTracker {
 		}
 		
 	}
-	
-	
-	
+
 	protected TrajectoryEnvelope[] getAllSubEnvelopes() {
 		Variable[] allVars = te.getRecursivelyDependentVariables();
 		TrajectoryEnvelope[] allSubEnvelopes = new TrajectoryEnvelope[allVars.length];
@@ -380,14 +374,7 @@ public abstract class AbstractTrajectoryEnvelopeTracker {
 	 * Specifies what happens when tracking starts.
 	 */
 	public abstract void startTracking();
-	
-//	private void printStartedGroundEnvelopes() {
-//		metaCSPLogger.info("*** STARTED GTEs of Robot " + te.getRobotID());
-//		for (TrajectoryEnvelope sse : startedGroundEnvelopes) {
-//			metaCSPLogger.info("\t*** " + sse + " TV: " + sse.getTemporalVariable());
-//		}
-//	}
-	
+
 	/**
 	 * Returns <code>true</code> iff tracking has started.
 	 * @return <code>true</code> iff tracking has started.
