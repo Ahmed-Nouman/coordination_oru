@@ -160,6 +160,8 @@ public class RunProject {
             var triggerVehicleID = navigationController.getMain().getDataStatus().getProjectData().getVehicleID(triggerVehicleName, navigationController.getMain().getDataStatus().getProjectData().getVehicles());
             var triggerVehicle = navigationController.getMain().getDataStatus().getVehicles().get(triggerVehicleID - 1); // Vehicle ID starts from 1
 
+            complyVehicles.remove(Integer.valueOf(triggerVehicle.getID()));
+
             switch (trafficControl) {
                 case "Mixed Traffic":
                     System.out.println("Mixed Traffic");

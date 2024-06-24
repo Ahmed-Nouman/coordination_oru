@@ -14,6 +14,8 @@ import se.oru.coordination.coordination_oru.coordinator.AbstractTrajectoryEnvelo
 import se.oru.coordination.coordination_oru.coordinator.TrajectoryEnvelopeCoordinator;
 import se.oru.coordination.coordination_oru.utils.Dependency;
 import se.oru.coordination.coordination_oru.utils.RobotReport;
+import se.oru.coordination.coordination_oru.utils.RunningState;
+import se.oru.coordination.coordination_oru.utils.VehicleState;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -49,6 +51,8 @@ public abstract class AbstractTrajectoryEnvelopeTracker {
 	protected boolean canStartTracking = false;
 	protected long startingTimeInMillis;
 	protected Logger metaCSPLogger = MetaCSPLogging.getLogger(AbstractTrajectoryEnvelopeTracker.class);
+
+	private VehicleState state;
 
 	/**
 	 * Create a new {@link AbstractTrajectoryEnvelopeTracker} to track a given {@link TrajectoryEnvelope},
@@ -478,6 +482,22 @@ public abstract class AbstractTrajectoryEnvelopeTracker {
 	protected void finishTracking() {
 		metaCSPLogger.info("<<<< Finished (super envelope) " + this.te);
 		if (!(this instanceof TrajectoryEnvelopeTrackerDummy)) fixDeadline(te, 0);
+	}
+
+	public AbstractTrajectoryEnvelopeTracker() {
+		this.state = new RunningState(); // Initial state
+	}
+
+	public void setState(VehicleState state) {
+		this.state = state;
+	}
+
+	public void pause() {
+		state.handlePause(this);
+	}
+
+	public void resume() {
+		state.handleResume(this);
 	}
 
 	/**
