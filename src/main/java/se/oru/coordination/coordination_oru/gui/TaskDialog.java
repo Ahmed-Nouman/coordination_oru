@@ -115,7 +115,7 @@ public class TaskDialog {
         pane.add(new Text("Name: "), 0, 0);
         pane.add(nameField, 1, 0);
         nameField.setPrefWidth(WIDTH);
-        pane.add(new Text("Duration (min): "), 0, 1);
+        pane.add(new Text("StartUp Time (min): "), 0, 1);
         pane.add(durationField, 1, 1);
         pane.add(new Text("Pose: "), 0, 2);
         pane.add(vbox, 1, 2);

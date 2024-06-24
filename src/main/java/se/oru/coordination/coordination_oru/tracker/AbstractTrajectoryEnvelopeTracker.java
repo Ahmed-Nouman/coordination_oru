@@ -14,8 +14,6 @@ import se.oru.coordination.coordination_oru.coordinator.AbstractTrajectoryEnvelo
 import se.oru.coordination.coordination_oru.coordinator.TrajectoryEnvelopeCoordinator;
 import se.oru.coordination.coordination_oru.utils.Dependency;
 import se.oru.coordination.coordination_oru.utils.RobotReport;
-import se.oru.coordination.coordination_oru.utils.RunningState;
-import se.oru.coordination.coordination_oru.utils.VehicleState;
 
 import java.util.ArrayList;
 import java.util.HashMap;

@@ -1,8 +1,4 @@
-package se.oru.coordination.coordination_oru.utils;
-
-import se.oru.coordination.coordination_oru.tracker.AbstractTrajectoryEnvelopeTracker;
-import se.oru.coordination.coordination_oru.tracker.AdaptiveTrackerRK4;
-import se.oru.coordination.coordination_oru.utils.VehicleState;
+package se.oru.coordination.coordination_oru.tracker;
 
 public class PausedState implements VehicleState {
     @Override

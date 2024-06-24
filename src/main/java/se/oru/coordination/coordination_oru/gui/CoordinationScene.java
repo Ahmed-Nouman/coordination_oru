@@ -30,19 +30,18 @@ public class CoordinationScene {
     private Text trafficControl;
     private Text triggerVehicle;
     private Text triggerTasks;
-    private Text triggerVelocityRatio;
-    private Text newPriorityRule;
+    private Text adaptiveVelocity;
+    private Text adaptivePriorityRule;
     private ChoiceBox<String> priorityRuleField;
     private ChoiceBox<String> trafficControlField;
     private ListView<String> triggerVehicleField;
     private ListView<String> triggerTasksField;
-    private TextField triggerVelocityRatioField;
-    private ChoiceBox<String> newPriorityRuleField;
-
+    private TextField adaptiveVelocityField;
+    private ChoiceBox<String> adaptivePriorityRuleField;
     private final Main main;
+
     private BorderPane pane;
     private final CoordinationController controller = new CoordinationController(this);
-
     public CoordinationScene(Main main) {
         this.main = main;
     }
@@ -87,8 +86,8 @@ public class CoordinationScene {
         trafficControl = text("Traffic Control: ", 0, 1);
         triggerVehicle = text("Trigger Vehicle: ", 0, 2);
         triggerTasks = text("Trigger Tasks: ", 0, 3);
-        triggerVelocityRatio = text("Slowdown Velocity Ratio: ", 0, 4);
-        newPriorityRule = text("New Priority Rule: ", 0, 5);
+        adaptiveVelocity = text("Adaptive Velocity: ", 0, 4);
+        adaptivePriorityRule = text("Adaptive Priority Rule: ", 0, 5);
     }
 
     private Text text(String name, int column, int row) {
@@ -103,9 +102,9 @@ public class CoordinationScene {
 
         var trafficControlStrategies = new ArrayList<>(List.of(
                 "Mixed Traffic",
-                "Vehicle Stoppage",
-                "Vehicle Speed Change",
-                "Priority Rule Change"));
+                "Shutdown",
+                "Velocity Adaptation",
+                "Priority Rule Adaptation"));
         trafficControlField = choiceBox(trafficControlStrategies, 1);
         trafficControlField.setValue(trafficControlStrategies.stream().findFirst().orElse(null));
         this.getMain().getDataStatus().setTrafficControl(this.getTrafficControlField().getValue());  // Set the default traffic control strategy in DataStatus
@@ -116,13 +115,13 @@ public class CoordinationScene {
         triggerVehicleField.getSelectionModel().setSelectionMode(MULTIPLE);
         triggerVehicleField.setMaxHeight(HEIGHT);
         triggerVehicleField.setMaxWidth(WIDTH);
-        triggerVehicleField.setDisable(true);  // Initially disable for the mixed traffic
+        triggerVehicleField.setVisible(false);  // Initially invisible for the mixed traffic
         GridPane.setConstraints(triggerVehicleField, 1, 2);
 
         // Initialize triggerTasksField
         triggerTasksField = new ListView<>();
         triggerTasksField.getSelectionModel().setSelectionMode(MULTIPLE);
-        triggerTasksField.setDisable(true);
+        triggerTasksField.setVisible(false);
         triggerTasksField.setMaxHeight(HEIGHT);
         triggerTasksField.setMaxWidth(WIDTH);
         GridPane.setConstraints(triggerTasksField, 1, 3);
@@ -137,17 +136,17 @@ public class CoordinationScene {
             controller.saveTriggerVehicleData();
         });
 
-        triggerVelocityRatioField = new TextField();
-        triggerVelocityRatioField.setDisable(true);
-        triggerVelocityRatioField.setMaxWidth(WIDTH);
-        triggerVelocityRatioField.textProperty().addListener((observable, oldValue, newValue) -> {
+        adaptiveVelocityField = new TextField();
+        adaptiveVelocityField.setVisible(false);
+        adaptiveVelocityField.setMaxWidth(WIDTH);
+        adaptiveVelocityField.textProperty().addListener((observable, oldValue, newValue) -> {
             controller.saveTriggerVehicleData();
         });
-        GridPane.setConstraints(triggerVelocityRatioField, 1, 4);
+        GridPane.setConstraints(adaptiveVelocityField, 1, 4);
 
-        newPriorityRuleField = choiceBox(Heuristics.getHeuristicNames(), 5);
-        newPriorityRuleField.setValue(Heuristics.getHeuristicNames().stream().findFirst().orElse(null));
-        newPriorityRuleField.setDisable(true);
+        adaptivePriorityRuleField = choiceBox(Heuristics.getHeuristicNames(), 5);
+        adaptivePriorityRuleField.setValue(Heuristics.getHeuristicNames().stream().findFirst().orElse(null));
+        adaptivePriorityRuleField.setVisible(false);
     }
 
     public ArrayList<Integer> getSelectedTaskIndices() {
@@ -174,7 +173,7 @@ public class CoordinationScene {
             for (int index : data.getTriggerMissions()) {
                 triggerTasksField.getSelectionModel().select(index);
             }
-            triggerVelocityRatioField.setText(data.getTriggerVelocityRatio());
+            adaptiveVelocityField.setText(data.getTriggerVelocityRatio());
         }
     }
 
@@ -189,15 +188,15 @@ public class CoordinationScene {
 
     private void addChildren(GridPane centerPane) {
         centerPane.getChildren().addAll(priorityRule, priorityRuleField, trafficControl, trafficControlField, triggerVehicle, triggerVehicleField,
-                triggerTasks, triggerTasksField, triggerVelocityRatio, triggerVelocityRatioField, newPriorityRule, newPriorityRuleField);
+                triggerTasks, triggerTasksField, adaptiveVelocity, adaptiveVelocityField, adaptivePriorityRule, adaptivePriorityRuleField);
     }
 
     private void controllers() {
         priorityRuleField.setOnAction(e -> controller.chooseHeuristic());
         trafficControlField.setOnAction(e -> controller.chooseTrafficControl());
         triggerVehicleField.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> controller.chooseTriggerVehicle());
-        triggerVelocityRatioField.textProperty().addListener((observable, oldValue, newValue) -> controller.saveTriggerVehicleData());
-        newPriorityRuleField.setOnAction(e -> controller.chooseNewHeuristic());
+        adaptiveVelocityField.textProperty().addListener((observable, oldValue, newValue) -> controller.saveTriggerVehicleData());
+        adaptivePriorityRuleField.setOnAction(e -> controller.chooseNewHeuristic());
     }
 
     private void menuBar() {
@@ -228,11 +227,27 @@ public class CoordinationScene {
         return triggerTasksField;
     }
 
-    public TextField getTriggerVelocityRatioField() {
-        return triggerVelocityRatioField;
+    public TextField getAdaptiveVelocityField() {
+        return adaptiveVelocityField;
     }
 
-    public ChoiceBox<String> getNewPriorityRuleField() {
-        return newPriorityRuleField;
+    public ChoiceBox<String> getAdaptivePriorityRuleField() {
+        return adaptivePriorityRuleField;
+    }
+
+    public Text getTriggerVehicle() {
+        return triggerVehicle;
+    }
+
+    public Text getTriggerTasks() {
+        return triggerTasks;
+    }
+
+    public Text getAdaptiveVelocity() {
+        return adaptiveVelocity;
+    }
+
+    public Text getAdaptivePriorityRule() {
+        return adaptivePriorityRule;
     }
 }

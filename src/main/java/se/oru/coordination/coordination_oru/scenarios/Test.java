@@ -39,7 +39,7 @@ public class Test {
         var lookAheadVehicle = new LookAheadVehicle("H1",predictableDistance,5,  Color.CYAN, 5, 1,
                 0.5, 0.5, mainTunnelLeft, 5, 5, model);
         lookAheadVehicle.setGoals(new Pose[] {mainTunnelRight, mainTunnelLeft});
-        var autonomousVehicle1 = new AutonomousVehicle("A1", 1, Color.YELLOW, 5.0, 1.0, 0.6, 0.6,
+        var autonomousVehicle1 = new AutonomousVehicle("A1", 1, Color.YELLOW, 10.0, 1.0, 0.6, 0.6,
                 drawPoint23, 5, 5, model);
         autonomousVehicle1.setGoals(new Pose[] {mainTunnelRight, drawPoint23});
         lookAheadVehicle.generatePlans(planner);
@@ -55,7 +55,7 @@ public class Test {
         tec.setDefaultFootprint(autonomousVehicle1.getFootprint());
         tec.placeRobot(autonomousVehicle1.getID(), mainTunnelLeft);
         tec.placeRobot(lookAheadVehicle.getID(), drawPoint23);
-        tec.addComparator(new Heuristics(Heuristics.HeuristicType.HUMAN_FIRST).getComparator());
+        tec.addComparator(new Heuristics(Heuristics.HeuristicType.AUTONOMOUS_FIRST).getComparator());
         tec.setUseInternalCriticalPoints(false);
         tec.setYieldIfParking(true);
         tec.setBreakDeadlocks(true, false, false);

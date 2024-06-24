@@ -28,7 +28,7 @@ public class NavigationBar {
                 buttonsButtons.getChildren().addAll(main.getNavigationButton().getBack(), main.getNavigationButton().getNext());
                 break;
             case SETUP:
-                buttonsButtons.getChildren().addAll(main.getNavigationButton().getReset(), main.getNavigationButton().getBack(),
+                buttonsButtons.getChildren().addAll(main.getNavigationButton().getBack(),
                         main.getNavigationButton().getSave());
                 if (main.getDataStatus().getOriginalProjectData().equals(main.getDataStatus().getProjectData())) // Decide between Run and Verify
                     buttonsButtons.getChildren().add(main.getNavigationButton().getRun());

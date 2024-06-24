@@ -1125,7 +1125,7 @@ public abstract class TrajectoryEnvelopeCoordinator extends AbstractTrajectoryEn
 					//Sleep a little...
 					expectedSleepingTime = Math.max(inferenceSleepingTime, CONTROL_PERIOD-Calendar.getInstance().getTimeInMillis()+threadLastUpdate);
                     if (CONTROL_PERIOD > 0) {
-						try { Thread.sleep(expectedSleepingTime); }
+						try { Thread.sleep(expectedSleepingTime); }  // Here the coordination thread can be made more frequent
 						catch (InterruptedException e) { e.printStackTrace(); }
 					}
 
@@ -2226,7 +2226,7 @@ public abstract class TrajectoryEnvelopeCoordinator extends AbstractTrajectoryEn
 							}
 							else {
 								//update the maps
-								if (!currentDeps.get(depOld.getWaitingRobotID()).remove(depOld)) metaCSPLogger.severe("<<<<<<<< Error in removing dep: " + depOld);
+//								if (!currentDeps.get(depOld.getWaitingRobotID()).remove(depOld)) metaCSPLogger.severe("<<<<<<<< Error in removing dep: " + depOld);
 								if (currentDeps.get(depOld.getWaitingRobotID()).isEmpty()) currentDeps.remove(depOld.getWaitingRobotID());
 								if (!currentDeps.containsKey(waitingTracker.getTrajectoryEnvelope().getRobotID())) currentDeps.put(waitingTracker.getTrajectoryEnvelope().getRobotID(), new HashSet<Dependency>());
 								if (!currentDeps.get(waitingTracker.getTrajectoryEnvelope().getRobotID()).add(depNew)) {

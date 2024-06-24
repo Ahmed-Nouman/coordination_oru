@@ -1,6 +1,4 @@
-package se.oru.coordination.coordination_oru.utils;
-
-import se.oru.coordination.coordination_oru.tracker.AbstractTrajectoryEnvelopeTracker;
+package se.oru.coordination.coordination_oru.tracker;
 
 public interface VehicleState {
     void handlePause(AbstractTrajectoryEnvelopeTracker tracker);

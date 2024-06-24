@@ -110,8 +110,5 @@ public class MenuBar {
     private static void closeProject(Main main) {
         closeProject = new MenuItem("Close Project");
         closeProject.setAccelerator(new KeyCodeCombination(KeyCode.C, KeyCodeCombination.CONTROL_DOWN));
-        closeProject.setOnAction(e -> {
-            main.getNavigationButton().clickReset();
-        });
     }
 }

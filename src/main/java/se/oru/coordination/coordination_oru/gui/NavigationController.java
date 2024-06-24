@@ -8,7 +8,6 @@ public class NavigationController {
     private final Button back = new Button("Back");
     private final Button next = new Button("Next");
     private final Button save = new Button("Save");
-    private final Button reset = new Button("Reset");
     private final Button verify = new Button("Verify");
     private final Button run = new Button("Run");
     private final Main main;
@@ -24,7 +23,6 @@ public class NavigationController {
         main.getNavigationButton().next.setOnAction(e -> clickNext());
         main.getNavigationButton().back.setOnAction(e -> clickBack());
         main.getNavigationButton().save.setOnAction(e -> saveProject.clickSave());
-        main.getNavigationButton().reset.setOnAction(e -> clickReset());
         main.getNavigationButton().verify.setOnAction(e -> verifyPlan.clickVerify());
         main.getNavigationButton().run.setOnAction(e -> runProject.clickRun());
     }
@@ -50,13 +48,6 @@ public class NavigationController {
         }
     }
 
-    public void clickReset() {
-        updateScene(SceneState.HOME);
-        main.getNavigationButton().next.setDisable(true);
-        main.getHomeScene().getFilePath().setText("");
-        main.getDataStatus().reset();
-    }
-
     public SceneState getCurrentScene() {
         return currentSceneState;
     }
@@ -77,10 +68,6 @@ public class NavigationController {
         return save;
     }
 
-    public Button getReset() {
-        return reset;
-    }
-
     public Button getVerify() {
         return verify;
     }
@@ -91,10 +78,6 @@ public class NavigationController {
 
     public Main getMain() {
         return main;
-    }
-
-    public void clickRun() {
-        runProject.run();
     }
 
     public void closeProgram(Main main) {

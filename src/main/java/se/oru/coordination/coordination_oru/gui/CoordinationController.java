@@ -45,16 +45,49 @@ public class CoordinationController {
         var trafficControl = scene.getTrafficControlField().getValue();
         scene.getMain().getDataStatus().setTrafficControl(trafficControl);
 
-        // Disable Control Fields
-        boolean isMixedTraffic = "Mixed Traffic".equals(trafficControl);
-        boolean isVehicleStoppage = "Vehicle Stoppage".equals(trafficControl);
-        boolean isVehicleSpeedChange = "Vehicle Speed Change".equals(trafficControl);
-        boolean isPriorityRuleChange = "Priority Rule Change".equals(trafficControl);
+        // Set all fields to invisible first
+        scene.getTriggerVehicle().setVisible(false);
+        scene.getTriggerTasks().setVisible(false);
+        scene.getAdaptiveVelocity().setVisible(false);
+        scene.getAdaptivePriorityRule().setVisible(false);
+        scene.getTriggerVehicleField().setVisible(false);
+        scene.getTriggerTasksField().setVisible(false);
+        scene.getAdaptiveVelocityField().setVisible(false);
+        scene.getAdaptivePriorityRuleField().setVisible(false);
 
-        scene.getTriggerVehicleField().setDisable(isMixedTraffic);
-        scene.getTriggerTasksField().setDisable(isMixedTraffic);
-        scene.getTriggerVelocityRatioField().setDisable(isMixedTraffic || isVehicleStoppage || isPriorityRuleChange);
-        scene.getNewPriorityRuleField().setDisable(isMixedTraffic || isVehicleStoppage || isVehicleSpeedChange);
+        // Determine the visibility of the fields based on the selected traffic control strategy
+        switch (trafficControl) {
+            case "Mixed Traffic":
+                break;
+            case "Shutdown":
+                scene.getTriggerVehicle().setVisible(true);
+                scene.getTriggerTasks().setVisible(true);
+                scene.getTriggerVehicleField().setVisible(true);
+                scene.getTriggerTasksField().setVisible(true);
+                break;
+            case "Velocity Adaptation":
+                scene.getTriggerVehicle().setVisible(true);
+                scene.getTriggerTasks().setVisible(true);
+                scene.getAdaptiveVelocity().setVisible(true);
+                scene.getTriggerVehicleField().setVisible(true);
+                scene.getTriggerTasksField().setVisible(true);
+                scene.getAdaptiveVelocityField().setVisible(true);
+                break;
+            case "Priority Rule Adaptation":
+                scene.getTriggerVehicle().setVisible(true);
+                scene.getTriggerTasks().setVisible(true);
+                scene.getAdaptivePriorityRule().setVisible(true);
+                scene.getTriggerVehicleField().setVisible(true);
+                scene.getTriggerTasksField().setVisible(true);
+                scene.getAdaptivePriorityRuleField().setVisible(true);
+                break;
+            default:
+                scene.getTriggerVehicleField().setVisible(true);
+                scene.getTriggerTasksField().setVisible(true);
+                scene.getAdaptiveVelocityField().setVisible(true);
+                scene.getAdaptivePriorityRuleField().setVisible(true);
+                break;
+        }
     }
 
     public void chooseTriggerVehicle() {
@@ -75,17 +108,13 @@ public class CoordinationController {
             DataStatus.TriggerVehicleData data = scene.getMain().getDataStatus().getTriggerVehicleData(selectedVehicle);
             if (data != null) {
                 data.setTriggerMissions(scene.getSelectedTaskIndices());
-                data.setTriggerVelocityRatio(scene.getTriggerVelocityRatioField().getText());
+                data.setTriggerVelocityRatio(scene.getAdaptiveVelocityField().getText());
             }
         }
     }
 
-    public void chooseTriggerVelocityRatio() {
-        saveTriggerVehicleData();
-    }
-
     public void chooseNewHeuristic() {
-        var heuristic = scene.getNewPriorityRuleField().getValue();
+        var heuristic = scene.getAdaptivePriorityRuleField().getValue();
         if (heuristic != null) {
             switch (heuristic) {
                 case "MOST_DISTANCE_TRAVELLED_FIRST":
