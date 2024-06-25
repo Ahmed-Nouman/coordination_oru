@@ -14,7 +14,6 @@ public class MenuBar {
     private static MenuItem newProject;
     private static MenuItem openProject;
     private static MenuItem saveProject;
-    private static MenuItem closeProject;
 
     protected static javafx.scene.control.MenuBar update(Main main, SceneState sceneState) {
         var menuBar = new javafx.scene.control.MenuBar();
@@ -31,7 +30,6 @@ public class MenuBar {
         switch (sceneState) {
             case HOME:
                 saveProject.setDisable(true);
-                closeProject.setDisable(true);
                 break;
             case MAP:
             case VEHICLE:
@@ -53,12 +51,11 @@ public class MenuBar {
         var fileMenu = new Menu("File");
         newProject(main);
         openProject(main);
-        closeProject(main);
         saveProject(main);
         var separator = new SeparatorMenuItem();
         var quit = quit(main);
 
-        fileMenu.getItems().addAll(newProject, openProject, closeProject, saveProject, separator, quit);
+        fileMenu.getItems().addAll(newProject, openProject, saveProject, separator, quit);
         return fileMenu;
     }
 
@@ -107,8 +104,4 @@ public class MenuBar {
         saveProject.setOnAction(e -> main.getNavigationButton().saveProject.trySaveProject(main.getNavigationButton()));
     }
 
-    private static void closeProject(Main main) {
-        closeProject = new MenuItem("Close Project");
-        closeProject.setAccelerator(new KeyCodeCombination(KeyCode.C, KeyCodeCombination.CONTROL_DOWN));
-    }
 }

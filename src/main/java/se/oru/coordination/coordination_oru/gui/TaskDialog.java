@@ -39,7 +39,7 @@ public class TaskDialog {
 
     public static void edit(VehicleScene scene) {
         isEdit = true;
-        editIndex = scene.getTasks().getSelectionModel().getSelectedIndex();
+        editIndex = scene.getTaskList().getSelectionModel().getSelectedIndex();
         var taskStep = taskStep(scene);
         taskStep.ifPresent(step -> {
             var vehicle = getVehicle(scene);
@@ -90,7 +90,7 @@ public class TaskDialog {
         repetitionField.setPrefWidth(WIDTH);
 
         if (isEdit) {
-            var selectedTask = scene.getTasks().getSelectionModel().getSelectedItem();
+            var selectedTask = scene.getTaskList().getSelectionModel().getSelectedItem();
             var pattern = Pattern.compile("^(.*?) \\((.*?), (.*?), (.*?), (.*?)\\)$");
             var matcher = pattern.matcher(selectedTask);
 
@@ -217,9 +217,9 @@ public class TaskDialog {
         if (result.isPresent()) {
             var taskStep = result.get();
             if (isEdit) {
-                scene.getTasks().getItems().set(editIndex, formatTaskStep(taskStep));
+                scene.getTaskList().getItems().set(editIndex, formatTaskStep(taskStep));
             } else {
-                scene.getTasks().getItems().add(formatTaskStep(taskStep));
+                scene.getTaskList().getItems().add(formatTaskStep(taskStep));
             }
         }
         return result;

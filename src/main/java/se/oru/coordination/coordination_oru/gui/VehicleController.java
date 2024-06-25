@@ -185,33 +185,33 @@ public class VehicleController {
         });
     }
 
-private void verifyDeleteVehicle() {
-    scene.getDeleteVehicle().setDisable(scene.getVehicles().getItems().isEmpty());
-    }
-private void verifyNext() {
-    scene.getMain().getNavigationButton().getNext().setDisable(scene.getVehicles().getItems().isEmpty());
-    }
-
-public void clickDelete() {
-    var vehicle = scene.getMain().getDataStatus().getProjectData().getVehicle(scene.getMain().getDataStatus().getProjectData().getVehicleID(scene.getVehicles().getSelectionModel().getSelectedItem(), scene.getMain().getDataStatus().getProjectData().getVehicles()));
-    if (vehicle != null) {
-        var index = scene.getTasks().getSelectionModel().getSelectedIndex();
-        scene.getTasks().getItems().remove(index);
-        vehicle.getTasks().remove(index);
+    private void verifyDeleteVehicle() {
+        scene.getDeleteVehicle().setDisable(scene.getVehicles().getItems().isEmpty());
         }
-    }
+    private void verifyNext() {
+        scene.getMain().getNavigationButton().getNext().setDisable(scene.getVehicles().getItems().isEmpty());
+        }
 
     public void clickAdd() {
         TaskDialog.add(scene);
     }
 
+    public void clickDelete() {
+        var vehicle = scene.getMain().getDataStatus().getProjectData().getVehicle(scene.getMain().getDataStatus().getProjectData().getVehicleID(scene.getVehicles().getSelectionModel().getSelectedItem(), scene.getMain().getDataStatus().getProjectData().getVehicles()));
+        if (vehicle != null) {
+            var index = scene.getTaskList().getSelectionModel().getSelectedIndex();
+            scene.getTaskList().getItems().remove(index);
+            vehicle.getTasks().remove(index);
+            }
+        }
+
     public void clickDown() {
-        var index = scene.getTasks().getSelectionModel().getSelectedIndex();
+        var index = scene.getTaskList().getSelectionModel().getSelectedIndex();
         var vehicle = scene.getMain().getDataStatus().getProjectData().getVehicle(scene.getMain().getDataStatus().getProjectData().getVehicleID(scene.getVehicles().getSelectionModel().getSelectedItem(), scene.getMain().getDataStatus().getProjectData().getVehicles()));
         if (index > 0) {
-            var itemToMove = scene.getTasks().getItems().remove(index);
-            scene.getTasks().getItems().add(index - 1, itemToMove);
-            scene.getTasks().getSelectionModel().select(index - 1);
+            var itemToMove = scene.getTaskList().getItems().remove(index);
+            scene.getTaskList().getItems().add(index - 1, itemToMove);
+            scene.getTaskList().getSelectionModel().select(index - 1);
             if (vehicle != null) {
                 var taskSteps = vehicle.getTasks();
                 var taskStep = taskSteps.remove(index);
@@ -221,12 +221,12 @@ public void clickDelete() {
     }
 
     public void clickUp() {
-        var index = scene.getTasks().getSelectionModel().getSelectedIndex();
+        var index = scene.getTaskList().getSelectionModel().getSelectedIndex();
         var vehicle = scene.getMain().getDataStatus().getProjectData().getVehicle(scene.getMain().getDataStatus().getProjectData().getVehicleID(scene.getVehicles().getSelectionModel().getSelectedItem(), scene.getMain().getDataStatus().getProjectData().getVehicles()));
-        if (index < scene.getTasks().getItems().size() - 1) {
-            var itemToMove = scene.getTasks().getItems().remove(index);
-            scene.getTasks().getItems().add(index + 1, itemToMove);
-            scene.getTasks().getSelectionModel().select(index + 1);
+        if (index < scene.getTaskList().getItems().size() - 1) {
+            var itemToMove = scene.getTaskList().getItems().remove(index);
+            scene.getTaskList().getItems().add(index + 1, itemToMove);
+            scene.getTaskList().getSelectionModel().select(index + 1);
             if (vehicle != null) {
                 var missionSteps = vehicle.getTasks();
                 var missionStep = missionSteps.remove(index);

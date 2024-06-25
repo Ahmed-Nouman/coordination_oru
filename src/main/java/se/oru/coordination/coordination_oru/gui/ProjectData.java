@@ -10,10 +10,13 @@ import java.util.*;
  * The ProjectData class is used to manage and store the project's data
  * including the map, vehicles, and poses.
  */
+//FIXME: Maybe move the current data things to DataStatus class
 public class ProjectData implements Serializable {
     private String map;
     private List<Vehicle> vehicles = new ArrayList<>();
     private Map<String, Pose> poses = new HashMap<>();
+    private String trafficControl;
+    private List<Trigger> triggers = new ArrayList<>();
 
     public String getMapImage(MapData mapData) {
         String mapFilePath = this.map;
@@ -91,17 +94,37 @@ public class ProjectData implements Serializable {
         this.vehicles = vehicles;
     }
 
+    public String getTrafficControl() {
+        return trafficControl;
+    }
+
+    public void setTrafficControl(String trafficControl) {
+        this.trafficControl = trafficControl;
+    }
+
+    public List<Trigger> getTriggers() {
+        return triggers;
+    }
+
+    public void setTriggers(List<Trigger> triggers) {
+        this.triggers = triggers;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         ProjectData that = (ProjectData) o;
-        return Objects.equals(map, that.map) && Objects.equals(vehicles, that.vehicles) && Objects.equals(poses, that.poses);
+        return Objects.equals(map, that.map) &&
+                Objects.equals(vehicles, that.vehicles) &&
+                Objects.equals(poses, that.poses) &&
+                Objects.equals(trafficControl, that.trafficControl) &&
+                Objects.equals(triggers, that.triggers);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(map, vehicles, poses);
+        return Objects.hash(map, vehicles, poses, trafficControl, triggers);
     }
 
     public void addPose(String poseName, Pose pose) {
@@ -255,7 +278,20 @@ public class ProjectData implements Serializable {
             if (this == object) return true;
             if (object == null || getClass() != object.getClass()) return false;
             var vehicle = (Vehicle) object;
-            return ID == vehicle.ID && priority == vehicle.priority && Double.compare(lookAheadDistance, vehicle.lookAheadDistance) == 0 && Double.compare(maxVelocity, vehicle.maxVelocity) == 0 && Double.compare(maxAcceleration, vehicle.maxAcceleration) == 0 && Double.compare(length, vehicle.length) == 0 && Double.compare(width, vehicle.width) == 0 && taskRepetition == vehicle.taskRepetition && Double.compare(safetyDistance, vehicle.safetyDistance) == 0 && Objects.equals(name, vehicle.name) && Objects.equals(type, vehicle.type) && Objects.equals(color, vehicle.color) && Objects.equals(initialPose, vehicle.initialPose) && Objects.equals(task, vehicle.task);
+            return ID == vehicle.ID &&
+                    priority == vehicle.priority &&
+                    Double.compare(lookAheadDistance, vehicle.lookAheadDistance) == 0 &&
+                    Double.compare(maxVelocity, vehicle.maxVelocity) == 0 &&
+                    Double.compare(maxAcceleration, vehicle.maxAcceleration) == 0 &&
+                    Double.compare(length, vehicle.length) == 0 &&
+                    Double.compare(width, vehicle.width) == 0 &&
+                    taskRepetition == vehicle.taskRepetition &&
+                    Double.compare(safetyDistance, vehicle.safetyDistance) == 0 &&
+                    Objects.equals(name, vehicle.name) &&
+                    Objects.equals(type, vehicle.type) &&
+                    Objects.equals(color, vehicle.color) &&
+                    Objects.equals(initialPose, vehicle.initialPose) &&
+                    Objects.equals(task, vehicle.task);
         }
 
         @Override
@@ -331,6 +367,51 @@ public class ProjectData implements Serializable {
         @Override
         public int hashCode() {
             return Objects.hash(taskName, poseName, duration, priority, repetition);
+        }
+    }
+
+    public static class Trigger implements Serializable {
+        private String vehicle;
+        private List<String> task;
+        private List<String> vehicleToComply;
+
+        public String getVehicle() {
+            return vehicle;
+        }
+
+        public void setVehicle(String vehicle) {
+            this.vehicle = vehicle;
+        }
+
+        public List<String> getTask() {
+            return task;
+        }
+
+        public void setTask(List<String> task) {
+            this.task = task;
+        }
+
+        public List<String> getVehicleToComply() {
+            return vehicleToComply;
+        }
+
+        public void setVehicleToComply(List<String> vehicleToComply) {
+            this.vehicleToComply = vehicleToComply;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+            Trigger trigger = (Trigger) o;
+            return Objects.equals(vehicle, trigger.vehicle) &&
+                    Objects.equals(task, trigger.task) &&
+                    Objects.equals(vehicleToComply, trigger.vehicleToComply);
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(vehicle, task, vehicleToComply);
         }
     }
 }

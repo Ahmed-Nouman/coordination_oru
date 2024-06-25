@@ -60,6 +60,8 @@ public class RunProject {
         String folderName = "results-";
         var scaleAdjustment = 1 / mapResolution;
         var reportsTimeIntervalInSeconds = 0.1;
+        System.out.println((navigationController.getMain().getDataStatus().getProjectData().getTrafficControl()));
+        System.out.println(navigationController.getMain().getDataStatus().getProjectData().getTriggers());
 
         for (var vehicle : navigationController.getMain().getDataStatus().getProjectData().getVehicles()) {
             AbstractVehicle newVehicle = VehiclesHashMap.getVehicle(vehicle.getID());
@@ -144,8 +146,8 @@ public class RunProject {
         Missions.runTasks(tec, simulationTime);
 
         // Shutdown Logic
-        var triggerVehiclesData = navigationController.getMain().getDataStatus().getTriggerVehiclesData();
-        var trafficControl = navigationController.getMain().getDataStatus().getTrafficControl();
+        var trafficControl = navigationController.getMain().getDataStatus().getProjectData().getTrafficControl();
+        var triggers = navigationController.getMain().getDataStatus().getProjectData().getTriggers();
         var originalHeuristics = navigationController.getMain().getDataStatus().getHeuristics();
         var newHeuristics = navigationController.getMain().getDataStatus().getNewHeuristics();
         List<Integer> complyVehicles = navigationController.getMain().getDataStatus().getVehicles().stream()
@@ -154,31 +156,31 @@ public class RunProject {
 
         Function<Integer, AbstractTrajectoryEnvelopeTracker> trackerRetriever = vehicleId -> tec.trackers.get(vehicleId);
 
-        for (var entry : triggerVehiclesData.entrySet()) {
-            var triggerVehicleName = entry.getKey();
-            var triggerVehicleData = entry.getValue();
-            var triggerVehicleID = navigationController.getMain().getDataStatus().getProjectData().getVehicleID(triggerVehicleName, navigationController.getMain().getDataStatus().getProjectData().getVehicles());
-            var triggerVehicle = navigationController.getMain().getDataStatus().getVehicles().get(triggerVehicleID - 1); // Vehicle ID starts from 1
-
-            complyVehicles.remove(Integer.valueOf(triggerVehicle.getID()));
-
-            switch (trafficControl) {
-                case "Mixed Traffic":
-                    System.out.println("Mixed Traffic");
-                    break;
-                case "Vehicle Stoppage":
-                    System.out.println("Vehicle Stoppage");
-                    AdaptiveTrackerRK4.scheduleVehiclesStop((AutonomousVehicle) triggerVehicle, triggerVehicleData.getTriggerMissions(), complyVehicles, trackerRetriever);
-                    break;
-                case "Vehicle Speed Change":
-                    System.out.println("Vehicle Speed Change");
-                    AdaptiveTrackerRK4.scheduleVehicleSlow((AutonomousVehicle) triggerVehicle, triggerVehicleData.getTriggerMissions(), complyVehicles, trackerRetriever, triggerVehicle.getMaxVelocity(), triggerVehicle.getMaxVelocity() / Double.parseDouble(triggerVehicleData.getTriggerVelocityRatio()));
-                    break;
-                case "Priority Rule Change":
-                    System.out.println("Priority Rule Change");
-                    AdaptiveTrackerRK4.scheduleVehiclesPriorityChange((AutonomousVehicle) triggerVehicle, triggerVehicleData.getTriggerMissions(), tec, originalHeuristics, newHeuristics);
-                    break;
-            }
-        }
+//        for (var entry : triggerVehiclesData.entrySet()) {
+//            var triggerVehicleName = entry.getKey();
+//            var triggerVehicleData = entry.getValue();
+//            var triggerVehicleID = navigationController.getMain().getDataStatus().getProjectData().getVehicleID(triggerVehicleName, navigationController.getMain().getDataStatus().getProjectData().getVehicles());
+//            var triggerVehicle = navigationController.getMain().getDataStatus().getVehicles().get(triggerVehicleID - 1); // Vehicle ID starts from 1
+//
+//            complyVehicles.remove(Integer.valueOf(triggerVehicle.getID()));
+//
+//            switch (trafficControl) {
+//                case "Mixed Traffic":
+//                    System.out.println("Mixed Traffic");
+//                    break;
+//                case "Vehicle Stoppage":
+//                    System.out.println("Vehicle Stoppage");
+//                    AdaptiveTrackerRK4.scheduleVehiclesStop((AutonomousVehicle) triggerVehicle, triggerVehicleData.getTriggerMissions(), complyVehicles, trackerRetriever);
+//                    break;
+//                case "Vehicle Speed Change":
+//                    System.out.println("Vehicle Speed Change");
+//                    AdaptiveTrackerRK4.scheduleVehicleSlow((AutonomousVehicle) triggerVehicle, triggerVehicleData.getTriggerMissions(), complyVehicles, trackerRetriever, triggerVehicle.getMaxVelocity(), triggerVehicle.getMaxVelocity() / Double.parseDouble(triggerVehicleData.getAdaptiveVelocity()));
+//                    break;
+//                case "Priority Rule Change":
+//                    System.out.println("Priority Rule Change");
+//                    AdaptiveTrackerRK4.scheduleVehiclesPriorityChange((AutonomousVehicle) triggerVehicle, triggerVehicleData.getTriggerMissions(), tec, originalHeuristics, newHeuristics);
+//                    break;
+//            }
+//        }
     }
 }

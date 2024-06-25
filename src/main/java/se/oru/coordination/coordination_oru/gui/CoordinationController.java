@@ -1,6 +1,12 @@
 package se.oru.coordination.coordination_oru.gui;
 
+import javafx.collections.ObservableList;
+import javafx.scene.control.ListView;
 import se.oru.coordination.coordination_oru.utils.Heuristics;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 public class CoordinationController {
     private final CoordinationScene scene;
@@ -43,74 +49,7 @@ public class CoordinationController {
 
     public void chooseTrafficControl() {
         var trafficControl = scene.getTrafficControlField().getValue();
-        scene.getMain().getDataStatus().setTrafficControl(trafficControl);
-
-        // Set all fields to invisible first
-        scene.getTriggerVehicle().setVisible(false);
-        scene.getTriggerTasks().setVisible(false);
-        scene.getAdaptiveVelocity().setVisible(false);
-        scene.getAdaptivePriorityRule().setVisible(false);
-        scene.getTriggerVehicleField().setVisible(false);
-        scene.getTriggerTasksField().setVisible(false);
-        scene.getAdaptiveVelocityField().setVisible(false);
-        scene.getAdaptivePriorityRuleField().setVisible(false);
-
-        // Determine the visibility of the fields based on the selected traffic control strategy
-        switch (trafficControl) {
-            case "Mixed Traffic":
-                break;
-            case "Shutdown":
-                scene.getTriggerVehicle().setVisible(true);
-                scene.getTriggerTasks().setVisible(true);
-                scene.getTriggerVehicleField().setVisible(true);
-                scene.getTriggerTasksField().setVisible(true);
-                break;
-            case "Velocity Adaptation":
-                scene.getTriggerVehicle().setVisible(true);
-                scene.getTriggerTasks().setVisible(true);
-                scene.getAdaptiveVelocity().setVisible(true);
-                scene.getTriggerVehicleField().setVisible(true);
-                scene.getTriggerTasksField().setVisible(true);
-                scene.getAdaptiveVelocityField().setVisible(true);
-                break;
-            case "Priority Rule Adaptation":
-                scene.getTriggerVehicle().setVisible(true);
-                scene.getTriggerTasks().setVisible(true);
-                scene.getAdaptivePriorityRule().setVisible(true);
-                scene.getTriggerVehicleField().setVisible(true);
-                scene.getTriggerTasksField().setVisible(true);
-                scene.getAdaptivePriorityRuleField().setVisible(true);
-                break;
-            default:
-                scene.getTriggerVehicleField().setVisible(true);
-                scene.getTriggerTasksField().setVisible(true);
-                scene.getAdaptiveVelocityField().setVisible(true);
-                scene.getAdaptivePriorityRuleField().setVisible(true);
-                break;
-        }
-    }
-
-    public void chooseTriggerVehicle() {
-        var selectedVehicle = scene.getTriggerVehicleField().getSelectionModel().getSelectedItem();
-        if (selectedVehicle != null) {
-            DataStatus.TriggerVehicleData data = scene.getMain().getDataStatus().getTriggerVehicleData(selectedVehicle);
-            if (data == null) {
-                data = scene.getMain().getDataStatus().new TriggerVehicleData(selectedVehicle);
-                scene.getMain().getDataStatus().addTriggerVehicleData(data);
-            }
-            scene.loadTriggerVehicleData(data);
-        }
-    }
-
-    public void saveTriggerVehicleData() {
-        var selectedVehicle = scene.getTriggerVehicleField().getSelectionModel().getSelectedItem();
-        if (selectedVehicle != null) {
-            DataStatus.TriggerVehicleData data = scene.getMain().getDataStatus().getTriggerVehicleData(selectedVehicle);
-            if (data != null) {
-                data.setTriggerMissions(scene.getSelectedTaskIndices());
-                data.setTriggerVelocityRatio(scene.getAdaptiveVelocityField().getText());
-            }
-        }
+        scene.getMain().getDataStatus().getProjectData().setTrafficControl(trafficControl);
     }
 
     public void chooseNewHeuristic() {
@@ -143,5 +82,68 @@ public class CoordinationController {
                     break;
             }
         }
+    }
+
+    public void addTrigger() {
+        System.out.println("Add trigger");
+    }
+
+    public void deleteTrigger() {
+        ListView<String> triggerList = scene.getTriggerList();
+        ObservableList<Integer> selectedIndices = triggerList.getSelectionModel().getSelectedIndices();
+        if (!selectedIndices.isEmpty()) {
+            int indexToRemove = selectedIndices.get(0);
+            triggerList.getItems().remove(indexToRemove);
+            updateProjectDataTriggers();
+        }
+    }
+
+    public void moveDown() {
+        ListView<String> triggerList = scene.getTriggerList();
+        ObservableList<Integer> selectedIndices = triggerList.getSelectionModel().getSelectedIndices();
+        if (!selectedIndices.isEmpty()) {
+            int index = selectedIndices.get(0);
+            if (index < triggerList.getItems().size() - 1) {
+                ObservableList<String> items = triggerList.getItems();
+                String selectedItem = items.remove(index);
+                items.add(index + 1, selectedItem);
+                triggerList.getSelectionModel().select(index + 1);
+                updateProjectDataTriggers();
+            }
+        }
+    }
+
+    public void moveUp() {
+        ListView<String> triggerList = scene.getTriggerList();
+        ObservableList<Integer> selectedIndices = triggerList.getSelectionModel().getSelectedIndices();
+        if (!selectedIndices.isEmpty()) {
+            int index = selectedIndices.get(0);
+            if (index > 0) {
+                ObservableList<String> items = triggerList.getItems();
+                String selectedItem = items.remove(index);
+                items.add(index - 1, selectedItem);
+                triggerList.getSelectionModel().select(index - 1);
+                updateProjectDataTriggers();
+            }
+        }
+    }
+
+    private void updateProjectDataTriggers() {
+        ObservableList<String> triggerItems = scene.getTriggerList().getItems();
+        List<ProjectData.Trigger> triggers = new ArrayList<>();
+        for (String item : triggerItems) {
+            // Parse the item string to reconstruct the Trigger object
+            String[] parts = item.split(", ");
+            String vehicle = parts[0].substring(1); // Remove starting '('
+            List<String> task = Arrays.asList(parts[1].replace("[", "").replace("]", "").split(", "));
+            List<String> vehicleToComply = Arrays.asList(parts[2].replace("[", "").replace("]", "").split(", "));
+            ProjectData.Trigger trigger = new ProjectData.Trigger();
+            trigger.setVehicle(vehicle);
+            trigger.setTask(task);
+            trigger.setVehicleToComply(vehicleToComply);
+            triggers.add(trigger);
+        }
+        scene.getMain().getDataStatus().getProjectData().setTriggers(triggers);
+        System.out.println("Updated triggers: " + triggers);
     }
 }

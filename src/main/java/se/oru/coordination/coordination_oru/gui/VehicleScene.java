@@ -37,7 +37,7 @@ public class VehicleScene {
     private final Button delete = new Button("Delete");
     private final Button down = new Button("↑");
     private final Button up = new Button("↓");
-    private ListView<String> tasks = new ListView<>();
+    private ListView<String> taskList = new ListView<>();
     private final Button addVehicle = new Button("Add Vehicle");
     private final Button deleteVehicle = new Button("Delete Vehicle");
     private final Main main;
@@ -76,16 +76,17 @@ public class VehicleScene {
             }
         });
 
-        tasks = initializeTaskList();
+        taskList = initializeTaskList();
         initializeTasks();
+        taskController();
 
         vehicles.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
             if (newValue != null) {
                 var selectedVehicle = main.getDataStatus().getProjectData().getVehicle(main.getDataStatus().getProjectData().getVehicleID(newValue, main.getDataStatus().getProjectData().getVehicles()));
                 if (selectedVehicle != null) {
-                    tasks.getItems().clear();
+                    taskList.getItems().clear();
                     var taskSteps = selectedVehicle.getTasks();
-                    taskSteps.forEach(taskStep -> tasks.getItems().add(taskStep.toString()));
+                    taskSteps.forEach(taskStep -> taskList.getItems().add(taskStep.toString()));
                 }
             }
         });
@@ -129,8 +130,8 @@ public class VehicleScene {
                 lookAheadDistanceField.setText(String.valueOf(vehicle.getLookAheadDistance()));
                 taskRepetitionField.setText(String.valueOf(vehicle.getTasksRepetition()));
 
-                tasks.getItems().clear();
-                vehicle.getTasks().forEach(missionStep -> tasks.getItems().add(missionStep.toString()));
+                taskList.getItems().clear();
+                vehicle.getTasks().forEach(missionStep -> taskList.getItems().add(missionStep.toString()));
 
                 if (vehicle.getType().equals("Human")) {
                     isHumanField.setSelected(true);
@@ -162,10 +163,10 @@ public class VehicleScene {
     }
 
     private ListView<String> initializeTaskList() {
-        var missions = new ListView<String>();
-        missions.setMaxWidth(TEXT_WIDTH);
-        missions.setMaxHeight(110);
-        return missions;
+        var tasks = new ListView<String>();
+        tasks.setMaxWidth(TEXT_WIDTH);
+        tasks.setMaxHeight(110);
+        return tasks;
     }
 
     private void initializeTasks() {
@@ -174,8 +175,7 @@ public class VehicleScene {
         taskButtons.setAlignment(Pos.CENTER);
         taskButtons.getChildren().addAll(add, delete, down, up);
         taskField.setMaxWidth(TEXT_WIDTH);
-        taskField.getChildren().addAll(tasks, taskButtons);
-        taskController();
+        taskField.getChildren().addAll(taskList, taskButtons);
     }
 
     private void taskController() {
@@ -183,7 +183,7 @@ public class VehicleScene {
         delete.setOnAction(e -> controller.clickDelete());
         down.setOnAction(e -> controller.clickDown());
         up.setOnAction(e -> controller.clickUp());
-        tasks.setOnMouseClicked(e -> {
+        taskList.setOnMouseClicked(e -> {
             if (e.getClickCount() == 2) controller.doubleClickTask();
         });
     }
@@ -420,8 +420,8 @@ public class VehicleScene {
         return up;
     }
 
-    public ListView<String> getTasks() {
-        return tasks;
+    public ListView<String> getTaskList() {
+        return taskList;
     }
 
     public Text getLookAheadDistance() {

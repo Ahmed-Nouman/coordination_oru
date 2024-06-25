@@ -147,8 +147,8 @@ public class Utils {
         Map<String, Pose> posesMap = new HashMap<>();
         posesNode.fields().forEachRemaining(entry -> {
             Pose pose = new Pose(entry.getValue().path("x").asDouble(),
-                                 entry.getValue().path("y").asDouble(),
-                                 entry.getValue().path("theta").asDouble());
+                    entry.getValue().path("y").asDouble(),
+                    entry.getValue().path("theta").asDouble());
             posesMap.put(entry.getKey(), pose);
         });
 
@@ -158,14 +158,14 @@ public class Utils {
 
             // Handle task
             JsonNode taskNode = vehicleObject.get("task");
-            List<TaskStep> task = new ArrayList<>();
+            List<ProjectData.TaskStep> task = new ArrayList<>();
             taskNode.forEach(taskStepNode -> {
                 String taskName = taskStepNode.get(0).asText();
                 String poseName = taskStepNode.get(1).asText();
                 double duration = taskStepNode.get(2).asDouble();
                 int priority = taskStepNode.get(3).asInt();
                 int repetition = taskStepNode.get(4).asInt();
-                var taskStep = new TaskStep();
+                var taskStep = new ProjectData.TaskStep();
                 taskStep.setTaskName(taskName);
                 taskStep.setPoseName(poseName);
                 taskStep.setDuration(duration);
@@ -176,9 +176,9 @@ public class Utils {
             vehicleObject.remove("task");
 
             // Deserialize the vehicle
-            Vehicle vehicle = null;
+            ProjectData.Vehicle vehicle = null;
             try {
-                vehicle = objectMapper.treeToValue(vehicleObject, Vehicle.class);
+                vehicle = objectMapper.treeToValue(vehicleObject, ProjectData.Vehicle.class);
             } catch (JsonProcessingException e) {
                 throw new RuntimeException(e);
             }
@@ -192,6 +192,24 @@ public class Utils {
         projectData.setVehicles(vehicles);
         projectData.setPoses(posesMap);
 
+        // Parse trafficControl
+        projectData.setTrafficControl(rootNode.path("trafficControl").asText());
+
+        // Parse triggers
+        List<ProjectData.Trigger> triggers = new ArrayList<>();
+        var triggersNode = rootNode.path("triggers");
+        for (JsonNode triggerNode : triggersNode) {
+            var trigger = new ProjectData.Trigger();
+            trigger.setVehicle(triggerNode.path("vehicle").asText());
+            List<String> taskList = new ArrayList<>();
+            triggerNode.path("task").forEach(task -> taskList.add(task.asText()));
+            trigger.setTask(taskList);
+            List<String> vehicleToComplyList = new ArrayList<>();
+            triggerNode.path("vehicleToComply").forEach(v -> vehicleToComplyList.add(v.asText()));
+            trigger.setVehicleToComply(vehicleToComplyList);
+            triggers.add(trigger);
+        }
+        projectData.setTriggers(triggers);
         return projectData;
     }
 
@@ -202,22 +220,22 @@ public class Utils {
         JsonSerializer<Object> serializer = new JsonSerializer<>() {
             @Override
             public void serialize(Object object, JsonGenerator GSON, SerializerProvider serializers) throws IOException {
-                if (object instanceof Vehicle) {
+                if (object instanceof ProjectData.Vehicle) {
                     GSON.writeStartObject();
-                    // Serialize other Vehicle fields
-                    GSON.writeStringField("ID", String.valueOf(((Vehicle) object).getID()));
-                    GSON.writeStringField("priority", String.valueOf(((Vehicle) object).getPriority()));
-                    GSON.writeStringField("name", ((Vehicle) object).getName());
-                    GSON.writeStringField("type", ((Vehicle) object).getType());
-                    GSON.writeStringField("lookAheadDistance", String.valueOf(((Vehicle) object).getLookAheadDistance()));
-                    GSON.writeStringField("color", ((Vehicle) object).getColor());
-                    GSON.writeStringField("maxVelocity", String.valueOf(((Vehicle) object).getMaxVelocity()));
-                    GSON.writeStringField("maxAcceleration", String.valueOf(((Vehicle) object).getMaxAcceleration()));
-                    GSON.writeStringField("length", String.valueOf(((Vehicle) object).getLength()));
-                    GSON.writeStringField("width", String.valueOf(((Vehicle) object).getWidth()));
-                    GSON.writeStringField("initialPose", ((Vehicle) object).getInitialPose());
+                    ProjectData.Vehicle vehicle = (ProjectData.Vehicle) object;
+                    GSON.writeStringField("ID", String.valueOf(vehicle.getID()));
+                    GSON.writeStringField("priority", String.valueOf(vehicle.getPriority()));
+                    GSON.writeStringField("name", vehicle.getName());
+                    GSON.writeStringField("type", vehicle.getType());
+                    GSON.writeStringField("lookAheadDistance", String.valueOf(vehicle.getLookAheadDistance()));
+                    GSON.writeStringField("color", vehicle.getColor());
+                    GSON.writeStringField("maxVelocity", String.valueOf(vehicle.getMaxVelocity()));
+                    GSON.writeStringField("maxAcceleration", String.valueOf(vehicle.getMaxAcceleration()));
+                    GSON.writeStringField("length", String.valueOf(vehicle.getLength()));
+                    GSON.writeStringField("width", String.valueOf(vehicle.getWidth()));
+                    GSON.writeStringField("initialPose", vehicle.getInitialPose());
                     GSON.writeArrayFieldStart("task");
-                    for (TaskStep taskStep : ((Vehicle) object).getTasks()) {
+                    for (ProjectData.TaskStep taskStep : vehicle.getTasks()) {
                         GSON.writeStartArray();
                         GSON.writeString(taskStep.getTaskName());
                         GSON.writeString(taskStep.getPoseName());
@@ -227,30 +245,46 @@ public class Utils {
                         GSON.writeEndArray();
                     }
                     GSON.writeEndArray();
-                    GSON.writeStringField("safetyDistance", String.valueOf(((Vehicle) object).getSafetyDistance()));
-                    GSON.writeStringField("taskRepetition", String.valueOf(((Vehicle) object).getTasksRepetition()));
+                    GSON.writeStringField("safetyDistance", String.valueOf(vehicle.getSafetyDistance()));
+                    GSON.writeStringField("taskRepetition", String.valueOf(vehicle.getTasksRepetition()));
                     GSON.writeEndObject();
                 } else if (object instanceof Pose) {
-                    // Serialize Pose as an object
+                    Pose pose = (Pose) object;
                     GSON.writeStartObject();
-                    GSON.writeNumberField("x", ((Pose) object).getX());
-                    GSON.writeNumberField("y", ((Pose) object).getY());
-                    GSON.writeNumberField("theta", ((Pose) object).getTheta());
+                    GSON.writeNumberField("x", pose.getX());
+                    GSON.writeNumberField("y", pose.getY());
+                    GSON.writeNumberField("theta", pose.getTheta());
+                    GSON.writeEndObject();
+                } else if (object instanceof ProjectData.Trigger) {
+                    ProjectData.Trigger trigger = (ProjectData.Trigger) object;
+                    GSON.writeStartObject();
+                    GSON.writeStringField("vehicle", trigger.getVehicle());
+                    GSON.writeArrayFieldStart("task");
+                    for (String task : trigger.getTask()) {
+                        GSON.writeString(task);
+                    }
+                    GSON.writeEndArray();
+                    GSON.writeArrayFieldStart("vehicleToComply");
+                    for (String vehicle : trigger.getVehicleToComply()) {
+                        GSON.writeString(vehicle);
+                    }
+                    GSON.writeEndArray();
                     GSON.writeEndObject();
                 }
             }
         };
 
-        module.addSerializer(Vehicle.class, serializer);
+        module.addSerializer(ProjectData.Vehicle.class, serializer);
         module.addSerializer(Pose.class, serializer);
+        module.addSerializer(ProjectData.Trigger.class, serializer);
         mapper.registerModule(module);
         mapper.enable(SerializationFeature.INDENT_OUTPUT);
 
-        // Write to the json project file
+        // Write to the JSON project file
         try (FileWriter fileWriter = new FileWriter(projectFile)) {
             fileWriter.write(mapper.writeValueAsString(projectData));
         } catch (IOException ex) {
-            System.out.println(("Error: Could not save the file."));
+            System.out.println("Error: Could not save the file.");
         }
     }
 

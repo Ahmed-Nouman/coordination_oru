@@ -1,23 +1,24 @@
 package se.oru.coordination.coordination_oru.gui;
 
 import javafx.collections.FXCollections;
-import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
+import javafx.scene.control.Button;
 import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.ListView;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
 import se.oru.coordination.coordination_oru.utils.Heuristics;
 
 import java.util.ArrayList;
 import java.util.List;
-
-import static javafx.scene.control.SelectionMode.MULTIPLE;
+import java.util.stream.Collectors;
 
 public class CoordinationScene {
 
@@ -25,23 +26,28 @@ public class CoordinationScene {
     private static final int SPACING = 10;
     public static final int HEIGHT = 100;
     public static final int WIDTH = 220;
+    private static final int TEXT_WIDTH = 180;
 
     private Text priorityRule;
     private Text trafficControl;
-    private Text triggerVehicle;
-    private Text triggerTasks;
+    private Text trigger;
+    private VBox triggerField = new VBox();
+    private final Button add = new Button("Add");
+    private final Button delete = new Button("Delete");
+    private final Button down = new Button("↓");
+    private final Button up = new Button("↑");
+    private ListView<String> triggerList = new ListView<>();
     private Text adaptiveVelocity;
     private Text adaptivePriorityRule;
     private ChoiceBox<String> priorityRuleField;
     private ChoiceBox<String> trafficControlField;
-    private ListView<String> triggerVehicleField;
-    private ListView<String> triggerTasksField;
     private TextField adaptiveVelocityField;
     private ChoiceBox<String> adaptivePriorityRuleField;
     private final Main main;
 
     private BorderPane pane;
     private final CoordinationController controller = new CoordinationController(this);
+
     public CoordinationScene(Main main) {
         this.main = main;
     }
@@ -51,7 +57,46 @@ public class CoordinationScene {
         menuBar();
         centerPane();
         navigationBar();
+
+        initializeTriggerList();
+        initializeTrigger();
+        triggerController();
+
         return new Scene(pane);
+    }
+
+    private void triggerController() {
+        add.setOnAction(e -> controller.addTrigger());
+        delete.setOnAction(e -> controller.deleteTrigger());
+        down.setOnAction(e -> controller.moveDown());
+        up.setOnAction(e -> controller.moveUp());
+    }
+
+    private void initializeTrigger() {
+        var triggerButtons = new HBox();
+        triggerButtons.setSpacing(10);
+        triggerButtons.setAlignment(Pos.CENTER);
+        triggerButtons.getChildren().addAll(add, delete, down, up);
+        triggerField.setMaxWidth(WIDTH);
+        triggerField.getChildren().addAll(triggerList, triggerButtons);
+        GridPane.setConstraints(triggerField, 1, 2);
+    }
+
+    private void initializeTriggerList() {
+        triggerList.setMaxWidth(WIDTH);
+        triggerList.setMaxHeight(110);
+
+        // Load triggers from the main project data
+        ObservableList<String> triggers = FXCollections.observableArrayList(
+                main.getDataStatus().getProjectData().getTriggers().stream()
+                        .map(trigger -> String.format("(%s, %s, %s)",
+                                trigger.getVehicle(),
+                                trigger.getTask().toString(),
+                                trigger.getVehicleToComply().toString()))
+                        .collect(Collectors.toList())
+        );
+
+        triggerList.setItems(triggers);
     }
 
     private void navigationBar() {
@@ -84,10 +129,9 @@ public class CoordinationScene {
     private void setupTexts() {
         priorityRule = text("Priority Rule: ", 0, 0);
         trafficControl = text("Traffic Control: ", 0, 1);
-        triggerVehicle = text("Trigger Vehicle: ", 0, 2);
-        triggerTasks = text("Trigger Tasks: ", 0, 3);
-        adaptiveVelocity = text("Adaptive Velocity: ", 0, 4);
-        adaptivePriorityRule = text("Adaptive Priority Rule: ", 0, 5);
+        trigger = text("Triggers: ", 0, 2);
+        adaptiveVelocity = text("Adaptive Velocity: ", 0, 3);
+        adaptivePriorityRule = text("Adaptive Priority Rule: ", 0, 4);
     }
 
     private Text text(String name, int column, int row) {
@@ -106,75 +150,15 @@ public class CoordinationScene {
                 "Velocity Adaptation",
                 "Priority Rule Adaptation"));
         trafficControlField = choiceBox(trafficControlStrategies, 1);
-        trafficControlField.setValue(trafficControlStrategies.stream().findFirst().orElse(null));
-        this.getMain().getDataStatus().setTrafficControl(this.getTrafficControlField().getValue());  // Set the default traffic control strategy in DataStatus
-
-        var vehicles = main.getDataStatus().getProjectData().getVehicleNames();
-        triggerVehicleField = new ListView<>();
-        triggerVehicleField.setItems(FXCollections.observableArrayList(vehicles));
-        triggerVehicleField.getSelectionModel().setSelectionMode(MULTIPLE);
-        triggerVehicleField.setMaxHeight(HEIGHT);
-        triggerVehicleField.setMaxWidth(WIDTH);
-        triggerVehicleField.setVisible(false);  // Initially invisible for the mixed traffic
-        GridPane.setConstraints(triggerVehicleField, 1, 2);
-
-        // Initialize triggerTasksField
-        triggerTasksField = new ListView<>();
-        triggerTasksField.getSelectionModel().setSelectionMode(MULTIPLE);
-        triggerTasksField.setVisible(false);
-        triggerTasksField.setMaxHeight(HEIGHT);
-        triggerTasksField.setMaxWidth(WIDTH);
-        GridPane.setConstraints(triggerTasksField, 1, 3);
-
-        // Add a listener to the vehicle list view to update missions and other vehicles when a different vehicle is selected
-        triggerVehicleField.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
-            controller.chooseTriggerVehicle();
-        });
-
-        // Add a listener to triggerTasksField to save the data when tasks are changed
-        triggerTasksField.getSelectionModel().getSelectedItems().addListener((ListChangeListener<String>) change -> {
-            controller.saveTriggerVehicleData();
-        });
+        trafficControlField.setValue(main.getDataStatus().getProjectData().getTrafficControl());
+        this.getMain().getDataStatus().getProjectData().setTrafficControl(this.getTrafficControlField().getValue());  // Set the default traffic control strategy in DataStatus
 
         adaptiveVelocityField = new TextField();
-        adaptiveVelocityField.setVisible(false);
         adaptiveVelocityField.setMaxWidth(WIDTH);
-        adaptiveVelocityField.textProperty().addListener((observable, oldValue, newValue) -> {
-            controller.saveTriggerVehicleData();
-        });
-        GridPane.setConstraints(adaptiveVelocityField, 1, 4);
+        GridPane.setConstraints(adaptiveVelocityField, 1, 3);
 
-        adaptivePriorityRuleField = choiceBox(Heuristics.getHeuristicNames(), 5);
+        adaptivePriorityRuleField = choiceBox(Heuristics.getHeuristicNames(), 4);
         adaptivePriorityRuleField.setValue(Heuristics.getHeuristicNames().stream().findFirst().orElse(null));
-        adaptivePriorityRuleField.setVisible(false);
-    }
-
-    public ArrayList<Integer> getSelectedTaskIndices() {
-        ObservableList<String> selectedTasks = triggerTasksField.getSelectionModel().getSelectedItems();
-        ObservableList<String> allTasks = triggerTasksField.getItems();
-        ArrayList<Integer> selectedIndices = new ArrayList<>();
-        for (String task : selectedTasks) {
-            int index = allTasks.indexOf(task);
-            selectedIndices.add(index);
-        }
-        return selectedIndices;
-    }
-
-    public void loadTriggerVehicleData(DataStatus.TriggerVehicleData data) {
-        if (data != null) {
-            var selectedVehicle = data.getTriggerVehicle();
-            var selectedVehicleObject = main.getDataStatus().getProjectData().getVehicle(
-                    main.getDataStatus().getProjectData().getVehicleID(selectedVehicle, main.getDataStatus().getProjectData().getVehicles()));
-            var tasks = selectedVehicleObject.getTasks();
-            ObservableList<String> taskItems = FXCollections.observableArrayList();
-            tasks.forEach(task -> taskItems.add(task.getTaskName()));
-            triggerTasksField.setItems(taskItems);
-            triggerTasksField.getSelectionModel().clearSelection();
-            for (int index : data.getTriggerMissions()) {
-                triggerTasksField.getSelectionModel().select(index);
-            }
-            adaptiveVelocityField.setText(data.getTriggerVelocityRatio());
-        }
     }
 
     private ChoiceBox<String> choiceBox(List<String> items, int row) {
@@ -187,15 +171,13 @@ public class CoordinationScene {
     }
 
     private void addChildren(GridPane centerPane) {
-        centerPane.getChildren().addAll(priorityRule, priorityRuleField, trafficControl, trafficControlField, triggerVehicle, triggerVehicleField,
-                triggerTasks, triggerTasksField, adaptiveVelocity, adaptiveVelocityField, adaptivePriorityRule, adaptivePriorityRuleField);
+        centerPane.getChildren().addAll(priorityRule, priorityRuleField, trafficControl, trafficControlField, trigger, triggerField,
+                adaptiveVelocity, adaptiveVelocityField, adaptivePriorityRule, adaptivePriorityRuleField);
     }
 
     private void controllers() {
         priorityRuleField.setOnAction(e -> controller.chooseHeuristic());
         trafficControlField.setOnAction(e -> controller.chooseTrafficControl());
-        triggerVehicleField.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> controller.chooseTriggerVehicle());
-        adaptiveVelocityField.textProperty().addListener((observable, oldValue, newValue) -> controller.saveTriggerVehicleData());
         adaptivePriorityRuleField.setOnAction(e -> controller.chooseNewHeuristic());
     }
 
@@ -219,14 +201,6 @@ public class CoordinationScene {
         return trafficControlField;
     }
 
-    public ListView<String> getTriggerVehicleField() {
-        return triggerVehicleField;
-    }
-
-    public ListView<String> getTriggerTasksField() {
-        return triggerTasksField;
-    }
-
     public TextField getAdaptiveVelocityField() {
         return adaptiveVelocityField;
     }
@@ -235,19 +209,15 @@ public class CoordinationScene {
         return adaptivePriorityRuleField;
     }
 
-    public Text getTriggerVehicle() {
-        return triggerVehicle;
-    }
-
-    public Text getTriggerTasks() {
-        return triggerTasks;
-    }
-
     public Text getAdaptiveVelocity() {
         return adaptiveVelocity;
     }
 
     public Text getAdaptivePriorityRule() {
         return adaptivePriorityRule;
+    }
+
+    public ListView<String> getTriggerList() {
+        return triggerList;
     }
 }
