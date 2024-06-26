@@ -50,8 +50,6 @@ public abstract class AbstractTrajectoryEnvelopeTracker {
 	protected long startingTimeInMillis;
 	protected Logger metaCSPLogger = MetaCSPLogging.getLogger(AbstractTrajectoryEnvelopeTracker.class);
 
-	private VehicleState state;
-
 	/**
 	 * Create a new {@link AbstractTrajectoryEnvelopeTracker} to track a given {@link TrajectoryEnvelope},
 	 * with a given tracking period in a given temporal resolution. The tracker will post temporal constraints
@@ -480,22 +478,6 @@ public abstract class AbstractTrajectoryEnvelopeTracker {
 	protected void finishTracking() {
 		metaCSPLogger.info("<<<< Finished (super envelope) " + this.te);
 		if (!(this instanceof TrajectoryEnvelopeTrackerDummy)) fixDeadline(te, 0);
-	}
-
-	public AbstractTrajectoryEnvelopeTracker() {
-		this.state = new RunningState(); // Initial state
-	}
-
-	public void setState(VehicleState state) {
-		this.state = state;
-	}
-
-	public void pause() {
-		state.handlePause(this);
-	}
-
-	public void resume() {
-		state.handleResume(this);
 	}
 
 	/**

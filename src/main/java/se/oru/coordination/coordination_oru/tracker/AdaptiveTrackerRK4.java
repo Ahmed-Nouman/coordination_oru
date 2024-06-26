@@ -6,7 +6,10 @@ import org.metacsp.multi.spatioTemporal.paths.TrajectoryEnvelope;
 import se.oru.coordination.coordination_oru.coordinator.NetworkConfiguration;
 import se.oru.coordination.coordination_oru.coordinator.TrajectoryEnvelopeCoordinator;
 import se.oru.coordination.coordination_oru.coordinator.TrajectoryEnvelopeCoordinatorSimulation;
-import se.oru.coordination.coordination_oru.utils.*;
+import se.oru.coordination.coordination_oru.utils.Heuristics;
+import se.oru.coordination.coordination_oru.utils.RungeKutta4;
+import se.oru.coordination.coordination_oru.utils.RobotReport;
+import se.oru.coordination.coordination_oru.utils.State;
 import se.oru.coordination.coordination_oru.vehicles.AutonomousVehicle;
 
 import java.util.*;
@@ -58,6 +61,7 @@ public abstract class AdaptiveTrackerRK4 extends AbstractTrajectoryEnvelopeTrack
             Function<Integer, AbstractTrajectoryEnvelopeTracker> trackerRetriever) {
 
         final var scheduler = Executors.newScheduledThreadPool(1);
+        Map<AbstractTrajectoryEnvelopeTracker, Double> previousVelocities = new HashMap<>();
 
         var shutdown = new Runnable() {
             @Override
@@ -86,7 +90,7 @@ public abstract class AdaptiveTrackerRK4 extends AbstractTrajectoryEnvelopeTrack
     public static void stopVehicles(List<AbstractTrajectoryEnvelopeTracker> trackers) {
         for (AbstractTrajectoryEnvelopeTracker tracker : trackers) {
             synchronized (tracker) {
-                tracker.pause();
+                if (tracker instanceof AdaptiveTrackerRK4) ((AdaptiveTrackerRK4) tracker).pause();
             }
         }
     }
@@ -94,7 +98,7 @@ public abstract class AdaptiveTrackerRK4 extends AbstractTrajectoryEnvelopeTrack
     private static void resumeVehicles(List<AbstractTrajectoryEnvelopeTracker> trackers) {
         for (AbstractTrajectoryEnvelopeTracker tracker : trackers) {
             synchronized (tracker) {
-                tracker.resume();
+                if (tracker instanceof AdaptiveTrackerRK4) ((AdaptiveTrackerRK4) tracker).resume();
             }
         }
     }
@@ -703,4 +707,3 @@ public abstract class AdaptiveTrackerRK4 extends AbstractTrajectoryEnvelopeTrack
         return new RobotReport(te.getRobotID(), pose, currentPathIndex, auxState.getVelocity(), auxState.getPosition(), -1);
     }
 }
-
