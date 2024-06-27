@@ -156,8 +156,20 @@ public class RunProject {
 
         for (var trigger : triggers) {
             var triggerVehicleID = navigationController.getMain().getDataStatus().getProjectData().getVehicleID(trigger.getVehicle(), navigationController.getMain().getDataStatus().getProjectData().getVehicles());
-            var triggerVehicle = navigationController.getMain().getDataStatus().getVehicles().get(triggerVehicleID - 1); // Vehicle ID starts from 1
-            var triggerTasks = trigger.getTask().stream().map(Integer::parseInt).collect(Collectors.toList());
+            var triggerVehicle = (AutonomousVehicle) navigationController.getMain().getDataStatus().getVehicles().get(triggerVehicleID - 1); // Vehicle ID starts from 1
+            var taskNames = trigger.getTask(); // Get the task names from the trigger
+
+            List<Integer> triggerTasks = taskNames.stream()
+                    .map(taskName -> {
+                        List<Task> tasks = triggerVehicle.getTasks();
+                        for (int i = 0; i < tasks.size(); i++) {
+                            if (tasks.get(i).getName().equals(taskName)) { // Use the getName() method to get the task name
+                                return i; // Return the index of the task
+                            }
+                        }
+                        return -1; // Return -1 if not found (you may handle this case as needed)
+                    })
+                    .collect(Collectors.toList());
 
             List<Integer> complyVehicles = trigger.getVehicleToComply().stream()
                     .map(vehicleName -> navigationController.getMain().getDataStatus().getProjectData().getVehicleID(vehicleName, navigationController.getMain().getDataStatus().getProjectData().getVehicles()))
@@ -169,16 +181,15 @@ public class RunProject {
                     break;
                 case "Shutdown":
                     System.out.println("Shutdown"); // FIXME: Not all the vehicles stop. Why?
-//                    AdaptiveTrackerRK4.scheduleVehiclesStop((AutonomousVehicle) triggerVehicle, new ArrayList<>(Arrays.asList(1, 4)), new ArrayList<>(Arrays.asList(1, 2, 3)), trackerRetriever);
-                    AdaptiveTrackerRK4.scheduleVehiclesStop((AutonomousVehicle) triggerVehicle, triggerTasks, complyVehicles, trackerRetriever);
+                    AdaptiveTrackerRK4.scheduleVehiclesStop(triggerVehicle, triggerTasks, complyVehicles, trackerRetriever);
                     break;
                 case "Vehicle Speed Change":
                     System.out.println("Vehicle Speed Change");
-                    AdaptiveTrackerRK4.scheduleVehicleSlow((AutonomousVehicle) triggerVehicle, triggerTasks, complyVehicles, trackerRetriever, triggerVehicle.getMaxVelocity(), triggerVehicle.getMaxVelocity() * 0.5); // example speed reduction
+                    AdaptiveTrackerRK4.scheduleVehicleSlow(triggerVehicle, triggerTasks, complyVehicles, trackerRetriever, triggerVehicle.getMaxVelocity(), triggerVehicle.getMaxVelocity() * 0.5); // example speed reduction
                     break;
                 case "Priority Rule Change":
                     System.out.println("Priority Rule Change");
-                    AdaptiveTrackerRK4.scheduleVehiclesPriorityChange((AutonomousVehicle) triggerVehicle, triggerTasks, tec, originalHeuristics, newHeuristics);
+                    AdaptiveTrackerRK4.scheduleVehiclesPriorityChange(triggerVehicle, triggerTasks, tec, originalHeuristics, newHeuristics);
                     break;
             }
         }

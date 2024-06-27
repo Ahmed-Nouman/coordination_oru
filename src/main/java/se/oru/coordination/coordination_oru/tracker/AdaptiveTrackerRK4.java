@@ -84,7 +84,7 @@ public abstract class AdaptiveTrackerRK4 extends AbstractTrajectoryEnvelopeTrack
             }
         };
 
-        scheduler.schedule(shutdown, 2, TimeUnit.SECONDS);
+        scheduler.schedule(shutdown, 5, TimeUnit.SECONDS);
     }
 
     public static void stopVehicles(List<AbstractTrajectoryEnvelopeTracker> trackers) {
@@ -144,7 +144,7 @@ public abstract class AdaptiveTrackerRK4 extends AbstractTrajectoryEnvelopeTrack
             }
         };
 
-        scheduler.schedule(shutdown, 2, TimeUnit.SECONDS);
+        scheduler.schedule(shutdown, 5, TimeUnit.SECONDS);
     }
 
     private static void slowDownVehicles(List<AbstractTrajectoryEnvelopeTracker> trackers, double targetVelocity) {
@@ -198,7 +198,7 @@ public abstract class AdaptiveTrackerRK4 extends AbstractTrajectoryEnvelopeTrack
             }
         };
 
-        scheduler.schedule(updateHeuristics, 0, TimeUnit.SECONDS);
+        scheduler.schedule(updateHeuristics, 5, TimeUnit.SECONDS);
     }
 
     @Override
