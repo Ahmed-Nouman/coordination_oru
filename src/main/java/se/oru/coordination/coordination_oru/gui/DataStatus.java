@@ -126,7 +126,7 @@ public class DataStatus {
         return newHeuristics;
     }
 
-    public void setNewHeuristics(Heuristics newHeuristics) {
+    public void setTransientHeuristics(Heuristics newHeuristics) {
         this.newHeuristics = newHeuristics;
     }
 }

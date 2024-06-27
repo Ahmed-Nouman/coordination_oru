@@ -8,7 +8,7 @@ public class NavigationController {
     private final Button back = new Button("Back");
     private final Button next = new Button("Next");
     private final Button save = new Button("Save");
-    private final Button verify = new Button("Verify");
+    private final Button verify = new Button("Verify Paths");
     private final Button run = new Button("Run");
     private final Main main;
     private final VerifyPlan verifyPlan = new VerifyPlan(this);
