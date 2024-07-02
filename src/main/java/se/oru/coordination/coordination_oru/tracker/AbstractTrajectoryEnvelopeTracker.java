@@ -15,10 +15,12 @@ import se.oru.coordination.coordination_oru.coordinator.TrajectoryEnvelopeCoordi
 import se.oru.coordination.coordination_oru.utils.Dependency;
 import se.oru.coordination.coordination_oru.utils.Heuristics;
 import se.oru.coordination.coordination_oru.utils.RobotReport;
+import se.oru.coordination.coordination_oru.vehicles.AutonomousVehicle;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.logging.Logger;
 
 public abstract class AbstractTrajectoryEnvelopeTracker {
@@ -41,7 +43,8 @@ public abstract class AbstractTrajectoryEnvelopeTracker {
 	protected boolean canStartTracking = false;
 	protected long startingTimeInMillis;
 	protected Logger metaCSPLogger = MetaCSPLogging.getLogger(AbstractTrajectoryEnvelopeTracker.class);
-	protected volatile int pauseCounter = 0;
+//	protected volatile int pauseCounter = 0;
+	protected volatile ArrayList<AutonomousVehicle> pauseByVehicles = new ArrayList<>();
 	protected volatile int priorityChangeCounter = 0;
 	protected volatile int slowdownCounter = 0;
 	protected volatile boolean isPaused = false;
@@ -354,24 +357,33 @@ public abstract class AbstractTrajectoryEnvelopeTracker {
 		return this.te;
 	}
 
-	public synchronized void pause() {
-		pauseCounter++;
+	public synchronized void pause(AutonomousVehicle byVehicle) {
+		pauseByVehicles.add(byVehicle);
+		System.out.println(pauseByVehicles);
 		isPaused = true;
 	}
 
-	public synchronized void resume() {
-		if (pauseCounter > 0) {
-			pauseCounter--;
+	public synchronized void resume(AutonomousVehicle byVehicle) {
+		if (pauseByVehicles.contains(byVehicle)) {
+			pauseByVehicles.remove(byVehicle);
 		}
-		if (pauseCounter == 0) {
+		if (pauseByVehicles.isEmpty()) {
 			isPaused = false;
 			notifyAll();
 		}
 	}
 
-	protected void checkPause() {
+	public void setPauseCounter(ArrayList<AutonomousVehicle> newList) {
+		this.pauseByVehicles = newList;
+	}
+
+	public ArrayList<AutonomousVehicle> getPauseCounter() {
+		return pauseByVehicles;
+	}
+
+	public void checkPause() {
 		synchronized (this) {
-			while (pauseCounter > 0) {
+			while (!pauseByVehicles.isEmpty()) {
 				try {
 					wait();
 				} catch (InterruptedException e) {

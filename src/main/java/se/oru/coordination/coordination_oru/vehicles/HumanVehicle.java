@@ -89,7 +89,7 @@ public class HumanVehicle extends AutonomousVehicle {
     private static void stopVehicle(AbstractTrajectoryEnvelopeTracker tracker) {
         synchronized (tracker) {
             if (tracker instanceof AdaptiveTrackerRK4) {
-                ((AdaptiveTrackerRK4) tracker).pause();
+//                ((AdaptiveTrackerRK4) tracker).pause(this);
             }
         }
     }
@@ -97,7 +97,7 @@ public class HumanVehicle extends AutonomousVehicle {
     private static void resumeVehicle(AbstractTrajectoryEnvelopeTracker tracker) {
         synchronized (tracker) {
             if (tracker instanceof AdaptiveTrackerRK4) {
-                ((AdaptiveTrackerRK4) tracker).resume();
+//                ((AdaptiveTrackerRK4) tracker).resume(this);
             }
         }
     }

@@ -3,6 +3,7 @@ package se.oru.coordination.coordination_oru.tracker;
 import org.metacsp.multi.spatioTemporal.paths.Pose;
 import org.metacsp.multi.spatioTemporal.paths.Trajectory;
 import org.metacsp.multi.spatioTemporal.paths.TrajectoryEnvelope;
+import se.oru.coordination.coordination_oru.coordinator.AbstractTrajectoryEnvelopeCoordinator;
 import se.oru.coordination.coordination_oru.coordinator.NetworkConfiguration;
 import se.oru.coordination.coordination_oru.coordinator.TrajectoryEnvelopeCoordinator;
 import se.oru.coordination.coordination_oru.coordinator.TrajectoryEnvelopeCoordinatorSimulation;
@@ -73,12 +74,12 @@ public abstract class AdaptiveTrackerRK4 extends AbstractTrajectoryEnvelopeTrack
                 }
                 if (shouldPause) {
                     if (pausedTrackers.isEmpty()) {
-                        stopVehicles(trackers);
+                        stopVehicles(priorityVehicle, trackers);
                         pausedTrackers.addAll(trackers);
                     }
                 } else {
                     if (!pausedTrackers.isEmpty()) {
-                        resumeVehicles(trackers);
+                        resumeVehicles(priorityVehicle, trackers);
                         pausedTrackers.clear();
                     }
                 }
@@ -89,30 +90,20 @@ public abstract class AdaptiveTrackerRK4 extends AbstractTrajectoryEnvelopeTrack
         scheduler.schedule(shutdown, 5, TimeUnit.SECONDS);
     }
 
-    public static void stopVehicles(List<AbstractTrajectoryEnvelopeTracker> trackers) {
+    public static void stopVehicles(AutonomousVehicle triggerVehicle, List<AbstractTrajectoryEnvelopeTracker> trackers) {
         for (AbstractTrajectoryEnvelopeTracker tracker : trackers) {
             synchronized (tracker) {
-                tracker.pause();
+                tracker.pause(triggerVehicle);
             }
         }
     }
 
-    private static void resumeVehicles(List<AbstractTrajectoryEnvelopeTracker> trackers) {
+    private static void resumeVehicles(AutonomousVehicle triggerVehicel, List<AbstractTrajectoryEnvelopeTracker> trackers) {
         for (AbstractTrajectoryEnvelopeTracker tracker : trackers) {
             synchronized (tracker) {
-                tracker.resume();
+                tracker.resume(triggerVehicel);
             }
         }
-    }
-
-    @Override
-    public void pause() {
-        super.pause();
-    }
-
-    @Override
-    public void resume() {
-        super.resume();
     }
 
     private static final Map<AbstractTrajectoryEnvelopeTracker, String> slowDownTasks = new HashMap<>();

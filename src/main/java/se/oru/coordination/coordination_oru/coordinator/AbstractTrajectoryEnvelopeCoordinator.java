@@ -28,6 +28,7 @@ import se.oru.coordination.coordination_oru.tracker.AbstractTrajectoryEnvelopeTr
 import se.oru.coordination.coordination_oru.tracker.TrajectoryEnvelopeTrackerDummy;
 import se.oru.coordination.coordination_oru.simulation.FleetVisualization;
 import se.oru.coordination.coordination_oru.utils.StringUtils;
+import se.oru.coordination.coordination_oru.vehicles.AutonomousVehicle;
 import se.oru.coordination.coordination_oru.vehicles.VehiclesHashMap;
 
 import javax.swing.*;
@@ -1339,6 +1340,7 @@ Collections.addAll(this.allCriticalSections, getCriticalSections(null, null, env
 				synchronized (trackers) {
 					startParkingTracker = (TrajectoryEnvelopeTrackerDummy)trackers.get(te.getRobotID());
 				}
+//				startParkingTracker.checkPause();
 				final TrajectoryEnvelope startParking = startParkingTracker.getTrajectoryEnvelope();
 				//Create end parking envelope
 				final TrajectoryEnvelope endParking = solver.createParkingEnvelope(te.getRobotID(), PARKING_DURATION, te.getTrajectory().getPose()[te.getTrajectory().getPose().length-1], "whatever", getFootprint(te.getRobotID()));
@@ -1465,10 +1467,15 @@ Collections.addAll(this.allCriticalSections, getCriticalSections(null, null, env
 
 				synchronized (trackers) {
 					externalCPCounters.remove(trackers.get(te.getRobotID()));
+
+					ArrayList<AutonomousVehicle> recievedSTop = trackers.get(te.getRobotID()).getPauseCounter();
 					trackers.remove(te.getRobotID());
 
 					//Make a new tracker for the driving trajectory envelope
 					AbstractTrajectoryEnvelopeTracker tracker = getNewTracker(te, cb);  //TODO: Add the tracker to vehicle here
+//					tracker.checkPause();
+					tracker.setPauseCounter(recievedSTop);
+
 					trackers.put(te.getRobotID(), tracker);
 					externalCPCounters.put(tracker, -1);
 				}
