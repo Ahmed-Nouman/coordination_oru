@@ -82,28 +82,28 @@ public class ProductionCycleVehiclePassing {
                 productionVehicleLength, productionVehicleWidth, drawPoint30, SAFETY_DISTANCE, 100, model);
         productionVehicle1.addTask(new Task("", 0.1, new Pose[] {orePass1}, 1));
         productionVehicle1.addTask(new Task("", 0.1, new Pose[] {drawPoint30}, 0));
-//        var productionVehicle2 = new AutonomousVehicle("A2", 1, Color.YELLOW, productionMaxVelocity, productionMaxAcceleration,
-//                productionVehicleLength, productionVehicleWidth, drawPoint32A, SAFETY_DISTANCE, 100, model);
-//        productionVehicle2.addTask(new Task("", 0.1, new Pose[] {orePass2}, 1));
-//        productionVehicle2.addTask(new Task("", 0.1, new Pose[] {drawPoint32A}, 0));
-//        var productionVehicle3 = new AutonomousVehicle("A3", 1, Color.YELLOW, productionMaxVelocity, productionMaxAcceleration,
-//                productionVehicleLength, productionVehicleWidth, drawPoint12, SAFETY_DISTANCE, 100, model);
-//        productionVehicle3.addTask(new Task("", 0.1, new Pose[] {parking}, 1));
-//        productionVehicle3.addTask(new Task("", 0.1, new Pose[] {drawPoint12}, 0));
-//        var serviceVehicle = new AutonomousVehicle("S", 2,  Color.GREEN, serviceVehicleMaxVelocity, serviceVehicleMaxAcceleration,
-//                serviceVehicleLength, serviceVehicleWidth, entrance, SAFETY_DISTANCE, 100, model);
-//        serviceVehicle.addTask(new Task("", 0.1, new Pose[] {barrier2End}, 0));
-//        serviceVehicle.addTask(new Task("", 0.1, new Pose[] {barrier1End}, 0));
-//        serviceVehicle.addTask(new Task("", 0.1, new Pose[] {mainTunnelLeft}, 0));
-//        serviceVehicle.addTask(new Task("", 0.1, new Pose[] {barrier1Start}, 0));
-//        serviceVehicle.addTask(new Task("", 0.1, new Pose[] {barrier2Start}, 0));
-//        serviceVehicle.addTask(new Task("", 0.1, new Pose[] {entrance}, 0));
+        var productionVehicle2 = new AutonomousVehicle("A2", 1, Color.YELLOW, productionMaxVelocity, productionMaxAcceleration,
+                productionVehicleLength, productionVehicleWidth, drawPoint32A, SAFETY_DISTANCE, 100, model);
+        productionVehicle2.addTask(new Task("", 0.1, new Pose[] {orePass2}, 1));
+        productionVehicle2.addTask(new Task("", 0.1, new Pose[] {drawPoint32A}, 0));
+        var productionVehicle3 = new AutonomousVehicle("A3", 1, Color.YELLOW, productionMaxVelocity, productionMaxAcceleration,
+                productionVehicleLength, productionVehicleWidth, drawPoint12, SAFETY_DISTANCE, 100, model);
+        productionVehicle3.addTask(new Task("", 0.1, new Pose[] {parking}, 1));
+        productionVehicle3.addTask(new Task("", 0.1, new Pose[] {drawPoint12}, 0));
+        var serviceVehicle = new AutonomousVehicle("S", 2,  Color.GREEN, serviceVehicleMaxVelocity, serviceVehicleMaxAcceleration,
+                serviceVehicleLength, serviceVehicleWidth, entrance, SAFETY_DISTANCE, 100, model);
+        serviceVehicle.addTask(new Task("", 0.1, new Pose[] {barrier2End}, 0));
+        serviceVehicle.addTask(new Task("", 0.1, new Pose[] {barrier1End}, 0));
+        serviceVehicle.addTask(new Task("", 0.1, new Pose[] {mainTunnelLeft}, 0));
+        serviceVehicle.addTask(new Task("", 0.1, new Pose[] {barrier1Start}, 0));
+        serviceVehicle.addTask(new Task("", 0.1, new Pose[] {barrier2Start}, 0));
+        serviceVehicle.addTask(new Task("", 0.1, new Pose[] {entrance}, 0));
 
         productionVehicle1.generatePlans(planner);
-//        productionVehicle1.loadPlans(folderName + "A1.path");
-//        productionVehicle2.loadPlans(folderName + "A2.path");
-//        productionVehicle3.loadPlans(folderName + "A3.path");
-//        serviceVehicle.loadPlans(folderName + "S.path");
+        productionVehicle1.loadPlans(folderName + "A1.path");
+        productionVehicle2.loadPlans(folderName + "A2.path");
+        productionVehicle3.loadPlans(folderName + "A3.path");
+        serviceVehicle.loadPlans(folderName + "S.path");
 
         tec.setupSolver(0, 100000000);
         tec.startInference();
@@ -134,12 +134,12 @@ public class ProductionCycleVehiclePassing {
         Missions.runTasks(tec, simulationTime);
 
         ArrayList<Integer> P_missionIDsToStop = new ArrayList<>(Arrays.asList(1));
-        ArrayList<Integer> S_missionIDsToStop = new ArrayList<>(Arrays.asList(1, 4));
+        ArrayList<Integer> S_missionIDsToStop = new ArrayList<>(Arrays.asList(0, 4));
         ArrayList<Integer> vehicleIDsToStop = new ArrayList<>(Arrays.asList(1, 2, 3));
         Function<Integer, AbstractTrajectoryEnvelopeTracker> trackerRetriever = vehicleId -> tec.trackers.get(vehicleId);
 
 //        AdaptiveTrackerRK4.scheduleVehiclesStop(productionVehicle2, P_missionIDsToStop, vehicleIDsToStop, trackerRetriever);
-//        AdaptiveTrackerRK4.scheduleVehiclesStop(serviceVehicle, S_missionIDsToStop, vehicleIDsToStop, trackerRetriever);
+        AdaptiveTrackerRK4.scheduleVehiclesStop(serviceVehicle, S_missionIDsToStop, vehicleIDsToStop, trackerRetriever);
 //        AdaptiveTrackerRK4.scheduleVehicleSlow(serviceVehicle, missionIDsToStop, vehicleIDsToStop, trackerRetriever, productionMaxVelocity, productionMaxVelocity / 8); // FIXME: Vehicles may Jump if difference is too much
 //        AdaptiveTrackerRK4.scheduleVehiclesPriorityChange(serviceVehicle, missionIDsToStop, TEC, heuristics, newheuristics);
     }

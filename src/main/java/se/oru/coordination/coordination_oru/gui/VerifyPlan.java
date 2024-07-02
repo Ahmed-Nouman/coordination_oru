@@ -4,6 +4,8 @@ import javafx.concurrent.Task;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
+import javafx.scene.control.Alert;
+import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.ProgressBar;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
@@ -77,7 +79,13 @@ public class VerifyPlan {
                                 .toArray(Pose[]::new);
                         newVehicle.addTask(new se.oru.coordination.coordination_oru.utils.Task(task.getTaskName(), task.getDuration(), poses, task.getPriority()), task.getRepetition());
                     }
-                    if (!newVehicle.getTasks().get(0).isEmpty()) newVehicle.generatePlans(planner);
+                    if (!newVehicle.getTasks().get(0).isEmpty())
+                        try {
+                            newVehicle.generatePlans(planner);
+                        } catch (Exception e) {
+                            showErrorAlert("Error in generating plans", "Error in generating plans for vehicle " + newVehicle.getName() + " with ID " + newVehicle.getID() + " and type " + newVehicle.getType() + " in VerifyPlan.java");
+                            e.printStackTrace();
+                        }
 
                     var filePath = navigationController.getMain().getDataStatus().getProjectFile();
                     var parts = filePath.split("/");
@@ -101,6 +109,7 @@ public class VerifyPlan {
             protected void failed() {
                 super.failed();
                 progressDialog.close();
+                showErrorAlert("Motion planning failed", "Please try a different setting for the vehicles and re-try.");
             }
         };
         progressDialog.show();
@@ -123,6 +132,14 @@ public class VerifyPlan {
         var dialogScene = new Scene(dialogVbox);
         progressDialog.setScene(dialogScene);
         return progressDialog;
+    }
+
+    private void showErrorAlert(String title, String message) {
+        Alert alert = new Alert(AlertType.ERROR);
+        alert.setTitle(title);
+        alert.setHeaderText(null);
+        alert.setContentText(message);
+        alert.showAndWait();
     }
 
     public void updateNavigationBar() {
