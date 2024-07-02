@@ -13,6 +13,7 @@ import org.metacsp.utility.logging.MetaCSPLogging;
 import se.oru.coordination.coordination_oru.coordinator.AbstractTrajectoryEnvelopeCoordinator;
 import se.oru.coordination.coordination_oru.coordinator.TrajectoryEnvelopeCoordinator;
 import se.oru.coordination.coordination_oru.utils.Dependency;
+import se.oru.coordination.coordination_oru.utils.Heuristics;
 import se.oru.coordination.coordination_oru.utils.RobotReport;
 
 import java.util.ArrayList;
@@ -20,15 +21,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.logging.Logger;
 
-/**
- * This class provides the basic functionalities of a {@link TrajectoryEnvelope} tracker. Implementing
- * this class is equivalent to providing the interface to a particular robot system. An example implementation
- * is the {@link TrajectoryEnvelopeTrackerRK4} class, which implements a simulated robot whose motion is tracked via
- * Runge-Kutta numerical integration (RK4).
- * 
- * @author fpa
- *
- */
 public abstract class AbstractTrajectoryEnvelopeTracker {
 
 	protected AbstractTrajectoryEnvelopeCoordinator tec;
@@ -43,24 +35,18 @@ public abstract class AbstractTrajectoryEnvelopeTracker {
 	protected HashMap<TrajectoryEnvelope,AllenIntervalConstraint> deadlines = new HashMap<>();
 	protected int trackingPeriodInMillis;
 	protected TrackingCallback cb;
-	protected Map mapMetaConstraint = null; 
+	protected Map mapMetaConstraint = null;
 	protected boolean calledOnTrackingStart = false;
 	protected boolean calledStartTracking = false;
 	protected boolean canStartTracking = false;
 	protected long startingTimeInMillis;
 	protected Logger metaCSPLogger = MetaCSPLogging.getLogger(AbstractTrajectoryEnvelopeTracker.class);
+	protected volatile int pauseCounter = 0;
+	protected volatile int priorityChangeCounter = 0;
+	protected volatile int slowdownCounter = 0;
+	protected volatile boolean isPaused = false;
+	protected Heuristics currentHeuristics = null;
 
-	/**
-	 * Create a new {@link AbstractTrajectoryEnvelopeTracker} to track a given {@link TrajectoryEnvelope},
-	 * with a given tracking period in a given temporal resolution. The tracker will post temporal constraints
-	 * to the given solver representing when the robot transitions from one sub-envelope to the next. An optional
-	 * callback function will be called at every period.
-	 * @param te The {@link TrajectoryEnvelope} to track.
-	 * @param temporalResolution The temporal unit of measure in which the period is represented. 
-	 * @param solver The {@link TrajectoryEnvelopeSolver} to which temporal constraints will be posted.
-	 * @param trackingPeriodInMillis The tracking period.
-	 * @param cb An optional callback function.
-	 */
 	public AbstractTrajectoryEnvelopeTracker(TrajectoryEnvelope te, double temporalResolution, AbstractTrajectoryEnvelopeCoordinator tec, int trackingPeriodInMillis, TrackingCallback cb) {
 		this.te = te;
 		this.trajectory = te.getTrajectory();
@@ -73,40 +59,21 @@ public abstract class AbstractTrajectoryEnvelopeTracker {
 		this.cb = cb;
 		startMonitoringThread();
 	}
-	
-	/**
-	 * Return the tracking period in milliseconds.
-	 */
+
 	public int getTrackingPeriod() {
 		return this.trackingPeriodInMillis;
 	}
-	
-	/**
-	 * Return the coordination time (in milliseconds) at which the tracker has started its mission.
-	 */
+
 	public long getStartingTimeInMillis() {
 		return this.startingTimeInMillis;
 	}
-	
-	/**
-	 * Return the coordination time (in 	milliseconds) at which the tracker has started its mission.
-	 */
+
 	public void resetStartingTimeInMillis() {
 		this.startingTimeInMillis= tec.getCurrentTimeInMillis();
 	}
-	
-	/**
-	 * Operations that should be performed when the {@link TrajectoryEnvelope} of this tracker
-	 * is updated online.
-	 */
+
 	protected abstract void onTrajectoryEnvelopeUpdate();
-	
-	/**
-	 * Update the {@link TrajectoryEnvelope} of this tracker (used for truncating/reversing/re-planning {@link TrajectoryEnvelope}s online).
-	 * This method calls the {@link #onTrajectoryEnvelopeUpdate(TrajectoryEnvelope)} method of the particular implementation
-	 * of this {@link AbstractTrajectoryEnvelopeTracker} class.
-	 * @param te The new {@link TrajectoryEnvelope} of this tracker.
-	 */
+
 	public void updateTrajectoryEnvelope(TrajectoryEnvelope te) {
 		synchronized(tec.getSolver()) {
 			synchronized(this.te) {
@@ -118,41 +85,24 @@ public abstract class AbstractTrajectoryEnvelopeTracker {
 			}
 		}
 	}
-	
+
 	@Deprecated
 	public void setMapMetaConstraint(Map mapMetaConstraint) {
 		this.mapMetaConstraint = mapMetaConstraint;
 	}
-	
-	/**
-	 * Used by the {@link TrajectoryEnvelopeCoordinator} to indicate that this tracker can start the tracking thread.
-	 */
+
 	public void setCanStartTracking() {
 		this.canStartTracking = true;
 	}
 
-	/**
-	 * Indicates whether this tracker can start the tracking thread
-	 * (this is set to true by the {@link TrajectoryEnvelopeCoordinator} when appropriate).
-	 */
 	public boolean canStartTracking() {
 		return this.canStartTracking;
 	}
-	
-	/**
-	 * Determines if the robot has entered a particular sub-{@link TrajectoryEnvelope}. 
-	 * @param env A sub-{@link TrajectoryEnvelope} of this tracker's {@link TrajectoryEnvelope}.
-	 * @return <code>true</code> iff the robot has entered the given sub-{@link TrajectoryEnvelope}.
-	 */
+
 	public boolean isStarted(TrajectoryEnvelope env) {
 		return this.startedGroundEnvelopes.contains(env);
 	}
 
-	/**
-	 * Determines whether this tracker tracks a given {@link TrajectoryEnvelope}.
-	 * @param env The {@link TrajectoryEnvelope} to check.
-	 * @return <code>true</code> iff this tracker tracks the given {@link TrajectoryEnvelope}.
-	 */
 	public boolean tracksEnvelope(TrajectoryEnvelope env) {
 		for (TrajectoryEnvelope subEnv : this.getAllSubEnvelopes()) {
 			if (subEnv.equals(env)) return true;
@@ -160,103 +110,57 @@ public abstract class AbstractTrajectoryEnvelopeTracker {
 		return false;
 	}
 
-	/**
-	 * Determines if the robot has exited a particular sub-{@link TrajectoryEnvelope}. 
-	 * @param env A sub-{@link TrajectoryEnvelope} of this tracker's {@link TrajectoryEnvelope}.
-	 * @return <code>true</code> iff the robot has exited the given sub-{@link TrajectoryEnvelope}.
-	 */
 	public boolean isFinished(TrajectoryEnvelope env) {
 		if (!this.tracksEnvelope(env)) return true;
 		return this.finishedGroundEnvelopes.contains(env);
 	}
 
-	/**
-	 * This method should implement the mechanisms for notifying a robot of a new critical point.
-	 * @param criticalPoint The critical point to set (index of pose along the reference trajectory
-	 * beyond which the robot may not navigate). 
-	 */
 	public abstract void setCriticalPoint(int criticalPoint);
-	
-	/**
-	 * This method should implement the mechanisms for notifying a robot of a new critical point, caring about network delays.
-	 * Critical point are "timestamped" so that only critical points more recent than the already known will be notified.
-	 * @param criticalPoint The critical point to set (index of pose along the reference trajectory
-	 * beyond which the robot may not navigate). 
-	 * @param externalCPCounter A counter related to the current notification ("timestamp").
-	 */
+
 	public void setCriticalPoint(int criticalPointToSet, int externalCPCounter) {
 
 		if (
 				(externalCPCounter < this.externalCPCounter && externalCPCounter-this.externalCPCounter > Integer.MAX_VALUE/2.0) ||
-				(this.externalCPCounter > externalCPCounter && this.externalCPCounter-externalCPCounter < Integer.MAX_VALUE/2.0)) {
+						(this.externalCPCounter > externalCPCounter && this.externalCPCounter-externalCPCounter < Integer.MAX_VALUE/2.0)) {
 			metaCSPLogger.info("Ignored critical point " + criticalPointToSet + " related to counter " + externalCPCounter + " because counter is already at " + this.externalCPCounter + ".");
 			return;
 		}
 		setCriticalPoint(criticalPointToSet);
 		this.externalCPCounter = externalCPCounter;
-		
-		
 	}
-	
-	/**
-	 * Set the current report counter.
-	 * @param The current report counter.
-	 */
+
 	public void setReportCounter(int reportCounter) {
 		this.reportCounter = reportCounter;
 	}
-	
-	/**
-	 * Returns the current report counter.
-	 * @return The current report counter.
-	 */
+
 	public int getReportCounter() {
 		return this.reportCounter;
 	}
-	
-	/**
-	 * Returns the current critical point.
-	 * @return The current critical point.
-	 */
+
 	public int getCriticalPoint() {
 		return this.criticalPoint;
 	}
-	
-	/**
-	 * Returns the tracking period in millis.
-	 * @return The tracking period in millis.
-	 */
+
 	public int getTrackingPeriodInMillis() {
 		return this.trackingPeriodInMillis;
 	}
-	
-	/**
-	 * This method should return a {@link RobotReport}, describing the last known state of the robot.
-	 * @return A {@link RobotReport}, describing the last known state state of the robot.
-	 */
+
 	public RobotReport getLastRobotReport() {
 		return getRobotReport();
 	}
-	
-	/**
-	 * This method should return a {@link RobotReport}, describing the current state of the robot.
-	 * @return A {@link RobotReport}, describing the current state of the robot.
-	 */
+
 	public abstract RobotReport getRobotReport();
 
 	protected void onPositionUpdate() {
-	
 		String[] extraRobotState = null;
 		if (cb != null) {
 			extraRobotState = cb.onPositionUpdate();
 		}
 
 		if (tec.getVisualization() != null) {
-			//Update the position of the robot in the GUI
 			RobotReport rr = getRobotReport();
 			tec.getVisualization().displayRobotState(te, rr, extraRobotState);
-			
-			//Draw an arrow if there is a critical point
+
 			RobotReport rrWaiting = getRobotReport();
 			synchronized (tec.getCurrentDependencies()) {
 				for (int robotID : tec.getCurrentDependencies().keySet()) {
@@ -272,17 +176,13 @@ public abstract class AbstractTrajectoryEnvelopeTracker {
 							}
 						}
 					}
-				}							
+				}
 			}
 
 			tec.getVisualization().updateVisualization();
 		}
 	}
-	
-	/**
-	 * Should return the current time in milliseconds.
-	 * @return The current time in milliseconds.
-	 */
+
 	public abstract long getCurrentTimeInMillis();
 
 	protected static AllenIntervalConstraint[] getConstriants(AllenIntervalConstraint.Type type, TrajectoryEnvelope env, TrajectoryEnvelopeSolver solver) {
@@ -298,16 +198,14 @@ public abstract class AbstractTrajectoryEnvelopeTracker {
 		}
 		return ret.toArray(new AllenIntervalConstraint[ret.size()]);
 	}
-	
+
 	protected void updateDeadline(TrajectoryEnvelope trajEnv, long delta) {
 		synchronized(tec.getSolver()) {
 			long time = getCurrentTimeInMillis()+delta;
 			if (time > trajEnv.getTemporalVariable().getEET()) {
 				tec.getSolver().removeConstraint(deadlines.get(trajEnv));
 				long bound1 = Math.max(time, trajEnv.getTemporalVariable().getEET());
-				//long bound1 = time;
 				long bound2 = APSPSolver.INF;
-				//metaCSPLogger.info("Finishing @ " + time + " " + trajEnv + " (ET bounds: [" + trajEnv.getTemporalVariable().getEET() + "," + trajEnv.getTemporalVariable().getLET() + "])");
 				AllenIntervalConstraint deadline = new AllenIntervalConstraint(AllenIntervalConstraint.Type.Deadline, new Bounds(bound1, bound2));
 				deadline.setFrom(trajEnv);
 				deadline.setTo(trajEnv);
@@ -327,7 +225,6 @@ public abstract class AbstractTrajectoryEnvelopeTracker {
 			if (time > trajEnv.getTemporalVariable().getEET()) {
 				tec.getSolver().removeConstraint(deadlines.get(trajEnv));
 				long bound1 = Math.max(time, trajEnv.getTemporalVariable().getEET());
-				//long bound1 = time;
 				long bound2 = bound1;
 				metaCSPLogger.info("Finishing @ " + time + " " + trajEnv + " (ET bounds: [" + trajEnv.getTemporalVariable().getEET() + "," + trajEnv.getTemporalVariable().getLET() + "])");
 				AllenIntervalConstraint deadline = new AllenIntervalConstraint(AllenIntervalConstraint.Type.Deadline, new Bounds(bound1, bound2));
@@ -347,7 +244,6 @@ public abstract class AbstractTrajectoryEnvelopeTracker {
 		synchronized(tec.getSolver()) {
 			long time = getCurrentTimeInMillis();
 			time = Math.max(time, trajEnv.getTemporalVariable().getEST());
-			metaCSPLogger.info("Releasing @ " + time + " " + trajEnv + " (ST bounds: [" + trajEnv.getTemporalVariable().getEST() + "," + trajEnv.getTemporalVariable().getLST() + "])");
 			AllenIntervalConstraint release = new AllenIntervalConstraint(AllenIntervalConstraint.Type.Release, new Bounds(time, time));
 			release.setFrom(trajEnv);
 			release.setTo(trajEnv);
@@ -356,9 +252,7 @@ public abstract class AbstractTrajectoryEnvelopeTracker {
 				metaCSPLogger.severe("ERROR: Could not add release " + release + " constraint on envelope " + trajEnv + " whose ST bounds are [" + trajEnv.getTemporalVariable().getEST() + "," + trajEnv.getTemporalVariable().getLST() +"]");
 				throw new Error("Could not add release " + release + " constraint on envelope " + trajEnv + " whose ST bounds are [" + trajEnv.getTemporalVariable().getEST() + "," + trajEnv.getTemporalVariable().getLST() +"]");
 			}
-		
 		}
-		
 	}
 
 	protected TrajectoryEnvelope[] getAllSubEnvelopes() {
@@ -369,60 +263,42 @@ public abstract class AbstractTrajectoryEnvelopeTracker {
 		}
 		return allSubEnvelopes;
 	}
-		
-	/**
-	 * Specifies what happens when tracking starts.
-	 */
+
 	public abstract void startTracking();
 
-	/**
-	 * Returns <code>true</code> iff tracking has started.
-	 * @return <code>true</code> iff tracking has started.
-	 */
-	public boolean trackingStrated() {
+	public boolean trackingStarted() {
 		return calledStartTracking;
 	}
-	
+
 	protected void startMonitoringThread() {
-				
-		//Start a thread that monitors the sub-envelopes and finishes them when appropriate
 		Thread monitorSubEnvelopes = new Thread("Abstract tracker " + te.getComponent()) {
 			@Override
-			public void run() {	
-
+			public void run() {
 				int prevSeqNumber = -1;
 
 				if (cb != null) cb.beforeTrackingStart();
 
-				//Monitor the sub-envelopes...
 				while (true) {
-					
-					//Track if past start time
 					if (te.getTemporalVariable().getEST() <= getCurrentTimeInMillis()) {
-		
 						if (cb != null && !calledOnTrackingStart) {
 							calledOnTrackingStart = true;
 							cb.onTrackingStart();
 						}
-						
+
 						if (!calledStartTracking) {
-							calledStartTracking = true;							
+							calledStartTracking = true;
 							startTracking();
 						}
 
-						//if (!startedGroundEnvelopes.isEmpty()) printStartedGroundEnvelopes();
-						
 						RobotReport rr = null;
 						while ((rr = tec.getRobotReport(te.getRobotID())) == null) {
-							metaCSPLogger.info("(waiting for "+te.getComponent()+"'s tracker to come online)");
+							metaCSPLogger.info("(waiting for " + te.getComponent() + "'s tracker to come online)");
 							try { Thread.sleep(100); }
 							catch (InterruptedException e) { e.printStackTrace(); }
 						}
 
-						//Get current sequence number from robot report...
 						int currentSeqNumber = rr.getPathIndex();
-	
-						//Get all ground envelopes of this super-envelope that are not finished (except the last one)...
+
 						for (TrajectoryEnvelope subEnv : getAllSubEnvelopes()) {
 							if (subEnv.hasSuperEnvelope()) {
 								if (subEnv.getSequenceNumberStart() <= currentSeqNumber && !startedGroundEnvelopes.contains(subEnv)) {
@@ -434,14 +310,12 @@ public abstract class AbstractTrajectoryEnvelopeTracker {
 									finishedGroundEnvelopes.add(subEnv);
 									metaCSPLogger.info("<<<< Finished (ground envelope) " + subEnv);
 									if (subEnv.getSequenceNumberEnd() < te.getSequenceNumberEnd()) fixDeadline(subEnv, 0);
-								}
-								else if (!finishedGroundEnvelopes.contains(subEnv) && currentSeqNumber > prevSeqNumber) {
+								} else if (!finishedGroundEnvelopes.contains(subEnv) && currentSeqNumber > prevSeqNumber) {
 									updateDeadline(subEnv, 0);
 								}
-							}							
+							}
 						}
-						
-						//Stop when last path point reached (or we missed that report and the path point is now 0)
+
 						if (te.getSequenceNumberEnd() == currentSeqNumber || (currentSeqNumber < prevSeqNumber && currentSeqNumber <= 0)) {
 							metaCSPLogger.info("At last path point (current: " + currentSeqNumber + ", prev: " + prevSeqNumber + ") of " + te + "...");
 							for (TrajectoryEnvelope toFinish : startedGroundEnvelopes) {
@@ -452,40 +326,127 @@ public abstract class AbstractTrajectoryEnvelopeTracker {
 							}
 							break;
 						}
-						
-						//Update previous seq number
+
 						prevSeqNumber = currentSeqNumber;
 					}
-				
-					//Sleep a little...
+
 					try { Thread.sleep(trackingPeriodInMillis); }
 					catch (InterruptedException e) { e.printStackTrace(); }
-
 				}
 
-				synchronized(tec.getSolver()) { 
+				synchronized (tec.getSolver()) {
 					if (cb != null) cb.beforeTrackingFinished();
 					finishTracking();
 					if (cb != null) cb.onTrackingFinished();
 				}
-				
 			}
 		};
-		
+
 		monitorSubEnvelopes.start();
 	}
-	
+
 	protected void finishTracking() {
 		metaCSPLogger.info("<<<< Finished (super envelope) " + this.te);
 		if (!(this instanceof TrajectoryEnvelopeTrackerDummy)) fixDeadline(te, 0);
 	}
 
-	/**
-	 * Returns the {@link TrajectoryEnvelope} that this tracker is tracking.
-	 * @return The {@link TrajectoryEnvelope} that this tracker is tracking.
-	 */
 	public TrajectoryEnvelope getTrajectoryEnvelope() {
 		return this.te;
 	}
 
+	public synchronized void pause() {
+		pauseCounter++;
+		isPaused = true;
+	}
+
+	public synchronized void resume() {
+		if (pauseCounter > 0) {
+			pauseCounter--;
+		}
+		if (pauseCounter == 0) {
+			isPaused = false;
+			notifyAll();
+		}
+	}
+
+	protected void checkPause() {
+		synchronized (this) {
+			while (pauseCounter > 0) {
+				try {
+					wait();
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
+			}
+		}
+	}
+
+
+	public synchronized void slowDown(double targetVelocity) {
+		slowdownCounter++;
+		adjustVelocity(targetVelocity);
+	}
+
+	public synchronized void speedUp(double targetVelocity) {
+		if (slowdownCounter > 0) {
+			slowdownCounter--;
+		}
+		if (slowdownCounter == 0) {
+			adjustVelocity(targetVelocity);
+			notifyAll();
+		}
+	}
+
+	protected void checkSlowdown() {
+		synchronized (this) {
+			while (slowdownCounter > 0) {
+				try {
+					wait();
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
+			}
+		}
+	}
+
+	public synchronized void changePriority(Heuristics newHeuristics) {
+		priorityChangeCounter++;
+		adjustHeuristics(newHeuristics);
+	}
+
+	public synchronized void resetPriority(Heuristics newHeuristics) {
+		if (priorityChangeCounter > 0) {
+			priorityChangeCounter--;
+		}
+		if (priorityChangeCounter == 0) {
+			adjustHeuristics(newHeuristics);
+			notifyAll();
+		}
+	}
+
+	protected void checkPriorityChange() {
+		synchronized (this) {
+			while (priorityChangeCounter > 0) {
+				try {
+					wait();
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
+			}
+		}
+	}
+
+	protected void adjustVelocity(double targetVelocity) {
+		if (this instanceof AdaptiveTrackerRK4) {
+			((AdaptiveTrackerRK4) this).maxVelocity = targetVelocity;
+		}
+	}
+
+	protected void adjustHeuristics(Heuristics newHeuristics) {
+		if (currentHeuristics != newHeuristics) {
+			currentHeuristics = newHeuristics;
+			tec.clearComparator();
+			tec.addComparator(newHeuristics.getComparator());
+		}
+	}
 }

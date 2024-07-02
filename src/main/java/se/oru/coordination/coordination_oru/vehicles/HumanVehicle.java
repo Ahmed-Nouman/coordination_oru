@@ -64,7 +64,6 @@ public class HumanVehicle extends AutonomousVehicle {
         }
     }
 
-
     private static void scheduleMultipleStops(Integer vehicleIDToStop, Function<Integer, AbstractTrajectoryEnvelopeTracker> trackerRetriever, int numberOfStops) {
         final var scheduler = Executors.newScheduledThreadPool(1);
         long currentTime = 0;

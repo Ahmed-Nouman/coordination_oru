@@ -1468,7 +1468,7 @@ Collections.addAll(this.allCriticalSections, getCriticalSections(null, null, env
 					trackers.remove(te.getRobotID());
 
 					//Make a new tracker for the driving trajectory envelope
-					AbstractTrajectoryEnvelopeTracker tracker = getNewTracker(te, cb);
+					AbstractTrajectoryEnvelopeTracker tracker = getNewTracker(te, cb);  //TODO: Add the tracker to vehicle here
 					trackers.put(te.getRobotID(), tracker);
 					externalCPCounters.put(tracker, -1);
 				}

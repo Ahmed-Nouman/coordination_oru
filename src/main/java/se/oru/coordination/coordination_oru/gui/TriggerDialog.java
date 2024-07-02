@@ -1,7 +1,6 @@
 package se.oru.coordination.coordination_oru.gui;
 
 import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
 import javafx.collections.ListChangeListener;
 import javafx.scene.control.*;
 import javafx.scene.layout.GridPane;
@@ -63,13 +62,13 @@ public class TriggerDialog {
         triggerTaskField = new ChoiceBox<>();
         vehicleToComplyField = new ListView<>();
         vehicleToComplyField.setPrefHeight(100);
-        vehicleToComplyField.setItems(FXCollections.observableArrayList(scene.getMain().getDataStatus().getProjectData().getVehicleNames()));
         vehicleToComplyField.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
 
         if (isEdit) {
             var trigger = scene.getMain().getDataStatus().getProjectData().getTriggers().get(editIndex);
             triggerVehicleField.setValue(trigger.getVehicle());
             updateTaskField(scene); // Update task field based on selected vehicle
+            updateVehicleToComplyField(scene, trigger.getVehicle()); // Update comply vehicles based on selected vehicle
             triggerTaskField.setValue(trigger.getTask().get(0));
             vehicleToComplyField.getSelectionModel().clearSelection();
             trigger.getVehicleToComply().forEach(vehicle -> {
@@ -78,6 +77,8 @@ public class TriggerDialog {
                     vehicleToComplyField.getSelectionModel().select(index);
                 }
             });
+        } else {
+            updateVehicleToComplyField(scene, null); // Initialize comply vehicles
         }
 
         pane.add(new Text("Vehicle: "), 0, 0);
@@ -94,6 +95,7 @@ public class TriggerDialog {
         triggerVehicleField.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
             if (newValue != null) {
                 updateTaskField(scene); // Update task field based on selected vehicle
+                updateVehicleToComplyField(scene, newValue); // Update comply vehicles based on selected vehicle
             }
             ok.setDisable(newValue == null || triggerTaskField.getValue() == null || vehicleToComplyField.getSelectionModel().getSelectedItems().isEmpty());
         });
@@ -123,8 +125,19 @@ public class TriggerDialog {
                             .collect(Collectors.toList())
             );
             triggerTaskField.setItems(taskOptions);
-            triggerTaskField.setValue(taskOptions.get(0));
+            triggerTaskField.setValue(taskOptions.isEmpty() ? null : taskOptions.get(0));
+        } else {
+            triggerTaskField.setItems(FXCollections.observableArrayList());
+            triggerTaskField.setValue(null);
         }
+    }
+
+    private static void updateVehicleToComplyField(CoordinationScene scene, String triggerVehicle) {
+        var vehicles = scene.getMain().getDataStatus().getProjectData().getVehicleNames();
+        var filteredVehicles = vehicles.stream()
+                .filter(vehicle -> !vehicle.equals(triggerVehicle))
+                .collect(Collectors.toList());
+        vehicleToComplyField.setItems(FXCollections.observableArrayList(filteredVehicles));
     }
 
     private static Optional<Trigger> dialogResult(CoordinationScene scene, Dialog<Trigger> dialog, ButtonType buttonType) {

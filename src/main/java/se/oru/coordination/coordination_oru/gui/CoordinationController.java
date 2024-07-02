@@ -7,7 +7,6 @@ import se.oru.coordination.coordination_oru.utils.Heuristics;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Collectors;
 
 public class CoordinationController {
     private final CoordinationScene scene;
@@ -55,7 +54,7 @@ public class CoordinationController {
     }
 
     public void chooseTransientHeuristic() {
-        var heuristic = scene.getTransientPriorityRuleField().getValue();
+        var heuristic = scene.getTemporaryPriorityRuleField().getValue();
         if (heuristic != null) {
             switch (heuristic) {
                 case "MOST_DISTANCE_TRAVELLED_FIRST":
@@ -106,7 +105,7 @@ public class CoordinationController {
         for (String item : triggerItems) {
             // Parse the item string to reconstruct the Trigger object
             String[] parts = item.split(", ");
-            String vehicle = parts[0].substring(1); // Remove starting '('
+            String vehicle = parts[0].substring(1);
             List<String> task = Arrays.asList(parts[1].replace("[", "").replace("]", "").split(", "));
             List<String> vehicleToComply = Arrays.asList(parts[2].replace("[", "").replace("]", "").split(", "));
             ProjectData.Trigger trigger = new ProjectData.Trigger();
@@ -123,42 +122,42 @@ public class CoordinationController {
 
         switch (trafficControl) {
             case "Mixed Traffic":
-                scene.getTransientVelocityField().setVisible(false);
-                scene.getTransientPriorityRuleField().setVisible(false);
-                scene.getTransientVelocity().setVisible(false);
-                scene.getTransientPriorityRule().setVisible(false);
+                scene.getTemporaryVelocityField().setVisible(false);
+                scene.getTemporaryPriorityRuleField().setVisible(false);
+                scene.getTemporaryVelocity().setVisible(false);
+                scene.getTemporaryPriorityRule().setVisible(false);
                 scene.getTriggerField().setVisible(false);
                 scene.getTrigger().setVisible(false);
                 break;
             case "Velocity Adaptation":
-                scene.getTransientVelocityField().setVisible(true);
-                scene.getTransientPriorityRuleField().setVisible(false);
-                scene.getTransientVelocity().setVisible(true);
-                scene.getTransientPriorityRule().setVisible(false);
+                scene.getTemporaryVelocityField().setVisible(true);
+                scene.getTemporaryPriorityRuleField().setVisible(false);
+                scene.getTemporaryVelocity().setVisible(true);
+                scene.getTemporaryPriorityRule().setVisible(false);
                 scene.getTriggerField().setVisible(true);
                 scene.getTrigger().setVisible(true);
                 break;
             case "Priority Rule Adaptation":
-                scene.getTransientVelocityField().setVisible(false);
-                scene.getTransientPriorityRuleField().setVisible(true);
-                scene.getTransientVelocity().setVisible(false);
-                scene.getTransientPriorityRule().setVisible(true);
+                scene.getTemporaryVelocityField().setVisible(false);
+                scene.getTemporaryPriorityRuleField().setVisible(true);
+                scene.getTemporaryVelocity().setVisible(false);
+                scene.getTemporaryPriorityRule().setVisible(true);
                 scene.getTriggerField().setVisible(true);
                 scene.getTrigger().setVisible(true);
                 break;
             case "Shutdown":
-                scene.getTransientVelocityField().setVisible(false);
-                scene.getTransientPriorityRuleField().setVisible(false);
-                scene.getTransientVelocity().setVisible(false);
-                scene.getTransientPriorityRule().setVisible(false);
+                scene.getTemporaryVelocityField().setVisible(false);
+                scene.getTemporaryPriorityRuleField().setVisible(false);
+                scene.getTemporaryVelocity().setVisible(false);
+                scene.getTemporaryPriorityRule().setVisible(false);
                 scene.getTriggerField().setVisible(true);
                 scene.getTrigger().setVisible(true);
                 break;
             default:
-                scene.getTransientVelocityField().setVisible(true);
-                scene.getTransientPriorityRuleField().setVisible(true);
-                scene.getTransientVelocity().setVisible(true);
-                scene.getTransientPriorityRule().setVisible(true);
+                scene.getTemporaryVelocityField().setVisible(true);
+                scene.getTemporaryPriorityRuleField().setVisible(true);
+                scene.getTemporaryVelocity().setVisible(true);
+                scene.getTemporaryPriorityRule().setVisible(true);
                 scene.getTriggerField().setVisible(true);
                 scene.getTrigger().setVisible(true);
                 break;

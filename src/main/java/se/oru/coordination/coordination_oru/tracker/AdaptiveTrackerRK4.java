@@ -38,7 +38,6 @@ public abstract class AdaptiveTrackerRK4 extends AbstractTrajectoryEnvelopeTrack
     protected ArrayList<RobotReport> reportsList = new ArrayList<>();
     protected ArrayList<Long> reportTimeLists = new ArrayList<>();
     private HashMap<Integer, Integer> userCPReplacements = null;
-    private volatile boolean paused = false;
 
     public AdaptiveTrackerRK4(TrajectoryEnvelope te, int timeStep, double temporalResolution, double maxVelocity, double maxAcceleration, TrajectoryEnvelopeCoordinator tec, TrackingCallback cb) {
         super(te, temporalResolution, tec, timeStep, cb);
@@ -60,25 +59,28 @@ public abstract class AdaptiveTrackerRK4 extends AbstractTrajectoryEnvelopeTrack
             List<Integer> vehicleIDsToComply,
             Function<Integer, AbstractTrajectoryEnvelopeTracker> trackerRetriever) {
 
-        final var scheduler = Executors.newScheduledThreadPool(1);
-        Map<AbstractTrajectoryEnvelopeTracker, Double> previousVelocities = new HashMap<>();
+        final var scheduler = Executors.newScheduledThreadPool(5);
+        final var pausedTrackers = new HashSet<AbstractTrajectoryEnvelopeTracker>();
 
         var shutdown = new Runnable() {
             @Override
             public void run() {
-                if (missionIDsToTrigger.contains(priorityVehicle.getCurrentTaskIndex())) {
-                    var trackers = new ArrayList<AbstractTrajectoryEnvelopeTracker>();
-                    for (Integer vehicleId : vehicleIDsToComply) {
-                        AbstractTrajectoryEnvelopeTracker tracker = trackerRetriever.apply(vehicleId);
-                        trackers.add(tracker);
+                boolean shouldPause = missionIDsToTrigger.contains(priorityVehicle.getCurrentTaskIndex());
+                var trackers = new ArrayList<AbstractTrajectoryEnvelopeTracker>();
+                for (Integer vehicleId : vehicleIDsToComply) {
+                    AbstractTrajectoryEnvelopeTracker tracker = trackerRetriever.apply(vehicleId);
+                    trackers.add(tracker);
+                }
+                if (shouldPause) {
+                    if (pausedTrackers.isEmpty()) {
+                        stopVehicles(trackers);
+                        pausedTrackers.addAll(trackers);
                     }
-                    stopVehicles(trackers);
-
-                    scheduler.schedule(() -> {
-                        if (!missionIDsToTrigger.contains(priorityVehicle.getCurrentTaskIndex())) {
-                            resumeVehicles(trackers);
-                        }
-                    }, 5, TimeUnit.SECONDS);
+                } else {
+                    if (!pausedTrackers.isEmpty()) {
+                        resumeVehicles(trackers);
+                        pausedTrackers.clear();
+                    }
                 }
                 scheduler.schedule(this, 100, TimeUnit.MILLISECONDS);
             }
@@ -90,7 +92,7 @@ public abstract class AdaptiveTrackerRK4 extends AbstractTrajectoryEnvelopeTrack
     public static void stopVehicles(List<AbstractTrajectoryEnvelopeTracker> trackers) {
         for (AbstractTrajectoryEnvelopeTracker tracker : trackers) {
             synchronized (tracker) {
-                if (tracker instanceof AdaptiveTrackerRK4) ((AdaptiveTrackerRK4) tracker).pause();
+                tracker.pause();
             }
         }
     }
@@ -98,21 +100,22 @@ public abstract class AdaptiveTrackerRK4 extends AbstractTrajectoryEnvelopeTrack
     private static void resumeVehicles(List<AbstractTrajectoryEnvelopeTracker> trackers) {
         for (AbstractTrajectoryEnvelopeTracker tracker : trackers) {
             synchronized (tracker) {
-                if (tracker instanceof AdaptiveTrackerRK4) ((AdaptiveTrackerRK4) tracker).resume();
+                tracker.resume();
             }
         }
     }
 
+    @Override
     public void pause() {
-        this.paused = true;
+        super.pause();
     }
 
+    @Override
     public void resume() {
-        synchronized (this) {
-            this.paused = false;
-            this.notifyAll();
-        }
+        super.resume();
     }
+
+    private static final Map<AbstractTrajectoryEnvelopeTracker, String> slowDownTasks = new HashMap<>();
 
     public static void scheduleVehicleSlow(
             AutonomousVehicle priorityVehicle,
@@ -123,53 +126,66 @@ public abstract class AdaptiveTrackerRK4 extends AbstractTrajectoryEnvelopeTrack
 
         final var scheduler = Executors.newScheduledThreadPool(1);
 
-        var shutdown = new Runnable() {
+        var slowdown = new Runnable() {
+            String taskId = UUID.randomUUID().toString();
+
             @Override
             public void run() {
-                if (missionIDsToTrigger.contains(priorityVehicle.getCurrentTaskIndex())) {
-                    var trackers = new ArrayList<AbstractTrajectoryEnvelopeTracker>();
-                    for (Integer vehicleId : vehicleIDsToComply) {
-                        AbstractTrajectoryEnvelopeTracker tracker = trackerRetriever.apply(vehicleId);
-                        trackers.add(tracker);
+                boolean shouldSlowDown = missionIDsToTrigger.contains(priorityVehicle.getCurrentTaskIndex());
+                var trackers = new ArrayList<AbstractTrajectoryEnvelopeTracker>();
+                for (Integer vehicleId : vehicleIDsToComply) {
+                    AbstractTrajectoryEnvelopeTracker tracker = trackerRetriever.apply(vehicleId);
+                    trackers.add(tracker);
+                }
+                if (shouldSlowDown) {
+                    if (slowDownTasks.isEmpty()) {
+                        slowDownVehicles(trackers, minVelocity, taskId);
                     }
-                    slowDownVehicles(trackers, minVelocity);
-
-                    scheduler.schedule(() -> {
-                        if (!missionIDsToTrigger.contains(priorityVehicle.getCurrentTaskIndex())) {
-                            speedUpVehicles(trackers, maxVelocity);
-                        }
-                    }, 5, TimeUnit.SECONDS);
+                } else {
+                    if (!slowDownTasks.isEmpty()) {
+                        speedUpVehicles(trackers, maxVelocity, taskId);
+                    }
                 }
                 scheduler.schedule(this, 100, TimeUnit.MILLISECONDS);
             }
         };
 
-        scheduler.schedule(shutdown, 5, TimeUnit.SECONDS);
+        scheduler.schedule(slowdown, 5, TimeUnit.SECONDS);
     }
 
-    private static void slowDownVehicles(List<AbstractTrajectoryEnvelopeTracker> trackers, double targetVelocity) {
+    private static void slowDownVehicles(List<AbstractTrajectoryEnvelopeTracker> trackers, double targetVelocity, String taskId) {
         for (AbstractTrajectoryEnvelopeTracker tracker : trackers) {
             synchronized (tracker) {
-                if (tracker instanceof AdaptiveTrackerRK4) {
-                    var adaptiveTracker = (AdaptiveTrackerRK4) tracker;
-//                    VehiclesHashMap.getVehicle(adaptiveTracker.te.getRobotID()).setMaxVelocity(targetVelocity);
-                    adaptiveTracker.maxVelocity = targetVelocity;
+                if (!slowDownTasks.containsKey(tracker)) {
+                    tracker.slowDown(targetVelocity);
+                    slowDownTasks.put(tracker, taskId);
                 }
             }
         }
     }
 
-    private static void speedUpVehicles(List<AbstractTrajectoryEnvelopeTracker> trackers, double targetVelocity) {
+    private static void speedUpVehicles(List<AbstractTrajectoryEnvelopeTracker> trackers, double targetVelocity, String taskId) {
         for (AbstractTrajectoryEnvelopeTracker tracker : trackers) {
             synchronized (tracker) {
-                if (tracker instanceof AdaptiveTrackerRK4) {
-                    var adaptiveTracker = (AdaptiveTrackerRK4) tracker;
-//                    VehiclesHashMap.getVehicle(adaptiveTracker.te.getRobotID()).setMaxVelocity(targetVelocity);
-                    adaptiveTracker.maxVelocity = targetVelocity;
+                if (slowDownTasks.containsKey(tracker) && slowDownTasks.get(tracker).equals(taskId)) {
+                    tracker.speedUp(targetVelocity);
+                    slowDownTasks.remove(tracker);
                 }
             }
         }
     }
+
+    @Override
+    public void slowDown(double targetVelocity) {
+        super.slowDown(targetVelocity);
+    }
+
+    @Override
+    public void speedUp(double targetVelocity) {
+        super.speedUp(targetVelocity);
+    }
+
+    private static final Map<AbstractTrajectoryEnvelopeTracker, String> priorityChangeTasks = new HashMap<>();
 
     public static void scheduleVehiclesPriorityChange(
             AutonomousVehicle priorityVehicle,
@@ -181,16 +197,18 @@ public abstract class AdaptiveTrackerRK4 extends AbstractTrajectoryEnvelopeTrack
         final var scheduler = Executors.newScheduledThreadPool(1);
 
         var updateHeuristics = new Runnable() {
+            String taskId = UUID.randomUUID().toString();
+
             @Override
             public void run() {
                 synchronized (tec) {
                     boolean missionMatchFound = missionIDs.contains(priorityVehicle.getCurrentTaskIndex());
+                    var trackers = new ArrayList<AbstractTrajectoryEnvelopeTracker>(tec.trackers.values());
 
-                    tec.clearComparator();
                     if (missionMatchFound) {
-                        tec.addComparator(newHeuristics.getComparator());
+                        changePriorityOfVehicles(trackers, newHeuristics, taskId);
                     } else {
-                        tec.addComparator(originalHeuristics.getComparator());
+                        resetPriorityOfVehicles(trackers, originalHeuristics, taskId);
                     }
                 }
 
@@ -201,8 +219,40 @@ public abstract class AdaptiveTrackerRK4 extends AbstractTrajectoryEnvelopeTrack
         scheduler.schedule(updateHeuristics, 5, TimeUnit.SECONDS);
     }
 
+    private static void changePriorityOfVehicles(List<AbstractTrajectoryEnvelopeTracker> trackers, Heuristics newHeuristics, String taskId) {
+        for (AbstractTrajectoryEnvelopeTracker tracker : trackers) {
+            synchronized (tracker) {
+                if (!priorityChangeTasks.containsKey(tracker)) {
+                    tracker.changePriority(newHeuristics);
+                    priorityChangeTasks.put(tracker, taskId);
+                }
+            }
+        }
+    }
+
+    private static void resetPriorityOfVehicles(List<AbstractTrajectoryEnvelopeTracker> trackers, Heuristics originalHeuristics, String taskId) {
+        for (AbstractTrajectoryEnvelopeTracker tracker : trackers) {
+            synchronized (tracker) {
+                if (priorityChangeTasks.containsKey(tracker) && priorityChangeTasks.get(tracker).equals(taskId)) {
+                    tracker.resetPriority(originalHeuristics);
+                    priorityChangeTasks.remove(tracker);
+                }
+            }
+        }
+    }
+
     @Override
-    public void run() { // This method updates the state of the robot based on RK4 integration
+    public void changePriority(Heuristics newHeuristics) {
+        super.changePriority(newHeuristics);
+    }
+
+    @Override
+    public void resetPriority(Heuristics newHeuristics) {
+        super.resetPriority(newHeuristics);
+    }
+
+    @Override
+    public void run() {
         this.elapsedTrackingTime = 0.0;
         double deltaTime = 0.0;
         boolean atCP = false;
@@ -210,20 +260,19 @@ public abstract class AdaptiveTrackerRK4 extends AbstractTrajectoryEnvelopeTrack
         int myTEID = te.getID();
 
         while (true) {
+            checkPause();
+            checkSlowdown();
+            checkPriorityChange();
 
-            // End condition: passed the middle AND velocity < 0 AND no criticalPoint
             boolean skipIntegration = false;
-            // if (state.getPosition() >= totalDistance/2.0 && state.getVelocity() < 0.0) {
             if (state.getPosition() >= this.positionToSlowDown && state.getVelocity() < 0.0) {
                 if (criticalPoint == -1 && !atCP) {
-                    // set state to final position, just in case it didn't quite get there (it's certainly close enough)
                     state = new State(totalDistance, 0.0);
                     onPositionUpdate();
                     break;
                 }
 
-                // Vel < 0 hence we are at CP, thus we need to skip integration
-                if (!atCP /* && getRobotReport().getPathIndex() == criticalPoint */) {
+                if (!atCP) {
                     int pathIndex = getRobotReport().getPathIndex();
                     metaCSPLogger.info("At critical point (" + te.getComponent() + "): " + criticalPoint + " (" + pathIndex + ")");
                     if (pathIndex > criticalPoint) metaCSPLogger.severe("* ATTENTION! STOPPED AFTER!! *");
@@ -231,24 +280,14 @@ public abstract class AdaptiveTrackerRK4 extends AbstractTrajectoryEnvelopeTrack
                 }
 
                 skipIntegration = true;
-
             }
 
-            // Pause check
-            synchronized (this) {
-                while (paused) {
-                    try {
-                        wait();
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
-                }
-            }
+            checkPause();
+            checkSlowdown();
+            checkPriorityChange();
 
-            // Compute deltaTime
             long timeStart = Calendar.getInstance().getTimeInMillis();
 
-            // Update the robot's state via RK4 numerical integration
             if (!skipIntegration) {
                 if (atCP) {
                     metaCSPLogger.info("Resuming from critical point (" + te.getComponent() + ")");
@@ -259,11 +298,9 @@ public abstract class AdaptiveTrackerRK4 extends AbstractTrajectoryEnvelopeTrack
                 RungeKutta4.integrate(state, elapsedTrackingTime, deltaTime, slowingDown, maxVelocity, dampening, maxAcceleration);
             }
 
-            // Do some user function on position update
             onPositionUpdate();
             enqueueOneReport();
 
-            // Sleep for tracking period
             int delay = trackingPeriodInMillis;
             if (NetworkConfiguration.getMaximumTxDelay() > 0) delay += rand.nextInt(NetworkConfiguration.getMaximumTxDelay());
             try {
@@ -272,13 +309,11 @@ public abstract class AdaptiveTrackerRK4 extends AbstractTrajectoryEnvelopeTrack
                 e.printStackTrace();
             }
 
-            // Advance time to reflect how much we have slept (~ trackingPeriod)
             long deltaTimeInMillis = Calendar.getInstance().getTimeInMillis() - timeStart;
             deltaTime = deltaTimeInMillis / this.temporalResolution;
             elapsedTrackingTime += deltaTime;
         }
 
-        // Continue transmitting until the coordinator will be informed of having reached the last position.
         while (tec.getRobotReport(te.getRobotID()).getPathIndex() != -1) {
             enqueueOneReport();
             try {
@@ -288,10 +323,8 @@ public abstract class AdaptiveTrackerRK4 extends AbstractTrajectoryEnvelopeTrack
             }
         }
 
-        // Persevere with last path point in case listeners didn't catch it!
         long timerStart = getCurrentTimeInMillis();
         while (getCurrentTimeInMillis() - timerStart < WAIT_AMOUNT_AT_END) {
-            // System.out.println("Waiting " + te.getComponent());
             try {
                 Thread.sleep(trackingPeriodInMillis);
             } catch (InterruptedException e) {
@@ -330,7 +363,7 @@ public abstract class AdaptiveTrackerRK4 extends AbstractTrajectoryEnvelopeTrack
 
     @Override
     protected void onTrajectoryEnvelopeUpdate() {
-        synchronized (reportsList) { //FIXME not ok, all the mutex should be changed
+        synchronized (reportsList) {
             this.totalDistance = this.computeDistance(0, trajectory.getPose().length - 1);
             this.overallDistance = totalDistance;
             this.internalCriticalPoints.clear();
@@ -338,7 +371,7 @@ public abstract class AdaptiveTrackerRK4 extends AbstractTrajectoryEnvelopeTrack
             this.slowDownProfile = this.getSlowdownProfile();
             this.positionToSlowDown = this.computePositionToSlowDown();
             reportsList.clear();
-            reportTimeLists.clear(); //simplify to avoid discontinuities ... to be fixed.
+            reportTimeLists.clear();
         }
     }
 
@@ -368,10 +401,7 @@ public abstract class AdaptiveTrackerRK4 extends AbstractTrajectoryEnvelopeTrack
     }
 
     private void enqueueOneReport() {
-
         synchronized (reportsList) {
-
-            //Before start, initialize the position
             if (reportsList.isEmpty()) {
                 if (getRobotReport() != null) {
                     reportsList.add(0, getRobotReport());
@@ -386,21 +416,18 @@ public abstract class AdaptiveTrackerRK4 extends AbstractTrajectoryEnvelopeTrack
             timeNow = Calendar.getInstance().getTimeInMillis();
             long timeOfArrival = timeNow;
             if (NetworkConfiguration.getMaximumTxDelay() > 0) {
-                //the real delay
                 int delay = (NetworkConfiguration.getMaximumTxDelay() - NetworkConfiguration.getMinimumTxDelay() > 0) ? rand.nextInt(NetworkConfiguration.getMaximumTxDelay() - NetworkConfiguration.getMinimumTxDelay()) : 0;
                 timeOfArrival = timeOfArrival + NetworkConfiguration.getMinimumTxDelay() + delay;
             }
 
-            //Get the message according to packet loss probability (numberOfReplicas trials)
             boolean received = !(NetworkConfiguration.PROBABILITY_OF_PACKET_LOSS > 0);
             int trial = 0;
             while (!received && trial < numberOfReplicasReceiving) {
-                if (rand.nextDouble() < (1 - NetworkConfiguration.PROBABILITY_OF_PACKET_LOSS)) //the real packet loss probability
+                if (rand.nextDouble() < (1 - NetworkConfiguration.PROBABILITY_OF_PACKET_LOSS))
                     received = true;
                 trial++;
             }
             if (received) {
-                //Delete old messages that, due to the communication delay, will arrive after this one.
                 ArrayList<Long> reportTimeToRemove = new ArrayList<>();
                 ArrayList<RobotReport> reportToRemove = new ArrayList<>();
 
@@ -415,11 +442,10 @@ public abstract class AdaptiveTrackerRK4 extends AbstractTrajectoryEnvelopeTrack
                 for (Long time : reportTimeToRemove) reportTimeLists.remove(time);
                 for (RobotReport report : reportToRemove) reportsList.remove(report);
 
-                reportsList.add(0, getRobotReport()); //The new one is the one that will arrive later and is added in front of the queue.
-                reportTimeLists.add(0, timeOfArrival); //The oldest is in the end.
+                reportsList.add(0, getRobotReport());
+                reportTimeLists.add(0, timeOfArrival);
             }
 
-            //Keep alive just the most recent message before now.
             if (reportTimeLists.get(reportTimeLists.size() - 1) > timeNow) {
                 metaCSPLogger.severe("* ERROR * Unknown status Robot" + te.getRobotID());
             } else {
@@ -427,7 +453,7 @@ public abstract class AdaptiveTrackerRK4 extends AbstractTrajectoryEnvelopeTrack
                 ArrayList<RobotReport> reportToRemove = new ArrayList<RobotReport>();
 
                 for (int index = reportTimeLists.size() - 1; index > 0; index--) {
-                    if (reportTimeLists.get(index) > timeNow) break; //the first in the future
+                    if (reportTimeLists.get(index) > timeNow) break;
                     if (reportTimeLists.get(index) < timeNow && reportTimeLists.get(index - 1) <= timeNow) {
                         reportToRemove.add(reportsList.get(index));
                         reportTimeToRemove.add(reportTimeLists.get(index));
@@ -438,10 +464,8 @@ public abstract class AdaptiveTrackerRK4 extends AbstractTrajectoryEnvelopeTrack
                 for (RobotReport report : reportToRemove) reportsList.remove(report);
             }
 
-            //Check if the current status message is too old.
-            if (timeNow - reportTimeLists.get(reportTimeLists.size() - 1) > tec.getControlPeriod() + TrajectoryEnvelopeCoordinator.MAX_TX_DELAY) { //the known delay
+            if (timeNow - reportTimeLists.get(reportTimeLists.size() - 1) > tec.getControlPeriod() + TrajectoryEnvelopeCoordinator.MAX_TX_DELAY) {
                 metaCSPLogger.severe("* ERROR * Status of Robot" + te.getRobotID() + " is too old.");
-                //FIXME add a function for stopping pausing the fleet and eventually restart
             }
         }
     }
@@ -499,16 +523,14 @@ public abstract class AdaptiveTrackerRK4 extends AbstractTrajectoryEnvelopeTrack
 
         double time = 0.0;
         double deltaTime = 0.5 * (this.trackingPeriodInMillis / this.temporalResolution);
-        //Compute where to slow down (can do forward here for both states...)
+
         while (tempStateBW.getVelocity() < maxVelocity * 1.1) {
             double dampeningBW = getCurvatureDampening(getRobotReport(tempStateBW).getPathIndex(), true);
-            //Use slightly conservative max deceleration (which is positive acceleration since we simulate FW dynamics)
             RungeKutta4.integrate(tempStateBW, time, deltaTime, false, maxVelocity * 1.1, dampeningBW, maxAcceleration);
             time += deltaTime;
             ret.put(tempStateBW.getVelocity(), tempStateBW.getPosition());
         }
 
-        //for (Double speed : ret.keySet()) System.out.println("@speed " + speed + " --> " + ret.get(speed));
         return ret;
     }
 
@@ -517,14 +539,11 @@ public abstract class AdaptiveTrackerRK4 extends AbstractTrajectoryEnvelopeTrack
         double time = 0.0;
         double deltaTime = 0.5 * (this.trackingPeriodInMillis / this.temporalResolution);
 
-        //Compute where to slow down (can do forward here, we have the slowdown profile...)
         while (tempStateFW.getPosition() < this.totalDistance) {
             double prevSpeed = -1.0;
             boolean firstTime = true;
             for (Double speed : this.slowDownProfile.keySet()) {
-                //Find your speed in the table (table is ordered w/ highest speed first)...
                 if (tempStateFW.getVelocity() > speed) {
-                    //If this speed lands you after total dist you are OK (you've checked at lower speeds and either returned or breaked...)
                     double landingPosition = tempStateFW.getPosition() + (firstTime ? 0.0 : slowDownProfile.get(prevSpeed));
                     if (landingPosition > totalDistance) {
                         return tempStateFW.getPosition();
@@ -550,31 +569,26 @@ public abstract class AdaptiveTrackerRK4 extends AbstractTrajectoryEnvelopeTrack
         final int externalCPCount = extCPCounter;
         final int numberOfReplicas = this.numberOfReplicas;
 
-        //Define a thread that will send the information
         Thread waitToTXThread = new Thread("Wait to TX thread for robot " + te.getRobotID()) {
             public void run() {
 
                 int delayTx = 0;
                 if (NetworkConfiguration.getMaximumTxDelay() > 0) {
-                    //the real delay
                     int delay = (NetworkConfiguration.getMaximumTxDelay() - NetworkConfiguration.getMinimumTxDelay() > 0) ? rand.nextInt(NetworkConfiguration.getMaximumTxDelay() - NetworkConfiguration.getMinimumTxDelay()) : 0;
                     delayTx = NetworkConfiguration.getMinimumTxDelay() + delay;
                 }
 
-                //Sleep for delay in communication
                 try {
                     Thread.sleep(delayTx);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
 
-                //if possible (according to packet loss, send
                 synchronized (externalCPCounter) {
                     boolean send = false;
                     int trial = 0;
-                    //while(!send && trial < numberOfReplicas) {
                     while (trial < numberOfReplicas) {
-                        if (rand.nextDouble() < (1 - NetworkConfiguration.PROBABILITY_OF_PACKET_LOSS)) //the real one
+                        if (rand.nextDouble() < (1 - NetworkConfiguration.PROBABILITY_OF_PACKET_LOSS))
                             send = true;
                         else {
                             TrajectoryEnvelopeCoordinatorSimulation tc = (TrajectoryEnvelopeCoordinatorSimulation) tec;
@@ -603,29 +617,22 @@ public abstract class AdaptiveTrackerRK4 extends AbstractTrajectoryEnvelopeTrack
                 }
             }
         };
-        //let's start the thread
         waitToTXThread.start();
-
     }
 
     @Override
     public void setCriticalPoint(int criticalPointToSet) {
 
         if (this.criticalPoint != criticalPointToSet) {
-
-            //A new intermediate index to stop at has been given
             if (criticalPointToSet != -1 && criticalPointToSet > getRobotReport().getPathIndex()) {
-                //Store backups in case we are too late for critical point
                 double totalDistanceBKP = this.totalDistance;
                 int criticalPointBKP = this.criticalPoint;
                 double positionToSlowDownBKP = this.positionToSlowDown;
 
                 this.criticalPoint = criticalPointToSet;
-                //TOTDIST: ---(state.getPosition)--->x--(computeDist)--->CP
                 this.totalDistance = computeDistance(0, criticalPointToSet);
                 this.positionToSlowDown = computePositionToSlowDown();
 
-                //We are too late for critical point, restore everything
                 if (this.positionToSlowDown < state.getPosition()) {
                     metaCSPLogger.warning("Ignored critical point (" + te.getComponent() + "): " + criticalPointToSet + " because slowdown distance (" + this.positionToSlowDown + ") < current distance (" + state.getPosition() + ")");
                     this.criticalPoint = criticalPointBKP;
@@ -634,31 +641,21 @@ public abstract class AdaptiveTrackerRK4 extends AbstractTrajectoryEnvelopeTrack
                 } else {
                     metaCSPLogger.finest("Set critical point (" + te.getComponent() + "): " + criticalPointToSet + ", currently at point " + this.getRobotReport().getPathIndex() + ", distance " + state.getPosition() + ", will slow down at distance " + this.positionToSlowDown);
                 }
-            }
-
-            //Critical point <= current position, ignore -- WHY??
-            else if (criticalPointToSet != -1 && criticalPointToSet <= getRobotReport().getPathIndex()) {
+            } else if (criticalPointToSet != -1 && criticalPointToSet <= getRobotReport().getPathIndex()) {
                 metaCSPLogger.warning("Ignored critical point (" + te.getComponent() + "): " + criticalPointToSet + " because robot is already at " + getRobotReport().getPathIndex() + " (and current CP is " + this.criticalPoint + ")");
-            }
-
-            //The critical point has been reset, go to the end
-            else if (criticalPointToSet == -1) {
+            } else if (criticalPointToSet == -1) {
                 this.criticalPoint = criticalPointToSet;
                 this.totalDistance = computeDistance(0, trajectory.getPose().length - 1);
                 this.positionToSlowDown = computePositionToSlowDown();
                 metaCSPLogger.finest("Set critical point (" + te.getComponent() + "): " + criticalPointToSet);
             }
-        }
-
-        //Same critical point was already set
-        else {
+        } else {
             metaCSPLogger.warning("Critical point (" + te.getComponent() + ") " + criticalPointToSet + " was already set!");
         }
-
     }
 
     @Override
-    public RobotReport getRobotReport() { // This method creates the robot reports
+    public RobotReport getRobotReport() {
         if (state == null) return null;
         if (!this.th.isAlive()) return new RobotReport(te.getRobotID(), trajectory.getPose()[0], -1, 0.0, 0.0, -1);
         synchronized (state) {
