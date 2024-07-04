@@ -13,7 +13,7 @@ import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
 
 public class HomeScene {
-    private static final int WIDTH = 400;
+    private static final int WIDTH = 500;
     private static final int HEIGHT = 300;
     private static final int SPACING = 40;
     private static final int PADDING = 40;

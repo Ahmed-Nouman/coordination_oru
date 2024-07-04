@@ -7,6 +7,8 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
 
+import java.io.File;
+
 public class NavigationBar {
 
     private static final int SPACING = 8;
@@ -30,7 +32,9 @@ public class NavigationBar {
             case SETUP:
                 buttonsButtons.getChildren().addAll(main.getNavigationButton().getBack(),
                         main.getNavigationButton().getSave());
-                if (main.getDataStatus().getOriginalProjectData().equals(main.getDataStatus().getProjectData())) // Decide between Run and Verify
+                boolean directoryExists = isDirectoryExists(main);
+
+                if (main.getDataStatus().getOriginalProjectData().equals(main.getDataStatus().getProjectData()) && (directoryExists)) // Decide between Run and Verify
                     buttonsButtons.getChildren().add(main.getNavigationButton().getRun());
                 else buttonsButtons.getChildren().add(main.getNavigationButton().getVerify());
                 break;
@@ -40,6 +44,16 @@ public class NavigationBar {
 
         navigationPane.getChildren().addAll(new Separator(), buttonsButtons);
         return navigationPane;
+    }
+
+    private static boolean isDirectoryExists(Main main) {
+        String className = Thread.currentThread().getStackTrace()[Thread.currentThread().getStackTrace().length - 1].getFileName().split("\\.")[0];
+        String pathsFolderName = "paths/" + className + "/";
+        String projectFileName = main.getDataStatus().getProjectFile();
+        String projectName = projectFileName.replaceAll(".*/([^/]+)\\.json$", "$1");
+        String targetPath = pathsFolderName + projectName + "/";
+        File directory = new File(targetPath);
+        return directory.exists() && directory.isDirectory();
     }
 
     private static HBox navigationButtons() {

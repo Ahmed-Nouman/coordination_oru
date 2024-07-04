@@ -7,15 +7,15 @@ import java.awt.*;
 
 public class AutonomousVehicle extends AbstractVehicle {
 
-    public AutonomousVehicle(int ID, String name, int priorityID, Color color, double maxVelocity, double maxAcceleration,
+    public AutonomousVehicle(int ID, String name, int priority, Color color, double maxVelocity, double maxAcceleration,
                              double length, double width, Pose initialPose, double safetyDistance, int goalRepetition, ForwardModel model) {
-        super(ID, name, priorityID, color, maxVelocity, maxAcceleration, length, width, initialPose, safetyDistance,
+        super(ID, name, priority, color, maxVelocity, maxAcceleration, length, width, initialPose, safetyDistance,
                 goalRepetition, model);
     }
 
-    public AutonomousVehicle(String name, int priorityID, Color color, double maxVelocity, double maxAcceleration, double length,
+    public AutonomousVehicle(String name, int priority, Color color, double maxVelocity, double maxAcceleration, double length,
                              double width, Pose initialPose, double safetyDistance, int goalRepetition, ForwardModel model) {
-        this(vehicleNumber, name, priorityID, color, maxVelocity, maxAcceleration, length, width, initialPose, safetyDistance,
+        this(vehicleNumber, name, priority, color, maxVelocity, maxAcceleration, length, width, initialPose, safetyDistance,
                 goalRepetition, model);
     }
 

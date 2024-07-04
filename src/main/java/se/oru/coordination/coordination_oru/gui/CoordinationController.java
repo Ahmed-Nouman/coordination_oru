@@ -50,6 +50,7 @@ public class CoordinationController {
     public void chooseTrafficControl() {
         var trafficControl = scene.getTrafficControlField().getValue();
         scene.getMain().getDataStatus().getProjectData().setTrafficControl(trafficControl);
+        if (trafficControl == null) scene.getMain().getDataStatus().getProjectData().setTrafficControl("Mixed Traffic");
         updateVisibilityBasedOnTrafficControl();
     }
 

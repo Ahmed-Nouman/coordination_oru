@@ -14,13 +14,17 @@ import se.oru.coordination.coordination_oru.vehicles.AutonomousVehicle;
 import se.oru.coordination.coordination_oru.vehicles.LookAheadVehicle;
 import se.oru.coordination.coordination_oru.vehicles.VehiclesHashMap;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Function;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 public class RunProject {
@@ -61,8 +65,6 @@ public class RunProject {
         String folderName = "results-";
         var scaleAdjustment = 1 / mapResolution;
         var reportsTimeIntervalInSeconds = 0.1;
-        System.out.println((navigationController.getMain().getDataStatus().getProjectData().getTrafficControl()));
-        System.out.println(navigationController.getMain().getDataStatus().getProjectData().getTriggers());
 
         for (var vehicle : navigationController.getMain().getDataStatus().getProjectData().getVehicles()) {
             AbstractVehicle newVehicle = VehiclesHashMap.getVehicle(vehicle.getID());
@@ -116,7 +118,18 @@ public class RunProject {
             var lastPart = parts[parts.length - 1];
             var projectName = lastPart.split("\\.")[0];
 
-            newVehicle.loadPlans(pathsFolderName + "/" + projectName + "/" + newVehicle.getName() + ".path");
+            // Determine the highest numbered path file
+            AbstractVehicle finalNewVehicle = newVehicle;
+            String highestNumberedPathFile = Arrays.stream(new File(pathsFolderName).listFiles())
+                    .map(File::getName)
+                    .filter(name -> name.startsWith(finalNewVehicle.getName() + "(") && name.endsWith(").path"))
+                    .max(Comparator.comparingInt(name -> {
+                        Matcher m = Pattern.compile("\\((\\d+)\\)\\.path$").matcher(name);
+                        return m.find() ? Integer.parseInt(m.group(1)) : -1;
+                    }))
+                    .orElse(newVehicle.getName() + ".path");
+
+            newVehicle.loadPlans(pathsFolderName + projectName + "/" + highestNumberedPathFile);
         }
 
         var tec = new TrajectoryEnvelopeCoordinatorSimulation(10.0, 1.0);
@@ -180,7 +193,7 @@ public class RunProject {
                     System.out.println("Mixed Traffic");
                     break;
                 case "Shutdown":
-                    System.out.println("Shutdown"); // FIXME: Not all the vehicles stop. Why?
+                    System.out.println("Shutdown");
                     AdaptiveTrackerRK4.scheduleVehiclesStop(triggerVehicle, triggerTasks, complyVehicles, trackerRetriever);
                     break;
                 case "Vehicle Speed Change":

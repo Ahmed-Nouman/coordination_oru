@@ -149,7 +149,10 @@ public class VerifyPlan {
         var navigationBar = NavigationBar.getBar(navigationController.getMain(), SceneState.SETUP);
         var buttonsPane = (HBox) navigationBar.getChildren().get(1);
         buttonsPane.getChildren().removeIf(node -> node == navigationController.getVerify());
-        buttonsPane.getChildren().add(navigationController.getRun());
+        if (!buttonsPane.getChildren().contains(navigationController.getRun())) {
+            buttonsPane.getChildren().add(navigationController.getRun());
+        }
+
         navigationController.getMain().getSetupScene().getPane().setBottom(navigationBar);
     }
 }
