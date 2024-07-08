@@ -25,6 +25,7 @@ import java.nio.file.Files;
 import java.util.*;
 import java.util.Map.Entry;
 import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Logger;
 import java.util.zip.ZipEntry;
@@ -862,11 +863,12 @@ public class Missions {
 	}
 
 	public static void runTasks(TrajectoryEnvelopeCoordinatorSimulation tec, int simulationTime) {
-		final var executorService = Executors.newScheduledThreadPool(VehiclesHashMap.getList().size());
+		final ScheduledExecutorService executorService = Executors.newScheduledThreadPool(VehiclesHashMap.getList().size());
 
 		for (int i = 1; i <= VehiclesHashMap.getList().size(); i++) {
 			final int robotID = i;
 			long initialDelay = VehiclesHashMap.getVehicle(robotID).getTasks().get(0).getTimeInMillisecond();
+
 			executorService.schedule(new Runnable() {
 				int iteration = 0;
 
@@ -880,11 +882,20 @@ public class Missions {
 							var mission = Missions.getMission(robotID, missionIndex);
 
 							synchronized (tec) {
-								long nextMissionDelay = VehiclesHashMap.getVehicle(robotID).getTasks().get(missionIndex).getTimeInMillisecond();
-								executorService.schedule(this, nextMissionDelay + SECOND_TO_MILLISECOND, TimeUnit.MILLISECONDS);
+								long nextMissionDelay = 0;
+								if (missionIndex + 1 < VehiclesHashMap.getVehicle(robotID).getTasks().size()) {
+									nextMissionDelay = VehiclesHashMap.getVehicle(robotID).getTasks().get(missionIndex + 1).getTimeInMillisecond();
+								}
+
 								if (tec.addMissions(mission)) {
 									iteration++;
 									VehiclesHashMap.getVehicle(robotID).setCurrentTaskIndex(missionIndex);
+
+									// Schedule the next task
+									executorService.schedule(this, nextMissionDelay, TimeUnit.MILLISECONDS);
+								} else {
+									// Reschedule this task attempt after a short delay
+									executorService.schedule(this, 1000, TimeUnit.MILLISECONDS);
 								}
 							}
 						}
@@ -893,8 +904,12 @@ public class Missions {
 
 			}, initialDelay, TimeUnit.MILLISECONDS);
 		}
-		if (simulationTime < 0) executorService.schedule(executorService::shutdown, 1, TimeUnit.DAYS);
-        else executorService.schedule(executorService::shutdownNow, simulationTime, TimeUnit.MINUTES);
+
+		if (simulationTime < 0) {
+			executorService.schedule(executorService::shutdown, 1, TimeUnit.DAYS);
+		} else {
+			executorService.schedule(executorService::shutdownNow, simulationTime, TimeUnit.MINUTES);
+		}
 	}
 
 	/**
@@ -948,8 +963,8 @@ public class Missions {
 	 * @param followerStartingPose The current pose of the follower robot.
 	 * @param mp The motion planner that should be used to compute the path from the follower robot's
 	 * current pose to goal pose of the leader's mission, passing through the start pose of the leader's mission.
-	 * @param computePathToLeaderGoal Set this to <code>true</code> iff the follower's path to the goal of the 
-	 * leader's mission should be recomputed (otherwise the leader's path will be re-used).  
+	 * @param computePathToLeaderGoal Set this to <code>true</code> iff the follower's path to the goal of the
+	 * leader's mission should be recomputed (otherwise the leader's path will be re-used).
 	 * @return
 	 */
 	public static Mission followMission(Mission leaderMission, int followerID, Pose followerStartingPose, AbstractMotionPlanner mp, boolean computePathToLeaderGoal) {

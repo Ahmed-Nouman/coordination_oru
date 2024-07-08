@@ -26,8 +26,8 @@ public class MultipleTriggers {
     public static final Heuristics.HeuristicType HEURISTIC_TYPE = Heuristics.HeuristicType.HIGHEST_PRIORITY_FIRST;
     public static final String REPORT_ADDRESS = System.getProperty("user.dir") +
             "/src/main/java/se/oru/coordination/coordination_oru/results/ProductionCycleBatteryChange";
-    public static final double LENGTH = 5.0;
-    public static final double WIDTH = 5.0;
+    public static final double LENGTH = 10.0;
+    public static final double WIDTH = 6.0;
     public static final double MAX_VELOCITY = 10.0;
     public static final double MAX_ACCELERATION = 1.0;
     public static final double PRODUCTION_SAFETY_DISTANCE = 50.0;
