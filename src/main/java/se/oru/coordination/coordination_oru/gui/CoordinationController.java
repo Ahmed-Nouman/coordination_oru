@@ -120,6 +120,7 @@ public class CoordinationController {
 
     public void updateVisibilityBasedOnTrafficControl() {
         var trafficControl = scene.getTrafficControlField().getValue();
+        if (trafficControl == null) trafficControl = "Mixed Traffic";
 
         switch (trafficControl) {
             case "Mixed Traffic":

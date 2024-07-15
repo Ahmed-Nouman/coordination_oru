@@ -298,7 +298,6 @@ public abstract class AbstractVehicle {
 
     public void setLength(double length) {
         this.length = length;
-        this.footprint = makeFootprint(length, width); //FIXME: should be removed later maybe
     }
 
     public double getLength() {
@@ -306,7 +305,6 @@ public abstract class AbstractVehicle {
     }
     public void setWidth(double width) {
         this.width = width;
-        this.footprint = makeFootprint(length, width);
     }
 
     public double getWidth() {

@@ -100,8 +100,11 @@ public abstract class AbstractMotionPlanner {
 
 		
 	public void setMap(String mapYAMLFile) {
-		this.noMap = false;
-		this.om = new OccupancyMap(mapYAMLFile);
+		if (mapYAMLFile == null) this.noMap = true;
+		else {
+			this.noMap = false;
+			this.om = new OccupancyMap(mapYAMLFile);
+		}
 	}
 		
 	public PoseSteering[] getPath() {

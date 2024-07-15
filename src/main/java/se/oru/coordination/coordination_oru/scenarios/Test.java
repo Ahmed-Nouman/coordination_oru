@@ -37,7 +37,7 @@ public class Test {
                 0.09, 60, 2.0, 0.1);
 
         var lookAheadVehicle = new LookAheadVehicle("H1",predictableDistance,5,  Color.CYAN, 5, 1,
-                0.5, 0.5, mainTunnelLeft, 5, 5, model);
+                0.4, 0.5, mainTunnelLeft, 5, 5, model);
         lookAheadVehicle.setGoals(new Pose[] {mainTunnelRight, mainTunnelLeft});
         var autonomousVehicle1 = new AutonomousVehicle("A1", 1, Color.YELLOW, 10.0, 1.0, 0.6, 0.6,
                 drawPoint23, 5, 5, model);

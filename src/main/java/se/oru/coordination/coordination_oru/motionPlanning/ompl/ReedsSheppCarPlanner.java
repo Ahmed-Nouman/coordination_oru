@@ -17,6 +17,7 @@ import se.oru.coordination.coordination_oru.utils.GeometrySmoother;
 import se.oru.coordination.coordination_oru.utils.GeometrySmoother.SmootherControl;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 
 public class ReedsSheppCarPlanner extends AbstractMotionPlanner {
 	
@@ -54,22 +55,35 @@ public class ReedsSheppCarPlanner extends AbstractMotionPlanner {
 	public void setFootprint(Coordinate ... coords) {
 		super.setFootprint(coords);
 		GeometryFactory gf = new GeometryFactory();
-		Coordinate[] newCoords = new Coordinate[coords.length+1];
-        System.arraycopy(coords, 0, newCoords, 0, coords.length);
-		newCoords[newCoords.length-1] = coords[0];
-		Polygon footprint = gf.createPolygon(newCoords);
+		Coordinate[] newCoords = new Coordinate[coords.length + 1];
+		System.arraycopy(coords, 0, newCoords, 0, coords.length);
+		newCoords[newCoords.length - 1] = coords[0];
+		Polygon footprint = gf.createPolygon(gf.createLinearRing(newCoords), null);
+
 		GeometrySmoother gs = new GeometrySmoother(gf);
 		SmootherControl sc = new SmootherControl() {
-	        public double getMinLength() {
-	            return robotRadius;
-	        }
-	        public int getNumVertices(double length) {
-	            return (int)(length/(2*robotRadius))+2;
-	        }
-	    };
-	    gs.setControl(sc);
-	    Polygon smoothFootprint = gs.smooth(footprint, 1.0);
-		collisionCircleCenters = smoothFootprint.getCoordinates();
+			public double getMinLength() {
+				return robotRadius;
+			}
+			public int getNumVertices(double length) {
+				return (int)(length / (2 * robotRadius)) + 2;
+			}
+		};
+		gs.setControl(sc);
+
+		try {
+			Polygon smoothFootprint = gs.smooth(footprint, 1.0);
+			Coordinate[] smoothedCoords = smoothFootprint.getCoordinates();
+			// Ensure closure of smoothed footprint
+			if (!smoothedCoords[0].equals2D(smoothedCoords[smoothedCoords.length - 1])) {
+				smoothedCoords = Arrays.copyOf(smoothedCoords, smoothedCoords.length + 1);
+				smoothedCoords[smoothedCoords.length - 1] = smoothedCoords[0];
+			}
+			collisionCircleCenters = smoothedCoords;
+		} catch (Exception e) {
+			System.err.println("Failed to smooth footprint, using original footprint: " + e.getMessage());
+			collisionCircleCenters = newCoords; // Use original footprint in case of failure
+		}
 	}
 
 	public Coordinate[] getCollisionCircleCenters() {

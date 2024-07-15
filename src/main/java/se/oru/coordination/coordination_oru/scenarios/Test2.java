@@ -32,17 +32,16 @@ public class Test2 {
                 0.09, 60, 2.0, 0.1);
 
         var chargingVehicle = new AutonomousVehicle("E",1, Color.BLUE, 5.0, 0.5,
-                0.8, 0.5, mainTunnelLeft, 10, 1, model);
+                0.08, 0.45, mainTunnelLeft, 10, 1, model);
         chargingVehicle.addTask(new Task("", 0, new Pose[] {orePass, mainTunnelLeft}, 0), 2);
         chargingVehicle.addTask(new Task("", 0.1, new Pose[] {mainTunnelRight}, 0));
-        System.out.println(chargingVehicle.getTasks());
         chargingVehicle.generatePlans(planner);
 
-        var autonomousVehicle1 = new AutonomousVehicle("A1",2, Color.YELLOW, 5.0, 0.5,
-                0.8, 0.5, drawPoint21, 10, 5, model);
-        autonomousVehicle1.addTask(new Task("", 0, new Pose[] {orePass}, 1));
-        autonomousVehicle1.addTask(new Task("", 0.1, new Pose[] {drawPoint21}, 1));
-        autonomousVehicle1.generatePlans(planner);
+//        var autonomousVehicle1 = new AutonomousVehicle("A1",2, Color.YELLOW, 5.0, 0.5,
+//                0.8, 0.5, drawPoint21, 10, 5, model);
+//        autonomousVehicle1.addTask(new Task("", 0, new Pose[] {orePass}, 1));
+//        autonomousVehicle1.addTask(new Task("", 0.1, new Pose[] {drawPoint21}, 1));
+//        autonomousVehicle1.generatePlans(planner);
 
 //        var autonomousVehicle2 = new AutonomousVehicle("A2",2, Color.YELLOW, 5.0, 0.5,
 //                0.8, 0.5, drawPoint15, 10, 0);

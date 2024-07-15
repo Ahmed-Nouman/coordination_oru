@@ -895,7 +895,7 @@ public class Missions {
 									executorService.schedule(this, nextMissionDelay, TimeUnit.MILLISECONDS);
 								} else {
 									// Reschedule this task attempt after a short delay
-									executorService.schedule(this, 1000, TimeUnit.MILLISECONDS);
+									executorService.schedule(this, 100, TimeUnit.MILLISECONDS);
 								}
 							}
 						}
