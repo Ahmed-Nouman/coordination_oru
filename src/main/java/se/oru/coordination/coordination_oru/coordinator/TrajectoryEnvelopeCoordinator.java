@@ -1157,7 +1157,7 @@ public abstract class TrajectoryEnvelopeCoordinator extends AbstractTrajectoryEn
 		}
 	}
 
-	public void updatePath(int robotID, PoseSteering[] newPath, int breakingPathIndex) {
+	public void changePath(int robotID, PoseSteering[] newPath, int breakingPathIndex) {
 
 		synchronized (solver) {
 
@@ -1186,7 +1186,7 @@ public abstract class TrajectoryEnvelopeCoordinator extends AbstractTrajectoryEn
 				computeCriticalSections();
 				envelopesToTrack.remove(newTE);
 				forceCriticalPointReTransmission.put(robotID, true);
-//				updateDependencies();
+				updateDependencies();
 
 			}
 		}

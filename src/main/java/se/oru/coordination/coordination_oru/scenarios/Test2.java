@@ -58,7 +58,7 @@ public class Test2 {
 
         tec.setDefaultFootprint(chargingVehicle.getFootprint());
         tec.placeRobotsAtStartPoses();
-        tec.addComparator(new Heuristics(Heuristics.HeuristicType.MISSION_PRIORITY_FIRST).getComparator());
+        tec.addComparator(new Heuristics(Heuristics.HeuristicType.TASK_PRIORITY_FIRST).getComparator());
         tec.setUseInternalCriticalPoints(false);
         tec.setYieldIfParking(true);
         tec.setBreakDeadlocks(true, false, false);

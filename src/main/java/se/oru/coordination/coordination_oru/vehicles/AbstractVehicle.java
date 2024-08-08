@@ -99,7 +99,9 @@ public abstract class AbstractVehicle {
     public void generatePlans(PathPlanner planner) {
         if (!tasks.isEmpty()) {
             for (Task task : tasks) {
-                paths.add(planner.plan(footprint, initialPose, task.getPoses()));
+                var path = planner.plan(footprint, initialPose, task.getPoses());
+                if (path != null) paths.add(path);
+                else System.err.println("Failed to generate path for task: " + task.getName());
                 initialPose = task.getPoses()[task.getPoses().length - 1];
             }
             setSafetyPathPoints();

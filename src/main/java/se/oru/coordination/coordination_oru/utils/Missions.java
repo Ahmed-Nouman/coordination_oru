@@ -798,6 +798,20 @@ public class Missions {
 		}
 	}
 
+	private static void addAllRobotsForLooping(TrajectoryEnvelopeCoordinator tec) {
+		for (int robotID : convertSetToIntArray(tec.getAllRobotIDs())) {
+			dispatchableRobots.add(robotID);
+			loopMissions.put(robotID, true);
+		}
+	}
+
+	public static int[] convertSetToIntArray(Set<Integer> set) {
+		var array = new int[set.size()];
+		int index = 0;
+		for (int num : set) array[index++] = num;
+		return array;
+	}
+
 	private static void dispatchMissions(TrajectoryEnvelopeCoordinator tec) {
 		for (int robotID : dispatchableRobots) {
 			if (Missions.hasMissions(robotID)) {
@@ -846,20 +860,6 @@ public class Missions {
 				}
 			}
 		}
-	}
-
-	private static void addAllRobotsForLooping(TrajectoryEnvelopeCoordinator tec) {
-		for (int robotID : convertSetToIntArray(tec.getAllRobotIDs())) {
-			dispatchableRobots.add(robotID);
-			loopMissions.put(robotID, true);
-		}
-	}
-
-	public static int[] convertSetToIntArray(Set<Integer> set) {
-		var array = new int[set.size()];
-		int index = 0;
-		for (int num : set) array[index++] = num;
-		return array;
 	}
 
 	public static void runTasks(TrajectoryEnvelopeCoordinatorSimulation tec, int simulationTime) {

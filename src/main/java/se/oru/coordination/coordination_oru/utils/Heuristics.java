@@ -44,8 +44,8 @@ public class Heuristics {
                 return autonomousFirst();
             case BIGGER_VEHICLE_FIRST:
                 return biggerVehicleFirst();
-            case MISSION_PRIORITY_FIRST:
-                return missionPriorityFirst();
+            case TASK_PRIORITY_FIRST:
+                return taskPriorityFirst();
             default:
                 throw new IllegalArgumentException("Invalid heuristic type");
         }
@@ -97,8 +97,8 @@ public class Heuristics {
         };
     }
 
-    private Comparator<RobotAtCriticalSection> missionPriorityFirst() {
-        heuristicName = "MISSION_PRIORITY_FIRST";
+    private Comparator<RobotAtCriticalSection> taskPriorityFirst() {
+        heuristicName = "TASK_PRIORITY_FIRST";
         return (robot1, robot2) -> {
             int currentMissionPriority1 = VehiclesHashMap.getVehicle(robot1.getRobotReport().getRobotID()).getCurrentTaskIndex();
             int currentMissionPriority2 = VehiclesHashMap.getVehicle(robot2.getRobotReport().getRobotID()).getCurrentTaskIndex();
@@ -168,7 +168,7 @@ public class Heuristics {
         HUMAN_FIRST,
         AUTONOMOUS_FIRST,
         BIGGER_VEHICLE_FIRST,
-        MISSION_PRIORITY_FIRST;
+        TASK_PRIORITY_FIRST;
     }
 
 }

@@ -1,7 +1,6 @@
 package se.oru.coordination.coordination_oru.scenarios;
 
 import org.metacsp.multi.spatioTemporal.paths.Pose;
-import se.oru.coordination.coordination_oru.utils.Mission;
 import se.oru.coordination.coordination_oru.forwardModel.ConstantAcceleration;
 import se.oru.coordination.coordination_oru.forwardModel.ForwardModel;
 import se.oru.coordination.coordination_oru.motionPlanning.VehiclePathPlanner;
@@ -10,6 +9,7 @@ import se.oru.coordination.coordination_oru.coordinator.TrajectoryEnvelopeCoordi
 import se.oru.coordination.coordination_oru.simulation.BrowserVisualization;
 import se.oru.coordination.coordination_oru.utils.Heuristics;
 import se.oru.coordination.coordination_oru.utils.Missions;
+import se.oru.coordination.coordination_oru.utils.Task;
 import se.oru.coordination.coordination_oru.vehicles.AutonomousVehicle;
 import se.oru.coordination.coordination_oru.vehicles.LookAheadVehicle;
 
@@ -32,15 +32,19 @@ public class Test {
         final Pose drawPoint23 = new Pose(67.75,86.95,-Math.PI/2);
         final Pose drawPoint24 = new Pose(74.85,84.45,-Math.PI/2);
         final Pose orePass = new Pose(54.35,11.25,-Math.PI/2);
-        final ForwardModel model = new ConstantAcceleration(10.0, 1.0, 1000, 1000, 30);
+        final ForwardModel model = new ConstantAcceleration(1.0, 2.0, 1000, 1000, 30);
         final var planner = new VehiclePathPlanner(map, ReedsSheppCarPlanner.PLANNING_ALGORITHM.RRTConnect,
                 0.09, 60, 2.0, 0.1);
 
-        var lookAheadVehicle = new LookAheadVehicle("H1",predictableDistance,5,  Color.CYAN, 5, 1,
+        var lookAheadVehicle = new LookAheadVehicle("H1", predictableDistance, 1, Color.CYAN, 5, 1,
                 0.4, 0.5, mainTunnelLeft, 5, 5, model);
+//        lookAheadVehicle.addTask(new Task("M1", 0.0, new Pose[] {mainTunnelRight}, 0));
+//        lookAheadVehicle.addTask(new Task("M2", 0.0, new Pose[] {mainTunnelRight}, 0));
         lookAheadVehicle.setGoals(new Pose[] {mainTunnelRight, mainTunnelLeft});
         var autonomousVehicle1 = new AutonomousVehicle("A1", 1, Color.YELLOW, 10.0, 1.0, 0.6, 0.6,
                 drawPoint23, 5, 5, model);
+//        autonomousVehicle1.addTask(new Task("M1", 0.0, new Pose[] {mainTunnelRight}, 5));
+//        autonomousVehicle1.addTask(new Task("M2", 0.0, new Pose[] {drawPoint23}, 5));
         autonomousVehicle1.setGoals(new Pose[] {mainTunnelRight, drawPoint23});
         lookAheadVehicle.generatePlans(planner);
         autonomousVehicle1.generatePlans(planner);
@@ -53,10 +57,10 @@ public class Test {
         tec.startInference();
 
         tec.setDefaultFootprint(autonomousVehicle1.getFootprint());
-        tec.placeRobot(autonomousVehicle1.getID(), mainTunnelLeft);
-        tec.placeRobot(lookAheadVehicle.getID(), drawPoint23);
-        tec.addComparator(new Heuristics(Heuristics.HeuristicType.AUTONOMOUS_FIRST).getComparator());
-        tec.setUseInternalCriticalPoints(false);
+        tec.placeRobot(autonomousVehicle1.getID(), drawPoint23);
+        tec.placeRobot(lookAheadVehicle.getID(), mainTunnelLeft);
+        tec.addComparator(new Heuristics(Heuristics.HeuristicType.HIGHEST_PRIORITY_FIRST).getComparator());
+        tec.setUseInternalCriticalPoints(true);
         tec.setYieldIfParking(true);
         tec.setBreakDeadlocks(true, false, false);
 

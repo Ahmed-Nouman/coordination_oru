@@ -65,7 +65,7 @@ public class LookAheadVehicle extends AutonomousVehicle {
     public synchronized void updatePath(TrajectoryEnvelopeCoordinator tec) {
         if (tec.isDriving(this.getID()) && this.getLookAheadDistance() != -1) {
             var newPath = this.getLimitedPath(tec);
-            tec.updatePath(this.getID(), newPath, 0);
+            tec.changePath(this.getID(), newPath, 0);
         }
     }
 
