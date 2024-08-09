@@ -8,6 +8,7 @@ import se.oru.coordination.coordination_oru.motionPlanning.ompl.ReedsSheppCarPla
 import se.oru.coordination.coordination_oru.coordinator.TrajectoryEnvelopeCoordinatorSimulation;
 import se.oru.coordination.coordination_oru.simulation.BrowserVisualization;
 import se.oru.coordination.coordination_oru.utils.Heuristics;
+import se.oru.coordination.coordination_oru.utils.Mission;
 import se.oru.coordination.coordination_oru.utils.Missions;
 import se.oru.coordination.coordination_oru.utils.Task;
 import se.oru.coordination.coordination_oru.vehicles.AutonomousVehicle;
@@ -32,22 +33,28 @@ public class Test {
         final Pose drawPoint23 = new Pose(67.75,86.95,-Math.PI/2);
         final Pose drawPoint24 = new Pose(74.85,84.45,-Math.PI/2);
         final Pose orePass = new Pose(54.35,11.25,-Math.PI/2);
+        final String CLASS_NAME = Thread.currentThread().getStackTrace()[Thread.currentThread().getStackTrace().length-1].getFileName().split("\\.")[0];
+        final String PLANS_FOLDER_NAME = "paths/" + CLASS_NAME + "/";
         final ForwardModel model = new ConstantAcceleration(1.0, 2.0, 1000, 1000, 30);
         final var planner = new VehiclePathPlanner(map, ReedsSheppCarPlanner.PLANNING_ALGORITHM.RRTConnect,
                 0.09, 60, 2.0, 0.1);
 
-        var lookAheadVehicle = new LookAheadVehicle("H1", predictableDistance, 1, Color.CYAN, 5, 1,
-                0.4, 0.5, mainTunnelLeft, 5, 5, model);
-//        lookAheadVehicle.addTask(new Task("M1", 0.0, new Pose[] {mainTunnelRight}, 0));
+        var lookAheadVehicle = new AutonomousVehicle("H1", 5, Color.CYAN, 5, 1,
+                0.4, 0.5, drawPoint19, 5, 5, model);
+        lookAheadVehicle.addTask(new Task("M1", 0.0, new Pose[] {mainTunnelRight, drawPoint19}, new int[]{10000, 0}, 0));
 //        lookAheadVehicle.addTask(new Task("M2", 0.0, new Pose[] {mainTunnelRight}, 0));
-        lookAheadVehicle.setGoals(new Pose[] {mainTunnelRight, mainTunnelLeft});
+//        lookAheadVehicle.setGoals(new Pose[] {mainTunnelRight, drawPoint19});
         var autonomousVehicle1 = new AutonomousVehicle("A1", 1, Color.YELLOW, 10.0, 1.0, 0.6, 0.6,
                 drawPoint23, 5, 5, model);
-//        autonomousVehicle1.addTask(new Task("M1", 0.0, new Pose[] {mainTunnelRight}, 5));
-//        autonomousVehicle1.addTask(new Task("M2", 0.0, new Pose[] {drawPoint23}, 5));
-        autonomousVehicle1.setGoals(new Pose[] {mainTunnelRight, drawPoint23});
-        lookAheadVehicle.generatePlans(planner);
-        autonomousVehicle1.generatePlans(planner);
+        autonomousVehicle1.addTask(new Task("M1", 0.0, new Pose[] {mainTunnelRight, mainTunnelLeft, drawPoint17}, new int[]{10000, 10000, 0},  5));
+//        autonomousVehicle1.addTask(new Task("M2", 0.25, new Pose[] {mainTunnelRight}, 5));
+//        autonomousVehicle1.setGoals(new Pose[] {mainTunnelRight, mainTunnelLeft, drawPoint17});
+//        lookAheadVehicle.generatePlans(planner);
+//        autonomousVehicle1.generatePlans(planner);
+//        lookAheadVehicle.savePlans(CLASS_NAME);
+//        autonomousVehicle1.savePlans(CLASS_NAME);
+        autonomousVehicle1.loadPlans(PLANS_FOLDER_NAME + "A1.path");
+        lookAheadVehicle.loadPlans(PLANS_FOLDER_NAME + "H1.path");
 
         // Instantiate a trajectory envelope coordinator.
         final var tec = new TrajectoryEnvelopeCoordinatorSimulation(2000, 1000);
@@ -56,9 +63,9 @@ public class Test {
         // Start the thread that checks and enforces dependencies at every clock tick
         tec.startInference();
 
-        tec.setDefaultFootprint(autonomousVehicle1.getFootprint());
+        tec.setDefaultFootprint(lookAheadVehicle.getFootprint());
         tec.placeRobot(autonomousVehicle1.getID(), drawPoint23);
-        tec.placeRobot(lookAheadVehicle.getID(), mainTunnelLeft);
+        tec.placeRobot(lookAheadVehicle.getID(), drawPoint19);
         tec.addComparator(new Heuristics(Heuristics.HeuristicType.HIGHEST_PRIORITY_FIRST).getComparator());
         tec.setUseInternalCriticalPoints(true);
         tec.setYieldIfParking(true);
@@ -71,9 +78,18 @@ public class Test {
         viz.setInitialTransform(11, 45, -3.5);
         tec.setVisualization(viz);
 
-        Missions.generateMissions();
+//        var mission1 = new Mission(autonomousVehicle1.getID(), autonomousVehicle1.getPaths().get(0));
+////        mission1.setStoppingPoint(mainTunnelRight, 10000);
+////        mission1.setStoppingPoint(mainTunnelLeft, 10000);long
+//        var mission2 = new Mission(lookAheadVehicle.getID(), lookAheadVehicle.getPaths().get(0));
+////        mission2.setStoppingPoint(mainTunnelRight, 10000);
+//        mission2.setStoppingPoint(lookAheadVehicle.getTasks().get(0).getPoses()[0], lookAheadVehicle.getTasks().get(0).getStoppageTimes()[0]);
+//        Missions.enqueueMission(mission1);
+//        Missions.enqueueMission(mission2);
+
         Missions.setMap(map);
-        Missions.runTasks(tec, -2);
+        Missions.generateMissions();
+        Missions.runTasks(tec, -1);
 
     }
 }

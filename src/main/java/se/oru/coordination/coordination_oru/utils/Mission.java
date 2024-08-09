@@ -25,7 +25,6 @@ public class Mission implements Comparable<Mission> {
 	protected Pose toPose = null;
 	protected ArrayList<Pose> stoppingPoints = new ArrayList<>();
 	protected ArrayList<Integer> stoppingPointDurations = new ArrayList<>();
-	//protected HashMap<Pose,Integer> stoppingPoints = new HashMap<Pose, Integer>();
 
 	/**
 	 * Instantiates a {@link Mission} for a given robot to navigate between two locations, but where the path
@@ -75,7 +74,6 @@ public class Mission implements Comparable<Mission> {
 	public void setStoppingPoint(Pose pose, int duration) {
 		this.stoppingPoints.add(pose);
 		this.stoppingPointDurations.add(duration);
-		//this.stoppingPoints.put(pose, duration);
 	}
 	
 	/**
@@ -96,7 +94,6 @@ public class Mission implements Comparable<Mission> {
 			ret.put(this.stoppingPoints.get(i), this.stoppingPointDurations.get(i));
 		}
 		return ret;
-		//return this.stoppingPoints;
 	}
 	
 	/**

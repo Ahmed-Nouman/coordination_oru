@@ -91,21 +91,6 @@ public class TrajectoryEnvelopeCoordinatorSimulation extends TrajectoryEnvelopeC
 		this.totalPacketsLost.incrementAndGet();
 	}
 
-	private ArrayList<Integer> computeStoppingPoints(PoseSteering[] poses) {
-		ArrayList<Integer> ret = new ArrayList<>();
-		double prevTheta = poses[0].getTheta();
-		if (poses.length > 1) prevTheta = Math.atan2(poses[1].getY() - poses[0].getY(), poses[1].getX() - poses[0].getX());
-		for (int i = 0; i < poses.length-1; i++) {
-			double theta = Math.atan2(poses[i+1].getY() - poses[i].getY(), poses[i+1].getX() - poses[i].getX());
-			double deltaTheta = (theta-prevTheta);
-			prevTheta = theta;
-			if (Math.abs(deltaTheta) > Math.PI/2 && Math.abs(deltaTheta) < 1.9*Math.PI) {
-				ret.add(i);
-			}
-		}
-		return ret;
-	}
-
 	@Override
 	public boolean addMissions(Mission... missions) {
         var userStoppingPoints = new HashMap<Mission, HashMap<Pose,Integer>>();
@@ -114,7 +99,7 @@ public class TrajectoryEnvelopeCoordinatorSimulation extends TrajectoryEnvelopeC
 				PoseSteering[] path = m.getPath();
 				ArrayList<Integer> sps = computeStoppingPoints(path);
 				userStoppingPoints.put(m, m.getStoppingPoints());
-				for (Integer i : sps) m.setStoppingPoint(path[i-1].getPose(), 100);
+				for (Integer i : sps) m.setStoppingPoint(path[i-5].getPose(), 100);
 			}
 		}
 		if (!super.addMissions(missions)) {
@@ -129,6 +114,21 @@ public class TrajectoryEnvelopeCoordinatorSimulation extends TrajectoryEnvelopeC
 			return false;
 		}
 		return true;
+	}
+
+	private ArrayList<Integer> computeStoppingPoints(PoseSteering[] poses) {
+		ArrayList<Integer> ret = new ArrayList<>();
+		double prevTheta = poses[0].getTheta();
+		if (poses.length > 1) prevTheta = Math.atan2(poses[1].getY() - poses[0].getY(), poses[1].getX() - poses[0].getX());
+		for (int i = 0; i < poses.length-1; i++) {
+			double theta = Math.atan2(poses[i+1].getY() - poses[i].getY(), poses[i+1].getX() - poses[i].getX());
+			double deltaTheta = (theta-prevTheta);
+			prevTheta = theta;
+			if (Math.abs(deltaTheta) > Math.PI/2 && Math.abs(deltaTheta) < 1.9*Math.PI) {
+				ret.add(i);
+			}
+		}
+		return ret;
 	}
 
 	/**

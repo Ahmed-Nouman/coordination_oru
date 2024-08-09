@@ -364,7 +364,7 @@ public abstract class AbstractVehicle {
 
     public void addTask(Task task, int repeat) {
         for (int i = 0; i < repeat; i++) {
-            this.tasks.add(new Task(task.getName(), task.getTimeInMinutes(), task.getPoses(), task.getPriority()));
+            this.tasks.add(new Task(task.getName(), task.getTimeInMinutes(), task.getPoses(), task.getStoppageTimes(), task.getPriority()));
         }
     }
 
