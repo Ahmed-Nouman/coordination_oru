@@ -7,6 +7,7 @@ import se.oru.coordination.coordination_oru.motionPlanning.VehiclePathPlanner;
 import se.oru.coordination.coordination_oru.motionPlanning.ompl.ReedsSheppCarPlanner;
 import se.oru.coordination.coordination_oru.coordinator.TrajectoryEnvelopeCoordinatorSimulation;
 import se.oru.coordination.coordination_oru.simulation.BrowserVisualization;
+import se.oru.coordination.coordination_oru.utils.CollisionDetector;
 import se.oru.coordination.coordination_oru.utils.Heuristics;
 import se.oru.coordination.coordination_oru.utils.Missions;
 import se.oru.coordination.coordination_oru.utils.Task;
@@ -55,6 +56,9 @@ public class Test {
         tec.setupSolver(0, 100000000);
         // Start the thread that checks and enforces dependencies at every clock tick
         tec.startInference();
+
+        CollisionDetector checker = new CollisionDetector(tec, 2.0);
+        checker.start();
 
         tec.setDefaultFootprint(autonomousVehicle1.getFootprint());
         tec.placeRobot(autonomousVehicle1.getID(), drawPoint23);
