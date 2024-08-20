@@ -132,8 +132,8 @@ public class VehicleController {
 
     var baseNameOfVehicle = "vehicle";
     var priorityOfVehicle = 1;
-    var lengthOfVehicle = 8.0;
-    var widthOfVehicle = 4.0;
+    var lengthOfVehicle = 4.0;
+    var widthOfVehicle = 3.0;
     var maxVelocityOfVehicle = 10.0;
     var maxAccelerationOfVehicle = 1.0;
     var safetyDistanceOfVehicle = 0.0;

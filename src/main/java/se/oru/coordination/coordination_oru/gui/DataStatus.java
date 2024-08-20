@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class DataStatus {
+    private boolean plansVerified = false;
     private String projectFile = "";
     private ProjectData projectData = new ProjectData();
     private ProjectData originalProjectData = new ProjectData();
@@ -111,13 +112,6 @@ public class DataStatus {
         this.vehicleCounter = vehicleCounter;
     }
 
-    public void setPlansVerified(boolean plansVerified) {
-    }
-
-    public void addVehicle(AbstractVehicle vehicle) {
-        this.vehicles.add(vehicle);
-    }
-
     public List<AbstractVehicle> getVehicles() {
         return vehicles;
     }
@@ -129,4 +123,17 @@ public class DataStatus {
     public void setTransientHeuristics(Heuristics newHeuristics) {
         this.newHeuristics = newHeuristics;
     }
+
+    public void addVehicle(AbstractVehicle vehicle) {
+        this.vehicles.add(vehicle);
+    }
+
+    public void setPlansVerified() {
+        plansVerified = true;
+    }
+
+    public boolean isPlansVerified() {
+        return plansVerified;
+    }
+
 }

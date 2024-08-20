@@ -80,7 +80,7 @@ public class RobotReportCollector {
                     var pose = report.getPose();
 
                     // Generate the filename with RobotID
-                    String fileName = "Robot_" + report.getRobotID() + ".csv";
+                    String fileName = "Vehicle_" + report.getRobotID() + ".csv";
                     Path filePath = directoryPath.resolve(fileName);
 
                     // Create and/or open the file in appended mode

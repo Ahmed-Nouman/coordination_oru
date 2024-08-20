@@ -20,7 +20,12 @@ import se.oru.coordination.coordination_oru.vehicles.AbstractVehicle;
 import se.oru.coordination.coordination_oru.vehicles.AutonomousVehicle;
 import se.oru.coordination.coordination_oru.vehicles.LookAheadVehicle;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Arrays;
+import java.util.Comparator;
 
 public class VerifyPlan {
     public static final int WIDTH = 250;
@@ -43,8 +48,8 @@ public class VerifyPlan {
                 var scaleAdjustment = 1 / mapResolution;
                 final String className = Thread.currentThread().getStackTrace()[Thread.currentThread().getStackTrace().length-1].getFileName().split("\\.")[0];
                 final ForwardModel model = new ConstantAcceleration(10.0, 1.0, 1000, 1000, 30); //FIXME: HARD CODED
-                final var planner = new VehiclePathPlanner(map, navigationController.getMain().getDataStatus().getPathPlanner(),
-                        0.09, 60, 2.0, 0.1);
+                final var  planner = new VehiclePathPlanner(map, navigationController.getMain().getDataStatus().getPathPlanner(),
+                        0.09, 120, 2.0, 0.1);
 
                 for (var vehicle : navigationController.getMain().getDataStatus().getProjectData().getVehicles()) {
                     AbstractVehicle newVehicle;
@@ -91,7 +96,10 @@ public class VerifyPlan {
                     var parts = filePath.split("/");
                     var lastPart = parts[parts.length - 1];
                     var projectName = lastPart.split("\\.")[0];
-                    newVehicle.savePlans(className + "/" + projectName);
+                    var directoryPath = className + "/" + projectName;
+
+                    // Now save the plans
+                    newVehicle.savePlans(directoryPath);
 
                     navigationController.getMain().getDataStatus().getVehicles().add(newVehicle);
                 }
@@ -143,7 +151,7 @@ public class VerifyPlan {
     }
 
     public void updateNavigationBar() {
-        navigationController.getMain().getDataStatus().setPlansVerified(true);
+        navigationController.getMain().getDataStatus().setPlansVerified();
 
         // Replace Verify button with Run button in the navigation bar
         var navigationBar = NavigationBar.getBar(navigationController.getMain(), SceneState.SETUP);

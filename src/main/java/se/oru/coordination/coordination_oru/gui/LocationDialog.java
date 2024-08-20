@@ -20,7 +20,7 @@ public class LocationDialog {
     private static final int SPACING = 30;
 
     public static List<String> add(double x, double y) {
-        return new LocationDialogInstance("Add Pose", "Add", "PoseName", x, y, 0).showAndWait();
+        return new LocationDialogInstance("Add Pose", "Add", "Name", x, y, 0).showAndWait();
     }
 
     public static List<String> edit(MapScene scene, String poseName) {

@@ -18,6 +18,7 @@ public class SetupScene {
     private static final int PADDING = 30;
     private static final int SPACING = 10;
     public static final int WIDTH = 220;
+    public static final int PANE_WIDTH = 800;
 
     private Text pathPlanner;
     private ChoiceBox<String> pathPlannerField;
@@ -42,6 +43,7 @@ public class SetupScene {
 
     public Scene get() {
         pane = new BorderPane();
+        pane.setPrefWidth(PANE_WIDTH);
         centerPane();
         menuBar();
         navigationBar();
