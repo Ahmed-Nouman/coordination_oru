@@ -136,7 +136,7 @@ public class RunProject {
         tec.setupSolver(0, 100000000);
         tec.startInference();
         tec.setBreakDeadlocks(true, false, false);
-        tec.setDefaultFootprint(navigationController.getMain().getDataStatus().getVehicles().get(0).getFootprint());
+        tec.setFootprints(); //FIXME: This needs to be checked in the GUI
         tec.addComparator(navigationController.getMain().getDataStatus().getHeuristics().getComparator());
 
         for (var vehicle : navigationController.getMain().getDataStatus().getVehicles()) {

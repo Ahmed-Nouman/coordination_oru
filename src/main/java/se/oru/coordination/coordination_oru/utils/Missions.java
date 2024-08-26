@@ -867,6 +867,8 @@ public class Missions {
 
 		for (int i = 1; i <= VehiclesHashMap.getList().size(); i++) {
 			final int robotID = i;
+			if (VehiclesHashMap.getVehicle(robotID).getTasks().isEmpty()) continue;  // Skip robots with no tasks, just for placing stationary robots
+
 			long initialDelay = VehiclesHashMap.getVehicle(robotID).getTasks().get(0).getTimeInMillisecond();
 
 			executorService.schedule(new Runnable() {

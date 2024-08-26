@@ -394,14 +394,32 @@ public class TrajectoryEnvelopeCoordinatorSimulation extends TrajectoryEnvelopeC
 		return collisionsList.size();
 	}
 
+	public void setFootprints() {
+		if (VehiclesHashMap.getInstance() == null || VehiclesHashMap.getList().isEmpty()) throw new Error("No vehicles available to place at locations.");
+		for (AbstractVehicle vehicle : VehiclesHashMap.getList().values()) {
+			if (vehicle instanceof AutonomousVehicle) {
+				var autonomousVehicle = (AutonomousVehicle) vehicle;
+				if (autonomousVehicle.getFootprint() == null)
+					throw new Error("No footprint available for vehicle " + autonomousVehicle.getID());
+				else {
+					this.setFootprint(autonomousVehicle.getID(), autonomousVehicle.getFootprint());
+				}
+			}
+		}
+
+	}
+
 	public void placeRobotsAtStartPoses() {
 		if (VehiclesHashMap.getInstance() == null || VehiclesHashMap.getList().isEmpty()) throw new Error("No vehicles available to place at locations.");
 		for (AbstractVehicle vehicle : VehiclesHashMap.getList().values()) {
 			if (vehicle instanceof AutonomousVehicle) {
 				var autonomousVehicle = (AutonomousVehicle) vehicle;
-				if (autonomousVehicle.getPaths().isEmpty())
-                    System.out.println(("No path available for vehicle " + autonomousVehicle.getID()));
-				this.placeRobot(autonomousVehicle.getID(), autonomousVehicle.getPaths().get(0)[0].getPose());
+				if (autonomousVehicle.getPaths().isEmpty()) {
+					System.out.println(("No path available for vehicle " + autonomousVehicle.getID()));
+					this.placeRobot(autonomousVehicle.getID(), autonomousVehicle.getInitialPose());
+				}
+				else
+					this.placeRobot(autonomousVehicle.getID(), autonomousVehicle.getPaths().get(0)[0].getPose());
 			}
 		}
 	}
