@@ -1,7 +1,7 @@
 import os
 import pandas as pd
 
-root_directory = '../results/productionVehiclePassing/'
+root_directory = '../results/'
 
 def read_robot_csv(filepath):
     if not os.path.exists(filepath):
@@ -23,7 +23,7 @@ def get_time_spent(df):
     if df.empty:
         return 0
 
-    # Filter rows where PathIndex is positive
+    # Filter rows where Velocity is non-negative
     active_df = df[df['Velocity'] >= 0]
     
     # Calculate active time based on the number of rows and the fact that each row is 0.10 seconds apart
@@ -53,43 +53,52 @@ def count_stops(df):
     return stops
 
 if __name__ == "__main__":
-    for dirpath, _, filenames in os.walk(root_directory):
-        robot_files = sorted([f for f in filenames if f.startswith("Robot_") and f.endswith(".csv")])
+    for scenario_dir in os.listdir(root_directory):
+        scenario_path = os.path.join(root_directory, scenario_dir)
 
-        if not robot_files:
+        # Skip if it's not a directory
+        if not os.path.isdir(scenario_path):
             continue
-        
-        results = {'Robot Name': [], 'Production Cycles': [], 'Active Time (minutes)': [], 'Number of Stops': []}
 
-        for file in robot_files:
-            robot_name = file[:-4]
-            filepath = os.path.join(dirpath, file)
-            df = read_robot_csv(filepath)
+        for dirpath, _, filenames in os.walk(scenario_path):
+            robot_files = sorted([f for f in filenames if f.startswith("Vehicle_") and f.endswith(".csv")])
+
+            if not robot_files:
+                continue
             
-            if df is not None:
-                results['Robot Name'].append(robot_name)
+            results = {'Robot Name': [], 'Production Cycles': [], 'Active Time (minutes)': [], 'Number of Stops': []}
 
-                # Production Cycles
-                cycles_count = count_production_cycles(df)
-                results['Production Cycles'].append(cycles_count)
+            for file in robot_files:
+                robot_name = file[:-4]
+                filepath = os.path.join(dirpath, file)
+                df = read_robot_csv(filepath)
+                
+                if df is not None:
+                    results['Robot Name'].append(robot_name)
 
-                # Active Robot Time
-                robot_time_spent = get_time_spent(df)
-                results['Active Time (minutes)'].append(f"{robot_time_spent:.2f}")
+                    # Production Cycles
+                    cycles_count = count_production_cycles(df)
+                    results['Production Cycles'].append(cycles_count)
 
-                # Number of Stops
-                stops_count = count_stops(df)
-                results['Number of Stops'].append(stops_count)
+                    # Active Robot Time
+                    robot_time_spent = get_time_spent(df)
+                    results['Active Time (minutes)'].append(f"{robot_time_spent:.2f}")
 
-                # Active Coordination time
-                # coordination_time = get_coordination_time(df)
-                # results['Coordination Time (minutes)'].append(f"{coordination_time:.2f}")
-        
-        # Create DataFrame from results
-        results_df = pd.DataFrame(results)
+                    # Number of Stops
+                    stops_count = count_stops(df)
+                    results['Number of Stops'].append(stops_count)
 
-        # Write to CSV file
-        output_csv_path = os.path.join(dirpath, 'OutputVariables.csv')
-        results_df.to_csv(output_csv_path, index=False)
+                    # Uncomment to add Active Coordination time
+                    # coordination_time = get_coordination_time(df)
+                    # results['Coordination Time (minutes)'].append(f"{coordination_time:.2f}")
+            
+            # Create DataFrame from results
+            results_df = pd.DataFrame(results)
 
-    print("OutputVariables.csv files written to all subfolders.")
+            # Write to CSV file
+            output_csv_path = os.path.join(dirpath, 'OutputVariables.csv')
+            results_df.to_csv(output_csv_path, index=False)
+
+        print(f"OutputVariables.csv files written to all subfolders in {scenario_path}.")
+
+
