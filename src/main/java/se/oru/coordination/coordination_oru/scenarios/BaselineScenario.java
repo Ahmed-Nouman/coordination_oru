@@ -19,12 +19,12 @@ public class BaselineScenario {
     public static final double SCALE_ADJUSTMENT = 1 / MAP_RESOLUTION;
     public static final Heuristics.HeuristicType HEURISTIC_TYPE = Heuristics.HeuristicType.HIGHEST_PRIORITY_FIRST;
     public static final String REPORT_ADDRESS = System.getProperty("user.dir") +
-            "/src/main/java/se/oru/coordination/coordination_oru/results/ProductionCycleBatteryChange";
+            "/src/main/java/se/oru/coordination/coordination_oru/results/BaselineScenario";
     public static final double SAFETY_DISTANCE = 20.0;
     public static final boolean VISUALIZATION = true;
-    public static final boolean WRITE_VEHICLE_REPORTS = false;
+    public static final boolean WRITE_VEHICLE_REPORTS = true;
     public static final double REPORTING_TIME = 0.1;
-    public static final int SIMULATION_INTERVAL = 30;
+    public static final int SIMULATION_INTERVAL = 48;
     public static final String CLASS_NAME = Thread.currentThread().getStackTrace()[Thread.currentThread().getStackTrace().length-1].getFileName().split("\\.")[0];
     public static final String PLANS_FOLDER_NAME = "paths/" + CLASS_NAME + "/";
     public static final ForwardModel model = new ConstantAcceleration(10.0, 100.0, 1000, 1000, 30);
@@ -109,9 +109,9 @@ public class BaselineScenario {
                 lengthLHD, widthLHD, drawPoint15B, safetyDistance, 1, model);
 
         var mt1 = new AutonomousVehicle("MT-1", 1, Color.CYAN, maxVelocityMT, maxAccelerationMT,
-                lengthMT, widthMT, drawPoint15F, safetyDistance, 10, model);
-        mt1.addTask(new Task("toOrePass2", 0.0, new Pose[] {orePass2}, 1));
-        mt1.addTask(new Task("toDrawPoint15", 0.0, new Pose[] {drawPoint15F}, 1));
+                lengthMT, widthMT, drawPoint15F, safetyDistance, 50, model);
+        mt1.addTask(new Task("toOrePass2", 0.5, new Pose[] {orePass2}, 1));
+        mt1.addTask(new Task("toDrawPoint15", 0.5, new Pose[] {drawPoint15F}, 1));
 //        mt1.generatePlans(planner);
 //        mt1.savePlans(CLASS_NAME);
         mt1.loadPlans(PLANS_FOLDER_NAME + "MT-1.path");
@@ -120,23 +120,23 @@ public class BaselineScenario {
                 lengthLHD, widthLHD, drawPoint19B, safetyDistance, 1, model);
 
         var mt2 = new AutonomousVehicle("MT-2", 1, Color.CYAN, maxVelocityMT, maxAccelerationMT,
-                lengthMT, widthMT, drawPoint19F, safetyDistance, 10, model);
-        mt2.addTask(new Task("toOrePass3", 0.0, new Pose[] {orePass3}, 1));
-        mt2.addTask(new Task("toDrawPoint19", 0.0, new Pose[] {drawPoint19F}, 1));
+                lengthMT, widthMT, drawPoint19F, safetyDistance, 50, model);
+        mt2.addTask(new Task("toOrePass3", 0.5, new Pose[] {orePass3}, 1));
+        mt2.addTask(new Task("toDrawPoint19", 0.5, new Pose[] {drawPoint19F}, 1));
 //        mt2.generatePlans(planner);
 //        mt2.savePlans(CLASS_NAME);
         mt2.loadPlans(PLANS_FOLDER_NAME + "MT-2.path");
 
         var dr = new AutonomousVehicle("DR", 1, Color.GREEN, maxVelocityDR, maxAccelerationDR,
                 lengthDR, widthDR, drawPoint5, safetyDistance, 1, model);
-        dr.addTask(new Task("toDrawPoint10", 1.0, new Pose[] {drawPoint10}, 1));
+        dr.addTask(new Task("toDrawPoint11", 3.0, new Pose[] {drawPoint11}, 1));
 //        dr.generatePlans(planner);
 //        dr.savePlans(CLASS_NAME);
         dr.loadPlans(PLANS_FOLDER_NAME + "DR.path");
 
         var c = new AutonomousVehicle("C", 1, Color.RED, maxVelocityC, maxAccelerationC,
                 lengthC, widthC, chargingStation, safetyDistance, 1, model);
-        c.addTask(new Task("toDrawPoint10", 5.0, new Pose[] {drawPoint5}, 1));
+        c.addTask(new Task("toDrawPoint10", 9.0, new Pose[] {drawPoint5}, 1));
         c.addTask(new Task("toChargingStation", 1.0, new Pose[] {chargingStation}, 1));
 //        c.generatePlans(planner);
 //        c.savePlans(CLASS_NAME);
@@ -144,14 +144,15 @@ public class BaselineScenario {
 
         var s1 = new AutonomousVehicle("S-1", 1, Color.BLUE, maxVelocityS, maxAccelerationS,
                 lengthS, widthS, mainTunnelRight, safetyDistance, 1, model);
-        s1.addTask(new Task("toDrawPoint10", 4.0, new Pose[] {serviceWorkshop1}, 1));
+        s1.addTask(new Task("toServiceWorkshop", 5.0, new Pose[] {serviceWorkshop1}, 1));
+        s1.addTask(new Task("toMainTunnelRight", 1.0, new Pose[] {mainTunnelRight}, 1));
 //        s1.generatePlans(planner);
 //        s1.savePlans(CLASS_NAME);
         s1.loadPlans(PLANS_FOLDER_NAME + "S-1.path");
 
         var s2 = new AutonomousVehicle("S-2", 1, Color.BLUE, maxVelocityS, maxAccelerationS,
                 lengthS, widthS, drawPoint1, safetyDistance, 1, model);
-        s2.addTask(new Task("toDrawPoint5", 10.0, new Pose[] {drawPoint5}, 1));
+        s2.addTask(new Task("toDrawPoint5", 15.0, new Pose[] {drawPoint5}, 1));
         s2.addTask(new Task("toDrawPoint1", 1.0, new Pose[] {drawPoint1}, 1));
 //        s2.generatePlans(planner);
 //        s2.savePlans(CLASS_NAME);
@@ -159,8 +160,12 @@ public class BaselineScenario {
 
         var ht = new AutonomousVehicle("HT", 1, Color.LIGHT_GRAY, maxVelocityHT, maxAccelerationHT,
                 lengthHT, widthHT, mainTunnelLeft, safetyDistance, 1, model);
-        ht.addTask(new Task("toDrawPoint7A", 3.5, new Pose[] {drawPoint7B}, 1));
-        ht.addTask(new Task("toDrawPoint7B", 1.0, new Pose[] {drawPoint7A}, 1));
+        ht.addTask(new Task("toDrawPoint7B", 12.0, new Pose[] {drawPoint7B}, 1));
+        ht.addTask(new Task("toDrawPoint7A", 1.0, new Pose[] {drawPoint7A}, 1));
+        ht.addTask(new Task("toDrawPoint7", 1.0, new Pose[] {drawPoint7}, 1));
+        ht.addTask(new Task("toMainTunnelLeft", 1.0, new Pose[] {mainTunnelLeft}, 1));
+        ht.addTask(new Task("toDrawPoint7B", 35.0, new Pose[] {drawPoint7B}, 1));
+        ht.addTask(new Task("toDrawPoint7A", 1.0, new Pose[] {drawPoint7A}, 1));
         ht.addTask(new Task("toDrawPoint7", 1.0, new Pose[] {drawPoint7}, 1));
         ht.addTask(new Task("toMainTunnelLeft", 1.0, new Pose[] {mainTunnelLeft}, 1));
 //        ht.generatePlans(planner);

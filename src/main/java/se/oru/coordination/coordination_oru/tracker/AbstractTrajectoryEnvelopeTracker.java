@@ -359,7 +359,6 @@ public abstract class AbstractTrajectoryEnvelopeTracker {
 
 	public synchronized void pause(AutonomousVehicle byVehicle) {
 		pauseByVehicles.add(byVehicle);
-		System.out.println(pauseByVehicles);
 		isPaused = true;
 	}
 

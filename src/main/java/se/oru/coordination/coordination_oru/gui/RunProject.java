@@ -129,7 +129,8 @@ public class RunProject {
                     }))
                     .orElse(newVehicle.getName() + ".path");
 
-            newVehicle.loadPlans(pathsFolderName + projectName + "/" + highestNumberedPathFile);
+            if (!(newVehicle.getTasks().isEmpty()))
+                newVehicle.loadPlans(pathsFolderName + projectName + "/" + highestNumberedPathFile);
         }
 
         var tec = new TrajectoryEnvelopeCoordinatorSimulation(10.0, 1.0);
