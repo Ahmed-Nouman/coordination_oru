@@ -404,36 +404,51 @@ public class BrowserVisualization implements FleetVisualization {
 		BrowserVisualizationSocket.resolution = resolution;
 		BrowserVisualizationSocket.origin = origin;
 	}
-	
+
 	public void setMap(String mapYAMLFile) {
 		try {
 			File file = new File(mapYAMLFile);
 			BufferedReader br = new BufferedReader(new FileReader(file));
 			String imageFileName = null;
 			String st;
-			//FIXME Handle map origin
-			//Coordinate bottomLeftOrigin = null;
-			while((st=br.readLine()) != null){ 
+
+			while ((st = br.readLine()) != null) {
 				if (!st.trim().startsWith("#") && !st.trim().isEmpty()) {
 					String key = st.substring(0, st.indexOf(":")).trim();
-					String value = st.substring(st.indexOf(":")+1).trim();
-					if (key.equals("image")) imageFileName = file.getParentFile()+File.separator+value;
-					else if (key.equals("resolution")) BrowserVisualizationSocket.resolution = Double.parseDouble(value);
-					else if (key.equals("origin")) {
-						String x = value.substring(1, value.indexOf(",")).trim();
-						String y = value.substring(value.indexOf(",")+1, value.indexOf(",", value.indexOf(",")+1)).trim();
-						BrowserVisualizationSocket.origin = new Coordinate(Double.parseDouble(x),Double.parseDouble(y));
-						//bottomLeftOrigin = new Coordinate(Double.parseDouble(x),Double.parseDouble(y));
+					String value = st.substring(st.indexOf(":") + 1).trim();
+
+					// Check and remove BOM if present
+					if (key.length() > 0 && key.charAt(0) == '\uFEFF') {
+						key = key.substring(1); // Remove the BOM character
+					}
+
+					// Debugging output to verify the length and content of the key
+					System.out.println("Key: '" + key + "' Length: " + key.length());
+
+					switch (key.toLowerCase()) {
+						case "image":
+							imageFileName = file.getParentFile() + File.separator + value.trim();
+							System.out.println("Resolved imageFileName: " + imageFileName);
+							break;
+						case "resolution":
+							BrowserVisualizationSocket.resolution = Double.parseDouble(value);
+							break;
+						case "origin":
+							String x = value.substring(1, value.indexOf(",")).trim();
+							String y = value.substring(value.indexOf(",") + 1, value.indexOf(",", value.indexOf(",") + 1)).trim();
+							BrowserVisualizationSocket.origin = new Coordinate(Double.parseDouble(x), Double.parseDouble(y));
+							break;
 					}
 				}
 			}
 			br.close();
 			BrowserVisualizationSocket.map = ImageIO.read(new File(imageFileName));
-			//BrowserVisualizationSocket.origin = new Coordinate(bottomLeftOrigin.x, BrowserVisualizationSocket.map.getHeight()*BrowserVisualizationSocket.resolution-bottomLeftOrigin.y);
+
+		} catch (IOException e) {
+			e.printStackTrace();
 		}
-		catch (IOException e) { e.printStackTrace(); }
 	}
-	
+
 	public void setMapYAML(String mapYAMLSpec, String pathPrefix) {
 		try {
 			String imageFileName = "";

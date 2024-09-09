@@ -12,14 +12,14 @@ import se.oru.coordination.coordination_oru.vehicles.AutonomousVehicle;
 
 import java.awt.*;
 
-public class BaselineScenario {
+public class BaselineScenarioWithComplexities {
 
     public static final String MAP = "maps/12-1051_batteryChange.yaml";
     public static final double MAP_RESOLUTION = new MapResolution().getMapResolution(MAP);
     public static final double SCALE_ADJUSTMENT = 1 / MAP_RESOLUTION;
     public static final Heuristics.HeuristicType HEURISTIC_TYPE = Heuristics.HeuristicType.HIGHEST_PRIORITY_FIRST;
     public static final String REPORT_ADDRESS = System.getProperty("user.dir") +
-            "/src/main/java/se/oru/coordination/coordination_oru/results/BaselineScenario";
+            "/src/main/java/se/oru/coordination/coordination_oru/results/BaselineScenarioWithComplexities/";
     public static final double SAFETY_DISTANCE = 20.0;
     public static final boolean VISUALIZATION = true;
     public static final boolean WRITE_VEHICLE_REPORTS = false;
@@ -93,6 +93,7 @@ public class BaselineScenario {
         final Pose drawPoint20 = new Pose(146.55,82.85,-Math.PI/2);
         final Pose drawPoint21 = new Pose(153.95,81.95,Math.PI/2);
         final Pose drawPoint21B = new Pose(153.75,49.15,Math.PI/2);
+        final Pose drawPoint22 = new Pose(160.75,51.45,Math.PI/2);
         final Pose orePass1 = new Pose(48.75,15.75,Math.PI/2);
         final Pose orePass2 = new Pose(106.55,32.95,Math.PI/2);
         final Pose orePass3 = new Pose(134.95,34.05,Math.PI/2);
@@ -106,6 +107,7 @@ public class BaselineScenario {
         final Pose serviceWorkshop2 = new Pose(125.15,23.75, Math.PI/2);
         final Pose serviceWorkshop3 = new Pose(125.15,27.65, Math.PI/2);
         final Pose chargingStation = new Pose(67.85,29.05, Math.PI/2);
+        final Pose waterStation = new Pose(57.95,25.45, Math.PI/2);
 
         var lhd1 = new AutonomousVehicle("LHD-1", 1, Color.YELLOW, maxVelocityLHD, maxAccelerationLHD,
                 lengthLHD, widthLHD, drawPoint15B, safetyDistance, 1, model);
@@ -174,6 +176,32 @@ public class BaselineScenario {
 //        ht.savePlans(CLASS_NAME);
         ht.loadPlans(PLANS_FOLDER_NAME + "HT.path");
 
+        var s3 = new AutonomousVehicle("S-3", 1, Color.BLUE, maxVelocityS, maxAccelerationS,
+                lengthS, widthS, drawPoint21B, safetyDistance, 1, model);
+        s3.addTask(new Task("toBarrier2Entry", 14.0, new Pose[] {barrier2Entry}, 1));
+        s3.addTask(new Task("toBarrier1Entry", 0.5, new Pose[] {barrier1Entry}, 1));
+        s3.addTask(new Task("toBarrier2Entry", 0.5, new Pose[] {barrier2Entry}, 1));
+        s3.addTask(new Task("drawPoint21B", 0.0, new Pose[] {drawPoint21B}, 1));
+//        s3.generatePlans(planner);
+//        s3.savePlans(CLASS_NAME);
+        s3.loadPlans(PLANS_FOLDER_NAME + "S-3.path");
+
+        var s4 = new AutonomousVehicle("S-4", 1, Color.BLUE, maxVelocityS, maxAccelerationS,
+                lengthS, widthS, drawPoint2, safetyDistance, 1, model);
+        s4.addTask(new Task("toDrawPoint11B", 20.0, new Pose[] {drawPoint11B}, 1));
+        s4.addTask(new Task("to DrawPoint2", 2.0, new Pose[] {drawPoint2}, 1));
+//        s4.generatePlans(planner);
+//        s4.savePlans(CLASS_NAME);
+        s4.loadPlans(PLANS_FOLDER_NAME + "S-4.path");
+
+        var s5 = new AutonomousVehicle("S-5", 1, Color.BLUE, maxVelocityS, maxAccelerationS,
+                lengthS, widthS, drawPoint22, safetyDistance, 1, model);
+        s5.addTask(new Task("toWaterStation", 24.0, new Pose[] {waterStation}, 1));
+        s5.addTask(new Task("to DrawPoint22", 2.0, new Pose[] {drawPoint22}, 1));
+//        s5.generatePlans(planner);
+//        s5.savePlans(CLASS_NAME);
+        s5.loadPlans(PLANS_FOLDER_NAME + "S-5.path");
+
         tec.setupSolver(0, 100000000);
         tec.startInference();
 
@@ -202,7 +230,7 @@ public class BaselineScenario {
         Missions.setMap(MAP);
 
         String fileName = "FA" + "_" + "C" + "_" + "S" + "_" + safetyDistance * SCALE_ADJUSTMENT + "_"
-                + "V" + "_" + mt1.getMaxVelocity() * SCALE_ADJUSTMENT + "_";
+                + "V" + "_" + lhd1.getMaxVelocity() * SCALE_ADJUSTMENT + "_";
         if (WRITE_VEHICLE_REPORTS)
             RobotReportWriter.writeReports(tec, REPORTING_TIME, SIMULATION_INTERVAL, heuristicName, REPORT_ADDRESS, fileName, SCALE_ADJUSTMENT);
         Missions.runTasks(tec, SIMULATION_INTERVAL);

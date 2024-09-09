@@ -12,9 +12,9 @@ import se.oru.coordination.coordination_oru.vehicles.AutonomousVehicle;
 
 import java.awt.*;
 
-public class BaselineScenario {
+public class BaselineScenarioMixedTraffic {
 
-    public static final String MAP = "maps/12-1051_batteryChange.yaml";
+    public static final String MAP = "maps/12-1051_Simulation_MAP_S2.yaml";
     public static final double MAP_RESOLUTION = new MapResolution().getMapResolution(MAP);
     public static final double SCALE_ADJUSTMENT = 1 / MAP_RESOLUTION;
     public static final Heuristics.HeuristicType HEURISTIC_TYPE = Heuristics.HeuristicType.HIGHEST_PRIORITY_FIRST;
@@ -202,7 +202,7 @@ public class BaselineScenario {
         Missions.setMap(MAP);
 
         String fileName = "FA" + "_" + "C" + "_" + "S" + "_" + safetyDistance * SCALE_ADJUSTMENT + "_"
-                + "V" + "_" + mt1.getMaxVelocity() * SCALE_ADJUSTMENT + "_";
+                + "V" + "_" + lhd1.getMaxVelocity() * SCALE_ADJUSTMENT + "_";
         if (WRITE_VEHICLE_REPORTS)
             RobotReportWriter.writeReports(tec, REPORTING_TIME, SIMULATION_INTERVAL, heuristicName, REPORT_ADDRESS, fileName, SCALE_ADJUSTMENT);
         Missions.runTasks(tec, SIMULATION_INTERVAL);

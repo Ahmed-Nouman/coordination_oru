@@ -25,10 +25,10 @@ public class BaselineScenarioWithStoppages {
     public static final double SCALE_ADJUSTMENT = 1 / MAP_RESOLUTION;
     public static final Heuristics.HeuristicType HEURISTIC_TYPE = Heuristics.HeuristicType.HIGHEST_PRIORITY_FIRST;
     public static final String REPORT_ADDRESS = System.getProperty("user.dir") +
-            "/src/main/java/se/oru/coordination/coordination_oru/results/BaseLineScenarioWithStoppages";
+            "/src/main/java/se/oru/coordination/coordination_oru/results/BaselineScenarioWithStoppages";
     public static final double SAFETY_DISTANCE = 20.0;
     public static final boolean VISUALIZATION = true;
-    public static final boolean WRITE_VEHICLE_REPORTS = true;
+    public static final boolean WRITE_VEHICLE_REPORTS = false;
     public static final double REPORTING_TIME = 0.1;
     public static final int SIMULATION_INTERVAL = 48;
     public static final String CLASS_NAME = Thread.currentThread().getStackTrace()[Thread.currentThread().getStackTrace().length-1].getFileName().split("\\.")[0];
@@ -66,7 +66,7 @@ public class BaselineScenarioWithStoppages {
 
         final var maxVelocityHT = 8.34 / SCALE_ADJUSTMENT;
         final var maxAccelerationHT = 1.0 / SCALE_ADJUSTMENT;
-        final var lengthHT = 8.0 / SCALE_ADJUSTMENT;
+        final var lengthHT = 5.0 / SCALE_ADJUSTMENT;
         final var widthHT = 5.0 / SCALE_ADJUSTMENT;
 
         final var safetyDistance = SAFETY_DISTANCE / SCALE_ADJUSTMENT;
@@ -150,7 +150,7 @@ public class BaselineScenarioWithStoppages {
 
         var s1 = new AutonomousVehicle("S-1", 1, Color.BLUE, maxVelocityS, maxAccelerationS,
                 lengthS, widthS, mainTunnelRight, safetyDistance, 1, model);
-        s1.addTask(new Task("toBarrier2Entry", 5.0, new Pose[] {barrier2Entry}, 1));
+        s1.addTask(new Task("toBarrier2Entry", 6.0, new Pose[] {barrier2Entry}, 1));
         s1.addTask(new Task("toServiceWorkshop", 0.5, new Pose[] {serviceWorkshop1}, 1));
         s1.addTask(new Task("toBarrier2Exit", 1.0, new Pose[] {barrier2Exit}, 1));
         s1.addTask(new Task("toMainTunnelRight", 0.5, new Pose[] {mainTunnelRight}, 1));
@@ -170,8 +170,8 @@ public class BaselineScenarioWithStoppages {
 
         var ht = new AutonomousVehicle("HT", 1, Color.LIGHT_GRAY, maxVelocityHT, maxAccelerationHT,
                 lengthHT, widthHT, mainTunnelLeft, safetyDistance, 1, model);
-        ht.addTask(new Task("toBarrier1Entry", 12.0, new Pose[] {barrier1Entry}, 1)); //12
-        ht.addTask(new Task("toDrawPoint7B", 1.0, new Pose[] {drawPoint7B}, 1)); //1
+        ht.addTask(new Task("toBarrier1Entry", 12.0, new Pose[] {barrier1Entry}, 1));
+        ht.addTask(new Task("toDrawPoint7B", 1.0, new Pose[] {drawPoint7B}, 1));
         ht.addTask(new Task("toDrawPoint7A", 1.0, new Pose[] {drawPoint7A}, 1));
         ht.addTask(new Task("toDrawPoint7", 1.0, new Pose[] {drawPoint7}, 1));
         ht.addTask(new Task("toBarrier1Exit", 1.0, new Pose[] {barrier1Exit}, 1));
@@ -199,7 +199,7 @@ public class BaselineScenarioWithStoppages {
         tec.addComparator(heuristic.getComparator());
         var heuristicName = heuristic.getName();
 
-        CollisionDetector collisionChecker = new CollisionDetector(tec, 2.0);
+        CollisionDetector collisionChecker = new CollisionDetector(tec, 1.5);
         collisionChecker.start();
 
         if(VISUALIZATION) {
@@ -222,7 +222,7 @@ public class BaselineScenarioWithStoppages {
         Function<Integer, AbstractTrajectoryEnvelopeTracker> trackerRetriever = vehicleId -> tec.trackers.get(vehicleId);
         AdaptiveTrackerRK4.scheduleVehiclesStop(s1, new ArrayList<>(List.of(1, 2)), new ArrayList<>(List.of(2, 4)), trackerRetriever);
         AdaptiveTrackerRK4.scheduleVehiclesStop(s2, new ArrayList<>(List.of(1, 2)), new ArrayList<>(List.of(2, 4)), trackerRetriever);
-        AdaptiveTrackerRK4.scheduleVehiclesStop(ht, new ArrayList<>(List.of(1, 2, 3, 4)), new ArrayList<>(List.of(2, 4)), trackerRetriever);
+        AdaptiveTrackerRK4.scheduleVehiclesStop(ht, new ArrayList<>(List.of(1, 2, 3, 4, 7, 8, 9, 10)), new ArrayList<>(List.of(2, 4)), trackerRetriever);
 
     }
 
