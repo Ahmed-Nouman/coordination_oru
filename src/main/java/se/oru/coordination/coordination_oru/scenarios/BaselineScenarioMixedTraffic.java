@@ -14,12 +14,12 @@ import java.awt.*;
 
 public class BaselineScenarioMixedTraffic {
 
-    public static final String MAP = "maps/12-1051_Simulation_MAP_S2.yaml";
+    public static final String MAP = "maps/12-1051_MixedTraffic_S2.yaml";
     public static final double MAP_RESOLUTION = new MapResolution().getMapResolution(MAP);
     public static final double SCALE_ADJUSTMENT = 1 / MAP_RESOLUTION;
     public static final Heuristics.HeuristicType HEURISTIC_TYPE = Heuristics.HeuristicType.HIGHEST_PRIORITY_FIRST;
     public static final String REPORT_ADDRESS = System.getProperty("user.dir") +
-            "/src/main/java/se/oru/coordination/coordination_oru/results/BaselineScenario";
+            "/src/main/java/se/oru/coordination/coordination_oru/results/BaselineScenarioMixedTraffix";
     public static final double SAFETY_DISTANCE = 20.0;
     public static final boolean VISUALIZATION = true;
     public static final boolean WRITE_VEHICLE_REPORTS = false;
@@ -107,16 +107,16 @@ public class BaselineScenarioMixedTraffic {
         final Pose serviceWorkshop3 = new Pose(125.15,27.65, Math.PI/2);
         final Pose chargingStation = new Pose(67.85,29.05, Math.PI/2);
 
-        var lhd1 = new AutonomousVehicle("LHD-1", 1, Color.YELLOW, maxVelocityLHD, maxAccelerationLHD,
+        var lhd3 = new AutonomousVehicle("LHD-3", 1, Color.YELLOW, maxVelocityLHD, maxAccelerationLHD,
                 lengthLHD, widthLHD, drawPoint15B, safetyDistance, 1, model);
 
-        var mt1 = new AutonomousVehicle("MT-1", 1, Color.CYAN, maxVelocityMT, maxAccelerationMT,
-                lengthMT, widthMT, drawPoint15F, safetyDistance, 50, model);
-        mt1.addTask(new Task("toOrePass2", 0.5, new Pose[] {orePass2}, 1));
-        mt1.addTask(new Task("toDrawPoint15", 0.5, new Pose[] {drawPoint15F}, 1));
-//        mt1.generatePlans(planner);
-//        mt1.savePlans(CLASS_NAME);
-        mt1.loadPlans(PLANS_FOLDER_NAME + "MT-1.path");
+//        var mt3 = new AutonomousVehicle("MT-3", 1, Color.CYAN, maxVelocityMT, maxAccelerationMT,
+//                lengthMT, widthMT, drawPoint12F, safetyDistance, 100, model);
+//        mt3.addTask(new Task("toOrePass2", 0.5, new Pose[] {orePass1}, 1));
+//        mt3.addTask(new Task("toDrawPoint15", 0.5, new Pose[] {drawPoint12F}, 1));
+//        mt3.generatePlans(planner);
+//        mt3.savePlans(CLASS_NAME);
+//        mt3.loadPlans(PLANS_FOLDER_NAME + "MT-3.path");
 
         var lhd2 = new AutonomousVehicle("LHD-2", 1, Color.YELLOW, maxVelocityLHD, maxAccelerationLHD,
                 lengthLHD, widthLHD, drawPoint19B, safetyDistance, 1, model);
@@ -129,50 +129,50 @@ public class BaselineScenarioMixedTraffic {
 //        mt2.savePlans(CLASS_NAME);
         mt2.loadPlans(PLANS_FOLDER_NAME + "MT-2.path");
 
-        var dr = new AutonomousVehicle("DR", 1, Color.GREEN, maxVelocityDR, maxAccelerationDR,
-                lengthDR, widthDR, drawPoint5, safetyDistance, 1, model);
-        dr.addTask(new Task("toDrawPoint11", 3.0, new Pose[] {drawPoint11}, 1));
-//        dr.generatePlans(planner);
-//        dr.savePlans(CLASS_NAME);
-        dr.loadPlans(PLANS_FOLDER_NAME + "DR.path");
-
-        var c = new AutonomousVehicle("C", 1, Color.RED, maxVelocityC, maxAccelerationC,
-                lengthC, widthC, chargingStation, safetyDistance, 1, model);
-        c.addTask(new Task("toDrawPoint10", 9.0, new Pose[] {drawPoint5}, 1));
-        c.addTask(new Task("toChargingStation", 1.0, new Pose[] {chargingStation}, 1));
-//        c.generatePlans(planner);
-//        c.savePlans(CLASS_NAME);
-        c.loadPlans(PLANS_FOLDER_NAME + "C.path");
-
-        var s1 = new AutonomousVehicle("S-1", 1, Color.BLUE, maxVelocityS, maxAccelerationS,
-                lengthS, widthS, mainTunnelRight, safetyDistance, 1, model);
-        s1.addTask(new Task("toServiceWorkshop", 5.0, new Pose[] {serviceWorkshop1}, 1));
-        s1.addTask(new Task("toMainTunnelRight", 1.0, new Pose[] {mainTunnelRight}, 1));
-//        s1.generatePlans(planner);
-//        s1.savePlans(CLASS_NAME);
-        s1.loadPlans(PLANS_FOLDER_NAME + "S-1.path");
-
-        var s2 = new AutonomousVehicle("S-2", 1, Color.BLUE, maxVelocityS, maxAccelerationS,
-                lengthS, widthS, drawPoint1, safetyDistance, 1, model);
-        s2.addTask(new Task("toDrawPoint5", 15.0, new Pose[] {drawPoint5}, 1));
-        s2.addTask(new Task("toDrawPoint1", 1.0, new Pose[] {drawPoint1}, 1));
-//        s2.generatePlans(planner);
-//        s2.savePlans(CLASS_NAME);
-        s2.loadPlans(PLANS_FOLDER_NAME + "S-2.path");
-
-        var ht = new AutonomousVehicle("HT", 1, Color.LIGHT_GRAY, maxVelocityHT, maxAccelerationHT,
-                lengthHT, widthHT, mainTunnelLeft, safetyDistance, 1, model);
-        ht.addTask(new Task("toDrawPoint7B", 12.0, new Pose[] {drawPoint7B}, 1));
-        ht.addTask(new Task("toDrawPoint7A", 1.0, new Pose[] {drawPoint7A}, 1));
-        ht.addTask(new Task("toDrawPoint7", 1.0, new Pose[] {drawPoint7}, 1));
-        ht.addTask(new Task("toMainTunnelLeft", 1.0, new Pose[] {mainTunnelLeft}, 1));
-        ht.addTask(new Task("toDrawPoint7B", 35.0, new Pose[] {drawPoint7B}, 1));
-        ht.addTask(new Task("toDrawPoint7A", 1.0, new Pose[] {drawPoint7A}, 1));
-        ht.addTask(new Task("toDrawPoint7", 1.0, new Pose[] {drawPoint7}, 1));
-        ht.addTask(new Task("toMainTunnelLeft", 1.0, new Pose[] {mainTunnelLeft}, 1));
-//        ht.generatePlans(planner);
-//        ht.savePlans(CLASS_NAME);
-        ht.loadPlans(PLANS_FOLDER_NAME + "HT.path");
+//        var dr = new AutonomousVehicle("DR", 1, Color.GREEN, maxVelocityDR, maxAccelerationDR,
+//                lengthDR, widthDR, drawPoint5, safetyDistance, 1, model);
+//        dr.addTask(new Task("toDrawPoint11", 3.0, new Pose[] {drawPoint11}, 1));
+////        dr.generatePlans(planner);
+////        dr.savePlans(CLASS_NAME);
+//        dr.loadPlans(PLANS_FOLDER_NAME + "DR.path");
+//
+//        var c = new AutonomousVehicle("C", 1, Color.RED, maxVelocityC, maxAccelerationC,
+//                lengthC, widthC, chargingStation, safetyDistance, 1, model);
+//        c.addTask(new Task("toDrawPoint10", 9.0, new Pose[] {drawPoint5}, 1));
+//        c.addTask(new Task("toChargingStation", 1.0, new Pose[] {chargingStation}, 1));
+////        c.generatePlans(planner);
+////        c.savePlans(CLASS_NAME);
+//        c.loadPlans(PLANS_FOLDER_NAME + "C.path");
+//
+//        var s1 = new AutonomousVehicle("S-1", 1, Color.BLUE, maxVelocityS, maxAccelerationS,
+//                lengthS, widthS, mainTunnelRight, safetyDistance, 1, model);
+//        s1.addTask(new Task("toServiceWorkshop", 5.0, new Pose[] {serviceWorkshop1}, 1));
+//        s1.addTask(new Task("toMainTunnelRight", 1.0, new Pose[] {mainTunnelRight}, 1));
+////        s1.generatePlans(planner);
+////        s1.savePlans(CLASS_NAME);
+//        s1.loadPlans(PLANS_FOLDER_NAME + "S-1.path");
+//
+//        var s2 = new AutonomousVehicle("S-2", 1, Color.BLUE, maxVelocityS, maxAccelerationS,
+//                lengthS, widthS, drawPoint1, safetyDistance, 1, model);
+//        s2.addTask(new Task("toDrawPoint5", 15.0, new Pose[] {drawPoint5}, 1));
+//        s2.addTask(new Task("toDrawPoint1", 1.0, new Pose[] {drawPoint1}, 1));
+////        s2.generatePlans(planner);
+////        s2.savePlans(CLASS_NAME);
+//        s2.loadPlans(PLANS_FOLDER_NAME + "S-2.path");
+//
+//        var ht = new AutonomousVehicle("HT", 1, Color.LIGHT_GRAY, maxVelocityHT, maxAccelerationHT,
+//                lengthHT, widthHT, mainTunnelLeft, safetyDistance, 1, model);
+//        ht.addTask(new Task("toDrawPoint7B", 12.0, new Pose[] {drawPoint7B}, 1));
+//        ht.addTask(new Task("toDrawPoint7A", 1.0, new Pose[] {drawPoint7A}, 1));
+//        ht.addTask(new Task("toDrawPoint7", 1.0, new Pose[] {drawPoint7}, 1));
+//        ht.addTask(new Task("toMainTunnelLeft", 1.0, new Pose[] {mainTunnelLeft}, 1));
+//        ht.addTask(new Task("toDrawPoint7B", 35.0, new Pose[] {drawPoint7B}, 1));
+//        ht.addTask(new Task("toDrawPoint7A", 1.0, new Pose[] {drawPoint7A}, 1));
+//        ht.addTask(new Task("toDrawPoint7", 1.0, new Pose[] {drawPoint7}, 1));
+//        ht.addTask(new Task("toMainTunnelLeft", 1.0, new Pose[] {mainTunnelLeft}, 1));
+////        ht.generatePlans(planner);
+////        ht.savePlans(CLASS_NAME);
+//        ht.loadPlans(PLANS_FOLDER_NAME + "HT.path");
 
         tec.setupSolver(0, 100000000);
         tec.startInference();
@@ -202,7 +202,7 @@ public class BaselineScenarioMixedTraffic {
         Missions.setMap(MAP);
 
         String fileName = "FA" + "_" + "C" + "_" + "S" + "_" + safetyDistance * SCALE_ADJUSTMENT + "_"
-                + "V" + "_" + lhd1.getMaxVelocity() * SCALE_ADJUSTMENT + "_";
+                + "V" + "_" + lhd3.getMaxVelocity() * SCALE_ADJUSTMENT + "_";
         if (WRITE_VEHICLE_REPORTS)
             RobotReportWriter.writeReports(tec, REPORTING_TIME, SIMULATION_INTERVAL, heuristicName, REPORT_ADDRESS, fileName, SCALE_ADJUSTMENT);
         Missions.runTasks(tec, SIMULATION_INTERVAL);

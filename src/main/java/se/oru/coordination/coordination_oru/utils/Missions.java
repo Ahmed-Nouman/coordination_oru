@@ -13,7 +13,6 @@ import org.metacsp.utility.logging.MetaCSPLogging;
 import se.oru.coordination.coordination_oru.coordinator.TrajectoryEnvelopeCoordinator;
 import se.oru.coordination.coordination_oru.coordinator.TrajectoryEnvelopeCoordinatorSimulation;
 import se.oru.coordination.coordination_oru.motionPlanning.AbstractMotionPlanner;
-import se.oru.coordination.coordination_oru.simulation.BrowserVisualizationSocket;
 import se.oru.coordination.coordination_oru.vehicles.AbstractVehicle;
 import se.oru.coordination.coordination_oru.vehicles.AutonomousVehicle;
 import se.oru.coordination.coordination_oru.vehicles.VehiclesHashMap;
@@ -307,44 +306,38 @@ public class Missions {
 		try {
 			File file = new File(mapYAMLFile);
 			BufferedReader br = new BufferedReader(new FileReader(file));
-			String imageFileName = null;
 			String st;
-
-			while ((st = br.readLine()) != null) {
+			Missions.mapYAML = "";
+			while((st=br.readLine()) != null){
 				if (!st.trim().startsWith("#") && !st.trim().isEmpty()) {
+					Missions.mapYAML += st+"\n";
 					String key = st.substring(0, st.indexOf(":")).trim();
-					String value = st.substring(st.indexOf(":") + 1).trim();
+					String value = st.substring(st.indexOf(":")+1).trim();
 
 					// Check and remove BOM if present
 					if (!key.isEmpty() && key.charAt(0) == '\uFEFF') {
 						key = key.substring(1); // Remove the BOM character
 					}
 
-					// Debugging output to verify the length and content of the key
-					System.out.println("Key: '" + key + "' Length: " + key.length());
-
-					switch (key.toLowerCase()) {
-						case "image":
-							imageFileName = file.getParentFile() + File.separator + value.trim();
-							System.out.println("Resolved imageFileName: " + imageFileName);
-							break;
-						case "resolution":
-							BrowserVisualizationSocket.resolution = Double.parseDouble(value);
-							break;
-						case "origin":
-							String x = value.substring(1, value.indexOf(",")).trim();
-							String y = value.substring(value.indexOf(",") + 1, value.indexOf(",", value.indexOf(",") + 1)).trim();
-							BrowserVisualizationSocket.origin = new Coordinate(Double.parseDouble(x), Double.parseDouble(y));
-							break;
-					}
+                    switch (key) {
+                        case "image":
+                            Missions.mapImageFilename = file.getParentFile() + File.separator + value;
+                            break;
+                        case "resolution":
+                            Missions.mapResolution = Double.parseDouble(value);
+                            break;
+                        case "origin":
+                            String x = value.substring(1, value.indexOf(",")).trim();
+                            String y = value.substring(value.indexOf(",") + 1, value.indexOf(",", value.indexOf(",") + 1)).trim();
+                            Missions.mapOrigin = new Coordinate(Double.parseDouble(x), Double.parseDouble(y));
+                            break;
+                    }
 				}
 			}
 			br.close();
-			BrowserVisualizationSocket.map = ImageIO.read(new File(imageFileName));
-
-		} catch (IOException e) {
-			e.printStackTrace();
+			Missions.map = ImageIO.read(new File(Missions.mapImageFilename));
 		}
+		catch (IOException e) { e.printStackTrace(); }
 	}
 
 	/**

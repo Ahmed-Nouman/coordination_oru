@@ -430,6 +430,12 @@ public class OccupancyMap {
 				if (!st.trim().startsWith("#") && !st.trim().isEmpty()) {
 					String key = st.substring(0, st.indexOf(":")).trim();
 					String value = st.substring(st.indexOf(":")+1).trim();
+
+					// Check and remove BOM if present
+					if (!key.isEmpty() && key.charAt(0) == '\uFEFF') {
+						key = key.substring(1); // Remove the BOM character
+					}
+
                     switch (key) {
                         case "image":
                             this.loadImage(file.getParentFile() + File.separator + value);
