@@ -1,0 +1,5 @@
+﻿image: 12-1051_Simulation_MAP__stop-and-go_S1.png
+resolution: 0.1
+origin: [ 0, 0, 0 ]
+negate: 0
+occupied_thresh: 0.05
