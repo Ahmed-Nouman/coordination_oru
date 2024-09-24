@@ -191,16 +191,18 @@ public class Missions {
 	public static void generateMissions() {
 		if (VehiclesHashMap.getInstance() == null || VehiclesHashMap.getList().isEmpty()) throw new Error("No vehicles to generate missions for!");
 		for (AbstractVehicle vehicle : VehiclesHashMap.getList().values()) {
-			if (vehicle instanceof AutonomousVehicle) {
-                var autonomousVehicle = (AutonomousVehicle) vehicle;
-				if (autonomousVehicle.getPaths() != null) {
-					for (PoseSteering[] path : autonomousVehicle.getPaths()) {
-                        var mission = new Mission(autonomousVehicle.getID(), path);
+			if (vehicle instanceof AutonomousVehicle) { //TODO: add support for other types of vehicles if needed
+				var autonomousVehicle = (AutonomousVehicle) vehicle;
+				if (autonomousVehicle.getTasks() != null) {
+					for (int i = 0; i < autonomousVehicle.getTasks().size(); i++) {
+						var mission = new Mission(autonomousVehicle.getID(), autonomousVehicle.getPaths().get(i));
 						Missions.enqueueMission(mission);
+						for (int j = 0; j < autonomousVehicle.getTasks().get(i).getPoses().length; j++)
+							mission.setStoppingPoint(autonomousVehicle.getTasks().get(i).getPoses()[j], autonomousVehicle.getTasks().get(i).getStoppageTimes()[j]);
 					}
 				}
 			}
-        }
+		}
 	}
 
 	private static class ScenarioContainer {

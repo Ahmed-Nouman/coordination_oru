@@ -37,17 +37,17 @@ public class Test {
         final var planner = new VehiclePathPlanner(map, ReedsSheppCarPlanner.PLANNING_ALGORITHM.RRTConnect,
                 0.09, 60, 2.0, 0.1);
 
-        var lookAheadVehicle = new LookAheadVehicle("H1", predictableDistance, 1, Color.CYAN, 5, 1,
-                0.4, 0.5, mainTunnelLeft, 5, 5, model);
+//        var lookAheadVehicle = new LookAheadVehicle("H1", predictableDistance, 1, Color.CYAN, 5, 1,
+//                0.4, 0.5, mainTunnelLeft, 5, 5, model);
 //        lookAheadVehicle.addTask(new Task("M1", 0.0, new Pose[] {mainTunnelRight}, 0));
 //        lookAheadVehicle.addTask(new Task("M2", 0.0, new Pose[] {mainTunnelRight}, 0));
-        lookAheadVehicle.setGoals(new Pose[] {mainTunnelRight, mainTunnelLeft});
+//        lookAheadVehicle.setGoals(new Pose[] {mainTunnelRight, mainTunnelLeft});
         var autonomousVehicle1 = new AutonomousVehicle("A1", 1, Color.YELLOW, 10.0, 1.0, 0.6, 0.6,
                 drawPoint23, 5, 5, model);
-//        autonomousVehicle1.addTask(new Task("M1", 0.0, new Pose[] {mainTunnelRight}, 5));
+        autonomousVehicle1.addTask(new Task("M1", 0.0, new Pose[] {mainTunnelRight, drawPoint23}, new int[] {10000, 0}, 5));
 //        autonomousVehicle1.addTask(new Task("M2", 0.0, new Pose[] {drawPoint23}, 5));
-        autonomousVehicle1.setGoals(new Pose[] {mainTunnelRight, drawPoint23});
-        lookAheadVehicle.generatePlans(planner);
+//        autonomousVehicle1.setGoals(new Pose[] {mainTunnelRight, drawPoint23});
+//        lookAheadVehicle.generatePlans(planner);
         autonomousVehicle1.generatePlans(planner);
 
         // Instantiate a trajectory envelope coordinator.
@@ -62,7 +62,7 @@ public class Test {
 
         tec.setDefaultFootprint(autonomousVehicle1.getFootprint());
         tec.placeRobot(autonomousVehicle1.getID(), drawPoint23);
-        tec.placeRobot(lookAheadVehicle.getID(), mainTunnelLeft);
+//        tec.placeRobot(lookAheadVehicle.getID(), mainTunnelLeft);
         tec.addComparator(new Heuristics(Heuristics.HeuristicType.HIGHEST_PRIORITY_FIRST).getComparator());
         tec.setUseInternalCriticalPoints(true);
         tec.setYieldIfParking(true);
