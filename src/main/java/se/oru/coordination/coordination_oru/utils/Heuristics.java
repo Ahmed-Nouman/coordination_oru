@@ -4,6 +4,7 @@ import se.oru.coordination.coordination_oru.vehicles.VehiclesHashMap;
 
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.List;
 import java.util.Random;
 
 import static se.oru.coordination.coordination_oru.vehicles.AbstractVehicle.calculateFootprintArea;
@@ -102,8 +103,16 @@ public class Heuristics {
         return (robot1, robot2) -> {
             int currentMissionPriority1 = VehiclesHashMap.getVehicle(robot1.getRobotReport().getRobotID()).getCurrentTaskIndex();
             int currentMissionPriority2 = VehiclesHashMap.getVehicle(robot2.getRobotReport().getRobotID()).getCurrentTaskIndex();
-            int priority1 = VehiclesHashMap.getVehicle(robot1.getRobotReport().getRobotID()).getTasks().get(currentMissionPriority1).getPriority();
-            int priority2 = VehiclesHashMap.getVehicle(robot2.getRobotReport().getRobotID()).getTasks().get(currentMissionPriority2).getPriority();
+
+            List<Task> tasks1 = VehiclesHashMap.getVehicle(robot1.getRobotReport().getRobotID()).getTasks();
+            List<Task> tasks2 = VehiclesHashMap.getVehicle(robot2.getRobotReport().getRobotID()).getTasks();
+
+            if (currentMissionPriority1 >= tasks1.size() || currentMissionPriority2 >= tasks2.size())
+                throw new IllegalStateException("Current task index is out of bounds for one or both robots.");
+
+            int priority1 = tasks1.get(currentMissionPriority1).getPriority();
+            int priority2 = tasks2.get(currentMissionPriority2).getPriority();
+
             if (priority1 == priority2) return closestFirst().compare(robot1, robot2);
             else if (priority1 > priority2) return -1;
             else return 1;

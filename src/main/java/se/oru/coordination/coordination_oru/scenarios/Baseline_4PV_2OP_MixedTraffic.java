@@ -7,24 +7,19 @@ import se.oru.coordination.coordination_oru.forwardModel.ForwardModel;
 import se.oru.coordination.coordination_oru.motionPlanning.VehiclePathPlanner;
 import se.oru.coordination.coordination_oru.motionPlanning.ompl.ReedsSheppCarPlanner;
 import se.oru.coordination.coordination_oru.simulation.BrowserVisualization;
-import se.oru.coordination.coordination_oru.tracker.AbstractTrajectoryEnvelopeTracker;
-import se.oru.coordination.coordination_oru.tracker.AdaptiveTrackerRK4;
 import se.oru.coordination.coordination_oru.utils.*;
 import se.oru.coordination.coordination_oru.vehicles.AutonomousVehicle;
 
 import java.awt.*;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.function.Function;
 
-public class BaselineScenarioStoppages {
+public class Baseline_4PV_2OP_MixedTraffic {
 
-    public static final String MAP = "maps/12-1051_Simulation_MAP__stop-and-go_S1.yaml";
+    public static final String MAP = "maps/Baseline_4PV_2OP_MixedTraffic.yaml";
     public static final double MAP_RESOLUTION = new MapResolution().getMapResolution(MAP);
     public static final double SCALE_ADJUSTMENT = 1 / MAP_RESOLUTION;
-    public static final Heuristics.HeuristicType HEURISTIC_TYPE = Heuristics.HeuristicType.HIGHEST_PRIORITY_FIRST;
+    public static final Heuristics.HeuristicType HEURISTIC_TYPE = Heuristics.HeuristicType.CLOSEST_FIRST;
     public static final String REPORT_ADDRESS = System.getProperty("user.dir") +
-            "/src/main/java/se/oru/coordination/coordination_oru/results/12-1051_Simulation_MAP__stop-and-go_S1/";
+            "/src/main/java/se/oru/coordination/coordination_oru/results/Baseline_4PV_2OP_MixedTraffic/";
     public static final double SAFETY_DISTANCE = 25.0;
     public static final boolean VISUALIZATION = true;
     public static final boolean WRITE_VEHICLE_REPORTS = true;
@@ -101,12 +96,14 @@ public class BaselineScenarioStoppages {
         final Pose drawPoint21 = new Pose(153.95,81.95,Math.PI/2);
         final Pose drawPoint21B = new Pose(153.75,49.15,Math.PI/2);
         final Pose orePass1 = new Pose(48.75,15.75,-Math.PI/2);
-        final Pose orePass2 = new Pose(58.95,17.75,-Math.PI/2);
-        final Pose orePass3 = new Pose(98.35,36.65,-Math.PI/2);
+        final Pose orePass2 = new Pose(106.55,32.95,-Math.PI/2);
+        final Pose orePass3 = new Pose(134.95,34.05,Math.PI/2);
         final Pose mainTunnelLeft = new Pose(11.35,13.95, Math.PI/2);
         final Pose mainTunnelRight = new Pose(168.05,48.05, -Math.PI/2);
-        final Pose barrierEntry = new Pose(124.05,44.95, Math.PI);
-        final Pose barrierExit = new Pose(120.15,44.75, Math.PI);
+        final Pose barrier1Entry = new Pose(21.35,20.35, Math.PI);
+        final Pose barrier1Exit = new Pose(25.35,21.35, Math.PI);
+        final Pose barrier2Entry = new Pose(151.65,38.95, -Math.PI);
+        final Pose barrier2Exit = new Pose(147.85,38.55, 0);
         final Pose serviceWorkshop1 = new Pose(125.15,19.55, Math.PI/2);
         final Pose serviceWorkshop2 = new Pose(125.15,23.75, Math.PI/2);
         final Pose serviceWorkshop3 = new Pose(125.15,27.65, Math.PI/2);
@@ -116,7 +113,7 @@ public class BaselineScenarioStoppages {
         var lhd1 = new AutonomousVehicle("LHD-1", 1, Color.YELLOW, maxVelocityLHD, maxAccelerationLHD,
                 lengthLHD, widthLHD, drawPoint4B, safetyDistance, 1, model);
 
-        var mt1 = new AutonomousVehicle("MT-1", 1, Color.CYAN, maxVelocityMT, maxAccelerationMT,
+        var mt1 = new AutonomousVehicle("MT-1", 10, Color.CYAN, maxVelocityMT, maxAccelerationMT,
                 lengthMT, widthMT, drawPoint4F, safetyDistance, 100, model);
         mt1.addTask(new Task("oreProduction1", 0.5, new Pose[] {orePass1, drawPoint4F}, 1));
 //        mt1.generatePlans(planner);
@@ -126,9 +123,9 @@ public class BaselineScenarioStoppages {
         var lhd2 = new AutonomousVehicle("LHD-2", 1, Color.YELLOW, maxVelocityLHD, maxAccelerationLHD,
                 lengthLHD, widthLHD, drawPoint6B, safetyDistance, 1, model);
 
-        var mt2 = new AutonomousVehicle("MT-2", 1, Color.CYAN, maxVelocityMT, maxAccelerationMT,
+        var mt2 = new AutonomousVehicle("MT-2", 10, Color.CYAN, maxVelocityMT, maxAccelerationMT,
                 lengthMT, widthMT, drawPoint6F, safetyDistance, 100, model);
-        mt2.addTask(new Task("oreProduction2", 0.5, new Pose[] {orePass2}, 1));
+        mt2.addTask(new Task("oreProduction2", 0.5, new Pose[] {orePass1, drawPoint6F}, 1));
 //        mt2.generatePlans(planner);
 //        mt2.savePlans(CLASS_NAME);
         mt2.loadPlans(PLANS_FOLDER_NAME + "MT-2.path");
@@ -136,9 +133,9 @@ public class BaselineScenarioStoppages {
         var lhd3 = new AutonomousVehicle("LHD-3", 1, Color.YELLOW, maxVelocityLHD, maxAccelerationLHD,
                 lengthLHD, widthLHD, drawPoint12B, safetyDistance, 1, model);
 
-        var mt3 = new AutonomousVehicle("MT-3", 1, Color.CYAN, maxVelocityMT, maxAccelerationMT,
+        var mt3 = new AutonomousVehicle("MT-3", 10, Color.CYAN, maxVelocityMT, maxAccelerationMT,
                 lengthMT, widthMT, drawPoint12F, safetyDistance, 100, model);
-        mt3.addTask(new Task("oreProduction3", 0.5, new Pose[] {orePass3}, 1));
+        mt3.addTask(new Task("oreProduction3", 0.5, new Pose[] {orePass2, drawPoint12F}, 1));
 //        mt3.generatePlans(planner);
 //        mt3.savePlans(CLASS_NAME);
         mt3.loadPlans(PLANS_FOLDER_NAME + "MT-3.path");
@@ -146,7 +143,7 @@ public class BaselineScenarioStoppages {
         var lhd4 = new AutonomousVehicle("LHD-4", 1, Color.YELLOW, maxVelocityLHD, maxAccelerationLHD,
                 lengthLHD, widthLHD, drawPoint14B, safetyDistance, 1, model);
 
-        var mt4 = new AutonomousVehicle("MT-4", 1, Color.CYAN, maxVelocityMT, maxAccelerationMT,
+        var mt4 = new AutonomousVehicle("MT-4", 10, Color.CYAN, maxVelocityMT, maxAccelerationMT,
                 lengthMT, widthMT, drawPoint14F, safetyDistance, 100, model);
         mt4.addTask(new Task("toOrePass2", 0.5, new Pose[] {orePass2, drawPoint14F}, 1));
 //        mt4.generatePlans(planner);
@@ -170,9 +167,7 @@ public class BaselineScenarioStoppages {
 
         var s1 = new AutonomousVehicle("S-1", 1, Color.BLUE, maxVelocityS, maxAccelerationS,
                 lengthS, widthS, serviceWorkshop1, safetyDistance, 1, model);
-        s1.addTask(new Task("toBarrierEntry", 13.0, new Pose[] {barrierEntry}, 1));
-        s1.addTask(new Task("toDrawPoint1", 1.0, new Pose[] {drawPoint1}, 1));
-        s1.addTask(new Task("toBarrierExit", 1.0, new Pose[] {barrierExit}, 1));
+        s1.addTask(new Task("toDrawPoint1", 5.0, new Pose[] {drawPoint1}, 1)); // This plan is not correct
         s1.addTask(new Task("toServiceWorkshop1", 1.0, new Pose[] {serviceWorkshop1}, 1));
 //        s1.generatePlans(planner);
 //        s1.savePlans(CLASS_NAME);
@@ -180,9 +175,7 @@ public class BaselineScenarioStoppages {
 
         var s2 = new AutonomousVehicle("S-2", 1, Color.BLUE, maxVelocityS, maxAccelerationS,
                 lengthS, widthS, serviceWorkshop3, safetyDistance, 1, model);
-        s2.addTask(new Task("toBarrierEntry", 18.0, new Pose[] {barrierEntry}, 1));
-        s2.addTask(new Task("toDrawPoint9", 1.0, new Pose[] {drawPoint9}, 1));
-        s2.addTask(new Task("toBarrierExit", 1.0, new Pose[] {barrierExit}, 1));
+        s2.addTask(new Task("toDrawPoint9", 15.0, new Pose[] {drawPoint9}, 1));
         s2.addTask(new Task("toServiceWorkshop3", 1.0, new Pose[] {serviceWorkshop3}, 1));
 //        s2.generatePlans(planner);
 //        s2.savePlans(CLASS_NAME);
@@ -190,17 +183,13 @@ public class BaselineScenarioStoppages {
 
         var ht = new AutonomousVehicle("HT", 1, Color.LIGHT_GRAY, maxVelocityHT, maxAccelerationHT,
                 lengthHT, widthHT, serviceWorkshop4, safetyDistance, 1, model);
-        ht.addTask(new Task("toBarrierEntry", 12.0, new Pose[] {barrierEntry}, 1)); //12
-        ht.addTask(new Task("toDrawPoint10B", 1.0, new Pose[] {drawPoint10B}, 1));
+        ht.addTask(new Task("toDrawPoint10B", 12.0, new Pose[] {drawPoint10B}, 1)); //12
         ht.addTask(new Task("toDrawPoint10A", 1.0, new Pose[] {drawPoint10A}, 1));
         ht.addTask(new Task("toDrawPoint10", 1.0, new Pose[] {drawPoint10}, 1));
-        ht.addTask(new Task("toBarrierExit", .0, new Pose[] {barrierExit}, 1));
-        ht.addTask(new Task("toServiceWorkshop4", .0, new Pose[] {serviceWorkshop4}, 1));
-        ht.addTask(new Task("toBarrierEntry", 35.0, new Pose[] {barrierEntry}, 1)); //35
-        ht.addTask(new Task("toDrawPoint10B", 1.0, new Pose[] {drawPoint10B}, 1));
+        ht.addTask(new Task("toServiceWorkshop4", 1.0, new Pose[] {serviceWorkshop4}, 1));
+        ht.addTask(new Task("toDrawPoint10B", 12.0, new Pose[] {drawPoint10B}, 1)); //35
         ht.addTask(new Task("toDrawPoint10A", 1.0, new Pose[] {drawPoint10A}, 1));
         ht.addTask(new Task("toDrawPoint10", 1.0, new Pose[] {drawPoint10}, 1));
-        ht.addTask(new Task("toBarrierExit", 1.0, new Pose[] {barrierExit}, 1));
         ht.addTask(new Task("toServiceWorkshop4", 1.0, new Pose[] {serviceWorkshop4}, 1));
 //        ht.generatePlans(planner);
 //        ht.savePlans(CLASS_NAME);
@@ -238,11 +227,6 @@ public class BaselineScenarioStoppages {
         if (WRITE_VEHICLE_REPORTS)
             RobotReportWriter.writeReports(tec, REPORTING_TIME, SIMULATION_INTERVAL, heuristicName, REPORT_ADDRESS, fileName, SCALE_ADJUSTMENT);
         Missions.runTasks(tec, SIMULATION_INTERVAL);
-
-        Function<Integer, AbstractTrajectoryEnvelopeTracker> trackerRetriever = vehicleId -> tec.trackers.get(vehicleId);
-        AdaptiveTrackerRK4.scheduleVehiclesStop(s1, new ArrayList<>(java.util.List.of(1, 2)), new ArrayList<>(java.util.List.of(2, 4, 6, 8)), trackerRetriever);
-        AdaptiveTrackerRK4.scheduleVehiclesStop(s2, new ArrayList<>(java.util.List.of(1, 2)), new ArrayList<>(java.util.List.of(2, 4, 6, 8)), trackerRetriever);
-        AdaptiveTrackerRK4.scheduleVehiclesStop(ht, new ArrayList<>(java.util.List.of(1, 2, 3, 4, 7, 8, 9, 10)), new ArrayList<>(List.of(2, 4, 6, 8)), trackerRetriever);
 
     }
 

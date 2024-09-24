@@ -4,7 +4,7 @@ from pathlib import Path
 from collections import defaultdict
 import numpy as np
 
-base_directory = '../results/BaselineScenarioWithComplexities/'
+base_directory = '../results/Baseline_4PV_4OP_MixedTraffic_LoadedFirst/'
 
 # Dictionary to hold the grouped folders
 folder_groups = defaultdict(list)
