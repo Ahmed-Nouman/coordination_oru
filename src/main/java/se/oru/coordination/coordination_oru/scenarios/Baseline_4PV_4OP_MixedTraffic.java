@@ -17,19 +17,19 @@ public class Baseline_4PV_4OP_MixedTraffic {
     public static final String MAP = "maps/Baseline_4PV_4OP_MixedTraffic.yaml";
     public static final double MAP_RESOLUTION = new MapResolution().getMapResolution(MAP);
     public static final double SCALE_ADJUSTMENT = 1 / MAP_RESOLUTION;
-    public static final Heuristics.HeuristicType HEURISTIC_TYPE = Heuristics.HeuristicType.TASK_PRIORITY_FIRST;
+    public static final Heuristics.HeuristicType HEURISTIC_TYPE = Heuristics.HeuristicType.HIGHEST_PRIORITY_FIRST;
     public static final String REPORT_ADDRESS = System.getProperty("user.dir") +
             "/src/main/java/se/oru/coordination/coordination_oru/results/Baseline_4PV_4OP_MixedTraffic_LoadedFirst/";
     public static final double SAFETY_DISTANCE = 25.0;
     public static final boolean VISUALIZATION = true;
-    public static final boolean WRITE_VEHICLE_REPORTS = true;
+    public static final boolean WRITE_VEHICLE_REPORTS = false;
     public static final double REPORTING_TIME = 0.1;
     public static final int SIMULATION_INTERVAL = 48;
     public static final String CLASS_NAME = Thread.currentThread().getStackTrace()[Thread.currentThread().getStackTrace().length-1].getFileName().split("\\.")[0];
     public static final String PLANS_FOLDER_NAME = "paths/" + CLASS_NAME + "/";
     public static final ForwardModel model = new ConstantAcceleration(10.0, 100.0, 1000, 1000, 30);
     public static final VehiclePathPlanner planner = new VehiclePathPlanner(MAP, ReedsSheppCarPlanner.PLANNING_ALGORITHM.RRTstar,
-            0.09, 120, 1.5, 0.1);
+            0.09, 300, 1.5, 0.1);
 
     public static void main(String[] args) throws InterruptedException {
 
@@ -181,8 +181,8 @@ public class Baseline_4PV_4OP_MixedTraffic {
                 lengthS, widthS, serviceWorkshop3, safetyDistance, 1, model);
         s2.addTask(new Task("toDrawPoint9", 15.0, new Pose[] {drawPoint9}, 1));
         s2.addTask(new Task("toServiceWorkshop3", 1.0, new Pose[] {serviceWorkshop3}, 1));
-//        s2.generatePlans(planner);
-//        s2.savePlans(CLASS_NAME);
+//        s3.generatePlans(planner);
+//        s3.savePlans(CLASS_NAME);
         s2.loadPlans(PLANS_FOLDER_NAME + "S-2.path");
 
         var ht = new AutonomousVehicle("HT", 1, Color.LIGHT_GRAY, maxVelocityHT, maxAccelerationHT,

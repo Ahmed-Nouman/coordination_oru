@@ -11,7 +11,6 @@ import org.metacsp.time.APSPSolver;
 import org.metacsp.time.Bounds;
 import org.metacsp.utility.logging.MetaCSPLogging;
 import se.oru.coordination.coordination_oru.coordinator.AbstractTrajectoryEnvelopeCoordinator;
-import se.oru.coordination.coordination_oru.coordinator.TrajectoryEnvelopeCoordinator;
 import se.oru.coordination.coordination_oru.utils.Dependency;
 import se.oru.coordination.coordination_oru.utils.Heuristics;
 import se.oru.coordination.coordination_oru.utils.RobotReport;
@@ -20,7 +19,6 @@ import se.oru.coordination.coordination_oru.vehicles.AutonomousVehicle;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
 import java.util.logging.Logger;
 
 public abstract class AbstractTrajectoryEnvelopeTracker {
@@ -357,17 +355,19 @@ public abstract class AbstractTrajectoryEnvelopeTracker {
 		return this.te;
 	}
 
-	public synchronized void pause(AutonomousVehicle byVehicle) {
-		pauseByVehicles.add(byVehicle);
+	public synchronized void pause(AutonomousVehicle vehicle) {
+		pauseByVehicles.add(vehicle);
 		isPaused = true;
+		vehicle.setStopped(true);
 	}
 
-	public synchronized void resume(AutonomousVehicle byVehicle) {
-		if (pauseByVehicles.contains(byVehicle)) {
-			pauseByVehicles.remove(byVehicle);
+	public synchronized void resume(AutonomousVehicle vehicle) {
+		if (pauseByVehicles.contains(vehicle)) {
+			pauseByVehicles.remove(vehicle);
 		}
 		if (pauseByVehicles.isEmpty()) {
 			isPaused = false;
+			vehicle.setStopped(false);
 			notifyAll();
 		}
 	}

@@ -60,6 +60,9 @@ public abstract class AbstractVehicle {
     private double pathLength;
     private int currentTaskIndex = -1;
     private final ForwardModel forwardModel;
+
+    private boolean isStopped = false;
+
     public AbstractVehicle(int ID, String name, int priority, Color color, double maxVelocity, double maxAcceleration,
                            double length, double width, Pose initialPose, double safetyDistance, int goalRepetition, ForwardModel model) {
         this.ID = ID;
@@ -107,10 +110,10 @@ public abstract class AbstractVehicle {
             setSafetyPathPoints();
         }
     }
+
     public String serializePoseSteering(PoseSteering poseSteering) {
         return String.format("%f %f %f %f", poseSteering.getPose().getX(), poseSteering.getPose().getY(), poseSteering.getPose().getTheta(), poseSteering.getSteering());
     }
-
     public void savePlans(String folderName) {
         String folderPath = "./paths/" + folderName + "/";
 
@@ -305,10 +308,10 @@ public abstract class AbstractVehicle {
     public double getLength() {
         return length;
     }
+
     public void setWidth(double width) {
         this.width = width;
     }
-
     public double getWidth() {
         return width;
     }
@@ -387,10 +390,10 @@ public abstract class AbstractVehicle {
     public double getSafetyDistance() {
         return safetyDistance;
     }
+
     public ForwardModel getForwardModel() {
         return forwardModel;
     }
-
     public int getCurrentTaskIndex() {
         return currentTaskIndex;
     }
@@ -401,5 +404,13 @@ public abstract class AbstractVehicle {
 
     public void setMaxVelocity(double maxVelocity) {
         this.maxVelocity = maxVelocity;
+    }
+
+    public boolean isStopped() {
+        return isStopped;
+    }
+
+    public void setStopped(boolean status) {
+        isStopped = status;
     }
 }

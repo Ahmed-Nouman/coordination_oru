@@ -3,7 +3,6 @@ package se.oru.coordination.coordination_oru.tracker;
 import org.metacsp.multi.spatioTemporal.paths.Pose;
 import org.metacsp.multi.spatioTemporal.paths.Trajectory;
 import org.metacsp.multi.spatioTemporal.paths.TrajectoryEnvelope;
-import se.oru.coordination.coordination_oru.coordinator.AbstractTrajectoryEnvelopeCoordinator;
 import se.oru.coordination.coordination_oru.coordinator.NetworkConfiguration;
 import se.oru.coordination.coordination_oru.coordinator.TrajectoryEnvelopeCoordinator;
 import se.oru.coordination.coordination_oru.coordinator.TrajectoryEnvelopeCoordinatorSimulation;
@@ -12,6 +11,7 @@ import se.oru.coordination.coordination_oru.utils.RungeKutta4;
 import se.oru.coordination.coordination_oru.utils.RobotReport;
 import se.oru.coordination.coordination_oru.utils.State;
 import se.oru.coordination.coordination_oru.vehicles.AutonomousVehicle;
+import se.oru.coordination.coordination_oru.vehicles.VehiclesHashMap;
 
 import java.util.*;
 import java.util.concurrent.Executors;
@@ -98,10 +98,10 @@ public abstract class AdaptiveTrackerRK4 extends AbstractTrajectoryEnvelopeTrack
         }
     }
 
-    private static void resumeVehicles(AutonomousVehicle triggerVehicel, List<AbstractTrajectoryEnvelopeTracker> trackers) {
+    private static void resumeVehicles(AutonomousVehicle triggerVehicle, List<AbstractTrajectoryEnvelopeTracker> trackers) {
         for (AbstractTrajectoryEnvelopeTracker tracker : trackers) {
             synchronized (tracker) {
-                tracker.resume(triggerVehicel);
+                tracker.resume(triggerVehicle);
             }
         }
     }

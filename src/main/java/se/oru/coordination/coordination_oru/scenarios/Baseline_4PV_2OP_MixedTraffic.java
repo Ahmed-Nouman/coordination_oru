@@ -55,8 +55,8 @@ public class Baseline_4PV_2OP_MixedTraffic {
 
         final var maxVelocityS = 11.11 / SCALE_ADJUSTMENT;
         final var maxAccelerationS = 1.0 / SCALE_ADJUSTMENT;
-        final var lengthS = 5.0 / SCALE_ADJUSTMENT;
-        final var widthS = 3.0 / SCALE_ADJUSTMENT;
+        final var lengthS = 3.0 / SCALE_ADJUSTMENT;
+        final var widthS = 2.0 / SCALE_ADJUSTMENT;
 
         final var maxVelocityHT = 8.34 / SCALE_ADJUSTMENT;
         final var maxAccelerationHT = 1.0 / SCALE_ADJUSTMENT;
@@ -96,8 +96,9 @@ public class Baseline_4PV_2OP_MixedTraffic {
         final Pose drawPoint21 = new Pose(153.95,81.95,Math.PI/2);
         final Pose drawPoint21B = new Pose(153.75,49.15,Math.PI/2);
         final Pose orePass1 = new Pose(48.75,15.75,-Math.PI/2);
-        final Pose orePass2 = new Pose(106.55,32.95,-Math.PI/2);
-        final Pose orePass3 = new Pose(134.95,34.05,Math.PI/2);
+        final Pose orePass2 = new Pose(59.05,17.85,-Math.PI/2);
+        final Pose orePass3 = new Pose(98.75,36.45,-Math.PI/2);
+        final Pose orePass4 = new Pose(106.75,33.05,-Math.PI/2);
         final Pose mainTunnelLeft = new Pose(11.35,13.95, Math.PI/2);
         final Pose mainTunnelRight = new Pose(168.05,48.05, -Math.PI/2);
         final Pose barrier1Entry = new Pose(21.35,20.35, Math.PI);

@@ -195,6 +195,7 @@ public class Missions {
 				var autonomousVehicle = (AutonomousVehicle) vehicle;
 				if (autonomousVehicle.getTasks() != null) {
 					for (int i = 0; i < autonomousVehicle.getTasks().size(); i++) {
+						if (autonomousVehicle.getPaths().size() <= i) throw new Error("Not enough paths for the tasks of vehicle " + autonomousVehicle.getID());
 						var mission = new Mission(autonomousVehicle.getID(), autonomousVehicle.getPaths().get(i));
 						Missions.enqueueMission(mission);
 						for (int j = 0; j < autonomousVehicle.getTasks().get(i).getPoses().length; j++)
