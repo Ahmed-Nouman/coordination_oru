@@ -106,11 +106,13 @@ public class RunProject {
                 navigationController.getMain().getDataStatus().getVehicles().add(newVehicle);
             }
 
-            for (var task : vehicle.getTasks()) {
-                var poses = Arrays.stream(task.getPoseName().split(" -> "))
-                        .map(poseName -> navigationController.getMain().getDataStatus().getProjectData().getPose(poseName.trim()))
-                        .toArray(Pose[]::new);
-                newVehicle.addTask(new Task(task.getTaskName(), task.getDuration(), poses, task.getPriority()), task.getRepetition());
+            if (!navigationController.getMain().getDataStatus().isPlansVerified()) {
+                for (var task : vehicle.getTasks()) {
+                    var poses = Arrays.stream(task.getPoseName().split(" -> "))
+                            .map(poseName -> navigationController.getMain().getDataStatus().getProjectData().getPose(poseName.trim()))
+                            .toArray(Pose[]::new);
+                    newVehicle.addTask(new Task(task.getTaskName(), task.getDuration(), poses, task.getPriority()), task.getRepetition());
+                }
             }
 
             var filePath = navigationController.getMain().getDataStatus().getProjectFile();
@@ -118,19 +120,14 @@ public class RunProject {
             var lastPart = parts[parts.length - 1];
             var projectName = lastPart.split("\\.")[0];
 
-            // Determine the highest numbered path file
-            AbstractVehicle finalNewVehicle = newVehicle;
-            String highestNumberedPathFile = Arrays.stream(new File(pathsFolderName).listFiles())
-                    .map(File::getName)
-                    .filter(name -> name.startsWith(finalNewVehicle.getName() + "(") && name.endsWith(").path"))
-                    .max(Comparator.comparingInt(name -> {
-                        Matcher m = Pattern.compile("\\((\\d+)\\)\\.path$").matcher(name);
-                        return m.find() ? Integer.parseInt(m.group(1)) : -1;
-                    }))
-                    .orElse(newVehicle.getName() + ".path");
+            // Define the path file name based on the vehicle's name
+            String pathFileName = newVehicle.getName() + ".path";
 
-            if (!(newVehicle.getTasks().isEmpty()))
-                newVehicle.loadPlans(pathsFolderName + projectName + "/" + highestNumberedPathFile);
+            // Load the plans for the vehicle using the predefined path file name
+            if (!(newVehicle.getTasks().isEmpty())) {
+                newVehicle.loadPlans(pathsFolderName + projectName + "/" + pathFileName);
+                System.out.println("Loaded plans for " + newVehicle.getName());
+            }
         }
 
         var tec = new TrajectoryEnvelopeCoordinatorSimulation(10.0, 1.0);
@@ -195,7 +192,7 @@ public class RunProject {
                     break;
                 case "Shutdown":
                     System.out.println("Shutdown");
-                    AdaptiveTrackerRK4.scheduleVehiclesStop(triggerVehicle, triggerTasks, complyVehicles, trackerRetriever);
+                    AdaptiveTrackerRK4.scheduleVehiclesStop(triggerVehicle, tec.trackers.get(triggerVehicle.getID()), triggerTasks, complyVehicles, trackerRetriever);
                     break;
                 case "Vehicle Speed Change":
                     System.out.println("Vehicle Speed Change");

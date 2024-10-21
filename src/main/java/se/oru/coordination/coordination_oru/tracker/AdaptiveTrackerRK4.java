@@ -1,6 +1,7 @@
 package se.oru.coordination.coordination_oru.tracker;
 
 import org.metacsp.multi.spatioTemporal.paths.Pose;
+import org.metacsp.multi.spatioTemporal.paths.PoseSteering;
 import org.metacsp.multi.spatioTemporal.paths.Trajectory;
 import org.metacsp.multi.spatioTemporal.paths.TrajectoryEnvelope;
 import se.oru.coordination.coordination_oru.coordinator.NetworkConfiguration;
@@ -56,6 +57,7 @@ public abstract class AdaptiveTrackerRK4 extends AbstractTrajectoryEnvelopeTrack
 
     public static void scheduleVehiclesStop(
             AutonomousVehicle priorityVehicle,
+            AbstractTrajectoryEnvelopeTracker priorityVehicleTracker,
             List<Integer> missionIDsToTrigger,
             List<Integer> vehicleIDsToComply,
             Function<Integer, AbstractTrajectoryEnvelopeTracker> trackerRetriever) {
@@ -73,9 +75,22 @@ public abstract class AdaptiveTrackerRK4 extends AbstractTrajectoryEnvelopeTrack
                     trackers.add(tracker);
                 }
                 if (shouldPause) {
-                    if (pausedTrackers.isEmpty()) {
-                        stopVehicles(priorityVehicle, trackers);
-                        pausedTrackers.addAll(trackers);
+                    if (!(pausedTrackers.size() == trackers.size())) {
+                        if (!priorityVehicle.isStopped()){
+                            stopVehicle(priorityVehicle, priorityVehicleTracker); // This does not work.
+                        }
+                    } else {
+                        if (priorityVehicle.isStopped()) {
+                            resumeVehicle(priorityVehicle, priorityVehicleTracker);
+                        }
+                    }
+                    for (AbstractTrajectoryEnvelopeTracker tobeTrackerPaused : trackers) {
+                        if (!pausedTrackers.contains(tobeTrackerPaused)) {
+                            if (vehicleCanBeStopped(priorityVehicle, tobeTrackerPaused)) {
+                                stopVehicle(priorityVehicle, tobeTrackerPaused);
+                                pausedTrackers.add(tobeTrackerPaused);
+                            }
+                        }
                     }
                 } else {
                     if (!pausedTrackers.isEmpty()) {
@@ -92,17 +107,44 @@ public abstract class AdaptiveTrackerRK4 extends AbstractTrajectoryEnvelopeTrack
 
     public static void stopVehicles(AutonomousVehicle triggerVehicle, List<AbstractTrajectoryEnvelopeTracker> trackers) {
         for (AbstractTrajectoryEnvelopeTracker tracker : trackers) {
-            synchronized (tracker) {
-                tracker.pause(triggerVehicle);
-            }
+            stopVehicle(triggerVehicle, tracker);
         }
+    }
+
+    private static void stopVehicle(AutonomousVehicle triggerVehicle, AbstractTrajectoryEnvelopeTracker tracker) {
+        synchronized (tracker) {
+            tracker.pause(triggerVehicle);
+        }
+    }
+
+    public static boolean vehicleCanBeStopped(AutonomousVehicle triggerVehicle, AbstractTrajectoryEnvelopeTracker trackerToBeStopped) {
+        PoseSteering[] triggerVehiclePath = triggerVehicle.getPaths().get(triggerVehicle.getCurrentTaskIndex());
+        Pose vehicleToBeStoppedPose = trackerToBeStopped.getRobotReport().getPose();
+        for (PoseSteering poseSteering : triggerVehiclePath) {
+            if (computeDistance(poseSteering.getPose(), vehicleToBeStoppedPose) < 2.0) {
+                return false;
+            }
+        } return true;
+    }
+
+    private static double computeDistance(Pose pose1, Pose pose2) {
+        double x1 = pose1.getX();
+        double y1 = pose1.getY();
+        double x2 = pose2.getX();
+        double y2 = pose2.getY();
+
+        return Math.sqrt(Math.pow(x2 - x1, 2) + Math.pow(y2 - y1, 2));
     }
 
     private static void resumeVehicles(AutonomousVehicle triggerVehicle, List<AbstractTrajectoryEnvelopeTracker> trackers) {
         for (AbstractTrajectoryEnvelopeTracker tracker : trackers) {
-            synchronized (tracker) {
-                tracker.resume(triggerVehicle);
-            }
+            resumeVehicle(triggerVehicle, tracker);
+        }
+    }
+
+    private static void resumeVehicle(AutonomousVehicle triggerVehicle, AbstractTrajectoryEnvelopeTracker tracker) {
+        synchronized (tracker) {
+            tracker.resume(triggerVehicle);
         }
     }
 

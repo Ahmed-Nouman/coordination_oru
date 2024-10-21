@@ -211,17 +211,17 @@ public class Baseline_4PV_4OP_StopAndGo_6SV {
 //        s4.generatePlans(planner);
 //        s4.savePlans(CLASS_NAME);
         s4.loadPlans(PLANS_FOLDER_NAME + "S-4.path");
-//
-//        var s5 = new AutonomousVehicle("S-5", 10, Color.BLUE, maxVelocityS, maxAccelerationS,
-//                lengthS, widthS, serviceWorkshop6, safetyDistance, 1, model);
-//        s5.addTask(new Task("toBarrierEntry", 28.0, new Pose[] {barrierEntry}, 1));
-//        s5.addTask(new Task("toDrawPoint3", 1.0, new Pose[] {drawPoint3}, 1));
-//        s5.addTask(new Task("toDrawPoint11", 1.0, new Pose[] {drawPoint11}, 1));
-//        s5.addTask(new Task("toBarrierExit", 1.0, new Pose[] {barrierExit}, 1));
-//        s5.addTask(new Task("toServiceWorkshop6", 1.0, new Pose[] {serviceWorkshop6}, 1));
-////        s5.generatePlans(planner);
-////        s5.savePlans(CLASS_NAME);
-//        s5.loadPlans(PLANS_FOLDER_NAME + "S-5.path");
+
+        var s5 = new AutonomousVehicle("S-5", 10, Color.BLUE, maxVelocityS, maxAccelerationS,
+                lengthS, widthS, serviceWorkshop6, safetyDistance, 1, model);
+        s5.addTask(new Task("toBarrierEntry", 28.0, new Pose[] {barrierEntry}, 1));
+        s5.addTask(new Task("toDrawPoint3", 1.0, new Pose[] {drawPoint3}, 1));
+        s5.addTask(new Task("toDrawPoint11", 1.0, new Pose[] {drawPoint11}, 1));
+        s5.addTask(new Task("toBarrierExit", 1.0, new Pose[] {barrierExit}, 1));
+        s5.addTask(new Task("toServiceWorkshop6", 1.0, new Pose[] {serviceWorkshop6}, 1));
+//        s5.generatePlans(planner);
+//        s5.savePlans(CLASS_NAME);
+        s5.loadPlans(PLANS_FOLDER_NAME + "S-5.path");
 
         var ht = new AutonomousVehicle("HT", 1, Color.LIGHT_GRAY, maxVelocityHT, maxAccelerationHT,
                 lengthHT, widthHT, serviceWorkshop4, safetyDistance, 1, model);
@@ -275,12 +275,12 @@ public class Baseline_4PV_4OP_StopAndGo_6SV {
         Missions.runTasks(tec, SIMULATION_INTERVAL);
 
         Function<Integer, AbstractTrajectoryEnvelopeTracker> trackerRetriever = vehicleId -> tec.trackers.get(vehicleId);
-        AdaptiveTrackerRK4.scheduleVehiclesStop(s1, new ArrayList<>(List.of(1, 2)), new ArrayList<>(List.of(2, 4, 6, 8)), trackerRetriever);
-        AdaptiveTrackerRK4.scheduleVehiclesStop(s2, new ArrayList<>(List.of(1, 2)), new ArrayList<>(List.of(2, 4, 6, 8)), trackerRetriever);
-        AdaptiveTrackerRK4.scheduleVehiclesStop(s3, new ArrayList<>(List.of(1, 2)), new ArrayList<>(List.of(2, 4, 6, 8)), trackerRetriever);
-        AdaptiveTrackerRK4.scheduleVehiclesStop(s4, new ArrayList<>(List.of(1, 2)), new ArrayList<>(List.of(2, 4, 6, 8)), trackerRetriever);
-//        AdaptiveTrackerRK4.scheduleVehiclesStop(s5, new ArrayList<>(List.of(1, 2)), new ArrayList<>(List.of(2, 4, 6, 8)), trackerRetriever);
-        AdaptiveTrackerRK4.scheduleVehiclesStop(ht, new ArrayList<>(List.of(1, 2, 3, 4, 7, 8, 9, 10)), new ArrayList<>(List.of(2, 4, 6, 8)), trackerRetriever);
+        AdaptiveTrackerRK4.scheduleVehiclesStop(s1, tec.trackers.get(s1.getID()), new ArrayList<>(List.of(1, 2)), new ArrayList<>(List.of(2, 4, 6, 8)), trackerRetriever);
+        AdaptiveTrackerRK4.scheduleVehiclesStop(s2, tec.trackers.get(s2.getID()), new ArrayList<>(List.of(1, 2)), new ArrayList<>(List.of(2, 4, 6, 8)), trackerRetriever);
+        AdaptiveTrackerRK4.scheduleVehiclesStop(s3, tec.trackers.get(s3.getID()), new ArrayList<>(List.of(1, 2)), new ArrayList<>(List.of(2, 4, 6, 8)), trackerRetriever);
+        AdaptiveTrackerRK4.scheduleVehiclesStop(s4, tec.trackers.get(s4.getID()), new ArrayList<>(List.of(1, 2)), new ArrayList<>(List.of(2, 4, 6, 8)), trackerRetriever);
+        AdaptiveTrackerRK4.scheduleVehiclesStop(s5, tec.trackers.get(s5.getID()), new ArrayList<>(List.of(1, 2)), new ArrayList<>(List.of(2, 4, 6, 8)), trackerRetriever);
+        AdaptiveTrackerRK4.scheduleVehiclesStop(ht, tec.trackers.get(ht.getID()), new ArrayList<>(List.of(1, 2, 3, 4, 7, 8, 9, 10)), new ArrayList<>(List.of(2, 4, 6, 8)), trackerRetriever);
 
     }
 

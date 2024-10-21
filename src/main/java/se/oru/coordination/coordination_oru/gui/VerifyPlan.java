@@ -51,6 +51,20 @@ public class VerifyPlan {
                 final var  planner = new VehiclePathPlanner(map, navigationController.getMain().getDataStatus().getPathPlanner(),
                         0.09, 120, 2.0, 0.1);
 
+                var filePath = navigationController.getMain().getDataStatus().getProjectFile();
+                var parts = filePath.split("/");
+                var lastPart = parts[parts.length - 1];
+                var projectName = lastPart.split("\\.")[0];
+                var directoryPath = className + "/" + projectName;
+
+                // Get the user's home directory dynamically
+                String homeDirectory = System.getProperty("user.home");
+
+                // Define the directory path relative to the user's home directory
+                var directory = Paths.get(homeDirectory, "Devel", "coordination_oru", "paths", className, projectName).toString();
+                // Remove all files in the directory before saving the plans
+                resetDirectory(directory);
+
                 for (var vehicle : navigationController.getMain().getDataStatus().getProjectData().getVehicles()) {
                     AbstractVehicle newVehicle;
                     if ("Human".equals(vehicle.getType()))
@@ -92,12 +106,6 @@ public class VerifyPlan {
                             e.printStackTrace();
                         }
 
-                    var filePath = navigationController.getMain().getDataStatus().getProjectFile();
-                    var parts = filePath.split("/");
-                    var lastPart = parts[parts.length - 1];
-                    var projectName = lastPart.split("\\.")[0];
-                    var directoryPath = className + "/" + projectName;
-
                     // Now save the plans
                     newVehicle.savePlans(directoryPath);
 
@@ -122,6 +130,31 @@ public class VerifyPlan {
         };
         progressDialog.show();
         new Thread(task).start();
+    }
+
+    public void resetDirectory(String directoryPath) {
+        Path dir = Paths.get(directoryPath);
+
+        try {
+            // If directory exists, delete it and all its contents
+            if (Files.exists(dir)) {
+                // Delete the directory and its contents
+                Files.walk(dir)
+                        .sorted(Comparator.reverseOrder())
+                        .forEach(path -> {
+                            try {
+                                Files.delete(path);
+                            } catch (IOException e) {
+                                System.err.println("Failed to delete: " + path + " (" + e.getMessage() + ")");
+                            }
+                        });
+            }
+            // Recreate the directory
+            Files.createDirectories(dir);
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     public Stage progressDialog() {

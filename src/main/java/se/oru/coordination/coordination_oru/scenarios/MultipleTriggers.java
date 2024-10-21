@@ -147,10 +147,10 @@ public class MultipleTriggers {
         ArrayList<Integer> vehicleIDsToStop = new ArrayList<>(Arrays.asList(1, 2));
         Function<Integer, AbstractTrajectoryEnvelopeTracker> trackerRetriever = vehicleId -> tec.trackers.get(vehicleId);
 
-        AdaptiveTrackerRK4.scheduleVehiclesStop(serviceVehicle1, new ArrayList<>(List.of(1)), vehicleIDsToStop, trackerRetriever);
-        AdaptiveTrackerRK4.scheduleVehiclesStop(serviceVehicle1, new ArrayList<>(List.of(2)), vehicleIDsToStop, trackerRetriever);
-        AdaptiveTrackerRK4.scheduleVehiclesStop(serviceVehicle2, new ArrayList<>(List.of(1)), vehicleIDsToStop, trackerRetriever);
-        AdaptiveTrackerRK4.scheduleVehiclesStop(serviceVehicle2, new ArrayList<>(List.of(2)), vehicleIDsToStop, trackerRetriever);
+//        AdaptiveTrackerRK4.scheduleVehiclesStop(serviceVehicle1, new ArrayList<>(List.of(1)), vehicleIDsToStop, trackerRetriever);
+//        AdaptiveTrackerRK4.scheduleVehiclesStop(serviceVehicle1, new ArrayList<>(List.of(2)), vehicleIDsToStop, trackerRetriever);
+//        AdaptiveTrackerRK4.scheduleVehiclesStop(serviceVehicle2, new ArrayList<>(List.of(1)), vehicleIDsToStop, trackerRetriever);
+//        AdaptiveTrackerRK4.scheduleVehiclesStop(serviceVehicle2, new ArrayList<>(List.of(2)), vehicleIDsToStop, trackerRetriever);
 //        AdaptiveTrackerRK4.scheduleVehicleSlow(serviceVehicle, missionIDsToStop, vehicleIDsToStop, trackerRetriever, 10.0, 5.0);
 //        AdaptiveTrackerRK4.scheduleVehiclesPriorityChange(serviceVehicle, missionIDsToStop, tec, heuristic, newheuristics);
 

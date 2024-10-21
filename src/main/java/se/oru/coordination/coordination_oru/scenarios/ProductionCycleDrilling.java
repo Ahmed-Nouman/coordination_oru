@@ -147,7 +147,7 @@ public class ProductionCycleDrilling {
         ArrayList<Integer> vehicleIDsToStop = new ArrayList<>(Arrays.asList(1, 2, 3, 4));
         Function<Integer, AbstractTrajectoryEnvelopeTracker> trackerRetriever = vehicleId -> tec.trackers.get(vehicleId);
 
-        AdaptiveTrackerRK4.scheduleVehiclesStop(drillRig, missionIDsToStop, vehicleIDsToStop, trackerRetriever);
+//        AdaptiveTrackerRK4.scheduleVehiclesStop(drillRig, missionIDsToStop, vehicleIDsToStop, trackerRetriever);
 //        AdaptiveTrackerRK4.scheduleVehicleSlow(drillRig, missionIDsToStop, vehicleIDsToStop, trackerRetriever, productionMaxVelocity, productionMaxVelocity / 4);
 //        AdaptiveTrackerRK4.scheduleVehiclesPriorityChange(drillRig, missionIDsToStop, tec, heuristic, newheuristics);
     }

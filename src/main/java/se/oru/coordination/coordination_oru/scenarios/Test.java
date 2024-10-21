@@ -37,11 +37,11 @@ public class Test {
         final var planner = new VehiclePathPlanner(map, ReedsSheppCarPlanner.PLANNING_ALGORITHM.RRTConnect,
                 0.09, 60, 2.0, 0.1);
 
-//        var lookAheadVehicle = new LookAheadVehicle("H1", predictableDistance, 1, Color.CYAN, 5, 1,
-//                0.4, 0.5, mainTunnelLeft, 5, 5, model);
-//        lookAheadVehicle.addTask(new Task("M1", 0.0, new Pose[] {mainTunnelRight}, 0));
-//        lookAheadVehicle.addTask(new Task("M2", 0.0, new Pose[] {mainTunnelRight}, 0));
-//        lookAheadVehicle.setGoals(new Pose[] {mainTunnelRight, mainTunnelLeft});
+        var lookAheadVehicle = new LookAheadVehicle("H1", predictableDistance, 1, Color.CYAN, 5, 1,
+                0.4, 0.5, mainTunnelLeft, 5, 5, model);
+        lookAheadVehicle.addTask(new Task("M1", 0.0, new Pose[] {mainTunnelRight}, 0));
+        lookAheadVehicle.addTask(new Task("M2", 0.0, new Pose[] {mainTunnelRight}, 0));
+        lookAheadVehicle.setGoals(new Pose[] {mainTunnelRight, mainTunnelLeft});
         var autonomousVehicle1 = new AutonomousVehicle("A1", 1, Color.YELLOW, 10.0, 1.0, 0.6, 0.6,
                 drawPoint23, 5, 5, model);
         autonomousVehicle1.addTask(new Task("M1", 0.0, new Pose[] {mainTunnelRight, drawPoint23}, new int[] {10000, 0}, 5));

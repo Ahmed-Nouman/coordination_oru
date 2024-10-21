@@ -25,7 +25,7 @@ public class Baseline_4PV_4OP_StopAndGo_2Barriers {
     public static final Heuristics.HeuristicType HEURISTIC_TYPE = Heuristics.HeuristicType.CLOSEST_FIRST;
     public static final String REPORT_ADDRESS = System.getProperty("user.dir") +
             "/src/main/java/se/oru/coordination/coordination_oru/results/Baseline_4PV_4OP_StopAndGo_2Barriers/";
-    public static final double SAFETY_DISTANCE = 25.0;
+    public static final double SAFETY_DISTANCE = 0.0;
     public static final boolean VISUALIZATION = true;
     public static final boolean WRITE_VEHICLE_REPORTS = false;
     public static final double REPORTING_TIME = 0.1;
@@ -34,7 +34,7 @@ public class Baseline_4PV_4OP_StopAndGo_2Barriers {
     public static final String PLANS_FOLDER_NAME = "paths/" + CLASS_NAME + "/";
     public static final ForwardModel model = new ConstantAcceleration(10.0, 100.0, 1000, 1000, 30);
     public static final VehiclePathPlanner planner = new VehiclePathPlanner(MAP, ReedsSheppCarPlanner.PLANNING_ALGORITHM.RRTstar,
-            0.09, 120, 1.5, 0.1);
+            0.09, 30, 1.5, 0.1);
 
     public static void main(String[] args) throws InterruptedException {
 
@@ -46,7 +46,7 @@ public class Baseline_4PV_4OP_StopAndGo_2Barriers {
         final var maxVelocityMT = 8.34 / SCALE_ADJUSTMENT;
         final var maxAccelerationMT = 1.0 / SCALE_ADJUSTMENT;
         final var lengthMT = 8.0 / SCALE_ADJUSTMENT;
-        final var widthMT = 5.0 / SCALE_ADJUSTMENT;
+        final var widthMT = 6.0 / SCALE_ADJUSTMENT;
 
         final var maxVelocityDR = 4.17 / SCALE_ADJUSTMENT;
         final var maxAccelerationDR = 1.0 / SCALE_ADJUSTMENT;
@@ -65,8 +65,8 @@ public class Baseline_4PV_4OP_StopAndGo_2Barriers {
 
         final var maxVelocityHT = 8.34 / SCALE_ADJUSTMENT;
         final var maxAccelerationHT = 1.0 / SCALE_ADJUSTMENT;
-        final var lengthHT = 1.0 / SCALE_ADJUSTMENT;
-        final var widthHT = 1.0 / SCALE_ADJUSTMENT;
+        final var lengthHT = 3.0 / SCALE_ADJUSTMENT;
+        final var widthHT = 2.0 / SCALE_ADJUSTMENT;
 
         final var safetyDistance = SAFETY_DISTANCE / SCALE_ADJUSTMENT;
 
@@ -172,7 +172,7 @@ public class Baseline_4PV_4OP_StopAndGo_2Barriers {
 
         var s1 = new AutonomousVehicle("S-1", 1, Color.BLUE, maxVelocityS, maxAccelerationS,
                 lengthS, widthS, serviceWorkshop1, safetyDistance, 1, model);
-        s1.addTask(new Task("toBarrierEntry", 6.0, new Pose[] {barrierEntry}, 1));
+        s1.addTask(new Task("toBarrierEntry", 16.0, new Pose[] {barrierEntry}, 1));
         s1.addTask(new Task("toBarrier2Entry", 1.0, new Pose[] {barrier2Entry}, 1));
         s1.addTask(new Task("toDrawPoint1", 1.0, new Pose[] {drawPoint1}, 1));
         s1.addTask(new Task("toBarrier2Exit", 1.0, new Pose[] {barrier2Exit}, 1));
@@ -184,7 +184,7 @@ public class Baseline_4PV_4OP_StopAndGo_2Barriers {
 
         var s2 = new AutonomousVehicle("S-2", 1, Color.BLUE, maxVelocityS, maxAccelerationS,
                 lengthS, widthS, serviceWorkshop3, safetyDistance, 1, model);
-        s2.addTask(new Task("toBarrierEntry", 0.0, new Pose[] {barrierEntry}, 1));
+        s2.addTask(new Task("toBarrierEntry", 25.0, new Pose[] {barrierEntry}, 1));
         s2.addTask(new Task("toBarrier2Entry", 1.0, new Pose[] {barrier2Entry}, 1));
         s2.addTask(new Task("toDrawPoint9", 1.0, new Pose[] {drawPoint9}, 1));
         s2.addTask(new Task("toBarrier2Exit", 1.0, new Pose[] {barrier2Exit}, 1));
@@ -196,13 +196,13 @@ public class Baseline_4PV_4OP_StopAndGo_2Barriers {
 
         var ht = new AutonomousVehicle("HT", 1, Color.LIGHT_GRAY, maxVelocityHT, maxAccelerationHT,
                 lengthHT, widthHT, serviceWorkshop4, safetyDistance, 1, model);
-        ht.addTask(new Task("toBarrierEntry", 4.0, new Pose[] {barrierEntry}, 1)); //12
+        ht.addTask(new Task("toBarrierEntry", 4.0, new Pose[] {barrierEntry}, 1)); //4
         ht.addTask(new Task("toDrawPoint10B", 1.0, new Pose[] {drawPoint10B}, 1));
         ht.addTask(new Task("toDrawPoint10A", 1.0, new Pose[] {drawPoint10A}, 1));
         ht.addTask(new Task("toDrawPoint10", 1.0, new Pose[] {drawPoint10}, 1));
         ht.addTask(new Task("toBarrierExit", 1.0, new Pose[] {barrierExit}, 1));
         ht.addTask(new Task("toServiceWorkshop4", 1.0, new Pose[] {serviceWorkshop4}, 1));
-        ht.addTask(new Task("toBarrierEntry", 30.0, new Pose[] {barrierEntry}, 1)); //35
+        ht.addTask(new Task("toBarrierEntry", 30.0, new Pose[] {barrierEntry}, 1)); //30
         ht.addTask(new Task("toDrawPoint10B", 1.0, new Pose[] {drawPoint10B}, 1));
         ht.addTask(new Task("toDrawPoint10A", 1.0, new Pose[] {drawPoint10A}, 1));
         ht.addTask(new Task("toDrawPoint10", 1.0, new Pose[] {drawPoint10}, 1));
@@ -246,11 +246,11 @@ public class Baseline_4PV_4OP_StopAndGo_2Barriers {
         Missions.runTasks(tec, SIMULATION_INTERVAL);
 
         Function<Integer, AbstractTrajectoryEnvelopeTracker> trackerRetriever = vehicleId -> tec.trackers.get(vehicleId);
-        AdaptiveTrackerRK4.scheduleVehiclesStop(s1, new ArrayList<>(List.of(1, 4, 5)), new ArrayList<>(List.of(6, 8)), trackerRetriever);
-        AdaptiveTrackerRK4.scheduleVehiclesStop(s1, new ArrayList<>(List.of(2, 3)), new ArrayList<>(List.of(2, 4)), trackerRetriever);
-        AdaptiveTrackerRK4.scheduleVehiclesStop(s2, new ArrayList<>(List.of(1, 4, 5)), new ArrayList<>(List.of(6, 8)), trackerRetriever);
-        AdaptiveTrackerRK4.scheduleVehiclesStop(s2, new ArrayList<>(List.of(2, 3)), new ArrayList<>(List.of(2, 4)), trackerRetriever);
-        AdaptiveTrackerRK4.scheduleVehiclesStop(ht, new ArrayList<>(List.of(1, 2, 3, 6, 7, 8)), new ArrayList<>(List.of(6, 8)), trackerRetriever);
+        AdaptiveTrackerRK4.scheduleVehiclesStop(s1, tec.trackers.get(s1.getID()), new ArrayList<>(List.of(1, 4)), new ArrayList<>(List.of(6, 8)), trackerRetriever);
+        AdaptiveTrackerRK4.scheduleVehiclesStop(s1, tec.trackers.get(s1.getID()), new ArrayList<>(List.of(2, 3)), new ArrayList<>(List.of(2, 4)), trackerRetriever);
+        AdaptiveTrackerRK4.scheduleVehiclesStop(s2, tec.trackers.get(s2.getID()), new ArrayList<>(List.of(1, 4)), new ArrayList<>(List.of(6, 8)), trackerRetriever);
+        AdaptiveTrackerRK4.scheduleVehiclesStop(s2, tec.trackers.get(s2.getID()), new ArrayList<>(List.of(2, 3)), new ArrayList<>(List.of(2, 4)), trackerRetriever);
+        AdaptiveTrackerRK4.scheduleVehiclesStop(ht, tec.trackers.get(ht.getID()), new ArrayList<>(List.of(1, 2, 3, 4, 7, 8, 9, 10)), new ArrayList<>(List.of(6, 8)), trackerRetriever);
 
     }
 

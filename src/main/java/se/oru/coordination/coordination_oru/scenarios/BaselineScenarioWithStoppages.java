@@ -220,9 +220,9 @@ public class BaselineScenarioWithStoppages {
         Missions.runTasks(tec, SIMULATION_INTERVAL);
 
         Function<Integer, AbstractTrajectoryEnvelopeTracker> trackerRetriever = vehicleId -> tec.trackers.get(vehicleId);
-        AdaptiveTrackerRK4.scheduleVehiclesStop(s1, new ArrayList<>(List.of(1, 2)), new ArrayList<>(List.of(2, 4)), trackerRetriever);
-        AdaptiveTrackerRK4.scheduleVehiclesStop(s2, new ArrayList<>(List.of(1, 2)), new ArrayList<>(List.of(2, 4)), trackerRetriever);
-        AdaptiveTrackerRK4.scheduleVehiclesStop(ht, new ArrayList<>(List.of(1, 2, 3, 4, 7, 8, 9, 10)), new ArrayList<>(List.of(2, 4)), trackerRetriever);
+//        AdaptiveTrackerRK4.scheduleVehiclesStop(s1, new ArrayList<>(List.of(1, 2)), new ArrayList<>(List.of(2, 4)), trackerRetriever);
+//        AdaptiveTrackerRK4.scheduleVehiclesStop(s2, new ArrayList<>(List.of(1, 2)), new ArrayList<>(List.of(2, 4)), trackerRetriever);
+//        AdaptiveTrackerRK4.scheduleVehiclesStop(ht, new ArrayList<>(List.of(1, 2, 3, 4, 7, 8, 9, 10)), new ArrayList<>(List.of(2, 4)), trackerRetriever);
 
     }
 

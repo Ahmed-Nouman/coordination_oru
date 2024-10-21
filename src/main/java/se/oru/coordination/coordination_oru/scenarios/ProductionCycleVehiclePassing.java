@@ -139,7 +139,7 @@ public class ProductionCycleVehiclePassing {
         Function<Integer, AbstractTrajectoryEnvelopeTracker> trackerRetriever = vehicleId -> tec.trackers.get(vehicleId);
 
 //        AdaptiveTrackerRK4.scheduleVehiclesStop(productionVehicle2, P_missionIDsToStop, vehicleIDsToStop, trackerRetriever);
-        AdaptiveTrackerRK4.scheduleVehiclesStop(serviceVehicle, S_missionIDsToStop, vehicleIDsToStop, trackerRetriever);
+//        AdaptiveTrackerRK4.scheduleVehiclesStop(serviceVehicle, S_missionIDsToStop, vehicleIDsToStop, trackerRetriever);
 //        AdaptiveTrackerRK4.scheduleVehicleSlow(serviceVehicle, missionIDsToStop, vehicleIDsToStop, trackerRetriever, productionMaxVelocity, productionMaxVelocity / 8); // FIXME: Vehicles may Jump if difference is too much
 //        AdaptiveTrackerRK4.scheduleVehiclesPriorityChange(serviceVehicle, missionIDsToStop, TEC, heuristics, newheuristics);
     }
