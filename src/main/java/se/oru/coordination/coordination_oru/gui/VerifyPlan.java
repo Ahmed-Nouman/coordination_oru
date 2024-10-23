@@ -57,11 +57,9 @@ public class VerifyPlan {
                 var projectName = lastPart.split("\\.")[0];
                 var directoryPath = className + "/" + projectName;
 
-                // Get the user's home directory dynamically
-                String homeDirectory = System.getProperty("user.home");
-
                 // Define the directory path relative to the user's home directory
-                var directory = Paths.get(homeDirectory, "Devel", "coordination_oru", "paths", className, projectName).toString();
+                String directory = Paths.get(map.substring(0, map.lastIndexOf("/maps/")), "paths", className, projectName).toString();
+
                 // Remove all files in the directory before saving the plans
                 resetDirectory(directory);
 
