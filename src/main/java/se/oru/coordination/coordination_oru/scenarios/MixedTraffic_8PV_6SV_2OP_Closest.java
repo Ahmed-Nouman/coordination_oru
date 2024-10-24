@@ -13,17 +13,17 @@ import se.oru.coordination.coordination_oru.vehicles.AutonomousVehicle;
 import java.awt.*;
 import java.nio.file.Paths;
 
-public class Baseline_Number_MixedTraffic {
+public class MixedTraffic_8PV_6SV_2OP_Closest {
 
     public static final String MAP = "maps/Baseline_4PV_2OP_MixedTraffic.yaml";
     public static final double MAP_RESOLUTION = new MapResolution().getMapResolution(MAP);
     public static final double SCALE_ADJUSTMENT = 1 / MAP_RESOLUTION;
     public static final Heuristics.HeuristicType HEURISTIC_TYPE = Heuristics.HeuristicType.CLOSEST_FIRST;
     public static final String REPORT_ADDRESS = System.getProperty("user.dir") +
-            "/src/main/java/se/oru/coordination/coordination_oru/results/Baseline_10PV_2OP_6SV_MixedTraffic/";
-    public static final double SAFETY_DISTANCE = 25.0;
+            "/src/main/java/se/oru/coordination/coordination_oru/results/Baseline_8PV_2OP_6SV_MixedTraffic/";
+    public static final double SAFETY_DISTANCE = 10.0;
     public static final boolean VISUALIZATION = true;
-    public static final boolean WRITE_VEHICLE_REPORTS = true;
+    public static final boolean WRITE_VEHICLE_REPORTS = false;
     public static final double REPORTING_TIME = 0.1;
     public static final int SIMULATION_INTERVAL = 48;
     public static final String CLASS_NAME = Thread.currentThread().getStackTrace()[Thread.currentThread().getStackTrace().length-1].getFileName().split("\\.")[0];
@@ -68,14 +68,15 @@ public class Baseline_Number_MixedTraffic {
 
         var tec = new TrajectoryEnvelopeCoordinatorSimulation(maxVelocityLHD, maxAccelerationLHD);
         final Pose drawPoint1 = new Pose(18.45,61.05,-Math.PI/2);
-        final Pose drawPoint3B = new Pose(25.55,61.45,Math.PI/2);
+        final Pose drawPoint3B = new Pose(32.75,67.05,Math.PI/2);
         final Pose drawPoint3F = new Pose(25.55,61.45,Math.PI/2);
         final Pose drawPoint4B = new Pose(39.95,67.05,-Math.PI/2);
         final Pose drawPoint4F = new Pose(39.95,65.05,-Math.PI/2);
-        final Pose drawPoint5B = new Pose(39.85,67.15,Math.PI/2);
+        final Pose drawPoint5B = new Pose(47.25,69.15,Math.PI/2);
         final Pose drawPoint5F = new Pose(39.85,67.15,Math.PI/2);
         final Pose drawPoint6B = new Pose(54.15,74.15,-Math.PI/2);
         final Pose drawPoint6F = new Pose(54.15,71.65,-Math.PI/2);
+        final Pose drawPoint7B = new Pose(61.15,73.95,-Math.PI/2);
         final Pose drawPoint7F = new Pose(54.15,71.65,-Math.PI/2);
         final Pose drawPoint8F = new Pose(68.35,75.05,Math.PI/2);
         final Pose drawPoint8B = new Pose(68.35,72.65,Math.PI/2);
@@ -85,15 +86,15 @@ public class Baseline_Number_MixedTraffic {
         final Pose drawPoint10A = new Pose(82.65,66.85,Math.PI/2);
         final Pose drawPoint10B = new Pose(82.35,53.15,Math.PI/2);
         final Pose drawPoint11 = new Pose(82.55,73.25,Math.PI/2);
-        final Pose drawPoint11B = new Pose(82.75,72.15,Math.PI/2);
+        final Pose drawPoint11B = new Pose(89.65,76.65,Math.PI/2);
         final Pose drawPoint11F = new Pose(82.75,72.15,Math.PI/2);
         final Pose drawPoint12B = new Pose(96.85,77.35,-Math.PI/2);
         final Pose drawPoint12F = new Pose(96.85,75.45,-Math.PI/2);
-        final Pose drawPoint13B = new Pose(96.85,77.05,Math.PI/2);
+        final Pose drawPoint13B = new Pose(103.95,80.45,Math.PI/2);
         final Pose drawPoint13F = new Pose(96.85,77.05,Math.PI/2);
         final Pose drawPoint14B = new Pose(111.05,83.85,-Math.PI/2);
         final Pose drawPoint14F = new Pose(111.05,81.95,-Math.PI/2);
-        final Pose drawPoint15B = new Pose(111.05,84.05,Math.PI/2);
+        final Pose drawPoint15B = new Pose(118.15,81.45,Math.PI/2);
         final Pose drawPoint15F = new Pose(111.05,81.25,Math.PI/2);
         final Pose drawPoint16 = new Pose(118.15,80.25,-Math.PI/2);
         final Pose drawPoint17 = new Pose(125.35,80.05,Math.PI/2);
@@ -161,8 +162,8 @@ public class Baseline_Number_MixedTraffic {
 //        mt10.savePlans(CLASS_NAME);
         mt4.loadPlans(PLANS_FOLDER_NAME + "MT-4.path");
 
-//        var lhd5 = new AutonomousVehicle("LHD-5", 1, Color.YELLOW, maxVelocityLHD, maxAccelerationLHD,
-//                lengthLHD, widthLHD, drawPoint5B, safetyDistance, 1, model);
+        var lhd5 = new AutonomousVehicle("LHD-5", 1, Color.YELLOW, maxVelocityLHD, maxAccelerationLHD,
+                lengthLHD, widthLHD, drawPoint5B, safetyDistance, 1, model);
 
         var mt5 = new AutonomousVehicle("MT-5", 10, Color.CYAN, maxVelocityMT, maxAccelerationMT,
                 lengthMT, widthMT, drawPoint5F, safetyDistance, 100, model);
@@ -171,8 +172,8 @@ public class Baseline_Number_MixedTraffic {
 //        mt9.savePlans(CLASS_NAME);
         mt5.loadPlans(PLANS_FOLDER_NAME + "MT-5.path");
 
-//        var lhd6 = new AutonomousVehicle("LHD-6", 1, Color.YELLOW, maxVelocityLHD, maxAccelerationLHD,
-//                lengthLHD, widthLHD, drawPoint13B, safetyDistance, 1, model);
+        var lhd6 = new AutonomousVehicle("LHD-6", 1, Color.YELLOW, maxVelocityLHD, maxAccelerationLHD,
+                lengthLHD, widthLHD, drawPoint13B, safetyDistance, 1, model);
 
         var mt6 = new AutonomousVehicle("MT-6", 10, Color.CYAN, maxVelocityMT, maxAccelerationMT,
                 lengthMT, widthMT, drawPoint13F, safetyDistance, 100, model);
@@ -181,8 +182,8 @@ public class Baseline_Number_MixedTraffic {
 //        mt10.savePlans(CLASS_NAME);
         mt6.loadPlans(PLANS_FOLDER_NAME + "MT-6.path");
 
-//        var lh7 = new AutonomousVehicle("LHD-7", 1, Color.YELLOW, maxVelocityLHD, maxAccelerationLHD,
-//                lengthLHD, widthLHD, drawPoint3B, safetyDistance, 1, model);
+        var lh7 = new AutonomousVehicle("LHD-7", 1, Color.YELLOW, maxVelocityLHD, maxAccelerationLHD,
+                lengthLHD, widthLHD, drawPoint3B, safetyDistance, 1, model);
 //
         var mt7 = new AutonomousVehicle("MT-7", 10, Color.CYAN, maxVelocityMT, maxAccelerationMT,
                 lengthMT, widthMT, drawPoint3F, safetyDistance, 100, model);
@@ -191,8 +192,8 @@ public class Baseline_Number_MixedTraffic {
 //        mt9.savePlans(CLASS_NAME);
         mt7.loadPlans(PLANS_FOLDER_NAME + "MT-7.path");
 //
-//        var lhd8 = new AutonomousVehicle("LHD-8", 1, Color.YELLOW, maxVelocityLHD, maxAccelerationLHD,
-//                lengthLHD, widthLHD, drawPoint11B, safetyDistance, 1, model);
+        var lhd8 = new AutonomousVehicle("LHD-8", 1, Color.YELLOW, maxVelocityLHD, maxAccelerationLHD,
+                lengthLHD, widthLHD, drawPoint11B, safetyDistance, 1, model);
 //
         var mt8 = new AutonomousVehicle("MT-8", 10, Color.CYAN, maxVelocityMT, maxAccelerationMT,
                 lengthMT, widthMT, drawPoint11F, safetyDistance, 100, model);
@@ -200,41 +201,6 @@ public class Baseline_Number_MixedTraffic {
 //        mt10.generatePlans(planner);
 //        mt10.savePlans(CLASS_NAME);
         mt8.loadPlans(PLANS_FOLDER_NAME + "MT-8.path");
-
-//        var lh9 = new AutonomousVehicle("LHD-9", 1, Color.YELLOW, maxVelocityLHD, maxAccelerationLHD,
-//                lengthLHD, widthLHD, drawPoint7B, safetyDistance, 1, model);
-//
-        var mt9 = new AutonomousVehicle("MT-9", 10, Color.CYAN, maxVelocityMT, maxAccelerationMT,
-                lengthMT, widthMT, drawPoint7F, safetyDistance, 100, model);
-        mt9.addTask(new Task("toOrePass1", 0.5, new Pose[] {orePass1, drawPoint7F}, 1));
-//        mt9.generatePlans(planner);
-//        mt9.savePlans(CLASS_NAME);
-        mt9.loadPlans(PLANS_FOLDER_NAME + "MT-9.path");
-//
-//        var lhd10 = new AutonomousVehicle("LHD-10", 1, Color.YELLOW, maxVelocityLHD, maxAccelerationLHD,
-//                lengthLHD, widthLHD, drawPoint15B, safetyDistance, 1, model);
-//
-        var mt10 = new AutonomousVehicle("MT-10", 10, Color.CYAN, maxVelocityMT, maxAccelerationMT,
-                lengthMT, widthMT, drawPoint15F, safetyDistance, 100, model);
-        mt10.addTask(new Task("toOrePass4", 0.5, new Pose[] {orePass2, drawPoint15F}, 1));
-//        mt10.generatePlans(planner);
-//        mt10.savePlans(CLASS_NAME);
-        mt10.loadPlans(PLANS_FOLDER_NAME + "MT-10.path");
-
-        var dr = new AutonomousVehicle("DR", 1, Color.GREEN, maxVelocityDR, maxAccelerationDR,
-                lengthDR, widthDR, drawPoint1, safetyDistance, 1, model);
-        dr.addTask(new Task("toDrawPoint8", 3.0, new Pose[] {drawPoint8}, 1));
-//        dr.generatePlans(planner);
-//        dr.savePlans(CLASS_NAME);
-        dr.loadPlans(PLANS_FOLDER_NAME + "DR.path");
-
-        var c = new AutonomousVehicle("C", 1, Color.RED, maxVelocityC, maxAccelerationC,
-                lengthC, widthC, chargingStation, safetyDistance, 1, model);
-        c.addTask(new Task("toDrawPoint1", 9.0, new Pose[] {drawPoint1}, 1));
-        c.addTask(new Task("toChargingStation", 1.0, new Pose[] {chargingStation}, 1));
-//        c.generatePlans(planner);
-//        c.savePlans(CLASS_NAME);
-        c.loadPlans(PLANS_FOLDER_NAME + "C.path");
 
         var s1 = new AutonomousVehicle("S-1", 1, Color.BLUE, maxVelocityS, maxAccelerationS,
                 lengthS, widthS, serviceWorkshop1, safetyDistance, 1, model);
