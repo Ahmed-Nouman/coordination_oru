@@ -1,7 +1,7 @@
 import os
 import pandas as pd
 
-root_directory = '../results/Baseline_4PV_4OP_MixedTraffic_BatteryBay/'
+root_directory = '../results/MixedTraffic_10PV_6SV_2OP_Closest/'
 
 def read_robot_csv(filepath):
     if not os.path.exists(filepath):
@@ -36,7 +36,7 @@ def get_time_spent(df):
 
     # Each row represents 0.10 seconds
     total_active_time = active_periods * 0.10 / 60  # Convert to minutes
-    return total_active_time
+    return total_active_time / 2  # Divide by 2
 
 def get_coordination_time(df):
     if df.empty:
@@ -84,6 +84,10 @@ def count_stops(df):
 
     return stops
 
+# Function to extract the numeric part of the vehicle names
+def extract_vehicle_number(vehicle_name):
+    return int(vehicle_name.split('_')[1])
+
 if __name__ == "__main__":
     for dirpath, _, filenames in os.walk(root_directory):
         robot_files = sorted([f for f in filenames if f.startswith("Vehicle_") and f.endswith(".csv")])
@@ -105,23 +109,24 @@ if __name__ == "__main__":
                 cycles_count = count_production_cycles(df)
                 results['Production Cycles'].append(cycles_count)
 
-                # Active Robot Time
+                # Active Robot Time (divided by 2)
                 robot_time_spent = get_time_spent(df)
                 results['Active Time (minutes)'].append(f"{robot_time_spent:.2f}")
 
-                # Number of Stops
-                stops_count = count_stops(df)
+                # Number of Stops (subtract production cycles)
+                stops_count = count_stops(df) - cycles_count
                 results['Number of Stops'].append(stops_count)
-
-                # Active Coordination time
-                # coordination_time = get_coordination_time(df)
-                # results['Coordination Time (minutes)'].append(f"{coordination_time:.2f}")
 
         # Create DataFrame from results
         results_df = pd.DataFrame(results)
+
+        # Sort the DataFrame by extracting the numeric part of 'Robot Name'
+        results_df['Vehicle_Number'] = results_df['Robot Name'].apply(extract_vehicle_number)
+        results_df = results_df.sort_values(by='Vehicle_Number').drop(columns='Vehicle_Number')
 
         # Write to CSV file
         output_csv_path = os.path.join(dirpath, 'OutputVariables.csv')
         results_df.to_csv(output_csv_path, index=False)
 
     print("OutputVariables.csv files written to all subfolders.")
+

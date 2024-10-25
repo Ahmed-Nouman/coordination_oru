@@ -45,7 +45,7 @@ public class RobotReportCollector {
 
         // Generate the folder name with date and timestamp
         String timestamp = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMdd-HHmm"));
-        String directoryName = folderName + timestamp;
+        String directoryName = folderName + "-" + timestamp;
 
         // Create the directory if it doesn't exist
         Path directoryPath = Path.of(directoryName);
