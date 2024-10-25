@@ -142,21 +142,6 @@ public class MixedTraffic_2PV_6SV_2OP_Closest {
 //        mt2.savePlans(CLASS_NAME);
         mt2.loadPlans(PLANS_FOLDER_NAME + "MT-2.path");
 
-        var dr = new AutonomousVehicle("DR", 1, Color.GREEN, maxVelocityDR, maxAccelerationDR,
-                lengthDR, widthDR, drawPoint1, safetyDistance, 1, model);
-        dr.addTask(new Task("toDrawPoint8", 3.0, new Pose[] {drawPoint8}, 1));
-//        dr.generatePlans(planner);
-//        dr.savePlans(CLASS_NAME);
-        dr.loadPlans(PLANS_FOLDER_NAME + "DR.path");
-
-        var c = new AutonomousVehicle("C", 1, Color.RED, maxVelocityC, maxAccelerationC,
-                lengthC, widthC, chargingStation, safetyDistance, 1, model);
-        c.addTask(new Task("toDrawPoint1", 9.0, new Pose[] {drawPoint1}, 1));
-        c.addTask(new Task("toChargingStation", 1.0, new Pose[] {chargingStation}, 1));
-//        c.generatePlans(planner);
-//        c.savePlans(CLASS_NAME);
-        c.loadPlans(PLANS_FOLDER_NAME + "C.path");
-
         var s1 = new AutonomousVehicle("S-1", 1, Color.BLUE, maxVelocityS, maxAccelerationS,
                 lengthS, widthS, serviceWorkshop1, safetyDistance, 1, model);
         s1.addTask(new Task("toDrawPoint1", 5.0, new Pose[] {drawPoint1}, 1)); // This plan is not correct

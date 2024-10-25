@@ -23,7 +23,7 @@ public class MixedTraffic_4PV_6SV_2OP_Closest {
             "/src/main/java/se/oru/coordination/coordination_oru/results/MixedTraffic_4PV_6SV_2OP_Closest/";
     public static final double SAFETY_DISTANCE = 10.0;
     public static final boolean VISUALIZATION = true;
-    public static final boolean WRITE_VEHICLE_REPORTS = false;
+    public static final boolean WRITE_VEHICLE_REPORTS = true;
     public static final double REPORTING_TIME = 0.1;
     public static final int SIMULATION_INTERVAL = 48;
     public static final String CLASS_NAME = Thread.currentThread().getStackTrace()[Thread.currentThread().getStackTrace().length-1].getFileName().split("\\.")[0];
@@ -161,21 +161,6 @@ public class MixedTraffic_4PV_6SV_2OP_Closest {
 //        mt10.generatePlans(planner);
 //        mt10.savePlans(CLASS_NAME);
         mt4.loadPlans(PLANS_FOLDER_NAME + "MT-4.path");
-
-        var dr = new AutonomousVehicle("DR", 1, Color.GREEN, maxVelocityDR, maxAccelerationDR,
-                lengthDR, widthDR, drawPoint1, safetyDistance, 1, model);
-        dr.addTask(new Task("toDrawPoint8", 3.0, new Pose[] {drawPoint8}, 1));
-//        dr.generatePlans(planner);
-//        dr.savePlans(CLASS_NAME);
-        dr.loadPlans(PLANS_FOLDER_NAME + "DR.path");
-
-        var c = new AutonomousVehicle("C", 1, Color.RED, maxVelocityC, maxAccelerationC,
-                lengthC, widthC, chargingStation, safetyDistance, 1, model);
-        c.addTask(new Task("toDrawPoint1", 9.0, new Pose[] {drawPoint1}, 1));
-        c.addTask(new Task("toChargingStation", 1.0, new Pose[] {chargingStation}, 1));
-//        c.generatePlans(planner);
-//        c.savePlans(CLASS_NAME);
-        c.loadPlans(PLANS_FOLDER_NAME + "C.path");
 
         var s1 = new AutonomousVehicle("S-1", 1, Color.BLUE, maxVelocityS, maxAccelerationS,
                 lengthS, widthS, serviceWorkshop1, safetyDistance, 1, model);
