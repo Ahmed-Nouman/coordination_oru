@@ -18,9 +18,9 @@ public class MixedTraffic_2PV_0SV_2OP_Closest {
     public static final String MAP = "maps/Baseline_4PV_2OP_MixedTraffic.yaml";
     public static final double MAP_RESOLUTION = new MapResolution().getMapResolution(MAP);
     public static final double SCALE_ADJUSTMENT = 1 / MAP_RESOLUTION;
-    public static final Heuristics.HeuristicType HEURISTIC_TYPE = Heuristics.HeuristicType.TASK_PRIORITY_FIRST;
+    public static final Heuristics.HeuristicType HEURISTIC_TYPE = Heuristics.HeuristicType.CLOSEST_FIRST;
     public static final String REPORT_ADDRESS = System.getProperty("user.dir") +
-            "/src/main/java/se/oru/coordination/coordination_oru/results/MixedTraffic_2PV_3SV_2OP_Loaded/";
+            "/src/main/java/se/oru/coordination/coordination_oru/results/MixedTraffic_2PV_3SV_2OP_Closest/";
     public static final double SAFETY_DISTANCE = 10.0;
     public static final boolean VISUALIZATION = true;
     public static final boolean WRITE_VEHICLE_REPORTS = true;
