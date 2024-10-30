@@ -13,14 +13,14 @@ import se.oru.coordination.coordination_oru.vehicles.AutonomousVehicle;
 import java.awt.*;
 import java.nio.file.Paths;
 
-public class MixedTraffic_4PV_3SV_2OP_Loaded {
+public class MixedTraffic_6PV_0SV_2OP_Loaded {
 
     public static final String MAP = "maps/Baseline_4PV_2OP_MixedTraffic.yaml";
     public static final double MAP_RESOLUTION = new MapResolution().getMapResolution(MAP);
     public static final double SCALE_ADJUSTMENT = 1 / MAP_RESOLUTION;
     public static final Heuristics.HeuristicType HEURISTIC_TYPE = Heuristics.HeuristicType.HIGHEST_PRIORITY_FIRST;
     public static final String REPORT_ADDRESS = System.getProperty("user.dir") +
-            "/src/main/java/se/oru/coordination/coordination_oru/results/MixedTraffic_4PV_3SV_2OP_Loaded/";
+            "/src/main/java/se/oru/coordination/coordination_oru/results/MixedTraffic_6PV_0SV_2OP_Loaded/";
     public static final double SAFETY_DISTANCE = 10.0;
     public static final boolean VISUALIZATION = true;
     public static final boolean WRITE_VEHICLE_REPORTS = true;
@@ -162,35 +162,25 @@ public class MixedTraffic_4PV_3SV_2OP_Loaded {
 //        mt10.savePlans(CLASS_NAME);
         mt4.loadPlans(PLANS_FOLDER_NAME + "MT-4.path");
 
-        var s1 = new AutonomousVehicle("S-1", 1, Color.BLUE, maxVelocityS, maxAccelerationS,
-                lengthS, widthS, serviceWorkshop1, safetyDistance, 1, model);
-        s1.addTask(new Task("toDrawPoint1", 5.0, new Pose[] {drawPoint1}, 1)); // This plan is not correct
-        s1.addTask(new Task("toServiceWorkshop1", 1.0, new Pose[] {serviceWorkshop1}, 1));
-//        s1.generatePlans(planner);
-//        s1.savePlans(CLASS_NAME);
-        s1.loadPlans(PLANS_FOLDER_NAME + "S-1.path");
+        var lhd5 = new AutonomousVehicle("LHD-5", 1, Color.YELLOW, maxVelocityLHD, maxAccelerationLHD,
+                lengthLHD, widthLHD, drawPoint5B, safetyDistance, 1, model);
 
-        var s2 = new AutonomousVehicle("S-2", 1, Color.BLUE, maxVelocityS, maxAccelerationS,
-                lengthS, widthS, serviceWorkshop3, safetyDistance, 1, model);
-        s2.addTask(new Task("toDrawPoint9", 15.0, new Pose[] {drawPoint9}, 1));
-        s2.addTask(new Task("toServiceWorkshop3", 1.0, new Pose[] {serviceWorkshop3}, 1));
-//        s2.generatePlans(planner);
-//        s2.savePlans(CLASS_NAME);
-        s2.loadPlans(PLANS_FOLDER_NAME + "S-2.path");
+        var mt5 = new AutonomousVehicle("MT-5", 10, Color.CYAN, maxVelocityMT, maxAccelerationMT,
+                lengthMT, widthMT, drawPoint5F, safetyDistance, 100, model);
+        mt5.addTask(new Task("toOrePass1", 0.5, new Pose[] {orePass1, drawPoint5F}, 10));
+//        mt9.generatePlans(planner);
+//        mt9.savePlans(CLASS_NAME);
+        mt5.loadPlans(PLANS_FOLDER_NAME + "MT-5.path");
 
-        var ht = new AutonomousVehicle("HT", 1, Color.LIGHT_GRAY, maxVelocityHT, maxAccelerationHT,
-                lengthHT, widthHT, serviceWorkshop4, safetyDistance, 1, model);
-        ht.addTask(new Task("toDrawPoint10B", 12.0, new Pose[] {drawPoint10B}, 1)); //12
-        ht.addTask(new Task("toDrawPoint10A", 1.0, new Pose[] {drawPoint10A}, 1));
-        ht.addTask(new Task("toDrawPoint10", 1.0, new Pose[] {drawPoint10}, 1));
-        ht.addTask(new Task("toServiceWorkshop4", 1.0, new Pose[] {serviceWorkshop4}, 1));
-        ht.addTask(new Task("toDrawPoint10B", 12.0, new Pose[] {drawPoint10B}, 1)); //35
-        ht.addTask(new Task("toDrawPoint10A", 1.0, new Pose[] {drawPoint10A}, 1));
-        ht.addTask(new Task("toDrawPoint10", 1.0, new Pose[] {drawPoint10}, 1));
-        ht.addTask(new Task("toServiceWorkshop4", 1.0, new Pose[] {serviceWorkshop4}, 1));
-//        ht.generatePlans(planner);
-//        ht.savePlans(CLASS_NAME);
-        ht.loadPlans(PLANS_FOLDER_NAME + "HT.path");
+        var lhd6 = new AutonomousVehicle("LHD-6", 1, Color.YELLOW, maxVelocityLHD, maxAccelerationLHD,
+                lengthLHD, widthLHD, drawPoint13B, safetyDistance, 1, model);
+
+        var mt6 = new AutonomousVehicle("MT-6", 10, Color.CYAN, maxVelocityMT, maxAccelerationMT,
+                lengthMT, widthMT, drawPoint13F, safetyDistance, 100, model);
+        mt6.addTask(new Task("toOrePass4", 0.5, new Pose[] {orePass2, drawPoint13F}, 10));
+//        mt10.generatePlans(planner);
+//        mt10.savePlans(CLASS_NAME);
+        mt6.loadPlans(PLANS_FOLDER_NAME + "MT-6.path");
 
         tec.setupSolver(0, 100000000);
         tec.startInference();

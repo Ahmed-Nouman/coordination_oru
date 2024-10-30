@@ -15,7 +15,7 @@ import java.nio.file.Paths;
 
 public class MixedTraffic_4PV_6SV_2OP_Closest {
 
-    public static final String MAP = "maps/Baseline_4PV_2OP_MixedTraffic.yaml";
+    public static final String MAP = "maps/Baseline_4PV_4OP_6SV_MixedTraffic.yaml";
     public static final double MAP_RESOLUTION = new MapResolution().getMapResolution(MAP);
     public static final double SCALE_ADJUSTMENT = 1 / MAP_RESOLUTION;
     public static final Heuristics.HeuristicType HEURISTIC_TYPE = Heuristics.HeuristicType.CLOSEST_FIRST;

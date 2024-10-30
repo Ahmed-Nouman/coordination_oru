@@ -15,13 +15,13 @@ import java.nio.file.Paths;
 
 public class MixedTraffic_4PV_6SV_2OP_Loaded {
 
-    public static final String MAP = "maps/Baseline_4PV_2OP_MixedTraffic.yaml";
+    public static final String MAP = "maps/Baseline_4PV_4OP_6SV_MixedTraffic.yaml";
     public static final double MAP_RESOLUTION = new MapResolution().getMapResolution(MAP);
     public static final double SCALE_ADJUSTMENT = 1 / MAP_RESOLUTION;
     public static final Heuristics.HeuristicType HEURISTIC_TYPE = Heuristics.HeuristicType.HIGHEST_PRIORITY_FIRST;
     public static final String REPORT_ADDRESS = System.getProperty("user.dir") +
             "/src/main/java/se/oru/coordination/coordination_oru/results/MixedTraffic_4PV_6SV_2OP_Loaded/";
-    public static final double SAFETY_DISTANCE = 10.0;
+    public static final double SAFETY_DISTANCE = 0.0;
     public static final boolean VISUALIZATION = true;
     public static final boolean WRITE_VEHICLE_REPORTS = true;
     public static final double REPORTING_TIME = 0.1;
@@ -127,7 +127,7 @@ public class MixedTraffic_4PV_6SV_2OP_Loaded {
 
         var mt1 = new AutonomousVehicle("MT-1", 10, Color.CYAN, maxVelocityMT, maxAccelerationMT,
                 lengthMT, widthMT, drawPoint4F, safetyDistance, 100, model);
-        mt1.addTask(new Task("oreProduction1", 0.5, new Pose[] {orePass1, drawPoint4F}, 1));
+        mt1.addTask(new Task("oreProduction1", 0.5, new Pose[] {orePass1, drawPoint4F}, 10));
 //        mt1.generatePlans(planner);
 //        mt1.savePlans(CLASS_NAME);
         mt1.loadPlans(PLANS_FOLDER_NAME + "MT-1.path");
@@ -137,7 +137,7 @@ public class MixedTraffic_4PV_6SV_2OP_Loaded {
 
         var mt2 = new AutonomousVehicle("MT-2", 10, Color.CYAN, maxVelocityMT, maxAccelerationMT,
                 lengthMT, widthMT, drawPoint6F, safetyDistance, 100, model);
-        mt2.addTask(new Task("oreProduction2", 0.5, new Pose[] {orePass1, drawPoint6F}, 1));
+        mt2.addTask(new Task("oreProduction2", 0.5, new Pose[] {orePass1, drawPoint6F}, 10));
 //        mt2.generatePlans(planner);
 //        mt2.savePlans(CLASS_NAME);
         mt2.loadPlans(PLANS_FOLDER_NAME + "MT-2.path");
@@ -147,7 +147,7 @@ public class MixedTraffic_4PV_6SV_2OP_Loaded {
 
         var mt3 = new AutonomousVehicle("MT-3", 10, Color.CYAN, maxVelocityMT, maxAccelerationMT,
                 lengthMT, widthMT, drawPoint12F, safetyDistance, 100, model);
-        mt3.addTask(new Task("oreProduction3", 0.5, new Pose[] {orePass2, drawPoint12F}, 1));
+        mt3.addTask(new Task("oreProduction3", 0.5, new Pose[] {orePass2, drawPoint12F}, 10));
 //        mt3.generatePlans(planner);
 //        mt3.savePlans(CLASS_NAME);
         mt3.loadPlans(PLANS_FOLDER_NAME + "MT-3.path");
@@ -157,7 +157,7 @@ public class MixedTraffic_4PV_6SV_2OP_Loaded {
 
         var mt4 = new AutonomousVehicle("MT-4", 10, Color.CYAN, maxVelocityMT, maxAccelerationMT,
                 lengthMT, widthMT, drawPoint14F, safetyDistance, 100, model);
-        mt4.addTask(new Task("toOrePass2", 0.5, new Pose[] {orePass2, drawPoint14F}, 1));
+        mt4.addTask(new Task("toOrePass2", 0.5, new Pose[] {orePass2, drawPoint14F}, 10));
 //        mt10.generatePlans(planner);
 //        mt10.savePlans(CLASS_NAME);
         mt4.loadPlans(PLANS_FOLDER_NAME + "MT-4.path");
