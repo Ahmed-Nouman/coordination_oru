@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Number of repetitions
-REPEAT=10
+REPEAT=6
 # Duration to keep IntelliJ open (50 minutes in seconds)
 DURATION=3000
 
