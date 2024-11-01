@@ -209,7 +209,7 @@ public class MixedTraffic_8PV_0SV_2OP_Loaded {
         tec.placeRobotsAtStartPoses();
         tec.setUseInternalCriticalPoints(false);
         tec.setYieldIfParking(true);
-        tec.setBreakDeadlocks(true, false, false);
+        tec.setBreakDeadlocks(true, true, false);
 
         var heuristic = new Heuristics(HEURISTIC_TYPE);
         tec.addComparator(heuristic.getComparator());

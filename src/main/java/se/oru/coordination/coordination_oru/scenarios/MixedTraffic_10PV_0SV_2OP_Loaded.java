@@ -13,17 +13,17 @@ import se.oru.coordination.coordination_oru.vehicles.AutonomousVehicle;
 import java.awt.*;
 import java.nio.file.Paths;
 
-public class MixedTraffic_8PV_0SV_2OP_Closest {
+public class MixedTraffic_10PV_0SV_2OP_Loaded {
 
     public static final String MAP = "maps/Baseline_4PV_2OP_MixedTraffic.yaml";
     public static final double MAP_RESOLUTION = new MapResolution().getMapResolution(MAP);
     public static final double SCALE_ADJUSTMENT = 1 / MAP_RESOLUTION;
-    public static final Heuristics.HeuristicType HEURISTIC_TYPE = Heuristics.HeuristicType.CLOSEST_FIRST;
+    public static final Heuristics.HeuristicType HEURISTIC_TYPE = Heuristics.HeuristicType.HIGHEST_PRIORITY_FIRST;
     public static final String REPORT_ADDRESS = System.getProperty("user.dir") +
-            "/src/main/java/se/oru/coordination/coordination_oru/results/MixedTraffic_8PV_2OP_6SV_Closest/";
+            "/src/main/java/se/oru/coordination/coordination_oru/results/MixedTraffic_10PV_0SV_2OP_Loaded/";
     public static final double SAFETY_DISTANCE = 10.0;
     public static final boolean VISUALIZATION = true;
-    public static final boolean WRITE_VEHICLE_REPORTS = false;
+    public static final boolean WRITE_VEHICLE_REPORTS = true;
     public static final double REPORTING_TIME = 0.1;
     public static final int SIMULATION_INTERVAL = 48;
     public static final String CLASS_NAME = Thread.currentThread().getStackTrace()[Thread.currentThread().getStackTrace().length-1].getFileName().split("\\.")[0];
@@ -127,7 +127,7 @@ public class MixedTraffic_8PV_0SV_2OP_Closest {
 
         var mt1 = new AutonomousVehicle("MT-1", 10, Color.CYAN, maxVelocityMT, maxAccelerationMT,
                 lengthMT, widthMT, drawPoint4F, safetyDistance, 100, model);
-        mt1.addTask(new Task("oreProduction1", 0.5, new Pose[] {orePass1, drawPoint4F}, 1));
+        mt1.addTask(new Task("oreProduction1", 0.5, new Pose[] {orePass1, drawPoint4F}, 10));
 //        mt1.generatePlans(planner);
 //        mt1.savePlans(CLASS_NAME);
         mt1.loadPlans(PLANS_FOLDER_NAME + "MT-1.path");
@@ -137,7 +137,7 @@ public class MixedTraffic_8PV_0SV_2OP_Closest {
 
         var mt2 = new AutonomousVehicle("MT-2", 10, Color.CYAN, maxVelocityMT, maxAccelerationMT,
                 lengthMT, widthMT, drawPoint6F, safetyDistance, 100, model);
-        mt2.addTask(new Task("oreProduction2", 0.5, new Pose[] {orePass1, drawPoint6F}, 1));
+        mt2.addTask(new Task("oreProduction2", 0.5, new Pose[] {orePass1, drawPoint6F}, 10));
 //        mt2.generatePlans(planner);
 //        mt2.savePlans(CLASS_NAME);
         mt2.loadPlans(PLANS_FOLDER_NAME + "MT-2.path");
@@ -147,7 +147,7 @@ public class MixedTraffic_8PV_0SV_2OP_Closest {
 
         var mt3 = new AutonomousVehicle("MT-3", 10, Color.CYAN, maxVelocityMT, maxAccelerationMT,
                 lengthMT, widthMT, drawPoint12F, safetyDistance, 100, model);
-        mt3.addTask(new Task("oreProduction3", 0.5, new Pose[] {orePass2, drawPoint12F}, 1));
+        mt3.addTask(new Task("oreProduction3", 0.5, new Pose[] {orePass2, drawPoint12F}, 10));
 //        mt3.generatePlans(planner);
 //        mt3.savePlans(CLASS_NAME);
         mt3.loadPlans(PLANS_FOLDER_NAME + "MT-3.path");
@@ -157,7 +157,7 @@ public class MixedTraffic_8PV_0SV_2OP_Closest {
 
         var mt4 = new AutonomousVehicle("MT-4", 10, Color.CYAN, maxVelocityMT, maxAccelerationMT,
                 lengthMT, widthMT, drawPoint14F, safetyDistance, 100, model);
-        mt4.addTask(new Task("toOrePass2", 0.5, new Pose[] {orePass2, drawPoint14F}, 1));
+        mt4.addTask(new Task("toOrePass2", 0.5, new Pose[] {orePass2, drawPoint14F}, 10));
 //        mt10.generatePlans(planner);
 //        mt10.savePlans(CLASS_NAME);
         mt4.loadPlans(PLANS_FOLDER_NAME + "MT-4.path");
@@ -167,7 +167,7 @@ public class MixedTraffic_8PV_0SV_2OP_Closest {
 
         var mt5 = new AutonomousVehicle("MT-5", 10, Color.CYAN, maxVelocityMT, maxAccelerationMT,
                 lengthMT, widthMT, drawPoint5F, safetyDistance, 100, model);
-        mt5.addTask(new Task("toOrePass1", 0.5, new Pose[] {orePass1, drawPoint5F}, 1));
+        mt5.addTask(new Task("toOrePass1", 0.5, new Pose[] {orePass1, drawPoint5F}, 10));
 //        mt9.generatePlans(planner);
 //        mt9.savePlans(CLASS_NAME);
         mt5.loadPlans(PLANS_FOLDER_NAME + "MT-5.path");
@@ -177,7 +177,7 @@ public class MixedTraffic_8PV_0SV_2OP_Closest {
 
         var mt6 = new AutonomousVehicle("MT-6", 10, Color.CYAN, maxVelocityMT, maxAccelerationMT,
                 lengthMT, widthMT, drawPoint13F, safetyDistance, 100, model);
-        mt6.addTask(new Task("toOrePass4", 0.5, new Pose[] {orePass2, drawPoint13F}, 1));
+        mt6.addTask(new Task("toOrePass4", 0.5, new Pose[] {orePass2, drawPoint13F}, 10));
 //        mt10.generatePlans(planner);
 //        mt10.savePlans(CLASS_NAME);
         mt6.loadPlans(PLANS_FOLDER_NAME + "MT-6.path");
@@ -187,7 +187,7 @@ public class MixedTraffic_8PV_0SV_2OP_Closest {
 //
         var mt7 = new AutonomousVehicle("MT-7", 10, Color.CYAN, maxVelocityMT, maxAccelerationMT,
                 lengthMT, widthMT, drawPoint3F, safetyDistance, 100, model);
-        mt7.addTask(new Task("toOrePass1", 0.5, new Pose[] {orePass1, drawPoint3F}, 1));
+        mt7.addTask(new Task("toOrePass1", 0.5, new Pose[] {orePass1, drawPoint3F}, 10));
 //        mt9.generatePlans(planner);
 //        mt9.savePlans(CLASS_NAME);
         mt7.loadPlans(PLANS_FOLDER_NAME + "MT-7.path");
@@ -197,10 +197,30 @@ public class MixedTraffic_8PV_0SV_2OP_Closest {
 //
         var mt8 = new AutonomousVehicle("MT-8", 10, Color.CYAN, maxVelocityMT, maxAccelerationMT,
                 lengthMT, widthMT, drawPoint11F, safetyDistance, 100, model);
-        mt8.addTask(new Task("toOrePass4", 0.5, new Pose[] {orePass2, drawPoint11F}, 1));
+        mt8.addTask(new Task("toOrePass4", 0.5, new Pose[] {orePass2, drawPoint11F}, 10));
 //        mt10.generatePlans(planner);
 //        mt10.savePlans(CLASS_NAME);
         mt8.loadPlans(PLANS_FOLDER_NAME + "MT-8.path");
+
+        var lh9 = new AutonomousVehicle("LHD-9", 1, Color.YELLOW, maxVelocityLHD, maxAccelerationLHD,
+                lengthLHD, widthLHD, drawPoint7B, safetyDistance, 1, model);
+
+        var mt9 = new AutonomousVehicle("MT-9", 10, Color.CYAN, maxVelocityMT, maxAccelerationMT,
+                lengthMT, widthMT, drawPoint7F, safetyDistance, 100, model);
+        mt9.addTask(new Task("toOrePass1", 0.5, new Pose[] {orePass1, drawPoint7F}, 10));
+//        mt9.generatePlans(planner);
+//        mt9.savePlans(CLASS_NAME);
+        mt9.loadPlans(PLANS_FOLDER_NAME + "MT-9.path");
+//
+        var lhd10 = new AutonomousVehicle("LHD-10", 1, Color.YELLOW, maxVelocityLHD, maxAccelerationLHD,
+                lengthLHD, widthLHD, drawPoint15B, safetyDistance, 1, model);
+//
+        var mt10 = new AutonomousVehicle("MT-10", 10, Color.CYAN, maxVelocityMT, maxAccelerationMT,
+                lengthMT, widthMT, drawPoint15F, safetyDistance, 100, model);
+        mt10.addTask(new Task("toOrePass4", 0.5, new Pose[] {orePass2, drawPoint15F}, 10));
+//        mt10.generatePlans(planner);
+//        mt10.savePlans(CLASS_NAME);
+        mt10.loadPlans(PLANS_FOLDER_NAME + "MT-10.path");
 
         tec.setupSolver(0, 100000000);
         tec.startInference();
