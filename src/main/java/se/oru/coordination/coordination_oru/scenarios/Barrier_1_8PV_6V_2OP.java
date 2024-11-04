@@ -22,7 +22,7 @@ public class Barrier_1_8PV_6V_2OP {
     public static final String MAP = "maps/Baseline_4PV_4OP_6SV_StopAndGo.yaml";
     public static final double MAP_RESOLUTION = new MapResolution().getMapResolution(MAP);
     public static final double SCALE_ADJUSTMENT = 1 / MAP_RESOLUTION;
-    public static final Heuristics.HeuristicType HEURISTIC_TYPE = Heuristics.HeuristicType.CLOSEST_FIRST;
+    public static final Heuristics.HeuristicType HEURISTIC_TYPE = Heuristics.HeuristicType.HIGHEST_PRIORITY_FIRST;
     public static final String REPORT_ADDRESS = System.getProperty("user.dir") +
             "/src/main/java/se/oru/coordination/coordination_oru/results/Barrier_1_8PV_6SV_2OP/";
     public static final double SAFETY_DISTANCE = 25.0;
@@ -126,7 +126,7 @@ public class Barrier_1_8PV_6V_2OP {
         var lhd1 = new AutonomousVehicle("LHD-1", 1, Color.YELLOW, maxVelocityLHD, maxAccelerationLHD,
                 lengthLHD, widthLHD, drawPoint4B, safetyDistance, 1, model);
 
-        var mt1 = new AutonomousVehicle("MT-1", 10, Color.CYAN, maxVelocityMT, maxAccelerationMT,
+        var mt1 = new AutonomousVehicle("MT-1", 1, Color.CYAN, maxVelocityMT, maxAccelerationMT,
                 lengthMT, widthMT, drawPoint4F, safetyDistance, 100, model);
         mt1.addTask(new Task("oreProduction1", 0.5, new Pose[] {orePass1, drawPoint4F}, 10));
 //        mt1.generatePlans(planner);
@@ -136,7 +136,7 @@ public class Barrier_1_8PV_6V_2OP {
         var lhd2 = new AutonomousVehicle("LHD-2", 1, Color.YELLOW, maxVelocityLHD, maxAccelerationLHD,
                 lengthLHD, widthLHD, drawPoint6B, safetyDistance, 1, model);
 
-        var mt2 = new AutonomousVehicle("MT-2", 10, Color.CYAN, maxVelocityMT, maxAccelerationMT,
+        var mt2 = new AutonomousVehicle("MT-2", 1, Color.CYAN, maxVelocityMT, maxAccelerationMT,
                 lengthMT, widthMT, drawPoint6F, safetyDistance, 100, model);
         mt2.addTask(new Task("oreProduction2", 0.5, new Pose[] {orePass1, drawPoint6F}, 10));
 //        mt2.generatePlans(planner);
@@ -146,7 +146,7 @@ public class Barrier_1_8PV_6V_2OP {
         var lhd3 = new AutonomousVehicle("LHD-3", 1, Color.YELLOW, maxVelocityLHD, maxAccelerationLHD,
                 lengthLHD, widthLHD, drawPoint12B, safetyDistance, 1, model);
 
-        var mt3 = new AutonomousVehicle("MT-3", 10, Color.CYAN, maxVelocityMT, maxAccelerationMT,
+        var mt3 = new AutonomousVehicle("MT-3", 1, Color.CYAN, maxVelocityMT, maxAccelerationMT,
                 lengthMT, widthMT, drawPoint12F, safetyDistance, 100, model);
         mt3.addTask(new Task("oreProduction3", 0.5, new Pose[] {orePass2, drawPoint12F}, 10));
 //        mt3.generatePlans(planner);
@@ -156,7 +156,7 @@ public class Barrier_1_8PV_6V_2OP {
         var lhd4 = new AutonomousVehicle("LHD-4", 1, Color.YELLOW, maxVelocityLHD, maxAccelerationLHD,
                 lengthLHD, widthLHD, drawPoint14B, safetyDistance, 1, model);
 
-        var mt4 = new AutonomousVehicle("MT-4", 10, Color.CYAN, maxVelocityMT, maxAccelerationMT,
+        var mt4 = new AutonomousVehicle("MT-4", 1, Color.CYAN, maxVelocityMT, maxAccelerationMT,
                 lengthMT, widthMT, drawPoint14F, safetyDistance, 100, model);
         mt4.addTask(new Task("toOrePass2", 0.5, new Pose[] {orePass2, drawPoint14F}, 10));
 //        mt10.generatePlans(planner);
@@ -166,7 +166,7 @@ public class Barrier_1_8PV_6V_2OP {
         var lhd5 = new AutonomousVehicle("LHD-5", 1, Color.YELLOW, maxVelocityLHD, maxAccelerationLHD,
                 lengthLHD, widthLHD, drawPoint5B, safetyDistance, 1, model);
 
-        var mt5 = new AutonomousVehicle("MT-5", 10, Color.CYAN, maxVelocityMT, maxAccelerationMT,
+        var mt5 = new AutonomousVehicle("MT-5", 1, Color.CYAN, maxVelocityMT, maxAccelerationMT,
                 lengthMT, widthMT, drawPoint5F, safetyDistance, 100, model);
         mt5.addTask(new Task("toOrePass1", 0.5, new Pose[] {orePass1, drawPoint5F}, 10));
 //        mt9.generatePlans(planner);
@@ -176,7 +176,7 @@ public class Barrier_1_8PV_6V_2OP {
         var lhd6 = new AutonomousVehicle("LHD-6", 1, Color.YELLOW, maxVelocityLHD, maxAccelerationLHD,
                 lengthLHD, widthLHD, drawPoint13B, safetyDistance, 1, model);
 
-        var mt6 = new AutonomousVehicle("MT-6", 10, Color.CYAN, maxVelocityMT, maxAccelerationMT,
+        var mt6 = new AutonomousVehicle("MT-6", 1, Color.CYAN, maxVelocityMT, maxAccelerationMT,
                 lengthMT, widthMT, drawPoint13F, safetyDistance, 100, model);
         mt6.addTask(new Task("toOrePass4", 0.5, new Pose[] {orePass2, drawPoint13F}, 10));
 //        mt10.generatePlans(planner);
@@ -186,7 +186,7 @@ public class Barrier_1_8PV_6V_2OP {
         var lh7 = new AutonomousVehicle("LHD-7", 1, Color.YELLOW, maxVelocityLHD, maxAccelerationLHD,
                 lengthLHD, widthLHD, drawPoint3B, safetyDistance, 1, model);
 //
-        var mt7 = new AutonomousVehicle("MT-7", 10, Color.CYAN, maxVelocityMT, maxAccelerationMT,
+        var mt7 = new AutonomousVehicle("MT-7", 1, Color.CYAN, maxVelocityMT, maxAccelerationMT,
                 lengthMT, widthMT, drawPoint3F, safetyDistance, 100, model);
         mt7.addTask(new Task("toOrePass1", 0.5, new Pose[] {orePass1, drawPoint3F}, 10));
 //        mt9.generatePlans(planner);
@@ -196,14 +196,14 @@ public class Barrier_1_8PV_6V_2OP {
         var lhd8 = new AutonomousVehicle("LHD-8", 1, Color.YELLOW, maxVelocityLHD, maxAccelerationLHD,
                 lengthLHD, widthLHD, drawPoint11B, safetyDistance, 1, model);
 //
-        var mt8 = new AutonomousVehicle("MT-8", 10, Color.CYAN, maxVelocityMT, maxAccelerationMT,
+        var mt8 = new AutonomousVehicle("MT-8", 1, Color.CYAN, maxVelocityMT, maxAccelerationMT,
                 lengthMT, widthMT, drawPoint11F, safetyDistance, 100, model);
         mt8.addTask(new Task("toOrePass4", 0.5, new Pose[] {orePass2, drawPoint11F}, 10));
 //        mt10.generatePlans(planner);
 //        mt10.savePlans(CLASS_NAME);
         mt8.loadPlans(PLANS_FOLDER_NAME + "MT-8.path");
 
-        var s1 = new AutonomousVehicle("S-1", 1, Color.BLUE, maxVelocityS, maxAccelerationS,
+        var s1 = new AutonomousVehicle("S-1", 10, Color.BLUE, maxVelocityS, maxAccelerationS,
                 lengthS, widthS, serviceWorkshop1, safetyDistance, 1, model);
         s1.addTask(new Task("toBarrierEntry", 15.25, new Pose[] {barrierEntry}, 1));
         s1.addTask(new Task("toDrawPoint1", 1.0, new Pose[] {drawPoint1}, 1));
@@ -213,7 +213,7 @@ public class Barrier_1_8PV_6V_2OP {
 //        s1.savePlans(CLASS_NAME);
         s1.loadPlans(PLANS_FOLDER_NAME + "S-1.path");
 
-        var s2 = new AutonomousVehicle("S-2", 1, Color.BLUE, maxVelocityS, maxAccelerationS,
+        var s2 = new AutonomousVehicle("S-2", 10, Color.BLUE, maxVelocityS, maxAccelerationS,
                 lengthS, widthS, serviceWorkshop3, safetyDistance, 1, model);
         s2.addTask(new Task("toBarrierEntry", 23.0, new Pose[] {barrierEntry}, 1));
         s2.addTask(new Task("toDrawPoint9", 1.0, new Pose[] {drawPoint9}, 1));
@@ -223,7 +223,7 @@ public class Barrier_1_8PV_6V_2OP {
 //        s2.savePlans(CLASS_NAME);
         s2.loadPlans(PLANS_FOLDER_NAME + "S-2.path");
 
-        var s3 = new AutonomousVehicle("S-3", 1, Color.BLUE, maxVelocityS, maxAccelerationS,
+        var s3 = new AutonomousVehicle("S-3", 10, Color.BLUE, maxVelocityS, maxAccelerationS,
                 lengthS, widthS, serviceWorkshop2, safetyDistance, 1, model);
         s3.addTask(new Task("toBarrierEntry", 11.50, new Pose[] {barrierEntry}, 1));
         s3.addTask(new Task("toDrawPoint8B", 1.0, new Pose[] {drawPoint8B}, 1));
@@ -233,7 +233,7 @@ public class Barrier_1_8PV_6V_2OP {
 //        s3.savePlans(CLASS_NAME);
         s3.loadPlans(PLANS_FOLDER_NAME + "S-3.path");
 
-        var s4 = new AutonomousVehicle("S-4", 1, Color.BLUE, maxVelocityS, maxAccelerationS,
+        var s4 = new AutonomousVehicle("S-4", 10, Color.BLUE, maxVelocityS, maxAccelerationS,
                 lengthS, widthS, serviceWorkshop5, safetyDistance, 1, model);
         s4.addTask(new Task("toBarrierEntry", 32.0, new Pose[] {barrierEntry}, 1));
         s4.addTask(new Task("toOrePass2", 1.0, new Pose[] {orePass2}, 1));
@@ -254,7 +254,7 @@ public class Barrier_1_8PV_6V_2OP {
 //        s5.savePlans(CLASS_NAME);
         s5.loadPlans(PLANS_FOLDER_NAME + "S-5.path");
 
-        var ht = new AutonomousVehicle("HT", 1, Color.LIGHT_GRAY, maxVelocityHT, maxAccelerationHT,
+        var ht = new AutonomousVehicle("HT", 10, Color.LIGHT_GRAY, maxVelocityHT, maxAccelerationHT,
                 lengthHT, widthHT, serviceWorkshop4, safetyDistance, 1, model);
         ht.addTask(new Task("toBarrierEntry", 4.0, new Pose[] {barrierEntry}, 1)); //12
         ht.addTask(new Task("toDrawPoint10B", 1.0, new Pose[] {drawPoint10B}, 1));
@@ -279,7 +279,7 @@ public class Barrier_1_8PV_6V_2OP {
         tec.placeRobotsAtStartPoses();
         tec.setUseInternalCriticalPoints(false);
         tec.setYieldIfParking(true);
-        tec.setBreakDeadlocks(true, false, false);
+        tec.setBreakDeadlocks(true, true, false);
 
         var heuristic = new Heuristics(HEURISTIC_TYPE);
         tec.addComparator(heuristic.getComparator());

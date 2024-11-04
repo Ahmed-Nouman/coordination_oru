@@ -3,7 +3,7 @@ import math
 import os
 from pathlib import Path
 
-base_directory = '../results/Barrier_1_2PV_3SV_2OP/'
+base_directory = '../results/Barrier_1_2PV_6SV_2OP/'
 
 def compute_distance(x1, y1, x2, y2):
     return math.sqrt((x2 - x1)**2 + (y2 - y1)**2)

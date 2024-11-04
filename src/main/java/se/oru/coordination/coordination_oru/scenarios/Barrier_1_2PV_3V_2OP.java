@@ -22,7 +22,7 @@ public class Barrier_1_2PV_3V_2OP {
     public static final String MAP = "maps/Baseline_4PV_4OP_6SV_StopAndGo.yaml";
     public static final double MAP_RESOLUTION = new MapResolution().getMapResolution(MAP);
     public static final double SCALE_ADJUSTMENT = 1 / MAP_RESOLUTION;
-    public static final Heuristics.HeuristicType HEURISTIC_TYPE = Heuristics.HeuristicType.CLOSEST_FIRST;
+    public static final Heuristics.HeuristicType HEURISTIC_TYPE = Heuristics.HeuristicType.HIGHEST_PRIORITY_FIRST;
     public static final String REPORT_ADDRESS = System.getProperty("user.dir") +
             "/src/main/java/se/oru/coordination/coordination_oru/results/Barrier_1_2PV_3SV_2OP/";
     public static final double SAFETY_DISTANCE = 10.0;
@@ -116,7 +116,7 @@ public class Barrier_1_2PV_3V_2OP {
         var lhd1 = new AutonomousVehicle("LHD-1", 1, Color.YELLOW, maxVelocityLHD, maxAccelerationLHD,
                 lengthLHD, widthLHD, drawPoint4B, safetyDistance, 1, model);
 
-        var mt1 = new AutonomousVehicle("MT-1", 10, Color.CYAN, maxVelocityMT, maxAccelerationMT,
+        var mt1 = new AutonomousVehicle("MT-1", 1, Color.CYAN, maxVelocityMT, maxAccelerationMT,
                 lengthMT, widthMT, drawPoint4F, safetyDistance, 100, model);
         mt1.addTask(new Task("oreProduction1", 0.5, new Pose[] {orePass1, drawPoint4F}, 1));
 //        mt1.generatePlans(planner);
@@ -126,14 +126,14 @@ public class Barrier_1_2PV_3V_2OP {
         var lhd3 = new AutonomousVehicle("LHD-3", 1, Color.YELLOW, maxVelocityLHD, maxAccelerationLHD,
                 lengthLHD, widthLHD, drawPoint12B, safetyDistance, 1, model);
 
-        var mt3 = new AutonomousVehicle("MT-3", 10, Color.CYAN, maxVelocityMT, maxAccelerationMT,
+        var mt3 = new AutonomousVehicle("MT-3", 1, Color.CYAN, maxVelocityMT, maxAccelerationMT,
                 lengthMT, widthMT, drawPoint12F, safetyDistance, 100, model);
         mt3.addTask(new Task("oreProduction3", 0.5, new Pose[] {orePass2, drawPoint12F}, 1));
 //        mt3.generatePlans(planner);
 //        mt3.savePlans(CLASS_NAME);
         mt3.loadPlans(PLANS_FOLDER_NAME + "MT-3.path");
 
-        var s1 = new AutonomousVehicle("S-1", 1, Color.BLUE, maxVelocityS, maxAccelerationS,
+        var s1 = new AutonomousVehicle("S-1", 10, Color.BLUE, maxVelocityS, maxAccelerationS,
                 lengthS, widthS, serviceWorkshop1, safetyDistance, 1, model);
         s1.addTask(new Task("toBarrierEntry", 30.0, new Pose[] {barrierEntry}, 1));
         s1.addTask(new Task("toDrawPoint1", 1.0, new Pose[] {drawPoint1}, 1));
@@ -143,7 +143,7 @@ public class Barrier_1_2PV_3V_2OP {
 //        s1.savePlans(CLASS_NAME);
         s1.loadPlans(PLANS_FOLDER_NAME + "S-1.path");
 
-        var s2 = new AutonomousVehicle("S-2", 1, Color.BLUE, maxVelocityS, maxAccelerationS,
+        var s2 = new AutonomousVehicle("S-2", 10, Color.BLUE, maxVelocityS, maxAccelerationS,
                 lengthS, widthS, serviceWorkshop3, safetyDistance, 1, model);
         s2.addTask(new Task("toBarrierEntry", 18.0, new Pose[] {barrierEntry}, 1));
         s2.addTask(new Task("toDrawPoint9", 1.0, new Pose[] {drawPoint9}, 1));
@@ -153,7 +153,7 @@ public class Barrier_1_2PV_3V_2OP {
 //        s2.savePlans(CLASS_NAME);
         s2.loadPlans(PLANS_FOLDER_NAME + "S-2.path");
 
-        var ht = new AutonomousVehicle("HT", 1, Color.LIGHT_GRAY, maxVelocityHT, maxAccelerationHT,
+        var ht = new AutonomousVehicle("HT", 10, Color.LIGHT_GRAY, maxVelocityHT, maxAccelerationHT,
                 lengthHT, widthHT, serviceWorkshop4, safetyDistance, 1, model);
         ht.addTask(new Task("toBarrierEntry", 12.0, new Pose[] {barrierEntry}, 1));
         ht.addTask(new Task("toDrawPoint10B", 1.0, new Pose[] {drawPoint10B}, 1));
@@ -178,7 +178,7 @@ public class Barrier_1_2PV_3V_2OP {
         tec.placeRobotsAtStartPoses();
         tec.setUseInternalCriticalPoints(false);
         tec.setYieldIfParking(true);
-        tec.setBreakDeadlocks(true, false, false);
+        tec.setBreakDeadlocks(true, true, false);
 
         var heuristic = new Heuristics(HEURISTIC_TYPE);
         tec.addComparator(heuristic.getComparator());
