@@ -177,7 +177,7 @@ public class Barrier_1_2PV_3V_2OP {
         tec.setFootprints();
         tec.placeRobotsAtStartPoses();
         tec.setUseInternalCriticalPoints(false);
-        tec.setYieldIfParking(true);
+        tec.setYieldIfParking(false);
         tec.setBreakDeadlocks(true, true, false);
 
         var heuristic = new Heuristics(HEURISTIC_TYPE);
@@ -207,7 +207,7 @@ public class Barrier_1_2PV_3V_2OP {
         Function<Integer, AbstractTrajectoryEnvelopeTracker> trackerRetriever = vehicleId -> tec.trackers.get(vehicleId);
         AdaptiveTrackerRK4.scheduleVehiclesStop(s1, tec.trackers.get(s1.getID()), new ArrayList<>(List.of(1, 2)), new ArrayList<>(List.of(2, 4)), trackerRetriever);
         AdaptiveTrackerRK4.scheduleVehiclesStop(s2, tec.trackers.get(s2.getID()), new ArrayList<>(List.of(1, 2)), new ArrayList<>(List.of(2, 4)), trackerRetriever);
-        AdaptiveTrackerRK4.scheduleVehiclesStop(ht, tec.trackers.get(mt1.getID()), new ArrayList<>(List.of(1, 2, 3, 4, 7, 8, 9, 10)), new ArrayList<>(List.of(2, 4)), trackerRetriever);
+        AdaptiveTrackerRK4.scheduleVehiclesStop(ht, tec.trackers.get(ht.getID()), new ArrayList<>(List.of(1, 2, 3, 4, 7, 8, 9, 10)), new ArrayList<>(List.of(2, 4)), trackerRetriever);
 
     }
 

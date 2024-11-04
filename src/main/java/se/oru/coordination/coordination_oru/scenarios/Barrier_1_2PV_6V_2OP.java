@@ -25,9 +25,9 @@ public class Barrier_1_2PV_6V_2OP {
     public static final Heuristics.HeuristicType HEURISTIC_TYPE = Heuristics.HeuristicType.HIGHEST_PRIORITY_FIRST;
     public static final String REPORT_ADDRESS = System.getProperty("user.dir") +
             "/src/main/java/se/oru/coordination/coordination_oru/results/Barrier_1_2PV_6SV_2OP/";
-    public static final double SAFETY_DISTANCE = 10.0;
+    public static final double SAFETY_DISTANCE = 0.0;
     public static final boolean VISUALIZATION = true;
-    public static final boolean WRITE_VEHICLE_REPORTS = true;
+    public static final boolean WRITE_VEHICLE_REPORTS = false;
     public static final double REPORTING_TIME = 0.1;
     public static final int SIMULATION_INTERVAL = 48;
     public static final String CLASS_NAME = Thread.currentThread().getStackTrace()[Thread.currentThread().getStackTrace().length-1].getFileName().split("\\.")[0];
@@ -40,7 +40,7 @@ public class Barrier_1_2PV_6V_2OP {
 
         final var maxVelocityLHD = 4.17 / SCALE_ADJUSTMENT;
         final var maxAccelerationLHD = 1.0 / SCALE_ADJUSTMENT;
-        final var lengthLHD = 10.0 / SCALE_ADJUSTMENT;
+        final var lengthLHD = 8.0 / SCALE_ADJUSTMENT;
         final var widthLHD = 6.0 / SCALE_ADJUSTMENT;
 
         final var maxVelocityMT = 8.34 / SCALE_ADJUSTMENT;
@@ -195,7 +195,7 @@ public class Barrier_1_2PV_6V_2OP {
         ht.addTask(new Task("toDrawPoint10", 1.0, new Pose[] {drawPoint10}, 1));
         ht.addTask(new Task("toBarrierExit", 1.0, new Pose[] {barrierExit}, 1));
         ht.addTask(new Task("toServiceWorkshop4", 1.0, new Pose[] {serviceWorkshop4}, 1));
-        ht.addTask(new Task("toBarrierEntry", 30.0, new Pose[] {barrierEntry}, 1)); //35
+        ht.addTask(new Task("toBarrierEntry", 29.0, new Pose[] {barrierEntry}, 1)); //35
         ht.addTask(new Task("toDrawPoint10B", 1.0, new Pose[] {drawPoint10B}, 1));
         ht.addTask(new Task("toDrawPoint10A", 1.0, new Pose[] {drawPoint10A}, 1));
         ht.addTask(new Task("toDrawPoint10", 1.0, new Pose[] {drawPoint10}, 1));
@@ -211,7 +211,7 @@ public class Barrier_1_2PV_6V_2OP {
         tec.setFootprints();
         tec.placeRobotsAtStartPoses();
         tec.setUseInternalCriticalPoints(false);
-        tec.setYieldIfParking(true);
+        tec.setYieldIfParking(false);
         tec.setBreakDeadlocks(true, true, false);
 
         var heuristic = new Heuristics(HEURISTIC_TYPE);
@@ -244,7 +244,7 @@ public class Barrier_1_2PV_6V_2OP {
         AdaptiveTrackerRK4.scheduleVehiclesStop(s3, tec.trackers.get(s3.getID()), new ArrayList<>(List.of(1, 2)), new ArrayList<>(List.of(2, 4)), trackerRetriever);
         AdaptiveTrackerRK4.scheduleVehiclesStop(s4, tec.trackers.get(s4.getID()), new ArrayList<>(List.of(1, 2)), new ArrayList<>(List.of(2, 4)), trackerRetriever);
         AdaptiveTrackerRK4.scheduleVehiclesStop(s5, tec.trackers.get(s5.getID()), new ArrayList<>(List.of(1, 2, 3)), new ArrayList<>(List.of(2, 4)), trackerRetriever);
-        AdaptiveTrackerRK4.scheduleVehiclesStop(ht, tec.trackers.get(mt1.getID()), new ArrayList<>(List.of(1, 2, 3, 4, 7, 8, 9, 10)), new ArrayList<>(List.of(2, 4)), trackerRetriever);
+        AdaptiveTrackerRK4.scheduleVehiclesStop(ht, tec.trackers.get(ht.getID()), new ArrayList<>(List.of(1, 2, 3, 4, 7, 8, 9, 10)), new ArrayList<>(List.of(2, 4)), trackerRetriever);
 
     }
 

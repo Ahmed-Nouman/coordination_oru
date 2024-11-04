@@ -278,7 +278,7 @@ public class Barrier_1_8PV_6V_2OP {
         tec.setFootprints();
         tec.placeRobotsAtStartPoses();
         tec.setUseInternalCriticalPoints(false);
-        tec.setYieldIfParking(true);
+        tec.setYieldIfParking(false);
         tec.setBreakDeadlocks(true, true, false);
 
         var heuristic = new Heuristics(HEURISTIC_TYPE);
@@ -311,7 +311,7 @@ public class Barrier_1_8PV_6V_2OP {
         AdaptiveTrackerRK4.scheduleVehiclesStop(s3, tec.trackers.get(s3.getID()), new ArrayList<>(List.of(1, 2)), new ArrayList<>(List.of(2, 4, 6, 8, 10, 12, 14, 16)), trackerRetriever);
         AdaptiveTrackerRK4.scheduleVehiclesStop(s4, tec.trackers.get(s4.getID()), new ArrayList<>(List.of(1, 2)), new ArrayList<>(List.of(2, 4, 6, 8, 10, 12, 14, 16)), trackerRetriever);
         AdaptiveTrackerRK4.scheduleVehiclesStop(s5, tec.trackers.get(s5.getID()), new ArrayList<>(List.of(1, 2, 3)), new ArrayList<>(List.of(2, 4, 6, 8, 10, 12, 14, 16)), trackerRetriever);
-        AdaptiveTrackerRK4.scheduleVehiclesStop(ht, tec.trackers.get(mt1.getID()), new ArrayList<>(List.of(1, 2, 3, 4, 7, 8, 9, 10)), new ArrayList<>(List.of(2, 4, 6 ,8, 10, 12, 14, 16)), trackerRetriever);
+        AdaptiveTrackerRK4.scheduleVehiclesStop(ht, tec.trackers.get(ht.getID()), new ArrayList<>(List.of(1, 2, 3, 4, 7, 8, 9, 10)), new ArrayList<>(List.of(2, 4, 6 ,8, 10, 12, 14, 16)), trackerRetriever);
 
     }
 
