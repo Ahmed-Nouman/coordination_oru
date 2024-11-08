@@ -24,7 +24,7 @@ public class Barrier_2_10PV_6SV_2OP {
     public static final double SCALE_ADJUSTMENT = 1 / MAP_RESOLUTION;
     public static final Heuristics.HeuristicType HEURISTIC_TYPE = Heuristics.HeuristicType.HIGHEST_PRIORITY_FIRST;
     public static final String REPORT_ADDRESS = System.getProperty("user.dir") +
-            "/src/main/java/se/oru/coordination/coordination_oru/results/Barrier_2_8PV_6SV_2OP/";
+            "/src/main/java/se/oru/coordination/coordination_oru/results/Barrier_2_10PV_6SV_2OP/";
     public static final double SAFETY_DISTANCE = 0.0;
     public static final boolean VISUALIZATION = true;
     public static final boolean WRITE_VEHICLE_REPORTS = true;
