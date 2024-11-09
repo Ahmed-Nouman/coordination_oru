@@ -19,7 +19,7 @@ public class MixedTraffic_4PV_3SV_4OP_Closest_0DC {
     public static final double SCALE_ADJUSTMENT = 1 / MAP_RESOLUTION;
     public static final Heuristics.HeuristicType HEURISTIC_TYPE = Heuristics.HeuristicType.CLOSEST_FIRST;
     public static final String REPORT_ADDRESS = System.getProperty("user.dir") +
-            "/src/main/java/se/oru/coordination/coordination_oru/results/MixedTraffic_4PV_3SV_4OP_Closest/";
+            "/src/main/java/se/oru/coordination/coordination_oru/results/MixedTraffic_4PV_3SV_4OP_Closest_0DC/";
     public static final double SAFETY_DISTANCE = 25.0;
     public static final boolean VISUALIZATION = true;
     public static final boolean WRITE_VEHICLE_REPORTS = true;
@@ -35,12 +35,12 @@ public class MixedTraffic_4PV_3SV_4OP_Closest_0DC {
 
         final var maxVelocityLHD = 4.17 / SCALE_ADJUSTMENT;
         final var maxAccelerationLHD = 1.0 / SCALE_ADJUSTMENT;
-        final var lengthLHD = 10.0 / SCALE_ADJUSTMENT;
-        final var widthLHD = 6.0 / SCALE_ADJUSTMENT;
+        final var lengthLHD = 6.0 / SCALE_ADJUSTMENT;
+        final var widthLHD = 5.0 / SCALE_ADJUSTMENT;
 
         final var maxVelocityMT = 8.34 / SCALE_ADJUSTMENT;
         final var maxAccelerationMT = 1.0 / SCALE_ADJUSTMENT;
-        final var lengthMT = 8.0 / SCALE_ADJUSTMENT;
+        final var lengthMT = 6.0 / SCALE_ADJUSTMENT;
         final var widthMT = 5.0 / SCALE_ADJUSTMENT;
 
         final var maxVelocityDR = 4.17 / SCALE_ADJUSTMENT;
@@ -85,7 +85,7 @@ public class MixedTraffic_4PV_3SV_4OP_Closest_0DC {
         final Pose drawPoint12F = new Pose(96.85,75.45,-Math.PI/2);
         final Pose drawPoint13 = new Pose(96.85,77.05,Math.PI/2);
         final Pose drawPoint14B = new Pose(111.05,83.85,-Math.PI/2);
-        final Pose drawPoint14F = new Pose(111.05,81.95,-Math.PI/2);
+        final Pose drawPoint14F = new Pose(111.05,81.95,Math.PI/2);
         final Pose drawPoint15B = new Pose(111.05,84.05,Math.PI/2);
         final Pose drawPoint15F = new Pose(111.05,81.25,Math.PI/2);
         final Pose drawPoint16 = new Pose(118.15,80.25,-Math.PI/2);
@@ -119,8 +119,7 @@ public class MixedTraffic_4PV_3SV_4OP_Closest_0DC {
 
         var mt1 = new AutonomousVehicle("MT-1", 1, Color.CYAN, maxVelocityMT, maxAccelerationMT,
                 lengthMT, widthMT, drawPoint4F, safetyDistance, 100, model);
-        mt1.addTask(new Task("oreProduction1", 0.5, new Pose[] {orePass1}, 10));
-        mt1.addTask(new Task("drawPoint4F", 0.5, new Pose[] {drawPoint4F}, 1));
+        mt1.addTask(new Task("oreProduction1", 0.5, new Pose[] {orePass1, drawPoint4F}, 10));
 //        mt1.generatePlans(planner);
 //        mt1.savePlans(CLASS_NAME);
         mt1.loadPlans(PLANS_FOLDER_NAME + "MT-1.path");
@@ -130,8 +129,7 @@ public class MixedTraffic_4PV_3SV_4OP_Closest_0DC {
 
         var mt2 = new AutonomousVehicle("MT-2", 1, Color.CYAN, maxVelocityMT, maxAccelerationMT,
                 lengthMT, widthMT, drawPoint6F, safetyDistance, 100, model);
-        mt2.addTask(new Task("oreProduction2", 0.5, new Pose[] {orePass2}, 10));
-        mt2.addTask(new Task("drawPoint6F", 0.5, new Pose[] {drawPoint6F}, 1));
+        mt2.addTask(new Task("oreProduction2", 0.5, new Pose[] {orePass2, drawPoint6F}, 10));
 //        mt2.generatePlans(planner);
 //        mt2.savePlans(CLASS_NAME);
         mt2.loadPlans(PLANS_FOLDER_NAME + "MT-2.path");
@@ -141,8 +139,7 @@ public class MixedTraffic_4PV_3SV_4OP_Closest_0DC {
 
         var mt3 = new AutonomousVehicle("MT-3", 1, Color.CYAN, maxVelocityMT, maxAccelerationMT,
                 lengthMT, widthMT, drawPoint12F, safetyDistance, 100, model);
-        mt3.addTask(new Task("oreProduction3", 0.5, new Pose[] {orePass3}, 10));
-        mt3.addTask(new Task("drawPoint12F", 0.5, new Pose[] {drawPoint12F}, 1));
+        mt3.addTask(new Task("oreProduction3", 0.5, new Pose[] {orePass3, drawPoint12F}, 10));
 //        mt3.generatePlans(planner);
 //        mt3.savePlans(CLASS_NAME);
         mt3.loadPlans(PLANS_FOLDER_NAME + "MT-3.path");
@@ -152,8 +149,7 @@ public class MixedTraffic_4PV_3SV_4OP_Closest_0DC {
 
         var mt4 = new AutonomousVehicle("MT-4", 1, Color.CYAN, maxVelocityMT, maxAccelerationMT,
                 lengthMT, widthMT, drawPoint14F, safetyDistance, 100, model);
-        mt4.addTask(new Task("toOrePass2", 0.5, new Pose[] {orePass4}, 10));
-        mt4.addTask(new Task("drawPoint14F", 0.5, new Pose[] {drawPoint14F}, 1));
+        mt4.addTask(new Task("toOrePass2", 0.5, new Pose[] {orePass4, drawPoint14F}, 10));
 //        mt4.generatePlans(planner);
 //        mt4.savePlans(CLASS_NAME);
         mt4.loadPlans(PLANS_FOLDER_NAME + "MT-4.path");
