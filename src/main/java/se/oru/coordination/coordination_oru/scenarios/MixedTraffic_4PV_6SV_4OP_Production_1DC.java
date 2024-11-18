@@ -17,9 +17,9 @@ public class MixedTraffic_4PV_6SV_4OP_Production_1DC {
     public static final String MAP = "maps/Baseline_4PV_4OP_6SV_MixedTraffic.yaml";
     public static final double MAP_RESOLUTION = new MapResolution().getMapResolution(MAP);
     public static final double SCALE_ADJUSTMENT = 1 / MAP_RESOLUTION;
-    public static final Heuristics.HeuristicType HEURISTIC_TYPE = Heuristics.HeuristicType.HIGHEST_PRIORITY_FIRST;
+    public static final Heuristics.HeuristicType HEURISTIC_TYPE = Heuristics.HeuristicType.CLOSEST_FIRST;
     public static final String REPORT_ADDRESS = System.getProperty("user.dir") +
-            "/src/main/java/se/oru/coordination/coordination_oru/results/MixedTraffic_4PV_6SV_4OP_Production_0DC/";
+            "/src/main/java/se/oru/coordination/coordination_oru/results/MixedTraffic_4PV_0SV_4OP_Closest_1DC/";
     public static final double SAFETY_DISTANCE = 25.0;
     public static final boolean VISUALIZATION = true;
     public static final boolean WRITE_VEHICLE_REPORTS = true;
@@ -29,7 +29,7 @@ public class MixedTraffic_4PV_6SV_4OP_Production_1DC {
     public static final String PLANS_FOLDER_NAME = "paths/" + CLASS_NAME + "/";
     public static final ForwardModel model = new ConstantAcceleration(10.0, 100.0, 1000, 1000, 30);
     public static final VehiclePathPlanner planner = new VehiclePathPlanner(MAP, ReedsSheppCarPlanner.PLANNING_ALGORITHM.RRTstar,
-            0.09, 120, 1.5, 0.1);
+            0.09, 300, 1.5, 0.1);
 
     public static void main(String[] args) throws InterruptedException {
 
@@ -60,8 +60,8 @@ public class MixedTraffic_4PV_6SV_4OP_Production_1DC {
 
         final var maxVelocityHT = 8.34 / SCALE_ADJUSTMENT;
         final var maxAccelerationHT = 1.0 / SCALE_ADJUSTMENT;
-        final var lengthHT = 8.0 / SCALE_ADJUSTMENT;
-        final var widthHT = 5.0 / SCALE_ADJUSTMENT;
+        final var lengthHT = 3.0 / SCALE_ADJUSTMENT;
+        final var widthHT = 2.0 / SCALE_ADJUSTMENT;
 
         final var safetyDistance = SAFETY_DISTANCE / SCALE_ADJUSTMENT;
 
@@ -170,60 +170,60 @@ public class MixedTraffic_4PV_6SV_4OP_Production_1DC {
 //        c.savePlans(CLASS_NAME);
         c.loadPlans(PLANS_FOLDER_NAME + "C.path");
 
-        var s1 = new AutonomousVehicle("S-1", 1, Color.BLUE, maxVelocityS, maxAccelerationS,
-                lengthS, widthS, serviceWorkshop1, safetyDistance, 1, model);
-        s1.addTask(new Task("toDrawPoint1", 5.0, new Pose[] {drawPoint1}, 1)); // This plan is not correct
-        s1.addTask(new Task("toServiceWorkshop1", 1.0, new Pose[] {serviceWorkshop1}, 1));
-//        s1.generatePlans(planner);
-//        s1.savePlans(CLASS_NAME);
-        s1.loadPlans(PLANS_FOLDER_NAME + "S-1.path");
-
-        var s2 = new AutonomousVehicle("S-2", 1, Color.BLUE, maxVelocityS, maxAccelerationS,
-                lengthS, widthS, serviceWorkshop3, safetyDistance, 1, model);
-        s2.addTask(new Task("toDrawPoint9", 15.0, new Pose[] {drawPoint9}, 1));
-        s2.addTask(new Task("toServiceWorkshop3", 1.0, new Pose[] {serviceWorkshop3}, 1));
-//        s2.generatePlans(planner);
-//        s2.savePlans(CLASS_NAME);
-        s2.loadPlans(PLANS_FOLDER_NAME + "S-2.path");
-
-        var s3 = new AutonomousVehicle("S-3", 1, Color.BLUE, maxVelocityS, maxAccelerationS,
-                lengthS, widthS, serviceWorkshop2, safetyDistance, 1, model);
-        s3.addTask(new Task("toDrawPoint8B", 10.0, new Pose[] {drawPoint8B}, 1));
-        s3.addTask(new Task("toServiceWorkshop2", 1.0, new Pose[] {serviceWorkshop2}, 1));
-//        s5.generatePlans(planner);
-//        s5.savePlans(CLASS_NAME);
-        s3.loadPlans(PLANS_FOLDER_NAME + "S-3.path");
-
-        var s4 = new AutonomousVehicle("S-4", 1, Color.BLUE, maxVelocityS, maxAccelerationS,
-                lengthS, widthS, serviceWorkshop5, safetyDistance, 1, model);
-        s4.addTask(new Task("toOrePass2", 11.0, new Pose[] {orePass2}, 1));
-        s4.addTask(new Task("toServiceWorkshop5", 2.0, new Pose[] {serviceWorkshop5}, 1));
-//        s5.generatePlans(planner);
-//        s5.savePlans(CLASS_NAME);
-        s4.loadPlans(PLANS_FOLDER_NAME + "S-4.path");
-
-        var s5 = new AutonomousVehicle("S-5", 1, Color.BLUE, maxVelocityS, maxAccelerationS,
-                lengthS, widthS, serviceWorkshop6, safetyDistance, 1, model);
-        s5.addTask(new Task("toDrawPoint3", 14.0, new Pose[] {drawPoint3B}, 1));
-        s5.addTask(new Task("toDrawPoint11", 1.0, new Pose[] {drawPoint11}, 1));
-        s5.addTask(new Task("toServiceWorkshop6", 1.0, new Pose[] {serviceWorkshop6}, 1));
-//        s5.generatePlans(planner);
-//        s5.savePlans(CLASS_NAME);
-        s5.loadPlans(PLANS_FOLDER_NAME + "S-5.path");
-
-        var ht = new AutonomousVehicle("HT", 1, Color.LIGHT_GRAY, maxVelocityHT, maxAccelerationHT,
-                lengthHT, widthHT, serviceWorkshop4, safetyDistance, 1, model);
-        ht.addTask(new Task("toDrawPoint10B", 12.0, new Pose[] {drawPoint10B}, 1)); //12
-        ht.addTask(new Task("toDrawPoint10A", 1.0, new Pose[] {drawPoint10A}, 1));
-        ht.addTask(new Task("toDrawPoint10", 1.0, new Pose[] {drawPoint10}, 1));
-        ht.addTask(new Task("toServiceWorkshop4", 1.0, new Pose[] {serviceWorkshop4}, 1));
-        ht.addTask(new Task("toDrawPoint10B", 12.0, new Pose[] {drawPoint10B}, 1)); //35
-        ht.addTask(new Task("toDrawPoint10A", 1.0, new Pose[] {drawPoint10A}, 1));
-        ht.addTask(new Task("toDrawPoint10", 1.0, new Pose[] {drawPoint10}, 1));
-        ht.addTask(new Task("toServiceWorkshop4", 1.0, new Pose[] {serviceWorkshop4}, 1));
-//        ht.generatePlans(planner);
-//        ht.savePlans(CLASS_NAME);
-        ht.loadPlans(PLANS_FOLDER_NAME + "HT.path");
+//        var s1 = new AutonomousVehicle("S-1", 1, Color.BLUE, maxVelocityS, maxAccelerationS,
+//                lengthS, widthS, serviceWorkshop1, safetyDistance, 1, model);
+//        s1.addTask(new Task("toDrawPoint1", 5.0, new Pose[] {drawPoint1}, 1)); // This plan is not correct
+//        s1.addTask(new Task("toServiceWorkshop1", 1.0, new Pose[] {serviceWorkshop1}, 1));
+////        s1.generatePlans(planner);
+////        s1.savePlans(CLASS_NAME);
+//        s1.loadPlans(PLANS_FOLDER_NAME + "S-1.path");
+//
+//        var s2 = new AutonomousVehicle("S-2", 1, Color.BLUE, maxVelocityS, maxAccelerationS,
+//                lengthS, widthS, serviceWorkshop3, safetyDistance, 1, model);
+//        s2.addTask(new Task("toDrawPoint9", 15.0, new Pose[] {drawPoint9}, 1));
+//        s2.addTask(new Task("toServiceWorkshop3", 1.0, new Pose[] {serviceWorkshop3}, 1));
+////        s2.generatePlans(planner);
+////        s2.savePlans(CLASS_NAME);
+//        s2.loadPlans(PLANS_FOLDER_NAME + "S-2.path");
+//
+//        var s3 = new AutonomousVehicle("S-3", 1, Color.BLUE, maxVelocityS, maxAccelerationS,
+//                lengthS, widthS, serviceWorkshop2, safetyDistance, 1, model);
+//        s3.addTask(new Task("toDrawPoint8B", 10.0, new Pose[] {drawPoint8B}, 1));
+//        s3.addTask(new Task("toServiceWorkshop2", 1.0, new Pose[] {serviceWorkshop2}, 1));
+////        s3.generatePlans(planner);
+////        s3.savePlans(CLASS_NAME);
+//        s3.loadPlans(PLANS_FOLDER_NAME + "S-3.path");
+//
+//        var s4 = new AutonomousVehicle("S-4", 1, Color.BLUE, maxVelocityS, maxAccelerationS,
+//                lengthS, widthS, serviceWorkshop5, safetyDistance, 1, model);
+//        s4.addTask(new Task("toOrePass2", 11.0, new Pose[] {orePass2}, 1));
+//        s4.addTask(new Task("toServiceWorkshop5", 2.0, new Pose[] {serviceWorkshop5}, 1));
+////        s4.generatePlans(planner);
+////        s4.savePlans(CLASS_NAME);
+//        s4.loadPlans(PLANS_FOLDER_NAME + "S-4.path");
+//
+//        var s5 = new AutonomousVehicle("S-5", 1, Color.BLUE, maxVelocityS, maxAccelerationS,
+//                lengthS, widthS, serviceWorkshop6, safetyDistance, 1, model);
+//        s5.addTask(new Task("toDrawPoint3", 14.0, new Pose[] {drawPoint3B}, 1));
+//        s5.addTask(new Task("toDrawPoint11", 1.0, new Pose[] {drawPoint11}, 1));
+//        s5.addTask(new Task("toServiceWorkshop6", 1.0, new Pose[] {serviceWorkshop6}, 1));
+////        s5.generatePlans(planner);
+////        s5.savePlans(CLASS_NAME);
+//        s5.loadPlans(PLANS_FOLDER_NAME + "S-5.path");
+//
+//        var ht = new AutonomousVehicle("HT", 1, Color.LIGHT_GRAY, maxVelocityHT, maxAccelerationHT,
+//                lengthHT, widthHT, serviceWorkshop4, safetyDistance, 1, model);
+//        ht.addTask(new Task("toDrawPoint10B", 12.0, new Pose[] {drawPoint10B}, 1)); //12
+//        ht.addTask(new Task("toDrawPoint10A", 1.0, new Pose[] {drawPoint10A}, 1));
+//        ht.addTask(new Task("toDrawPoint10", 1.0, new Pose[] {drawPoint10}, 1));
+//        ht.addTask(new Task("toServiceWorkshop4", 1.0, new Pose[] {serviceWorkshop4}, 1));
+//        ht.addTask(new Task("toDrawPoint10B", 12.0, new Pose[] {drawPoint10B}, 1)); //35
+//        ht.addTask(new Task("toDrawPoint10A", 1.0, new Pose[] {drawPoint10A}, 1));
+//        ht.addTask(new Task("toDrawPoint10", 1.0, new Pose[] {drawPoint10}, 1));
+//        ht.addTask(new Task("toServiceWorkshop4", 1.0, new Pose[] {serviceWorkshop4}, 1));
+////        ht.generatePlans(planner);
+////        ht.savePlans(CLASS_NAME);
+//        ht.loadPlans(PLANS_FOLDER_NAME + "HT.path");
 
         tec.setupSolver(0, 100000000);
         tec.startInference();

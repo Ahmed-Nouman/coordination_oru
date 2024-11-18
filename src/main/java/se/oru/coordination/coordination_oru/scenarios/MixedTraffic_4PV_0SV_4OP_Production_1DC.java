@@ -19,7 +19,7 @@ public class MixedTraffic_4PV_0SV_4OP_Production_1DC {
     public static final double SCALE_ADJUSTMENT = 1 / MAP_RESOLUTION;
     public static final Heuristics.HeuristicType HEURISTIC_TYPE = Heuristics.HeuristicType.HIGHEST_PRIORITY_FIRST;
     public static final String REPORT_ADDRESS = System.getProperty("user.dir") +
-            "/src/main/java/se/oru/coordination/coordination_oru/results/MixedTraffic_4PV_0SV_4OP_Production_0DC/";
+            "/src/main/java/se/oru/coordination/coordination_oru/results/MixedTraffic_4PV_0SV_4OP_Production_1DC/";
     public static final double SAFETY_DISTANCE = 25.0;
     public static final boolean VISUALIZATION = true;
     public static final boolean WRITE_VEHICLE_REPORTS = true;
