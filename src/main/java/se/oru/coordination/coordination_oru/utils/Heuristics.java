@@ -14,6 +14,7 @@ import static se.oru.coordination.coordination_oru.vehicles.AbstractVehicle.calc
  *
  * @author anm
  */
+
 public class Heuristics {
 
     private String heuristicName;
@@ -59,19 +60,24 @@ public class Heuristics {
         return names;
     }
 
+    // negative return value means that robot1 goes first
+    // positive return value means that robot2 goes first
+
     public Comparator<RobotAtCriticalSection> closestFirst() {
         heuristicName = "CLOSEST_FIRST";
         return (robot1, robot2) -> {
             CriticalSection criticalSection = robot1.getCriticalSection();
             RobotReport robotReport1 = robot1.getRobotReport();
             RobotReport robotReport2 = robot2.getRobotReport();
-            return ((criticalSection.getTrajectoryEnvelopeStart1() - robotReport1.getPathIndex()) - (criticalSection.getTrajectoryEnvelopeStart2() - robotReport2.getPathIndex()));
+            return ((criticalSection.getTrajectoryEnvelopeStart1() - robotReport1.getPathIndex()) -
+                    (criticalSection.getTrajectoryEnvelopeStart2() - robotReport2.getPathIndex()));
         };
     }
 
     public Comparator<RobotAtCriticalSection> mostDistanceTravelled() {
         heuristicName = "MOST_DISTANCE_TRAVELLED";
-        return (robot1, robot2) -> (int) Math.signum(robot1.getRobotReport().getDistanceTraveled() - robot2.getRobotReport().getDistanceTraveled());
+        return (robot1, robot2) ->
+                (int) Math.signum(robot1.getRobotReport().getDistanceTraveled() - robot2.getRobotReport().getDistanceTraveled());
     }
 
     public Comparator<RobotAtCriticalSection> mostDistanceToTravel() {
@@ -88,11 +94,39 @@ public class Heuristics {
         return (robot1, robot2) -> random.nextInt(2) * 2 - 1;
     }
 
-    public Comparator<RobotAtCriticalSection> highestPriorityFirst() {
-        heuristicName = "HIGHEST_PRIORITY_FIRST";
+    public Comparator<RobotAtCriticalSection> highestPriorityFirstUnSafe() {
+        heuristicName = "HIGHEST_PRIORITY_FIRST(Unsafe)";
         return (robot1, robot2) -> {
             int priority1 = VehiclesHashMap.getVehicle(robot1.getRobotReport().getRobotID()).getPriority();
             int priority2 = VehiclesHashMap.getVehicle(robot2.getRobotReport().getRobotID()).getPriority();
+            if (priority1 == priority2) return closestFirst().compare(robot1, robot2);
+            return (int) Math.signum(priority2 - priority1);
+        };
+    }
+
+    private boolean robotIsInCriticalSection (int startIndex, int endIndex, int currentIndex){
+        if ((startIndex < currentIndex) && (endIndex > currentIndex)){
+            return true;
+        }
+        return false;
+    }
+
+    public Comparator<RobotAtCriticalSection> highestPriorityFirst() {
+        heuristicName = "HIGHEST_PRIORITY_FIRST";
+        return (robot1, robot2) -> {
+            CriticalSection criticalSection = robot1.getCriticalSection();
+            RobotReport robotReport1 = robot1.getRobotReport();
+            RobotReport robotReport2 = robot2.getRobotReport();
+            if (robotIsInCriticalSection(criticalSection.getTrajectoryEnvelopeStart1(),
+                    criticalSection.getTrajectoryEnvelopeEnd1(), robotReport1.getPathIndex())){
+                return -1;
+            }
+            if (robotIsInCriticalSection(criticalSection.getTrajectoryEnvelopeStart2(),
+                    criticalSection.getTrajectoryEnvelopeEnd2(), robotReport2.getPathIndex())){
+                return 1;
+            }
+            int priority1 = VehiclesHashMap.getVehicle(robotReport1.getRobotID()).getPriority();
+            int priority2 = VehiclesHashMap.getVehicle(robotReport2.getRobotID()).getPriority();
             if (priority1 == priority2) return closestFirst().compare(robot1, robot2);
             return (int) Math.signum(priority2 - priority1);
         };

@@ -47,7 +47,7 @@ public class Test {
         autonomousVehicle1.addTask(new Task("M1", 0.0, new Pose[] {mainTunnelRight, drawPoint23}, new int[] {10000, 0}, 5));
 //        autonomousVehicle1.addTask(new Task("M2", 0.0, new Pose[] {drawPoint23}, 5));
 //        autonomousVehicle1.setGoals(new Pose[] {mainTunnelRight, drawPoint23});
-//        lookAheadVehicle.generatePlans(planner);
+        lookAheadVehicle.generatePlans(planner);
         autonomousVehicle1.generatePlans(planner);
 
         // Instantiate a trajectory envelope coordinator.
@@ -62,7 +62,7 @@ public class Test {
 
         tec.setDefaultFootprint(autonomousVehicle1.getFootprint());
         tec.placeRobot(autonomousVehicle1.getID(), drawPoint23);
-//        tec.placeRobot(lookAheadVehicle.getID(), mainTunnelLeft);
+        tec.placeRobot(lookAheadVehicle.getID(), mainTunnelLeft);
         tec.addComparator(new Heuristics(Heuristics.HeuristicType.HIGHEST_PRIORITY_FIRST).getComparator());
         tec.setUseInternalCriticalPoints(true);
         tec.setYieldIfParking(true);

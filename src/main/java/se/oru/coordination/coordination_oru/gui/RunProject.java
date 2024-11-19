@@ -133,7 +133,7 @@ public class RunProject {
         var tec = new TrajectoryEnvelopeCoordinatorSimulation(10.0, 1.0);
         tec.setupSolver(0, 100000000);
         tec.startInference();
-        tec.setBreakDeadlocks(true, false, false);
+        tec.setBreakDeadlocks(true, true, false);
         tec.setFootprints(); //FIXME: This needs to be checked in the GUI
         tec.addComparator(navigationController.getMain().getDataStatus().getHeuristics().getComparator());
 
