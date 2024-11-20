@@ -17,7 +17,7 @@ public class Baseline_4PV_4OP_MixedTraffic_BatteryBay_synchronous {
     public static final String MAP = "maps/12-1051_Simulation_MAP_BatteryBay.yaml";
     public static final double MAP_RESOLUTION = new MapResolution().getMapResolution(MAP);
     public static final double SCALE_ADJUSTMENT = 1 / MAP_RESOLUTION;
-    public static final Heuristics.HeuristicType HEURISTIC_TYPE = Heuristics.HeuristicType.HIGHEST_PRIORITY_FIRST;
+    public static final Heuristics.HeuristicType HEURISTIC_TYPE = Heuristics.HeuristicType.CLOSEST_FIRST;
     public static final String REPORT_ADDRESS = System.getProperty("user.dir") +
             "/src/main/java/se/oru/coordination/coordination_oru/results/Baseline_4PV_4OP_MixedTraffic_BatteryBay/";
     public static final double SAFETY_DISTANCE = 0.0;
@@ -35,13 +35,13 @@ public class Baseline_4PV_4OP_MixedTraffic_BatteryBay_synchronous {
 
         final var maxVelocityLHD = 8.34 / SCALE_ADJUSTMENT;
         final var maxAccelerationLHD = 1.0 / SCALE_ADJUSTMENT;
-        final var lengthLHD = 1.0 / SCALE_ADJUSTMENT;
-        final var widthLHD = 1.0 / SCALE_ADJUSTMENT;
+        final var lengthLHD = 8.0 / SCALE_ADJUSTMENT;
+        final var widthLHD = 6.0 / SCALE_ADJUSTMENT;
 
         final var maxVelocityMT = 8.34 / SCALE_ADJUSTMENT;
         final var maxAccelerationMT = 1.0 / SCALE_ADJUSTMENT;
-        final var lengthMT = 1.0 / SCALE_ADJUSTMENT;
-        final var widthMT = 1.0 / SCALE_ADJUSTMENT;
+        final var lengthMT = 8.0 / SCALE_ADJUSTMENT;
+        final var widthMT = 6.0 / SCALE_ADJUSTMENT;
 
         final var maxVelocityDR = 4.17 / SCALE_ADJUSTMENT;
         final var maxAccelerationDR = 1.0 / SCALE_ADJUSTMENT;
@@ -68,11 +68,13 @@ public class Baseline_4PV_4OP_MixedTraffic_BatteryBay_synchronous {
         var tec = new TrajectoryEnvelopeCoordinatorSimulation(maxVelocityLHD, maxAccelerationLHD);
         final Pose drawPoint1 = new Pose(18.45,61.05,-Math.PI/2);
         final Pose drawPoint3 = new Pose(25.55,61.45,Math.PI/2);
+        final Pose drawPoint3B = new Pose(32.75,67.05,Math.PI/2);
         final Pose drawPoint4B = new Pose(39.95,67.05,-Math.PI/2);
         final Pose drawPoint4F = new Pose(39.95,65.05,-Math.PI/2);
         final Pose drawPoint5 = new Pose(39.85,67.15,Math.PI/2);
         final Pose drawPoint6B = new Pose(54.15,74.15,-Math.PI/2);
         final Pose drawPoint6F = new Pose(54.15,71.65,-Math.PI/2);
+        final Pose drawPoint8B = new Pose(68.35,72.65,Math.PI/2);
         final Pose drawPoint10 = new Pose(82.75,74.75,Math.PI/2);
         final Pose drawPoint10A = new Pose(82.65,66.85,Math.PI/2);
         final Pose drawPoint10B = new Pose(82.35,53.15,Math.PI/2);
@@ -109,6 +111,8 @@ public class Baseline_4PV_4OP_MixedTraffic_BatteryBay_synchronous {
         final Pose serviceWorkshop2 = new Pose(125.15,23.75, Math.PI/2);
         final Pose serviceWorkshop3 = new Pose(125.15,27.65, Math.PI/2);
         final Pose serviceWorkshop4 = new Pose(128.25,19.45, Math.PI/2);
+        final Pose serviceWorkshop5 = new Pose(133.75,34.15, Math.PI/2);
+        final Pose serviceWorkshop6 = new Pose(136.25,34.45, Math.PI/2);
         final Pose chargingStation = new Pose(11.75,17.95, -Math.PI/2);
         final Pose batteryStation1 = new Pose(73.55,13.05, -Math.PI/2);
         final Pose batteryStation2 = new Pose(75.55,12.85, -Math.PI/2);
@@ -123,228 +127,165 @@ public class Baseline_4PV_4OP_MixedTraffic_BatteryBay_synchronous {
                 lengthLHD, widthLHD, drawPoint4B, safetyDistance, 1, model);
         lhd1.addTask(new Task("batteryStation5", 5.0, new Pose[] {batteryStation5}, 1));
         lhd1.addTask(new Task("drawPoint4B", 9.0, new Pose[] {drawPoint4F}, 1));
-        lhd1.addTask(new Task("batteryStation5", 12.5, new Pose[] {batteryStation5}, 1));
-        lhd1.addTask(new Task("drawPoint4B", 20.0, new Pose[] {drawPoint4F}, 1));
+        lhd1.addTask(new Task("batteryStation5", 30.0, new Pose[] {batteryStation5}, 1));
+        lhd1.addTask(new Task("drawPoint4B", 0.0, new Pose[] {drawPoint4F}, 1));
 //
-        lhd1.generatePlans(planner);
-        lhd1.savePlans(CLASS_NAME);
-//        lhd1.loadPlans(PLANS_FOLDER_NAME + "LHD-1.path");
+//        lhd1.generatePlans(planner);
+//        lhd1.savePlans(CLASS_NAME);
+        lhd1.loadPlans(PLANS_FOLDER_NAME + "LHD-1.path");
 
         var mt1 = new AutonomousVehicle("MT-1", 10, Color.CYAN, maxVelocityMT, maxAccelerationMT,
                 lengthMT, widthMT, drawPoint4F, safetyDistance, 1, model);     //Cycle Time 2.5
         mt1.addTask(new Task("oreProduction1", 0, new Pose[] {orePass1, drawPoint4F}, 1));
         mt1.addTask(new Task("oreProduction1", 0, new Pose[] {orePass1, drawPoint4F}, 1));
         mt1.addTask(new Task("batteryStation", 0.0, new Pose[] {batteryStation1}, 1));
-        mt1.addTask(new Task("oreProduction1", 10.0, new Pose[] {orePass1, drawPoint4F}, 1));
+        mt1.addTask(new Task("oreProduction1", 30.0, new Pose[] {orePass1, drawPoint4F}, 1));
         mt1.addTask(new Task("oreProduction1", 0, new Pose[] {orePass1, drawPoint4F}, 1));
         mt1.addTask(new Task("oreProduction1", 0, new Pose[] {orePass1, drawPoint4F}, 1));
         mt1.addTask(new Task("oreProduction1", 0, new Pose[] {orePass1, drawPoint4F}, 1));
         mt1.addTask(new Task("oreProduction1", 0, new Pose[] {orePass1, drawPoint4F}, 1));
-        mt1.addTask(new Task("batteryStation", 0, new Pose[] {batteryStation1}, 1));
-        mt1.addTask(new Task("oreProduction1", 20.0, new Pose[] {orePass1, drawPoint4F}, 1));
+//        mt1.addTask(new Task("batteryStation", 0, new Pose[] {batteryStation1}, 1));
+//        mt1.addTask(new Task("oreProduction1", 0.0, new Pose[] {orePass1, drawPoint4F}, 1));
 
-        mt1.generatePlans(planner);
-        mt1.savePlans(CLASS_NAME);
-//        mt1.loadPlans(PLANS_FOLDER_NAME + "MT-1.path");
+//        mt1.generatePlans(planner);
+//        mt1.savePlans(CLASS_NAME);
+        mt1.loadPlans(PLANS_FOLDER_NAME + "MT-1.path");
 //
-//        var lhd2 = new AutonomousVehicle("LHD-2", 1, Color.YELLOW, maxVelocityLHD, maxAccelerationLHD,
-//                lengthLHD, widthLHD, drawPoint6B, safetyDistance, 1, model);
-//        lhd2.addTask(new Task("batteryStation6", 2.75, new Pose[] {batteryStation6}, 1));
-//        lhd2.addTask(new Task("drawPoint4B", 9.0, new Pose[] {drawPoint4F}, 1));
-//        lhd2.addTask(new Task("batteryStation2", 12.5, new Pose[] {batteryStation2}, 1));
-//        lhd2.addTask(new Task("drawPoint4B", 9.0, new Pose[] {drawPoint4F}, 1));
-//
+        var lhd2 = new AutonomousVehicle("LHD-2", 1, Color.YELLOW, maxVelocityLHD, maxAccelerationLHD,
+                lengthLHD, widthLHD, drawPoint6B, safetyDistance, 1, model);
+        lhd2.addTask(new Task("batteryStation6", 5.15, new Pose[] {batteryStation6}, 1));
+        lhd2.addTask(new Task("drawPoint4B", 30.0, new Pose[] {drawPoint4F}, 1));
+        lhd2.addTask(new Task("batteryStation2", 12.5, new Pose[] {batteryStation2}, 1));
+        lhd2.addTask(new Task("drawPoint4B", 9.0, new Pose[] {drawPoint4F}, 1));
+
 //        lhd2.generatePlans(planner);
 //        lhd2.savePlans(CLASS_NAME);
-//        lhd2.loadPlans(PLANS_FOLDER_NAME + "LHD-2.path");
-//
-//        var mt2 = new AutonomousVehicle("MT-2", 10, Color.CYAN, maxVelocityMT, maxAccelerationMT,
-//                lengthMT, widthMT, drawPoint6F, safetyDistance, 1, model);  // Cycle Time 2.75
-//        mt2.addTask(new Task("oreProduction2", 0, new Pose[] {orePass2, drawPoint6F}, 1));
-//        mt2.addTask(new Task("oreProduction2", 0, new Pose[] {orePass2, drawPoint6F}, 1));
-//        mt2.addTask(new Task("oreProduction2", 0, new Pose[] {orePass2, drawPoint6F}, 1));
-//        mt2.addTask(new Task("oreProduction2", 1, new Pose[] {orePass2, drawPoint6F}, 1));
-//        mt2.addTask(new Task("oreProduction2", 1, new Pose[] {orePass2, drawPoint6F}, 1));
+        lhd2.loadPlans(PLANS_FOLDER_NAME + "LHD-2.path");
+
+        var mt2 = new AutonomousVehicle("MT-2", 10, Color.CYAN, maxVelocityMT, maxAccelerationMT,
+                lengthMT, widthMT, drawPoint6F, safetyDistance, 1, model);  // Cycle Time 2.75
+        mt2.addTask(new Task("oreProduction2", 0, new Pose[] {orePass2, drawPoint6F}, 1));
+        mt2.addTask(new Task("oreProduction2", 0, new Pose[] {orePass2, drawPoint6F}, 1));
+        mt2.addTask(new Task("batteryStation", 0, new Pose[] {batteryStation2}, 1));
+        mt2.addTask(new Task("oreProduction2", 30, new Pose[] {orePass2, drawPoint6F}, 1));
+        mt2.addTask(new Task("oreProduction2", 0, new Pose[] {orePass2, drawPoint6F}, 1));
+        mt2.addTask(new Task("oreProduction2", 0, new Pose[] {orePass2, drawPoint6F}, 1));
+        mt2.addTask(new Task("oreProduction2", 0, new Pose[] {orePass2, drawPoint6F}, 1));
+        mt2.addTask(new Task("oreProduction2", 0, new Pose[] {orePass2, drawPoint6F}, 1));
 //        mt2.addTask(new Task("batteryStation", 0, new Pose[] {batteryStation2}, 1));
-//        mt2.addTask(new Task("oreProduction2", 10, new Pose[] {orePass2, drawPoint6F}, 1));
-//        mt2.addTask(new Task("oreProduction2", 1, new Pose[] {orePass2, drawPoint6F}, 1));
-//        mt2.addTask(new Task("oreProduction2", 1, new Pose[] {orePass2, drawPoint6F}, 1));
-//        mt2.addTask(new Task("oreProduction2", 1, new Pose[] {orePass2, drawPoint6F}, 1));
-//        mt2.addTask(new Task("oreProduction2", 1, new Pose[] {orePass2, drawPoint6F}, 1));
-//        mt2.addTask(new Task("oreProduction2", 1, new Pose[] {orePass2, drawPoint6F}, 1));
-//        mt2.addTask(new Task("oreProduction2", 10, new Pose[] {orePass2, drawPoint6F}, 1));
-//        mt2.addTask(new Task("batteryStation", 1, new Pose[] {batteryStation2}, 1));
-//        mt2.addTask(new Task("oreProduction2", 1, new Pose[] {orePass2, drawPoint6F}, 1));
-//        mt2.addTask(new Task("oreProduction2", 1, new Pose[] {orePass2, drawPoint6F}, 1));
-//        mt2.addTask(new Task("oreProduction2", 1, new Pose[] {orePass2, drawPoint6F}, 1));
-//        mt2.addTask(new Task("oreProduction2", 1, new Pose[] {orePass2, drawPoint6F}, 1));
-//        mt2.addTask(new Task("oreProduction2", 1, new Pose[] {orePass2, drawPoint6F}, 1));
-//        mt2.addTask(new Task("oreProduction2", 10, new Pose[] {orePass2, drawPoint6F}, 1));
-//        mt2.addTask(new Task("batteryStation", 1, new Pose[] {batteryStation2}, 1));
-//        mt2.addTask(new Task("oreProduction2", 1, new Pose[] {orePass2, drawPoint6F}, 1));
-//        mt2.addTask(new Task("oreProduction2", 1, new Pose[] {orePass2, drawPoint6F}, 1));
-//        mt2.addTask(new Task("oreProduction2", 1, new Pose[] {orePass2, drawPoint6F}, 1));
-//        mt2.addTask(new Task("oreProduction2", 1, new Pose[] {orePass2, drawPoint6F}, 1));
-//        mt2.addTask(new Task("oreProduction2", 1, new Pose[] {orePass2, drawPoint6F}, 1));
-//        mt2.addTask(new Task("oreProduction2", 1, new Pose[] {orePass2, drawPoint6F}, 1));
-//        mt2.addTask(new Task("batteryStation", 1, new Pose[] {batteryStation2}, 1));
 //        mt2.addTask(new Task("oreProduction2", 10, new Pose[] {orePass2, drawPoint6F}, 1));
 //        mt2.generatePlans(planner);
 //        mt2.savePlans(CLASS_NAME);
-//        mt2.loadPlans(PLANS_FOLDER_NAME + "MT-2.path");
+        mt2.loadPlans(PLANS_FOLDER_NAME + "MT-2.path");
 //
-//        var lhd3 = new AutonomousVehicle("LHD-3", 1, Color.YELLOW, maxVelocityLHD, maxAccelerationLHD,
-//                lengthLHD, widthLHD, drawPoint12B, safetyDistance, 1, model);
-//        lhd3.addTask(new Task("batteryStation7", 2.0, new Pose[] {batteryStation7}, 1));
-//        lhd3.addTask(new Task("drawPoint12B", 9.0, new Pose[] {drawPoint12B}, 1));
-//        lhd3.addTask(new Task("batteryStation7", 12.5, new Pose[] {batteryStation7}, 1));
-//        lhd3.addTask(new Task("drawPoint12B", 9.0, new Pose[] {drawPoint12B}, 1));
+        var lhd3 = new AutonomousVehicle("LHD-3", 1, Color.YELLOW, maxVelocityLHD, maxAccelerationLHD,
+                lengthLHD, widthLHD, drawPoint12B, safetyDistance, 1, model);
+        lhd3.addTask(new Task("batteryStation7", 4.0, new Pose[] {batteryStation7}, 1));
+        lhd3.addTask(new Task("drawPoint12B", 30.0, new Pose[] {drawPoint12B}, 1));
+        lhd3.addTask(new Task("batteryStation7", 12.5, new Pose[] {batteryStation7}, 1));
+        lhd3.addTask(new Task("drawPoint12B", 9.0, new Pose[] {drawPoint12B}, 1));
 //        lhd3.generatePlans(planner);
 //        lhd3.savePlans(CLASS_NAME);
-//        lhd3.loadPlans(PLANS_FOLDER_NAME + "LHD-3.path");
+        lhd3.loadPlans(PLANS_FOLDER_NAME + "LHD-3.path");
 
 //
-//        var mt3 = new AutonomousVehicle("MT-3", 10, Color.CYAN, maxVelocityMT, maxAccelerationMT,
-//                lengthMT, widthMT, drawPoint12F, safetyDistance, 1, model); // Cycle Time 2.0
-//        mt3.addTask(new Task("oreProduction3", 0, new Pose[] {orePass3, drawPoint12F}, 1));
-//        mt3.addTask(new Task("oreProduction3", 0, new Pose[] {orePass3, drawPoint12F}, 1));
-//        mt3.addTask(new Task("oreProduction3", 0, new Pose[] {orePass3, drawPoint12F}, 1));
-//        mt3.addTask(new Task("oreProduction3", 1.0, new Pose[] {orePass3, drawPoint12F}, 10));
-//        mt3.addTask(new Task("oreProduction3", 1.0, new Pose[] {orePass3, drawPoint12F}, 10));
-//        mt3.addTask(new Task("oreProduction3", 1.0, new Pose[] {orePass3, drawPoint12F}, 10));
-//        mt3.addTask(new Task("oreProduction3", 1.0, new Pose[] {orePass3, drawPoint12F}, 10));
-//        mt3.addTask(new Task("oreProduction3", 1.0, new Pose[] {orePass3, drawPoint12F}, 10));
-//        mt3.addTask(new Task("batteryStation", 0, new Pose[] {batteryStation3}, 1));
-//        mt3.addTask(new Task("oreProduction3", 10.0, new Pose[] {orePass3, drawPoint12F}, 10));
-//        mt3.addTask(new Task("oreProduction3", 1.0, new Pose[] {orePass3, drawPoint12F}, 10));
-//        mt3.addTask(new Task("oreProduction3", 1.0, new Pose[] {orePass3, drawPoint12F}, 10));
-//        mt3.addTask(new Task("oreProduction3", 1.0, new Pose[] {orePass3, drawPoint12F}, 10));
-//        mt3.addTask(new Task("oreProduction3", 1.0, new Pose[] {orePass3, drawPoint12F}, 10));
-//        mt3.addTask(new Task("oreProduction3", 1.0, new Pose[] {orePass3, drawPoint12F}, 10));
-//        mt3.addTask(new Task("oreProduction3", 1.0, new Pose[] {orePass3, drawPoint12F}, 10));
-//        mt3.addTask(new Task("oreProduction3", 1.0, new Pose[] {orePass3, drawPoint12F}, 10));
-//        mt3.addTask(new Task("batteryStation", 1.0, new Pose[] {batteryStation3}, 1));
-//        mt3.addTask(new Task("oreProduction3", 10.0, new Pose[] {orePass3, drawPoint12F}, 10));
-//        mt3.addTask(new Task("oreProduction3", 1.0, new Pose[] {orePass3, drawPoint12F}, 10));
-//        mt3.addTask(new Task("oreProduction3", 1.0, new Pose[] {orePass3, drawPoint12F}, 10));
-//        mt3.addTask(new Task("oreProduction3", 1.0, new Pose[] {orePass3, drawPoint12F}, 10));
-//        mt3.addTask(new Task("oreProduction3", 1.0, new Pose[] {orePass3, drawPoint12F}, 10));
-//        mt3.addTask(new Task("oreProduction3", 1.0, new Pose[] {orePass3, drawPoint12F}, 10));
-//        mt3.addTask(new Task("oreProduction3", 1.0, new Pose[] {orePass3, drawPoint12F}, 10));
-//        mt3.addTask(new Task("oreProduction3", 1.0, new Pose[] {orePass3, drawPoint12F}, 10));
-//        mt3.addTask(new Task("batteryStation", 1.0, new Pose[] {batteryStation3}, 1));
-//        mt3.addTask(new Task("oreProduction3", 10.0, new Pose[] {orePass3, drawPoint12F}, 10));
-//        mt3.addTask(new Task("oreProduction3", 1.0, new Pose[] {orePass3, drawPoint12F}, 10));
-//        mt3.addTask(new Task("oreProduction3", 1.0, new Pose[] {orePass3, drawPoint12F}, 10));
-//        mt3.addTask(new Task("oreProduction3", 1.0, new Pose[] {orePass3, drawPoint12F}, 10));
-//        mt3.addTask(new Task("oreProduction3", 1.0, new Pose[] {orePass3, drawPoint12F}, 10));
-//        mt3.addTask(new Task("oreProduction3", 1.0, new Pose[] {orePass3, drawPoint12F}, 10));
-//        mt3.addTask(new Task("oreProduction3", 1.0, new Pose[] {orePass3, drawPoint12F}, 10));
-//        mt3.addTask(new Task("oreProduction3", 1.0, new Pose[] {orePass3, drawPoint12F}, 10));
-//        mt3.addTask(new Task("batteryStation", 1.0, new Pose[] {batteryStation3}, 1));
+        var mt3 = new AutonomousVehicle("MT-3", 10, Color.CYAN, maxVelocityMT, maxAccelerationMT,
+                lengthMT, widthMT, drawPoint12F, safetyDistance, 1, model); // Cycle Time 2.0
+        mt3.addTask(new Task("oreProduction3", 0, new Pose[] {orePass3, drawPoint12F}, 1));
+        mt3.addTask(new Task("oreProduction3", 0, new Pose[] {orePass3, drawPoint12F}, 1));
+        mt3.addTask(new Task("batteryStation", 0, new Pose[] {batteryStation3}, 1));
+        mt3.addTask(new Task("oreProduction3", 30.0, new Pose[] {orePass3, drawPoint12F}, 10));
+        mt3.addTask(new Task("oreProduction3", 0.0, new Pose[] {orePass3, drawPoint12F}, 10));
+        mt3.addTask(new Task("oreProduction3", 0.0, new Pose[] {orePass3, drawPoint12F}, 10));
+        mt3.addTask(new Task("oreProduction3", 0.0, new Pose[] {orePass3, drawPoint12F}, 10));
+        mt3.addTask(new Task("oreProduction3", 0.0, new Pose[] {orePass3, drawPoint12F}, 10));
+//        mt3.addTask(new Task("batteryStation", 0.0, new Pose[] {batteryStation3}, 1));
 //        mt3.addTask(new Task("oreProduction3", 10.0, new Pose[] {orePass3, drawPoint12F}, 10));
 //        mt3.generatePlans(planner);
 //        mt3.savePlans(CLASS_NAME);
-//        mt3.loadPlans(PLANS_FOLDER_NAME + "MT-3.path");
+        mt3.loadPlans(PLANS_FOLDER_NAME + "MT-3.path");
 //
-//        var lhd4 = new AutonomousVehicle("LHD-4", 1, Color.YELLOW, maxVelocityLHD, maxAccelerationLHD,
-//                lengthLHD, widthLHD, drawPoint14B, safetyDistance, 1, model);
-//        lhd4.addTask(new Task("batteryStation8", 2.40, new Pose[] {batteryStation8}, 1));
-//        lhd4.addTask(new Task("drawPoint14B", 9.0, new Pose[] {drawPoint14B}, 1));
-//        lhd4.addTask(new Task("batteryStation8", 12.5, new Pose[] {batteryStation8}, 1));
-//        lhd4.addTask(new Task("drawPoint14B", 9.0, new Pose[] {drawPoint14B}, 1));
+        var lhd4 = new AutonomousVehicle("LHD-4", 1, Color.YELLOW, maxVelocityLHD, maxAccelerationLHD,
+                lengthLHD, widthLHD, drawPoint14B, safetyDistance, 1, model);
+        lhd4.addTask(new Task("batteryStation8", 4.80, new Pose[] {batteryStation8}, 1));
+        lhd4.addTask(new Task("drawPoint14B", 9.0, new Pose[] {drawPoint14B}, 1));
+        lhd4.addTask(new Task("batteryStation8", 12.5, new Pose[] {batteryStation8}, 1));
+        lhd4.addTask(new Task("drawPoint14B", 9.0, new Pose[] {drawPoint14B}, 1));
 //        lhd4.generatePlans(planner);
 //        lhd4.savePlans(CLASS_NAME);
-//        lhd4.loadPlans(PLANS_FOLDER_NAME + "LHD-4.path");
+        lhd4.loadPlans(PLANS_FOLDER_NAME + "LHD-4.path");
 //
-//        var mt4 = new AutonomousVehicle("MT-4", 10, Color.CYAN, maxVelocityMT, maxAccelerationMT,
-//                lengthMT, widthMT, drawPoint14F, safetyDistance, 1, model); // Cycle Time 2.40
-//        mt4.addTask(new Task("toOrePass2", 0, new Pose[] {orePass4, drawPoint14F}, 1));
-//        mt4.addTask(new Task("toOrePass2", 0, new Pose[] {orePass4, drawPoint14F}, 1));
-//        mt4.addTask(new Task("toOrePass2", 1.0, new Pose[] {orePass4, drawPoint14F}, 10));
-//        mt4.addTask(new Task("toOrePass2", 1.0, new Pose[] {orePass4, drawPoint14F}, 10));
-//        mt4.addTask(new Task("toOrePass2", 1.0, new Pose[] {orePass4, drawPoint14F}, 10));
-//        mt4.addTask(new Task("batteryStation", 0, new Pose[] {batteryStation4}, 1));
-//        mt4.addTask(new Task("toOrePass2", 10.0, new Pose[] {orePass4, drawPoint14F}, 10));
-//        mt4.addTask(new Task("toOrePass2", 1.0, new Pose[] {orePass4, drawPoint14F}, 10));
-//        mt4.addTask(new Task("toOrePass2", 1.0, new Pose[] {orePass4, drawPoint14F}, 10));
-//        mt4.addTask(new Task("toOrePass2", 1.0, new Pose[] {orePass4, drawPoint14F}, 10));
-//        mt4.addTask(new Task("toOrePass2", 1.0, new Pose[] {orePass4, drawPoint14F}, 10));
-//        mt4.addTask(new Task("batteryStation", 1, new Pose[] {batteryStation4}, 1));
-//        mt4.addTask(new Task("toOrePass2", 10.0, new Pose[] {orePass4, drawPoint14F}, 10));
-//        mt4.addTask(new Task("toOrePass2", 1.0, new Pose[] {orePass4, drawPoint14F}, 10));
-//        mt4.addTask(new Task("toOrePass2", 1.0, new Pose[] {orePass4, drawPoint14F}, 10));
-//        mt4.addTask(new Task("toOrePass2", 1.0, new Pose[] {orePass4, drawPoint14F}, 10));
-//        mt4.addTask(new Task("toOrePass2", 1.0, new Pose[] {orePass4, drawPoint14F}, 10));
-//        mt4.addTask(new Task("batteryStation", 1, new Pose[] {batteryStation4}, 1));
-//        mt4.addTask(new Task("toOrePass2", 10.0, new Pose[] {orePass4, drawPoint14F}, 10));
-//        mt4.addTask(new Task("toOrePass2", 1.0, new Pose[] {orePass4, drawPoint14F}, 10));
-//        mt4.addTask(new Task("toOrePass2", 1.0, new Pose[] {orePass4, drawPoint14F}, 10));
-//        mt4.addTask(new Task("toOrePass2", 1.0, new Pose[] {orePass4, drawPoint14F}, 10));
-//        mt4.addTask(new Task("toOrePass2", 1.0, new Pose[] {orePass4, drawPoint14F}, 10));
-//        mt4.addTask(new Task("batteryStation", 1, new Pose[] {batteryStation4}, 1));
-//        mt4.addTask(new Task("toOrePass2", 10.0, new Pose[] {orePass4, drawPoint14F}, 10));
-//        mt4.addTask(new Task("toOrePass2", 1.0, new Pose[] {orePass4, drawPoint14F}, 10));
-//        mt4.addTask(new Task("toOrePass2", 1.0, new Pose[] {orePass4, drawPoint14F}, 10));
-//        mt4.addTask(new Task("toOrePass2", 1.0, new Pose[] {orePass4, drawPoint14F}, 10));
-//        mt4.addTask(new Task("toOrePass2", 1.0, new Pose[] {orePass4, drawPoint14F}, 10));
-//        mt4.addTask(new Task("batteryStation", 1, new Pose[] {batteryStation4}, 1));
-//        mt4.addTask(new Task("toOrePass2", 10.0, new Pose[] {orePass4, drawPoint14F}, 10));
-//        mt4.addTask(new Task("toOrePass2", 1.0, new Pose[] {orePass4, drawPoint14F}, 10));
-//        mt4.addTask(new Task("toOrePass2", 1.0, new Pose[] {orePass4, drawPoint14F}, 10));
-//        mt4.addTask(new Task("toOrePass2", 1.0, new Pose[] {orePass4, drawPoint14F}, 10));
-//        mt4.addTask(new Task("toOrePass2", 1.0, new Pose[] {orePass4, drawPoint14F}, 10));
+        var mt4 = new AutonomousVehicle("MT-4", 10, Color.CYAN, maxVelocityMT, maxAccelerationMT,
+                lengthMT, widthMT, drawPoint14F, safetyDistance, 1, model); // Cycle Time 2.40
+        mt4.addTask(new Task("toOrePass2", 0, new Pose[] {orePass4, drawPoint14F}, 1));
+        mt4.addTask(new Task("toOrePass2", 0, new Pose[] {orePass4, drawPoint14F}, 1));
+        mt4.addTask(new Task("batteryStation", 0, new Pose[] {batteryStation4}, 1));
+        mt4.addTask(new Task("toOrePass2", 30.0, new Pose[] {orePass4, drawPoint14F}, 10));
+        mt4.addTask(new Task("toOrePass2", 0.0, new Pose[] {orePass4, drawPoint14F}, 10));
+        mt4.addTask(new Task("toOrePass2", 0.0, new Pose[] {orePass4, drawPoint14F}, 10));
+        mt4.addTask(new Task("toOrePass2", 0.0, new Pose[] {orePass4, drawPoint14F}, 10));
+        mt4.addTask(new Task("toOrePass2", 0.0, new Pose[] {orePass4, drawPoint14F}, 10));
 //        mt4.addTask(new Task("batteryStation", 1, new Pose[] {batteryStation4}, 1));
 //        mt4.addTask(new Task("toOrePass2", 10.0, new Pose[] {orePass4, drawPoint14F}, 10));
 //
 //        mt4.generatePlans(planner);
 //        mt4.savePlans(CLASS_NAME);
-//        mt4.loadPlans(PLANS_FOLDER_NAME + "MT-4.path");
+        mt4.loadPlans(PLANS_FOLDER_NAME + "MT-4.path");
 
-//        var dr = new AutonomousVehicle("DR", 1, Color.GREEN, maxVelocityDR, maxAccelerationDR,
-//                lengthDR, widthDR, drawPoint1, safetyDistance, 1, model);
-//        dr.addTask(new Task("toDrawPoint8", 3.0, new Pose[] {drawPoint8}, 1));
-////        dr.generatePlans(planner);
-////        dr.savePlans(CLASS_NAME);
-//        dr.loadPlans(PLANS_FOLDER_NAME + "DR.path");
-//
-//        var c = new AutonomousVehicle("C", 1, Color.RED, maxVelocityC, maxAccelerationC,
-//                lengthC, widthC, chargingStation, safetyDistance, 1, model);
-//        c.addTask(new Task("toDrawPoint1", 9.0, new Pose[] {drawPoint1}, 1));
-//        c.addTask(new Task("toChargingStation", 1.0, new Pose[] {chargingStation}, 1));
-////        c.generatePlans(planner);
-////        c.savePlans(CLASS_NAME);
-//        c.loadPlans(PLANS_FOLDER_NAME + "C.path");
-//
-//        var s1 = new AutonomousVehicle("S-1", 1, Color.BLUE, maxVelocityS, maxAccelerationS,
-//                lengthS, widthS, serviceWorkshop1, safetyDistance, 1, model);
-//        s1.addTask(new Task("toDrawPoint1", 5.0, new Pose[] {drawPoint1}, 1)); // This plan is not correct
-//        s1.addTask(new Task("toServiceWorkshop1", 1.0, new Pose[] {serviceWorkshop1}, 1));
-////        s1.generatePlans(planner);
-////        s1.savePlans(CLASS_NAME);
-//        s1.loadPlans(PLANS_FOLDER_NAME + "S-1.path");
-//
-//        var s2 = new AutonomousVehicle("S-2", 1, Color.BLUE, maxVelocityS, maxAccelerationS,
-//                lengthS, widthS, serviceWorkshop3, safetyDistance, 1, model);
-//        s2.addTask(new Task("toDrawPoint9", 15.0, new Pose[] {drawPoint9}, 1));
-//        s2.addTask(new Task("toServiceWorkshop3", 1.0, new Pose[] {serviceWorkshop3}, 1));
-////        s2.generatePlans(planner);
-////        s2.savePlans(CLASS_NAME);
-//        s2.loadPlans(PLANS_FOLDER_NAME + "S-2.path");
-//
-//        var ht = new AutonomousVehicle("HT", 1, Color.LIGHT_GRAY, maxVelocityHT, maxAccelerationHT,
-//                lengthHT, widthHT, serviceWorkshop4, safetyDistance, 1, model);
-//        ht.addTask(new Task("toDrawPoint10B", 12.0, new Pose[] {drawPoint10B}, 1)); //12
-//        ht.addTask(new Task("toDrawPoint10A", 1.0, new Pose[] {drawPoint10A}, 1));
-//        ht.addTask(new Task("toDrawPoint10", 1.0, new Pose[] {drawPoint10}, 1));
-//        ht.addTask(new Task("toServiceWorkshop4", 1.0, new Pose[] {serviceWorkshop4}, 1));
-//        ht.addTask(new Task("toDrawPoint10B", 12.0, new Pose[] {drawPoint10B}, 1)); //35
-//        ht.addTask(new Task("toDrawPoint10A", 1.0, new Pose[] {drawPoint10A}, 1));
-//        ht.addTask(new Task("toDrawPoint10", 1.0, new Pose[] {drawPoint10}, 1));
-//        ht.addTask(new Task("toServiceWorkshop4", 1.0, new Pose[] {serviceWorkshop4}, 1));
-////        ht.generatePlans(planner);
-////        ht.savePlans(CLASS_NAME);
-//        ht.loadPlans(PLANS_FOLDER_NAME + "HT.path");
+        var s1 = new AutonomousVehicle("S-1", 1, Color.BLUE, maxVelocityS, maxAccelerationS,
+                lengthS, widthS, serviceWorkshop1, safetyDistance, 1, model);
+        s1.addTask(new Task("toDrawPoint1", 7.0, new Pose[] {drawPoint1}, 1));
+        s1.addTask(new Task("toServiceWorkshop1", 1.0, new Pose[] {serviceWorkshop1}, 1));
+//        s1.generatePlans(planner);
+//        s1.savePlans(CLASS_NAME);
+        s1.loadPlans(PLANS_FOLDER_NAME + "S-1.path");
+
+        var s2 = new AutonomousVehicle("S-2", 1, Color.BLUE, maxVelocityS, maxAccelerationS,
+                lengthS, widthS, serviceWorkshop3, safetyDistance, 1, model);
+        s2.addTask(new Task("toDrawPoint9", 14.0, new Pose[] {drawPoint9}, 1));
+        s2.addTask(new Task("toServiceWorkshop3", 1.0, new Pose[] {serviceWorkshop3}, 1));
+//        s2.generatePlans(planner);
+//        s2.savePlans(CLASS_NAME);
+        s2.loadPlans(PLANS_FOLDER_NAME + "S-2.path");
+
+        var s3 = new AutonomousVehicle("S-3", 1, Color.BLUE, maxVelocityS, maxAccelerationS,
+                lengthS, widthS, serviceWorkshop2, safetyDistance, 1, model);
+        s3.addTask(new Task("toDrawPoint8B", 10.0, new Pose[] {drawPoint8B}, 1));
+        s3.addTask(new Task("toServiceWorkshop2", 1.0, new Pose[] {serviceWorkshop2}, 1));
+//        s5.generatePlans(planner);
+//        s5.savePlans(CLASS_NAME);
+        s3.loadPlans(PLANS_FOLDER_NAME + "S-3.path");
+
+        var s4 = new AutonomousVehicle("S-4", 1, Color.BLUE, maxVelocityS, maxAccelerationS,
+                lengthS, widthS, serviceWorkshop5, safetyDistance, 1, model);
+        s4.addTask(new Task("toOrePass2", 12.0, new Pose[] {orePass2}, 1));
+        s4.addTask(new Task("toServiceWorkshop5", 2.0, new Pose[] {serviceWorkshop5}, 1));
+//        s5.generatePlans(planner);
+//        s5.savePlans(CLASS_NAME);
+        s4.loadPlans(PLANS_FOLDER_NAME + "S-4.path");
+
+        var s5 = new AutonomousVehicle("S-5", 1, Color.BLUE, maxVelocityS, maxAccelerationS,
+                lengthS, widthS, serviceWorkshop6, safetyDistance, 1, model);
+        s5.addTask(new Task("toDrawPoint3", 14.0, new Pose[] {drawPoint3B}, 1));
+        s5.addTask(new Task("toDrawPoint11", 1.0, new Pose[] {drawPoint11}, 1));
+        s5.addTask(new Task("toServiceWorkshop6", 1.0, new Pose[] {serviceWorkshop6}, 1));
+//        s5.generatePlans(planner);
+//        s5.savePlans(CLASS_NAME);
+        s5.loadPlans(PLANS_FOLDER_NAME + "S-5.path");
+
+        var ht = new AutonomousVehicle("HT", 1, Color.LIGHT_GRAY, maxVelocityHT, maxAccelerationHT,
+                lengthHT, widthHT, serviceWorkshop4, safetyDistance, 1, model);
+        ht.addTask(new Task("toDrawPoint10B", 13.0, new Pose[] {drawPoint10B}, 1)); //12
+        ht.addTask(new Task("toDrawPoint10A", 1.0, new Pose[] {drawPoint10A}, 1));
+        ht.addTask(new Task("toDrawPoint10", 1.0, new Pose[] {drawPoint10}, 1));
+        ht.addTask(new Task("toServiceWorkshop4", 1.0, new Pose[] {serviceWorkshop4}, 1));
+        ht.addTask(new Task("toDrawPoint10B", 12.0, new Pose[] {drawPoint10B}, 1)); //35
+        ht.addTask(new Task("toDrawPoint10A", 1.0, new Pose[] {drawPoint10A}, 1));
+        ht.addTask(new Task("toDrawPoint10", 1.0, new Pose[] {drawPoint10}, 1));
+        ht.addTask(new Task("toServiceWorkshop4", 1.0, new Pose[] {serviceWorkshop4}, 1));
+//        ht.generatePlans(planner);
+//        ht.savePlans(CLASS_NAME);
+        ht.loadPlans(PLANS_FOLDER_NAME + "HT.path");
 
         tec.setupSolver(0, 100000000);
         tec.startInference();

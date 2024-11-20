@@ -17,7 +17,7 @@ public class Baseline_4PV_4OP_MixedTraffic_BatteryBay_asynchronous_2_Production_
     public static final String MAP = "maps/12-1051_Simulation_MAP_BatteryBay.yaml";
     public static final double MAP_RESOLUTION = new MapResolution().getMapResolution(MAP);
     public static final double SCALE_ADJUSTMENT = 1 / MAP_RESOLUTION;
-    public static final Heuristics.HeuristicType HEURISTIC_TYPE = Heuristics.HeuristicType.CLOSEST_FIRST;
+    public static final Heuristics.HeuristicType HEURISTIC_TYPE = Heuristics.HeuristicType.HIGHEST_PRIORITY_FIRST;
     public static final String REPORT_ADDRESS = System.getProperty("user.dir") +
             "/src/main/java/se/oru/coordination/coordination_oru/results/Baseline_4PV_4OP_MixedTraffic_BatteryBay_asynchronous_2/";
     public static final double SAFETY_DISTANCE = 0.0;

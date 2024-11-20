@@ -22,7 +22,7 @@ public class Baseline_4PV_4OP_MixedTraffic_BatteryBay_asynchronous_2_Closest_6SV
             "/src/main/java/se/oru/coordination/coordination_oru/results/Baseline_4PV_4OP_MixedTraffic_BatteryBay_asynchronous_2_Closest_6SV/";
     public static final double SAFETY_DISTANCE = 0.0;
     public static final boolean VISUALIZATION = true;
-    public static final boolean WRITE_VEHICLE_REPORTS = false;
+    public static final boolean WRITE_VEHICLE_REPORTS = true;
     public static final double REPORTING_TIME = 0.1;
     public static final int SIMULATION_INTERVAL = 48;
     public static final String CLASS_NAME = Thread.currentThread().getStackTrace()[Thread.currentThread().getStackTrace().length-1].getFileName().split("\\.")[0];
